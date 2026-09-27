@@ -294,3 +294,38 @@ export function keywordExpression(
 ): string {
   return `${value} ? '${keywords.true}' : '${keywords.false}'`;
 }
+
+/**
+ * The JSDoc lines a Template writes above one prop declaration, at `indent`
+ * (issue #129). Without a deprecation this is the one-line
+ * `/** description *\/` every generator already wrote, unchanged; a prop
+ * whose registry entry is `deprecated` gets a block ending in a
+ * `@deprecated <message>` tag, which is what makes a consumer's editor strike
+ * the prop through. Pass `description: undefined` for a Template that does
+ * not document its props (Vue), so only the tag is added.
+ *
+ * Throws on a `*\/` in either text: it would close the comment early and
+ * leave the rest of the message as code.
+ */
+export function propJsdocLines(
+  doc: { description?: string; deprecated?: string },
+  indent: string
+): string[] {
+  const { description, deprecated } = doc;
+  for (const text of [description, deprecated]) {
+    if (text?.includes('*/')) {
+      throw new Error(`Prop JSDoc text cannot contain "*/": ${text}`);
+    }
+  }
+  if (!deprecated) {
+    return description ? [`${indent}/** ${description} */`] : [];
+  }
+  if (!description) return [`${indent}/** @deprecated ${deprecated} */`];
+  return [
+    `${indent}/**`,
+    `${indent} * ${description}`,
+    `${indent} *`,
+    `${indent} * @deprecated ${deprecated}`,
+    `${indent} */`,
+  ];
+}

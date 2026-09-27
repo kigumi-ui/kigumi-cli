@@ -30,6 +30,7 @@ import {
   keywordPairLiteral,
   mapEventType,
   writeFormatted,
+  propJsdocLines,
 } from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -331,13 +332,21 @@ function assembleVueSFC(
   const propsSection = filteredProps
     .map((prop) => {
       const quotedName = prop.name.includes('-') ? `'${prop.name}'` : prop.name;
+      // Vue Templates do not document their props, so only a deprecation
+      // is written, as a tag-only JSDoc line above the declaration.
+      const tag = propJsdocLines(
+        { deprecated: prop.deprecated },
+        typed ? '  ' : '    '
+      )
+        .map((line) => `${line}\n`)
+        .join('');
       if (typed) {
         let type = prop.type;
         if (prop.values && prop.values.length > 0) {
           type = prop.values.map((v) => `'${v}'`).join(' | ');
         }
         const optional = prop.required ? '' : '?';
-        return `  ${quotedName}${optional}: ${type};`;
+        return `${tag}  ${quotedName}${optional}: ${type};`;
       }
       const type = convertToVuePropType(prop.type);
       const required = prop.required ? 'true' : 'false';
@@ -348,7 +357,7 @@ function assembleVueSFC(
         : prop.default
           ? `, default: ${formatVueDefault(prop.type, prop.default)}`
           : '';
-      return `    ${quotedName}: { type: ${type}, required: ${required}${defaultValue} }`;
+      return `${tag}    ${quotedName}: { type: ${type}, required: ${required}${defaultValue} }`;
     })
     .join(typed ? '\n' : ',\n');
 

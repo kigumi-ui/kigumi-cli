@@ -30,10 +30,10 @@ function ensureLoaded() {
  * @property {string} [label] - Accessible name announced by assistive technology
  * @property {string} [description] - Extended accessible description for the chart
  * @property {string} [legend-position] - Placement of the legend: top | right | bottom | left | start | end
- * @property {boolean} [stacked] - Layers multiple datasets on a single axis
- * @property {string} [grid] - Background grid lines: x | y | both | none
- * @property {number} [min] - Floor value for the value axis scale
- * @property {number} [max] - Ceiling value for the value axis scale
+ * @property {boolean} [stacked] - Deprecated, no effect on a radar chart: remove it. Removed in the next major
+ * @property {string} [grid] - Deprecated, no effect on a radar chart: set options.scales.r.grid.display in the JSON config. Removed in the next major
+ * @property {number} [min] - Deprecated, no effect on a radar chart: set options.scales.r.min in the JSON config. Removed in the next major
+ * @property {number} [max] - Deprecated, no effect on a radar chart: set options.scales.r.max in the JSON config. Removed in the next major
  * @property {boolean} [without-animation] - Disables entrance and update motion effects
  * @property {boolean} [without-legend] - Hides the dataset legend entirely
  * @property {boolean} [without-tooltip] - Prevents hover tooltips from appearing on data points

@@ -23,22 +23,28 @@ const meta = {
     },
     stacked: {
       control: 'boolean',
-      description: 'Layers multiple datasets on a single axis',
-      table: { defaultValue: { summary: 'false' } },
+      description:
+        '**Deprecated.** Radar charts cannot stack datasets, so remove this prop. Removed in the next major.',
+      table: { category: 'Deprecated', defaultValue: { summary: 'false' } },
     },
     grid: {
       control: 'select',
       options: ['x', 'y', 'both', 'none'],
-      description: 'Selects which background grid lines are drawn',
-      table: { defaultValue: { summary: 'both' } },
+      description:
+        '**Deprecated.** To hide the radial grid, set options.scales.r.grid.display to false in the chart JSON config. Removed in the next major.',
+      table: { category: 'Deprecated', defaultValue: { summary: 'both' } },
     },
     min: {
       control: 'number',
-      description: 'Floor value for the value axis scale',
+      description:
+        '**Deprecated.** Set options.scales.r.min in the chart JSON config instead. Removed in the next major.',
+      table: { category: 'Deprecated' },
     },
     max: {
       control: 'number',
-      description: 'Ceiling value for the value axis scale',
+      description:
+        '**Deprecated.** Set options.scales.r.max in the chart JSON config instead. Removed in the next major.',
+      table: { category: 'Deprecated' },
     },
     'without-animation': {
       control: 'boolean',

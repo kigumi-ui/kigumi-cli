@@ -5252,24 +5252,32 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'stacked',
         type: 'boolean',
         default: 'false',
-        description: 'Layers multiple datasets on a single axis',
+        description: 'Has no effect on a radar chart',
+        deprecated:
+          'Radar charts cannot stack datasets, so remove this prop. Removed in the next major.',
       },
       {
         name: 'grid',
         type: 'string',
         values: ['x', 'y', 'both', 'none'],
         default: 'both',
-        description: 'Selects which background grid lines are drawn',
+        description: 'Has no effect on a radar chart',
+        deprecated:
+          'To hide the radial grid, set options.scales.r.grid.display to false in the chart JSON config. Removed in the next major.',
       },
       {
         name: 'min',
         type: 'number',
-        description: 'Floor value for the value axis scale',
+        description: 'Has no effect on a radar chart',
+        deprecated:
+          'Set options.scales.r.min in the chart JSON config instead. Removed in the next major.',
       },
       {
         name: 'max',
         type: 'number',
-        description: 'Ceiling value for the value axis scale',
+        description: 'Has no effect on a radar chart',
+        deprecated:
+          'Set options.scales.r.max in the chart JSON config instead. Removed in the next major.',
       },
       {
         name: 'without-animation',

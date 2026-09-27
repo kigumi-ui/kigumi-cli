@@ -447,8 +447,8 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
         'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     // `stacked`, `grid`, `min` and `max` are just as inert here, but they are
-    // registry props already, so they need no entry. Whether to keep offering
-    // them is #129.
+    // still registry props, deprecated by #129, so they need no entry yet.
+    // #130 removes them in the next major and files them here.
     'x-label': INERT_ON_RADIAL_CHART,
     'y-label': INERT_ON_RADIAL_CHART,
     'index-axis': INERT_ON_RADIAL_CHART,

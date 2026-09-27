@@ -388,6 +388,30 @@ prop changes after mount. A new
 enumerated boolean in a WA release fails the pin test until it is pinned and
 its registry prop gets `keywords`.
 
+### 12. Deprecated props keep working and carry `@deprecated` (issue #129)
+
+A prop scheduled for removal is not deleted: that would break every consumer
+still passing it. Its registry entry gets `deprecated: '<what to do instead>'`
+and stays a prop in every Template, and `propJsdocLines()` in
+`scripts/generator-utils.ts` writes the message as a JSDoc `@deprecated` tag
+on its declaration. Editors strike the prop through and show the message.
+
+- **React** `.tsx` and **Angular**: the prop keeps its description, and the
+  one-line `/** description */` becomes a block ending in the tag.
+- **Vue** `.vue` and `.js.vue` do not document props, so they get a tag-only
+  `/** @deprecated ... */` line above the interface member or the
+  `defineProps` key.
+- The hand-maintained `.jsx` typedef cannot tag a single `@property`, so its
+  description starts with "Deprecated". Docs wrappers copy the Template's
+  JSDoc; stories file the argType under the `Deprecated` table category.
+
+The message says what to do instead, and it has to be true: check it against
+the real element before it ships (RadarChart's point to
+`options.scales.r.min` / `max` / `grid.display` in the JSON config, which
+were checked in the browser). `tests/unit/deprecated-props.test.ts` fails when
+a committed Template's tags differ from the registry in either direction.
+Removing the prop is a `major` changeset (`### Removed`).
+
 ---
 
 ## Adding New Components
@@ -477,3 +501,4 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - a value form control reads on `input` only where its CEM declares that event, else on `change`: Rating's accessor listened for `input`, which `wa-rating` never dispatches, so forms never saw a user's pick. Found by the Angular function harness, issue #77
 - rule 11: `spellcheck` and `autocorrect` are enumerated attributes, written as their keyword for `false` instead of dropped, via the registry prop's `keywords` in all three generators and by hand in four `.jsx` files; previously neither could be turned off in Vue or Angular, and React wrote `autocorrect={false}` as `"false"` (React 18, read as on) and `autocorrect` as a bare attribute (React 19 without a native property, read as off), issue #101
 - rule 11: the generators share `enumeratedProps()` / `keywordPairLiteral()` / `keywordExpression()` from `scripts/generator-utils.ts`, and every emitted or hand-maintained copy spells a keyword pair as the registry's named `{ true, false }` shape instead of a positional tuple, review follow-up on issue #101
+- rule 12: a registry prop with `deprecated` stays in every Template and carries a JSDoc `@deprecated` tag written by `propJsdocLines()`; RadarChart's `stacked`, `grid`, `min` and `max` are the first, removal tracked in #130, issue #129

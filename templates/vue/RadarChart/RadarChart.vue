@@ -15,9 +15,13 @@ export interface RadarChartProps {
   label?: string;
   description?: string;
   'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  /** @deprecated Radar charts cannot stack datasets, so remove this prop. Removed in the next major. */
   stacked?: boolean;
+  /** @deprecated To hide the radial grid, set options.scales.r.grid.display to false in the chart JSON config. Removed in the next major. */
   grid?: 'x' | 'y' | 'both' | 'none';
+  /** @deprecated Set options.scales.r.min in the chart JSON config instead. Removed in the next major. */
   min?: number;
+  /** @deprecated Set options.scales.r.max in the chart JSON config instead. Removed in the next major. */
   max?: number;
   'without-animation'?: boolean;
   'without-legend'?: boolean;

@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (116 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (117 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -26,6 +26,7 @@ tests/
 │   ├── diff-command.test.ts         # Diff command (component comparison)
 │   ├── diff-renderer.test.ts        # Diff renderer terminal output
 │   ├── diff-roundtrip.test.ts       # Diff renderer round-trip fidelity
+│   ├── deprecated-props.test.ts     # Registry `deprecated` props (issue #129): a generated React probe must get TypeScript's deprecation diagnostic (6385) on exactly the deprecated props a consumer sets, and every committed .tsx/.vue/.js.vue/Angular Template's JSDoc @deprecated tags must equal the registry's, both directions
 │   ├── display-options.test.ts      # Theme/palette/brand display data
 │   ├── doctor.test.ts               # Doctor command (import fixes)
 │   ├── docs-wrapper-callback-refs.test.ts # Docs UI wrappers must use callback refs on wa-* hosts (WA 3.13 JSX)
@@ -138,6 +139,7 @@ tests/
 │   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
 │   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
 │   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
+│   │   ├── generate-skill-references.test.ts   # formatCompactProps: the compact prop list the skill API surfaces print, including the `deprecated` label (issue #129)
 │   │   ├── generator-utils.test.ts             # Custom method-param type imports (sibling Wa* vs named self); the enumerated-boolean emitters (narrowing, named pair literal, keyword expression)
 │   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
 │   ├── eslint-rules/
@@ -159,6 +161,7 @@ tests/
 │   │   └── f-058-config-monorepo-isolation.test.ts      # loadConfig stopDir: cwd, no parent inheritance
 │   ├── _helpers/                               # Shared test helpers (see Test Helpers below); not test files
 │   │   ├── angular-omitted-inputs.ts           # ANGULAR_OMITTED_INPUTS / ANGULAR_INHERITED_OMISSIONS: the CEM attributes each Angular Template has no @Input() for, pinned as committed data independent of validate:cem-sync's allowlists
+│   │   ├── jsdoc-deprecation.ts                # readPropDeprecations(): each prop declaration's @deprecated text as TypeScript's own JSDoc parser attaches it (interface member, class property, defineProps key; SFCs via Vue's parser)
 │   │   ├── registry-coverage.ts                # describeRegistryCoverage(): the fail-closed metadata and eventless/methodless pin checks, registered by all three registry loops
 │   │   ├── enumerated-boolean-attributes.ts    # ENUMERATED_BOOLEAN_ATTRIBUTES: boolean CEM attributes Web Awesome reads by keyword, not presence (`spellcheck` true/false, `autocorrect` on/off); the harness expects these keywords for true and false
 │   │   ├── vue-model-attributes.ts             # VUE_MODEL_ATTRIBUTE: the Vue Templates that expose a `v-model` and the CEM attribute each model carries, pinned data shared by the Vue registry harness and template-registry-props.test.ts
@@ -732,6 +735,12 @@ helper's logic in isolation. Current cases:
   #122). The older helpers in that file (`extractReactSurface`, `diffSubset`,
   the CSS matchers) are still exported inline.
 
+- `formatCompactProps` in `scripts/generate-skill-references.ts` — the prop
+  list the skill API surfaces print, asserted directly by
+  `tests/unit/scripts/generate-skill-references.test.ts`. Exported inline,
+  since `main()` calls it too; the script now only runs `main()` when it is the
+  entry point (`isEntryPoint`), so importing it writes nothing (issue #129).
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
@@ -911,3 +920,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - template-registry-props.test.ts also holds a `.jsx` that documents its props in a `<Name>Props` JSDoc typedef to every registry prop. Red on 9 of the 36 such files: the six whose #101 props were missing, plus Animation, Page and FormatBytes, whose typedefs had drifted before this branch (9 props). All 26 missing `@property` lines are added, issue #101
 - review follow-up on issue #101: template-registry-props.test.ts no longer skips a `.jsx` whose typedef disappears. `JSX_PROPS_TYPEDEFS` pins the 36 `.jsx` files that document props, and each component must have a typedef exactly when pinned; deleting Input.jsx's typedef and pinning Spinner (which has none) each go red. enumerated-boolean-templates.test.ts now also runs the four docs-site wrappers, and a transposed pick in the docs Input wrapper goes red. Both unit vitest configs set `resolve.dedupe: ['react', 'react-dom']`: the wrappers otherwise resolve docs/node_modules/react wherever docs dependencies are installed, and fail with an invalid hook call
 - both unit vitest configs exclude `docs/**` from coverage: enumerated-boolean-templates.test.ts imports the docs-site wrappers, which the `src/**/*.ts` include pattern picked up and counted against the CLI's thresholds (functions fell to 82.52% of 86%, branches to 73.4% of 75%, in CI's `test:coverage` run). CI's Test job gates on `pnpm test:coverage`, not `pnpm test`, so run coverage locally when a unit test starts importing files outside `src/`, issue #101
+- added deprecated-props.test.ts, scripts/generate-skill-references.test.ts and `_helpers/jsdoc-deprecation.ts` for registry `deprecated` props; the generator suites gained a deprecated-props fixture each. Bug-injected: dropping the `@deprecated` tag from the emitter turns all three generator suites and the consumer probe red, and a missing or stray tag in a committed Template turns the registry loop red, issue #129

@@ -40,16 +40,32 @@ export interface RadarChartProps extends Omit<
   /** Placement of the dataset legend relative to the chart */
   'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
 
-  /** Layers multiple datasets on a single axis */
+  /**
+   * Has no effect on a radar chart
+   *
+   * @deprecated Radar charts cannot stack datasets, so remove this prop. Removed in the next major.
+   */
   stacked?: boolean;
 
-  /** Selects which background grid lines are drawn */
+  /**
+   * Has no effect on a radar chart
+   *
+   * @deprecated To hide the radial grid, set options.scales.r.grid.display to false in the chart JSON config. Removed in the next major.
+   */
   grid?: 'x' | 'y' | 'both' | 'none';
 
-  /** Floor value for the value axis scale */
+  /**
+   * Has no effect on a radar chart
+   *
+   * @deprecated Set options.scales.r.min in the chart JSON config instead. Removed in the next major.
+   */
   min?: number;
 
-  /** Ceiling value for the value axis scale */
+  /**
+   * Has no effect on a radar chart
+   *
+   * @deprecated Set options.scales.r.max in the chart JSON config instead. Removed in the next major.
+   */
   max?: number;
 
   /** Disables entrance and update motion effects */

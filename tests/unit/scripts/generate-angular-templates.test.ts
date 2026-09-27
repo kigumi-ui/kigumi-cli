@@ -4,6 +4,7 @@ import {
   generateSpec,
 } from '../../../scripts/generate-angular-templates.js';
 import type { ComponentDefinition } from '../../../src/utils/registry.js';
+import { readPropDeprecations } from '../_helpers/jsdoc-deprecation.js';
 
 const BUTTON_FIXTURE: ComponentDefinition = {
   name: 'Button',
@@ -186,6 +187,27 @@ const BADGE_FIXTURE: ComponentDefinition = {
   tier: 'free',
 };
 
+/** Badge plus two deprecated props, one kebab-case, beside undeprecated ones. */
+const DEPRECATED_PROPS_FIXTURE: ComponentDefinition = {
+  ...BADGE_FIXTURE,
+  props: [
+    ...BADGE_FIXTURE.props,
+    {
+      name: 'min',
+      type: 'number',
+      description: 'Floor value for the value axis scale',
+      deprecated: 'Set options.scales.r.min in the chart JSON config instead.',
+    },
+    {
+      name: 'index-axis',
+      type: 'string',
+      values: ['x', 'y'],
+      default: 'x',
+      deprecated: 'Has no effect on this chart.',
+    },
+  ],
+};
+
 // Markdown fixture exercises the REMOVED_IMPERATIVE_METHODS branch in
 // generateComponentTS — its getMarked()/updateAll() methods are marked
 // private in WA 3.5.0+, so the wrapper carries an @remarks JSDoc note
@@ -312,5 +334,26 @@ describe('generateComponentTS', () => {
 describe('generateSpec', () => {
   it('emits the Button spec stub', () => {
     expect(generateSpec(BUTTON_FIXTURE)).toMatchSnapshot();
+  });
+});
+
+describe('deprecated props (issue #129)', () => {
+  const source = generateComponentTS(DEPRECATED_PROPS_FIXTURE, 'badge');
+  const tags = readPropDeprecations(source, 'ts');
+
+  it('attaches a @deprecated tag to the @Input() carrying the registry message', () => {
+    expect(tags.get('min')).toBe(
+      'Set options.scales.r.min in the chart JSON config instead.'
+    );
+    expect(tags.get('indexAxis')).toBe('Has no effect on this chart.');
+  });
+
+  it('keeps the prop description beside the tag', () => {
+    expect(source).toContain('Floor value for the value axis scale');
+  });
+
+  it('leaves every other @Input() undeprecated', () => {
+    expect(tags.get('pill')).toBeNull();
+    expect(tags.get('variant')).toBeNull();
   });
 });

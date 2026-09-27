@@ -24,6 +24,7 @@ import {
   stripWaPrefix,
 } from '../src/utils/naming.js';
 import { resolveCem, assessCemCompleteness } from './find-cem.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 const PROJECT_ROOT = process.cwd();
 
@@ -274,15 +275,17 @@ async function loadCustomElementsMetadata(): Promise<
 }
 
 /**
- * Format props as a compact inline list: open(bool=false), label(string, required)
+ * Format props as a compact inline list: open(bool=false), label(string, required),
+ * min(number, deprecated)
  */
-function formatCompactProps(
+export function formatCompactProps(
   props: Array<{
     name: string;
     type: string;
     values?: string[];
     default?: string;
     required?: boolean;
+    deprecated?: string;
   }>
 ): string {
   if (props.length === 0) return 'none';
@@ -291,7 +294,8 @@ function formatCompactProps(
       const type = p.values ? p.values.join('|') : p.type;
       const def = p.default ? `=${p.default}` : '';
       const req = p.required ? ', required' : '';
-      return `${p.name}(${type}${def}${req})`;
+      const dep = p.deprecated ? ', deprecated' : '';
+      return `${p.name}(${type}${def}${req}${dep})`;
     })
     .join(', ');
 }
@@ -825,7 +829,11 @@ async function main() {
 // `catch(console.error)` printed the failure and still exited 0, so a caller
 // could only tell this generator had failed by reading its log. That is the
 // same shape as issue #43: visible to a human, invisible to CI.
-main().catch((error: unknown) => {
-  console.error(error);
-  process.exit(1);
-});
+// Guarded so tests can import `formatCompactProps` without regenerating the
+// skill references as a side effect (issue #129).
+if (isEntryPoint(import.meta.url)) {
+  main().catch((error: unknown) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

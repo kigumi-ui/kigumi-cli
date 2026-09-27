@@ -36,6 +36,7 @@ import {
   keywordExpression,
   mapEventType,
   writeFormatted,
+  propJsdocLines,
 } from './generator-utils.js';
 import { isEntryPoint } from './is-entry-point.js';
 
@@ -297,9 +298,7 @@ export function generateComponentTS(
   for (const prop of component.props) {
     const propName = toCamelCase(prop.name);
 
-    if (prop.description) {
-      lines.push(`  /** ${prop.description} */`);
-    }
+    lines.push(...propJsdocLines(prop, '  '));
 
     if (prop.values && prop.values.length > 0) {
       const unionType = prop.values.map((v) => `'${v}'`).join(' | ');
