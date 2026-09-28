@@ -56,6 +56,8 @@ import breadcrumbItemImage from '@/assets/components/breadcrumb-item.png';
 import paginationImage from '@/assets/components/pagination.png';
 import tabImage from '@/assets/components/tab.png';
 import tabGroupImage from '@/assets/components/tab-group.png';
+import stepImage from '@/assets/components/step.png';
+import stepperImage from '@/assets/components/stepper.png';
 import tabPanelImage from '@/assets/components/tab-panel.png';
 import treeImage from '@/assets/components/tree.png';
 import treeItemImage from '@/assets/components/tree-item.png';
@@ -394,6 +396,20 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
         'Splits long lists into pages with numbered navigation controls.',
       kind: 'Components/Pagination',
       imageUrl: paginationImage,
+    },
+    {
+      name: 'Step',
+      description:
+        'One stage of a Stepper: a numbered marker, label, and status.',
+      kind: 'Components/Step',
+      imageUrl: stepImage,
+    },
+    {
+      name: 'Stepper',
+      description:
+        'Guides users through a multi-step flow and shows their progress.',
+      kind: 'Components/Stepper',
+      imageUrl: stepperImage,
     },
     {
       name: 'Tab',

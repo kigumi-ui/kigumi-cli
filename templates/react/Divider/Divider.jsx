@@ -11,10 +11,12 @@ function ensureLoaded() {
 /**
  * @typedef {Object} DividerProps
  * @property {'horizontal' | 'vertical'} [orientation] - Sets the divider's orientation
+ * @property {'start' | 'center' | 'end'} [label-placement] - Position of the slotted label along the line
+ * @property {React.ReactNode} [children] - Optional label shown on the divider
  */
 
 export const Divider = React.forwardRef(
-  ({ className, orientation, ...props }, ref) => {
+  ({ children, className, orientation, ...props }, ref) => {
     React.useEffect(() => {
       ensureLoaded();
     }, []);
@@ -25,7 +27,9 @@ export const Divider = React.forwardRef(
         class={clsx('Divider', className)}
         orientation={orientation}
         {...props}
-      />
+      >
+        {children}
+      </wa-divider>
     );
   }
 );

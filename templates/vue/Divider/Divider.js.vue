@@ -13,6 +13,7 @@ function ensureLoaded() {
  */
 const props = defineProps({
   orientation: { type: String, required: false, default: 'horizontal' },
+  'label-placement': { type: String, required: false, default: 'center' },
 });
 
 defineOptions({ inheritAttrs: false });

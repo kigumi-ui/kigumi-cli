@@ -25,6 +25,12 @@
  * - tag__remove-button__base: The tag's remove button base part.
  * - clear-button: The clear button.
  * - expand-icon: The container that wraps the expand icon.
+ * - spinner: The loading spinner shown in the field while options are loading.
+ * - status: The listbox status row shown in place of options. Also carries a state-specific part.
+ * - loading: The status row shown while options are loading and none are available yet.
+ * - no-results: The status row shown when the query matched nothing.
+ * - empty: The status row shown when there are no options and no query has been typed.
+ * - error: The status row shown when the last `dataSource` request failed.
  */
 :host {
   display: contents;

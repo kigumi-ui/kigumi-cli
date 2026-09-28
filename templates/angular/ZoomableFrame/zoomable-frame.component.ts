@@ -40,6 +40,9 @@ function ensureLoaded() {
       [attr.without-interaction]="withoutInteraction || null"
       [attr.sandbox]="sandbox"
       [attr.referrerpolicy]="referrerpolicy"
+      [attr.allow]="allow"
+      [attr.name]="name"
+      [attr.label]="label"
     >
       <ng-content />
     </wa-zoomable-frame>
@@ -70,6 +73,12 @@ export class ZoomableFrameComponent implements AfterViewInit, OnDestroy {
   @Input() sandbox?: string;
   /** Referrer policy */
   @Input() referrerpolicy?: string;
+  /** Permissions Policy for the embedded page; read when the frame loads */
+  @Input() allow?: string;
+  /** Frame name that links and forms can target */
+  @Input() name?: string;
+  /** Accessible name describing the framed content */
+  @Input() label?: string;
 
   @Output() load = new EventEmitter<Event>();
   @Output() error = new EventEmitter<Event>();

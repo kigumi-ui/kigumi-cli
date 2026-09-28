@@ -491,9 +491,9 @@ function handleSubmit(e: Event) {
 
 ## Pattern D: Multi-Step Wizard
 
-Step-by-step form with validation per step.
+Step-by-step form with validation per step. A `Stepper` shows where the user is; it is not `clickable`, so the form's own state is the only thing that moves it.
 
-**Components needed:** `npx kigumi add input select option checkbox button tab-group tab tab-panel progress-bar`
+**Components needed:** `npx kigumi add input select option checkbox button stepper step`
 
 ### React
 
@@ -504,11 +504,9 @@ import {
   Checkbox,
   Input,
   Option,
-  ProgressBar,
   Select,
-  Tab,
-  TabGroup,
-  TabPanel,
+  Step,
+  Stepper,
 } from '@/components/ui';
 
 export function SignupWizard() {
@@ -534,12 +532,13 @@ export function SignupWizard() {
       style={{ maxWidth: '500px' }}
       onSubmit={handleSubmit}
     >
-      <ProgressBar
-        value={(step / (steps.length - 1)) * 100}
-        label={`Step ${step + 1} of ${steps.length}`}
-      >
-        {steps[step]}
-      </ProgressBar>
+      <Stepper active={steps[step]} label="Sign-up progress">
+        {steps.map((name, i) => (
+          <Step key={name} name={name} completed={i < step}>
+            {name}
+          </Step>
+        ))}
+      </Stepper>
 
       {step === 0 && (
         <div className="wa-stack wa-gap-m">
@@ -609,8 +608,9 @@ import {
   Checkbox,
   Input,
   Option,
-  ProgressBar,
   Select,
+  Step,
+  Stepper,
 } from '@/components/ui';
 
 const step = ref(0);
@@ -636,12 +636,16 @@ async function handleSubmit(e: Event) {
     style="max-width: 500px"
     @submit="handleSubmit"
   >
-    <ProgressBar
-      :value="(step / (steps.length - 1)) * 100"
-      :label="`Step ${step + 1} of ${steps.length}`"
-    >
-      {{ steps[step] }}
-    </ProgressBar>
+    <Stepper :active="steps[step]" label="Sign-up progress">
+      <Step
+        v-for="(name, i) in steps"
+        :key="name"
+        :name="name"
+        :completed="i < step"
+      >
+        {{ name }}
+      </Step>
+    </Stepper>
 
     <div v-if="step === 0" class="wa-stack wa-gap-m">
       <Input label="Email" name="email" type="email" required />

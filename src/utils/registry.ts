@@ -1522,6 +1522,27 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description:
           'Custom validation message; the control is invalid while it is set',
       },
+      {
+        name: 'server',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Turns off client-side filtering; swap the options yourself on options-request',
+      },
+      {
+        name: 'loading',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Whether an options request is pending; reset it once new options are in',
+      },
+      {
+        name: 'filter-debounce',
+        type: 'number',
+        default: '250',
+        description:
+          'Milliseconds of typing pause before options are requested in server mode',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/combobox/combobox.js`,
     tier: 'pro',
@@ -1596,6 +1617,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         values: ['mobile', 'desktop'],
         default: 'desktop',
         description: 'Current viewport classification relative to breakpoint',
+      },
+      {
+        name: 'nonce',
+        type: 'string',
+        description:
+          'CSP nonce for the injected media-query style tag; falls back to window.litNonce',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/page/page.js`,
@@ -1736,6 +1763,13 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         values: ['horizontal', 'vertical'],
         default: 'horizontal',
         description: 'Divider orientation',
+      },
+      {
+        name: 'label-placement',
+        type: 'string',
+        values: ['start', 'center', 'end'],
+        default: 'center',
+        description: 'Position of the slotted label along the line',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/divider/divider.js`,
@@ -3614,6 +3648,118 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/tab-panel/tab-panel.js`,
     tier: 'free',
   },
+  stepper: {
+    name: 'Stepper',
+    tagName: 'wa-stepper',
+    category: 'Navigation',
+    description:
+      'Steppers walk users through a multi-stage process and show where they are in it',
+    dependencies: ['step'],
+    files: {
+      react: ['components/Stepper.tsx', 'types/stepper.d.ts'],
+      vue: ['components/Stepper.vue'],
+      angular: ['components/Stepper/stepper.component.ts'],
+    },
+    props: [
+      {
+        name: 'active',
+        type: 'string',
+        default: "''",
+        description:
+          'Name of the current step; the first step when unset or unmatched',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+        values: ['horizontal', 'vertical', 'auto'],
+        default: 'horizontal',
+        description:
+          'Layout direction; auto stacks the steps when they run out of room',
+      },
+      {
+        name: 'linear',
+        type: 'boolean',
+        default: 'false',
+        description: 'Steps can only be reached once the ones before are done',
+      },
+      {
+        name: 'clickable',
+        type: 'boolean',
+        default: 'false',
+        description: 'Lets users jump to a step by clicking or activating it',
+      },
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: 'Accessible name for the stepper',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/stepper/stepper.js`,
+    tier: 'free',
+  },
+  step: {
+    name: 'Step',
+    tagName: 'wa-step',
+    category: 'Navigation',
+    description:
+      'Steps are the individual stages of a stepper, each with a label and a status',
+    dependencies: [],
+    files: {
+      react: ['components/Step.tsx', 'types/step.d.ts'],
+      vue: ['components/Step.vue'],
+      angular: ['components/Step/step.component.ts'],
+    },
+    props: [
+      {
+        name: 'name',
+        type: 'string',
+        default: "''",
+        description:
+          "The step's identifier; the stepper's active and its events use it",
+      },
+      {
+        name: 'completed',
+        type: 'boolean',
+        default: 'false',
+        description: 'Marks the step done and shows a checkmark',
+      },
+      {
+        name: 'loading',
+        type: 'boolean',
+        default: 'false',
+        description: 'Shows a spinner in place of the step number',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Makes the step unreachable and non-interactive',
+      },
+      {
+        name: 'variant',
+        type: 'string',
+        values: ['neutral', 'brand', 'success', 'warning', 'danger'],
+        default: 'brand',
+        description: 'Semantic color of the step marker',
+      },
+      {
+        name: 'attention',
+        type: 'string',
+        values: ['none', 'pulse', 'bounce'],
+        default: 'none',
+        description: 'Animates the marker to draw attention to the step',
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether this is the current step; set by the stepper',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/step/step.js`,
+    tier: 'free',
+  },
   tag: {
     name: 'Tag',
     tagName: 'wa-tag',
@@ -4222,6 +4368,23 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'referrerpolicy',
         type: 'string',
         description: 'Referrer policy',
+      },
+      {
+        name: 'allow',
+        type: 'string',
+        description:
+          'Permissions Policy for the embedded page; read when the frame loads',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        description: 'Frame name that links and forms can target',
+      },
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: 'Accessible name describing the framed content',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/zoomable-frame/zoomable-frame.js`,

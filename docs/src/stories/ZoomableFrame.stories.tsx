@@ -45,6 +45,19 @@ const meta = {
     },
     sandbox: { control: 'text', description: 'Security restrictions' },
     referrerpolicy: { control: 'text', description: 'Referrer policy' },
+    allow: {
+      control: 'text',
+      description:
+        'Permissions Policy for the embedded page; read when the frame loads',
+    },
+    name: {
+      control: 'text',
+      description: 'Frame name that links and forms can target',
+    },
+    label: {
+      control: 'text',
+      description: 'Accessible name describing the framed content',
+    },
     onLoad: {
       action: 'load',
       description: 'Emitted when the internal iframe when it finishes loading.',

@@ -309,7 +309,7 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 ### 7. No `'use client'` in React Templates
 
-React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx` / `.jsx` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 87 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
+React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx` / `.jsx` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 89 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
 
 ### 8. `suppressHydrationWarning` on the `<wa-*>` Host
 
@@ -581,3 +581,4 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - rule 13: Templates pass `@eslint/js` + typescript-eslint `recommended` with default options, the baseline consumer configs build on: no `any` (a default-only CEM parameter is typed from its default; Vue types its element ref and casts a model sync to the one property it touches), no empty `interface` / `defineEmits<{}>()`, no unused `emit`; a prop-less Vue wrapper exports `type XProps = object`. `no-undef` is the one exception. The repo had turned `no-explicit-any` and `no-empty-object-type` off for `templates/**`, so a default create-vite project failed where `pnpm lint` passed. Typecheck Pipeline gained `typecheck:templates:pro`, which checks the Vue Templates against the real Pro package in CI, issue #136
 - rule 3a: handlers are typed with the Web Awesome event class the component dispatches (`WaHideEvent`, imported from `dist/events/`), or the DOM interface for a native event; never `CustomEvent`. The accordion override and the refuse-rather-than-fallback rule are documented there, issue #6
 - rule 3a: listeners pass `e` uncast when the handler type is `Event` (`handlerArgument()`), and the Carousel/Checkbox `.jsx` JSDoc handler types follow the `.tsx`, held there by event-type-parity.test.ts, review follow-up on issue #6
+- 89 templates per framework after WA 3.14.0 (Step, Stepper). Angular Stepper / Step share the pre-existing host-element composition gap with TabGroup, Accordion and Carousel (a `k-*` child is invisible to a parent that filters slotted elements by `wa-*` tag), tracked in #146, issue #108

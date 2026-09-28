@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {
   EVENT_CLASS_OVERRIDES,
+  MANIFEST_EVENT_ARTIFACTS,
   createEventTypeResolver,
   parseEventDeclarations,
   readEventCatalog,
@@ -332,14 +333,20 @@ describe('createEventTypeResolver', () => {
       });
     });
 
-    it('take a declared Web Awesome class with its module', () => {
+    it('refuse a declared Web Awesome class, which fires only under its own wa- name', () => {
+      // Every class hard-codes its event name in its constructor, so
+      // WaDataRequestEvent can only ever arrive as wa-data-request. A manifest
+      // event called `request` carrying it is named after the constructor
+      // argument and never fires; typing it would ship a dead handler.
       const resolver = createEventTypeResolver(CATALOG, {});
-      expect(
+      expect(() =>
         resolver.resolve('wa-data-grid', {
           name: 'request',
           type: { text: 'WaDataRequestEvent' },
         })
-      ).toEqual({ type: 'WaDataRequestEvent', module: 'data-request' });
+      ).toThrow(
+        /wa-data-grid request.*WaDataRequestEvent.*wa-data-request.*MANIFEST_EVENT_ARTIFACTS/s
+      );
     });
 
     it('refuse a native event neither the manifest nor the table types', () => {
@@ -394,6 +401,71 @@ describe('createEventTypeResolver', () => {
       ).toThrow(/WaHideEvent.*wa-hide/s);
     });
   });
+
+  describe('manifest artifacts are pinned data and must stay true', () => {
+    const GRID_ARTIFACT = { 'wa-data-grid': { request: 'wa-data-request' } };
+    const REQUEST = {
+      name: 'request',
+      type: { text: 'WaDataRequestEvent' },
+    };
+
+    it('recognises a listed artifact the component also declares under its real name', () => {
+      const resolver = createEventTypeResolver(CATALOG, {}, GRID_ARTIFACT);
+      expect(
+        resolver.isArtifact('wa-data-grid', REQUEST, [
+          'request',
+          'wa-data-request',
+        ])
+      ).toBe(true);
+    });
+
+    it('leaves every unlisted event to resolve()', () => {
+      const resolver = createEventTypeResolver(CATALOG, {}, GRID_ARTIFACT);
+      expect(
+        resolver.isArtifact('wa-dialog', { name: 'wa-hide' }, ['wa-hide'])
+      ).toBe(false);
+      // The entry is per component: another element's `request` is not one.
+      expect(
+        resolver.isArtifact('wa-combobox', REQUEST, [
+          'request',
+          'wa-data-request',
+        ])
+      ).toBe(false);
+    });
+
+    it('refuses an entry whose real event fires a different class', () => {
+      const resolver = createEventTypeResolver(
+        CATALOG,
+        {},
+        { 'wa-data-grid': { request: 'wa-hide' } }
+      );
+      expect(() =>
+        resolver.isArtifact('wa-data-grid', REQUEST, ['request', 'wa-hide'])
+      ).toThrow(
+        /wa-data-grid request.*WaDataRequestEvent.*wa-hide.*WaHideEvent/s
+      );
+    });
+
+    it('refuses to drop an artifact whose real event the component does not declare', () => {
+      // Dropping it would then lose the only record that the component fires
+      // this class at all.
+      const resolver = createEventTypeResolver(CATALOG, {}, GRID_ARTIFACT);
+      expect(() =>
+        resolver.isArtifact('wa-data-grid', REQUEST, ['request'])
+      ).toThrow(/wa-data-grid request.*wa-data-request/s);
+    });
+
+    it('reports an entry no manifest event consulted', () => {
+      const resolver = createEventTypeResolver(CATALOG, {}, GRID_ARTIFACT);
+      resolver.isArtifact('wa-dialog', { name: 'wa-hide' }, ['wa-hide']);
+      expect(resolver.unusedArtifacts()).toEqual(['wa-data-grid request']);
+      resolver.isArtifact('wa-data-grid', REQUEST, [
+        'request',
+        'wa-data-request',
+      ]);
+      expect(resolver.unusedArtifacts()).toEqual([]);
+    });
+  });
 });
 
 describe('resolving the real manifest', () => {
@@ -404,7 +476,11 @@ describe('resolving the real manifest', () => {
     const catalog = await readEventCatalog(
       path.join(path.dirname(cemPath), 'events')
     );
-    const resolver = createEventTypeResolver(catalog, EVENT_CLASS_OVERRIDES);
+    const resolver = createEventTypeResolver(
+      catalog,
+      EVENT_CLASS_OVERRIDES,
+      MANIFEST_EVENT_ARTIFACTS
+    );
 
     const manifest = (await fs.readJson(cemPath)) as {
       modules: Array<{
@@ -416,16 +492,24 @@ describe('resolving the real manifest', () => {
     };
 
     let resolved = 0;
+    let artifacts = 0;
+    const tags = new Set<string>();
     const accordion: Record<string, string> = {};
     for (const mod of manifest.modules) {
       for (const decl of mod.declarations ?? []) {
         if (!decl.tagName) continue;
+        tags.add(decl.tagName);
+        const names = (decl.events ?? []).flatMap((e) =>
+          e.name ? [e.name] : []
+        );
         for (const event of decl.events ?? []) {
           if (!event.name) continue;
-          const { type } = resolver.resolve(decl.tagName, {
-            name: event.name,
-            type: event.type,
-          });
+          const manifestEvent = { name: event.name, type: event.type };
+          if (resolver.isArtifact(decl.tagName, manifestEvent, names)) {
+            artifacts++;
+            continue;
+          }
+          const { type } = resolver.resolve(decl.tagName, manifestEvent);
           resolved++;
           if (decl.tagName === 'wa-accordion') accordion[event.name] = type;
         }
@@ -434,6 +518,15 @@ describe('resolving the real manifest', () => {
 
     expect(resolved).toBeGreaterThan(100);
     expect(resolver.unusedOverrides()).toEqual([]);
+    // The free manifest lacks the Pro components (combobox, data grid), so
+    // their entries go unconsulted there; every other entry must be used.
+    const listed = Object.entries(MANIFEST_EVENT_ARTIFACTS).flatMap(
+      ([tag, events]) => Object.keys(events).map((name) => `${tag} ${name}`)
+    );
+    const absent = listed.filter((key) => !tags.has(key.split(' ')[0]));
+    expect(artifacts).toBe(listed.length - absent.length);
+    expect(artifacts).toBeGreaterThan(0);
+    expect(resolver.unusedArtifacts()).toEqual(absent.sort());
     expect(accordion['wa-expand']).toBe('WaAccordionExpandEvent');
   });
 });

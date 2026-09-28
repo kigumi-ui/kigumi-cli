@@ -108,6 +108,24 @@ describe('resolved event types in the metadata', () => {
     }
   });
 
+  it('carries no manifest artifact, for any component wrapped or not', () => {
+    // Every Web Awesome event class fires under a hard-coded wa- name, so a
+    // non-wa- event typed with one is an analyzer artifact that never fires
+    // (MANIFEST_EVENT_ARTIFACTS). The parser drops them; this reads the
+    // committed metadata for every component, not just registry ones, so it
+    // also covers the unwrapped data grid.
+    const nonWa = Object.entries(COMPONENT_METADATA).flatMap(([key, meta]) =>
+      meta.events
+        .filter((event) => !event.name.startsWith('wa-'))
+        .map((event) => ({ where: `${key}.${event.name}`, event }))
+    );
+    expect(nonWa.length).toBeGreaterThan(0);
+    for (const { where, event } of nonWa) {
+      expect(event.eventTypeModule, where).toBeUndefined();
+      expect(event.eventType, where).not.toMatch(/^Wa[A-Za-z]+Event$/);
+    }
+  });
+
   it('never keeps the manifest eventName for a native event', () => {
     // "BlurEvent" and "ChangeEvent" are pascal-cased names, not interfaces.
     for (const { component, event } of allEvents) {

@@ -90,6 +90,34 @@ export const EVENT_CLASS_OVERRIDES: EventClassOverrides = {
   },
 };
 
+/** Component tag -> manifest event name -> the event that really fires. */
+export type ManifestEventArtifacts = Readonly<
+  Record<string, Readonly<Record<string, string>>>
+>;
+
+/**
+ * Manifest events that never fire: analyzer artifacts, each shadowing a real
+ * event the same component also declares.
+ *
+ * Every Web Awesome event class hard-codes its `wa-` name in its constructor
+ * (`super('wa-step-change', ...)`), so a class can only ever fire under that
+ * name. When a component dispatches `new WaStepChangeEvent(detail)`, the
+ * manifest analyzer records a second event named after the argument, here
+ * `detail`, typed with the class. A handler for it would never run.
+ *
+ * Each entry maps the artifact to the real event carrying the same class.
+ * The resolver keeps the list honest the same way it keeps
+ * `EVENT_CLASS_OVERRIDES`: it refuses an entry whose real event fires a
+ * different class or that the component does not declare, and reports an
+ * entry no manifest event consults as stale. An unlisted artifact is refused
+ * by `resolve()`, so a new one stops `generate:metadata` in the bump PR.
+ */
+export const MANIFEST_EVENT_ARTIFACTS: ManifestEventArtifacts = {
+  'wa-combobox': { request: 'wa-options-request' },
+  'wa-data-grid': { request: 'wa-data-request' },
+  'wa-stepper': { detail: 'wa-step-change' },
+};
+
 /**
  * Native DOM events Web Awesome components fire, mapped to the interface the
  * DOM defines for them. Consulted only when the manifest declares no type for
@@ -305,17 +333,28 @@ const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 /**
  * Resolve manifest events to handler types against one package's catalog.
  *
- * Stateful only to track which overrides were consulted, so a caller that has
- * resolved every event can ask which entries are stale.
+ * Stateful only to track which overrides and artifacts were consulted, so a
+ * caller that has resolved every event can ask which entries are stale.
+ *
+ * A caller asks `isArtifact()` first and skips the event when it answers
+ * true; `resolve()` refuses a listed artifact like any other.
  */
 export function createEventTypeResolver(
   catalog: EventCatalog,
-  overrides: EventClassOverrides = EVENT_CLASS_OVERRIDES
+  overrides: EventClassOverrides = EVENT_CLASS_OVERRIDES,
+  artifacts: ManifestEventArtifacts = MANIFEST_EVENT_ARTIFACTS
 ): {
   resolve(tagName: string, event: ManifestEvent): ResolvedEventType;
+  isArtifact(
+    tagName: string,
+    event: ManifestEvent,
+    componentEvents: readonly string[]
+  ): boolean;
   unusedOverrides(): string[];
+  unusedArtifacts(): string[];
 } {
   const used = new Set<string>();
+  const usedArtifacts = new Set<string>();
 
   const classType = (name: string): ResolvedEventType => {
     const cls = catalog.classes.get(name);
@@ -419,7 +458,16 @@ export function createEventTypeResolver(
             'type name.'
         );
       }
-      if (catalog.classes.has(declared)) return classType(declared);
+      if (catalog.classes.has(declared)) {
+        const firesAs = registeredEventOf(declared);
+        throw new Error(
+          `${where}: declared as ${declared}, a Web Awesome event class. ` +
+            `It fires only under the wa- name its constructor hard-codes` +
+            `${firesAs ? ` (${firesAs})` : ''}, never as ${event.name}: the ` +
+            'manifest named this event after the constructor argument. Add ' +
+            'it to MANIFEST_EVENT_ARTIFACTS (scripts/event-types.ts).'
+        );
+      }
       if (DOM_EVENT_INTERFACES.has(declared)) return { type: declared };
       throw new Error(
         `${where}: declared as ${declared}, which is neither a DOM event ` +
@@ -435,12 +483,51 @@ export function createEventTypeResolver(
     );
   }
 
-  function unusedOverrides(): string[] {
-    const all = Object.entries(overrides).flatMap(([tag, events]) =>
-      Object.keys(events).map((name) => `${tag} ${name}`)
-    );
-    return all.filter((key) => !used.has(key)).sort();
+  function isArtifact(
+    tagName: string,
+    event: ManifestEvent,
+    componentEvents: readonly string[]
+  ): boolean {
+    const realEvent = artifacts[tagName]?.[event.name];
+    if (!realEvent) return false;
+    const where = `${tagName} ${event.name}`;
+    usedArtifacts.add(where);
+
+    const declared = event.type?.text?.trim();
+    const realClass = catalog.registered.get(realEvent);
+    if (!declared || declared !== realClass) {
+      throw new Error(
+        `${where}: MANIFEST_EVENT_ARTIFACTS says it shadows ${realEvent}, ` +
+          `but the manifest declares ${declared ?? 'no type'} for it and ` +
+          `${realEvent} fires ${realClass ?? 'no registered class'}.`
+      );
+    }
+    if (!componentEvents.includes(realEvent)) {
+      throw new Error(
+        `${where}: MANIFEST_EVENT_ARTIFACTS says it shadows ${realEvent}, ` +
+          `which ${tagName} does not declare. Dropping it would lose the ` +
+          `only record that ${tagName} fires ${realClass}.`
+      );
+    }
+    return true;
   }
 
-  return { resolve, unusedOverrides };
+  const entriesOf = (list: EventClassOverrides | ManifestEventArtifacts) =>
+    Object.entries(list).flatMap(([tag, events]) =>
+      Object.keys(events).map((name) => `${tag} ${name}`)
+    );
+
+  function unusedOverrides(): string[] {
+    return entriesOf(overrides)
+      .filter((key) => !used.has(key))
+      .sort();
+  }
+
+  function unusedArtifacts(): string[] {
+    return entriesOf(artifacts)
+      .filter((key) => !usedArtifacts.has(key))
+      .sort();
+  }
+
+  return { resolve, isArtifact, unusedOverrides, unusedArtifacts };
 }

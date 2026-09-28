@@ -18,6 +18,7 @@ export interface PageProps {
   'navigation-placement'?: 'start' | 'end';
   'nav-open'?: boolean;
   view?: 'mobile' | 'desktop';
+  nonce?: string;
 }
 
 const props = defineProps<PageProps>();

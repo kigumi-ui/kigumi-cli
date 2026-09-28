@@ -19,6 +19,7 @@ Quick reference: which Kigumi component for which input type.
 | Single select              | `<Select>` + `<Option>`                   | free    | `npx kigumi add select option`           |
 | Multi select               | `<Select multiple>` + `<Option>`          | free    | `npx kigumi add select option`           |
 | Searchable select          | `<Combobox>` + `<Option>`                 | **pro** | `npx kigumi add combobox option`         |
+| Server-side search         | `<Combobox server>` + `<Option>`          | **pro** | `npx kigumi add combobox option`         |
 | Yes/No toggle              | `<Switch>`                                | free    | `npx kigumi add switch`                  |
 | Checkbox                   | `<Checkbox>`                              | free    | `npx kigumi add checkbox`                |
 | Checkbox set               | `<CheckboxGroup>` + `<Checkbox>`          | free    | `npx kigumi add checkbox-group checkbox` |
@@ -92,7 +93,9 @@ Quick reference: which Kigumi component for which input type.
 
 ### Combobox (Pro)
 
-`label` `hint` `placeholder` `value` `multiple` `allow-custom-value` `required` `disabled` `size` `appearance`
+`label` `hint` `placeholder` `value` `multiple` `allow-custom-value` `required` `disabled` `size` `appearance` `server` `loading` `filter-debounce`
+
+Server mode (`server`): the combobox stops filtering and fires `onOptionsRequest` (Vue `@wa-options-request`, Angular `(optionsRequest)`) with `event.detail.query` and an `AbortSignal`. Replace the `<Option>` children with the results, then set `loading` back to `false`. The `loading`, `no-results`, `empty` and `error` slots cover the in-between states.
 
 ### OtpInput
 

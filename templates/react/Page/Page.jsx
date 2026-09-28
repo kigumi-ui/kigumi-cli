@@ -51,6 +51,7 @@ function ensureLoaded() {
  * @property {string} [mobile-breakpoint] - Viewport width threshold for navigation collapse; accepts numbers (px) or CSS lengths
  * @property {string} [navigation-placement] - Navigation drawer position on mobile: start | end
  * @property {boolean} [nav-open] - Mobile navigation drawer open state
+ * @property {string} [nonce] - CSP nonce for the injected media-query style tag; falls back to window.litNonce
  */
 
 /**

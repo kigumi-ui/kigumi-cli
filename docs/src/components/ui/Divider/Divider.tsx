@@ -26,6 +26,9 @@ export interface DividerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   /** Divider orientation */
   orientation?: 'horizontal' | 'vertical';
 
+  /** Position of the slotted label along the line */
+  'label-placement'?: 'start' | 'center' | 'end';
+
   /** Alias for orientation="vertical" */
   vertical?: boolean;
 }

@@ -952,6 +952,35 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         name: 'expand-icon',
         description: 'The container that wraps the expand icon.',
       },
+      {
+        name: 'spinner',
+        description:
+          'The loading spinner shown in the field while options are loading.',
+      },
+      {
+        name: 'status',
+        description:
+          'The listbox status row shown in place of options. Also carries a state-specific part.',
+      },
+      {
+        name: 'loading',
+        description:
+          'The status row shown while options are loading and none are available yet.',
+      },
+      {
+        name: 'no-results',
+        description: 'The status row shown when the query matched nothing.',
+      },
+      {
+        name: 'empty',
+        description:
+          'The status row shown when there are no options and no query has been typed.',
+      },
+      {
+        name: 'error',
+        description:
+          'The status row shown when the last `dataSource` request failed.',
+      },
     ],
     customProperties: [
       {
@@ -1691,7 +1720,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     docsUrl: 'https://webawesome.com/docs/components/dialog',
   },
   divider: {
-    parts: [],
+    parts: [
+      {
+        name: 'label',
+        description: "The container that wraps the divider's label.",
+      },
+    ],
     customProperties: [
       {
         name: '--color',
@@ -1704,6 +1738,16 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--spacing',
         description: 'The spacing of the divider.',
+      },
+      {
+        name: '--label-spacing',
+        description:
+          "The amount of space between the label and the divider's lines.",
+      },
+      {
+        name: '--label-offset',
+        description:
+          "The length of the line between the divider's edge and a label placed at the `start` or `end`.",
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/divider',
@@ -3829,6 +3873,114 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/split-panel',
+  },
+  step: {
+    parts: [
+      {
+        name: 'step',
+        description: "The component's outer wrapper.",
+      },
+      {
+        name: 'connector',
+        description:
+          'The line connecting this step to its neighbors. Each step draws the half leading in and the half leading out, and both carry this part name.',
+      },
+      {
+        name: 'button',
+        description:
+          'The `<button>` wrapping the marker and content. Only rendered when the parent stepper is `clickable`; otherwise the same wrapper is a plain, non-focusable element.',
+      },
+      {
+        name: 'marker',
+        description:
+          "The circular marker that shows the step's number, checkmark, or loading indicator.",
+      },
+      {
+        name: 'spinner',
+        description:
+          'The spinner shown in the marker while the step is `loading`.',
+      },
+      {
+        name: 'content',
+        description:
+          'The wrapper around the label, status text, and description.',
+      },
+      {
+        name: 'label',
+        description: "The step's label.",
+      },
+      {
+        name: 'status',
+        description:
+          'Visually hidden text that tells assistive technology whether the step is completed, not completed, or locked.',
+      },
+      {
+        name: 'description',
+        description: "The step's description.",
+      },
+    ],
+    customProperties: [
+      {
+        name: '--pulse-color',
+        description:
+          'The color of the marker\'s pulse effect when using `attention="pulse"`. Defaults to the step\'s accent color.',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/step',
+  },
+  stepper: {
+    parts: [
+      {
+        name: 'stepper',
+        description:
+          'The component\'s outer wrapper. A `<nav>` landmark when the stepper is `clickable`, since its steps are then controls you can navigate with; otherwise a labeled `role="group"`, since a display-only stepper has nothing to navigate.',
+      },
+      {
+        name: 'summary',
+        description:
+          'Visually hidden "Step X of Y" text that tells assistive technology where the active step sits.',
+      },
+      {
+        name: 'steps',
+        description: 'The `<ol>` that lays out the steps.',
+      },
+    ],
+    customProperties: [
+      {
+        name: '--gap',
+        description: 'The space between steps.',
+        default: 'var(--wa-space-l)',
+      },
+      {
+        name: '--marker-size',
+        description: "The size of each step's marker.",
+        default: '2em',
+      },
+      {
+        name: '--connector-color',
+        description:
+          "The color of the connector line after a step that isn't completed.",
+        default: 'var(--wa-color-neutral-fill-normal)',
+      },
+      {
+        name: '--connector-color-active',
+        description:
+          "The color of the connector line after a completed step. Unset by default, so the line takes the completed marker's fill and follows its `variant`.",
+      },
+      {
+        name: '--connector-width',
+        description:
+          'The thickness of the connector line, in either orientation.',
+        default: 'var(--wa-border-width-m)',
+      },
+      {
+        name: '--connector-gap',
+        description:
+          "The gap between a marker's edge and the connector line, on both sides. Kept clear of the marker geometrically, so it holds even if a marker's background is transparent.",
+        default: '0.35em',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/stepper',
   },
   switch: {
     parts: [

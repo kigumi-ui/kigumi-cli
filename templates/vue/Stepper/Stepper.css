@@ -1,0 +1,20 @@
+/**
+ * Stepper Component Styles
+ * Documentation: https://webawesome.com/docs/components/stepper
+ *
+ * CSS Custom Properties:
+ * - --gap: The space between steps. (default: var(--wa-space-l))
+ * - --marker-size: The size of each step's marker. (default: 2em)
+ * - --connector-color: The color of the connector line after a step that isn't completed. (default: var(--wa-color-neutral-fill-normal))
+ * - --connector-color-active: The color of the connector line after a completed step. Unset by default, so the line takes the completed marker's fill and follows its `variant`.
+ * - --connector-width: The thickness of the connector line, in either orientation. (default: var(--wa-border-width-m))
+ * - --connector-gap: The gap between a marker's edge and the connector line, on both sides. Kept clear of the marker geometrically, so it holds even if a marker's background is transparent. (default: 0.35em)
+ *
+ * CSS Parts:
+ * - stepper: The component's outer wrapper. A `<nav>` landmark when the stepper is `clickable`, since its steps are then controls you can navigate with; otherwise a labeled `role="group"`, since a display-only stepper has nothing to navigate.
+ * - summary: Visually hidden "Step X of Y" text that tells assistive technology where the active step sits.
+ * - steps: The `<ol>` that lays out the steps.
+ */
+.Stepper {
+  /* Add your custom styles here */
+}

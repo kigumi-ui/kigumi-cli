@@ -32,6 +32,7 @@ function ensureLoaded() {
       [attr.navigation-placement]="navigationPlacement"
       [attr.nav-open]="navOpen || null"
       [attr.view]="view"
+      [attr.nonce]="nonce"
     >
       <ng-content />
     </wa-page>
@@ -52,6 +53,8 @@ export class PageComponent implements AfterViewInit {
   @Input() navOpen?: boolean;
   /** Current viewport classification relative to breakpoint */
   @Input() view?: 'mobile' | 'desktop';
+  /** CSP nonce for the injected media-query style tag; falls back to window.litNonce */
+  @Input() nonce?: string;
 
   ngAfterViewInit(): void {
     ensureLoaded();

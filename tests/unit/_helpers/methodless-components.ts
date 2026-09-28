@@ -53,6 +53,7 @@ export const METHODLESS_COMPONENTS: readonly string[] = [
   'sparkline',
   'spinner',
   'split-panel',
+  'step',
   'tab',
   'tab-group',
   'tab-panel',

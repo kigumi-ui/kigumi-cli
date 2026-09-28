@@ -34,6 +34,9 @@ const props = defineProps({
   spellcheck: { type: Boolean, required: false, default: undefined },
   'with-clear': { type: Boolean, required: false, default: false },
   'custom-error': { type: String, required: false },
+  server: { type: Boolean, required: false, default: false },
+  loading: { type: Boolean, required: false, default: false },
+  'filter-debounce': { type: Number, required: false, default: 250 },
 });
 
 defineOptions({ inheritAttrs: false });
@@ -89,6 +92,8 @@ const emit = defineEmits([
   'wa-after-hide',
   'wa-create',
   'wa-invalid',
+  'wa-options-request',
+  'wa-options-error',
 ]);
 
 const model = defineModel();
@@ -118,6 +123,8 @@ const handleWaHide = (e) => emit('wa-hide', e);
 const handleWaAfterHide = (e) => emit('wa-after-hide', e);
 const handleWaCreate = (e) => emit('wa-create', e);
 const handleWaInvalid = (e) => emit('wa-invalid', e);
+const handleWaOptionsRequest = (e) => emit('wa-options-request', e);
+const handleWaOptionsError = (e) => emit('wa-options-error', e);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -134,6 +141,8 @@ onMounted(() => {
   el.addEventListener('wa-after-hide', handleWaAfterHide);
   el.addEventListener('wa-create', handleWaCreate);
   el.addEventListener('wa-invalid', handleWaInvalid);
+  el.addEventListener('wa-options-request', handleWaOptionsRequest);
+  el.addEventListener('wa-options-error', handleWaOptionsError);
 });
 
 onBeforeUnmount(() => {
@@ -151,9 +160,12 @@ onBeforeUnmount(() => {
   el.removeEventListener('wa-after-hide', handleWaAfterHide);
   el.removeEventListener('wa-create', handleWaCreate);
   el.removeEventListener('wa-invalid', handleWaInvalid);
+  el.removeEventListener('wa-options-request', handleWaOptionsRequest);
+  el.removeEventListener('wa-options-error', handleWaOptionsError);
 });
 
 defineExpose({
+  reload: () => elementRef.value?.reload?.(),
   show: () => elementRef.value?.show?.(),
   hide: () => elementRef.value?.hide?.(),
   focus: (options) => elementRef.value?.focus?.(options),

@@ -25,7 +25,11 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-divider #element [attr.orientation]="orientation">
+    <wa-divider
+      #element
+      [attr.orientation]="orientation"
+      [attr.label-placement]="labelPlacement"
+    >
       <ng-content />
     </wa-divider>
   `,
@@ -37,6 +41,8 @@ export class DividerComponent implements AfterViewInit {
 
   /** Divider orientation */
   @Input() orientation?: 'horizontal' | 'vertical';
+  /** Position of the slotted label along the line */
+  @Input() labelPlacement?: 'start' | 'center' | 'end';
 
   ngAfterViewInit(): void {
     ensureLoaded();

@@ -71,6 +71,15 @@ export interface ZoomableFrameProps extends Omit<
   /** Referrer policy */
   referrerpolicy?: string;
 
+  /** Permissions Policy for the embedded page; read when the frame loads */
+  allow?: string;
+
+  /** Frame name that links and forms can target */
+  name?: string;
+
+  /** Accessible name describing the framed content */
+  label?: string;
+
   /** Emitted when the internal iframe when it finishes loading. */
   onLoad?: (event: Event) => void;
 

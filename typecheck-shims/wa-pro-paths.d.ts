@@ -25,6 +25,7 @@ declare module '@awesome.me/webawesome/dist/components/chart/chart.js' {
 
 declare module '@awesome.me/webawesome/dist/components/combobox/combobox.js' {
   export default class WaCombobox extends HTMLElement {
+    reload?(): void;
     show?(): void;
     hide?(): void;
     focus?(options: FocusOptions): void;

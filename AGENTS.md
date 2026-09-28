@@ -58,7 +58,7 @@ node dist/index.js add button --force
 | `src/utils/foreign-files-staging.ts`     | Stages source-framework files into `.kigumi/foreign/<slug>/` for `--cross-framework`                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `src/schemas/community-registry.ts`      | Community registry schema validation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `scripts/parse-custom-elements.ts`       | Parse WA custom-elements.json → `component-metadata.ts` / `css-metadata.ts` (data only). Types live in `src/utils/metadata-types.ts` and are imported + re-exported by the generated modules (issue #34)                                                                                                                                                                                                                                                                                                                                                       |
-| `scripts/event-types.ts`                 | Resolve each manifest event to the type its handler receives: the Web Awesome class the component dispatches, read from `dist/events/*.d.ts` via the event name it registers, else a native event's declared scalar type or `NATIVE_EVENT_TYPES`. `EVENT_CLASS_OVERRIDES` pins the accordion's classes; anything unresolvable stops the parser. See `docs/adr/0005`                                                                                                                                                                                            |
+| `scripts/event-types.ts`                 | Resolve each manifest event to the type its handler receives: the Web Awesome class the component dispatches, read from `dist/events/*.d.ts` via the event name it registers, else a native event's declared scalar type or `NATIVE_EVENT_TYPES`. `EVENT_CLASS_OVERRIDES` pins the accordion's classes; `MANIFEST_EVENT_ARTIFACTS` pins manifest events that never fire (a non-`wa-` event typed with an event class) so the parser drops them; anything unresolvable stops the parser. See `docs/adr/0005`                                                    |
 | `scripts/find-cem.ts`                    | Resolve the Web Awesome CEM on disk, scoped to one root: `resolveCem()` returns path + tier (pro/free) + component count; `{ tier: 'free' }` narrows it to the Free package. Shared by the parser, the skill-reference generator and the freshness guard                                                                                                                                                                                                                                                                                                       |
 | `scripts/check-metadata-freshness.ts`    | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM or any `dist/events/*.d.ts` beside it, triggering regen                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `scripts/guard-outcome.ts`               | Shared reporting vocabulary for CEM-dependent guards: `summarizeGuard()` keeps "did it pass" and "did it actually run" as separate facts; `skipPermitted()` decides where an absent manifest may be tolerated. Consumed by `check-generated-fresh.ts` and `validate-cem-sync.ts`. See `docs/adr/0003`                                                                                                                                                                                                                                                          |
@@ -270,7 +270,7 @@ What this enables:
 - **Pages Router CSS policy**: Next forbids global CSS imports anywhere other than `pages/_app.tsx`. Kigumi handles this at generation time by (a) omitting the `layers.css` import from the generated `lib/kigumi.ts` and (b) stripping the per-component `import './<Name>.css';` line from each generated wrapper. Both are unconditional when `detectNextRouter(cwd) === 'pages'`, and unchanged for App Router. Per-component stub CSS files are still emitted so users can add imports to `_app.tsx` if they want custom styles.
 - `generateGitIgnore` adds `.kigumi/cache/` in addition to `.kigumi/foreign/`. `.kigumi/snapshots/` stays tracked (three-way merge depends on it); `.npmrc` stays committable (registry URL only, no token).
 
-Do not add a `'next'` entry to the `framework` enum — duplicating templates under `templates/nextjs/` would force parallel maintenance of 87 components for no gain.
+Do not add a `'next'` entry to the `framework` enum — duplicating templates under `templates/nextjs/` would force parallel maintenance of 89 components for no gain.
 
 ---
 
@@ -426,7 +426,7 @@ flowchart TD
     end
 
     subgraph Utils["utils/"]
-        registry["registry.ts\n87 ComponentDefinitions\nprops, deps, files, importPath"]
+        registry["registry.ts\n89 ComponentDefinitions\nprops, deps, files, importPath"]
         template["template.ts\nmaterializeTemplate (read + tier swap)"]
         tier["tier.ts\nFree/Pro detection\ndetectTier"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
@@ -463,9 +463,9 @@ flowchart TD
     end
 
     subgraph Templates["templates/"]
-        tpl_react["react/ — 87 components\n.tsx, .jsx\n.test.tsx, .test.jsx, .css"]
-        tpl_vue["vue/ — 87 components\n.vue, .js.vue\n.test.ts, .test.js, .css"]
-        tpl_angular["angular/ — 87 components\n.component.ts, .component.spec.ts, .component.css"]
+        tpl_react["react/ — 89 components\n.tsx, .jsx\n.test.tsx, .test.jsx, .css"]
+        tpl_vue["vue/ — 89 components\n.vue, .js.vue\n.test.ts, .test.js, .css"]
+        tpl_angular["angular/ — 89 components\n.component.ts, .component.spec.ts, .component.css"]
     end
 
     CLI --> Commands
@@ -1139,3 +1139,5 @@ pnpm release-readiness:quick         # skip e2e
 - `eslint.config.js` no longer turns `@eslint/js` / typescript-eslint `recommended` rules off for `templates/**` (`no-undef` excepted): Templates are linted as a consumer's project lints them, enforced by `tests/unit/eslint-rules/templates-consumer-rules.test.ts` (`templates/AGENTS.md` rule 13); CI's `freshness` job also runs `typecheck:templates:pro`, the Vue Templates against the real Pro types, issue #136
 - event handler types are the Web Awesome class each component dispatches, resolved once by `scripts/event-types.ts` from `dist/events/*.d.ts` into the metadata (`eventType`, `eventTypeModule`); `mapEventType` is gone, generators read the metadata and import via `formatEventTypeImports()`. Custom events are no longer `CustomEvent`, see docs/adr/0005, issue #6
 - event-type review follow-up (issue #6): the prebuild freshness gate also compares against `dist/events/*.d.ts`, the parser's second input; the resolver refuses a declared payload on a class whose `detail` it cannot read and a native event declared `CustomEvent`; listeners pass `e` uncast for `Event` via `handlerArgument()`; the docs-site UI wrappers, stories and landing components type handlers with the Web Awesome classes (imported from the Pro package) instead of `CustomEvent`
+- Web Awesome pin 3.14.0 (kigumi 1.3.0 in VERSION_MAP): 89 components, wrap step and stepper; new registry props for combobox server mode, divider label-placement, page nonce and zoomable-frame allow/name/label, issue #108
+- the event resolver refuses a non-`wa-` manifest event typed with a Web Awesome event class: every class hard-codes its `wa-` name, so the event never fires (the analyzer names it after the constructor argument). Known ones live in `MANIFEST_EVENT_ARTIFACTS` in `scripts/event-types.ts` and are dropped; Web Awesome 3.14 would otherwise have shipped `onDetail` on Stepper and `onRequest` on Combobox, see `docs/adr/0005`, issue #108

@@ -14,6 +14,7 @@ function ensureLoaded() {
  */
 export interface DividerProps {
   orientation?: 'horizontal' | 'vertical';
+  'label-placement'?: 'start' | 'center' | 'end';
 }
 
 const props = defineProps<DividerProps>();

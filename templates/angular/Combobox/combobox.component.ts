@@ -19,6 +19,8 @@ import type { WaClearEvent } from '@awesome.me/webawesome/dist/events/clear.js';
 import type { WaCreateEvent } from '@awesome.me/webawesome/dist/events/create.js';
 import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
 import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
+import type { WaOptionsErrorEvent } from '@awesome.me/webawesome/dist/events/options-error.js';
+import type { WaOptionsRequestEvent } from '@awesome.me/webawesome/dist/events/options-request.js';
 import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -66,6 +68,9 @@ function ensureLoaded() {
       [attr.with-clear]="withClear || null"
       [attr.value]="value"
       [attr.custom-error]="customError"
+      [attr.server]="server || null"
+      [attr.loading]="loading || null"
+      [attr.filter-debounce]="filterDebounce"
     >
       <ng-content />
     </wa-combobox>
@@ -141,6 +146,12 @@ export class ComboboxComponent
   @Input() value?: string;
   /** Custom validation message; the control is invalid while it is set */
   @Input() customError?: string;
+  /** Turns off client-side filtering; swap the options yourself on options-request */
+  @Input() server?: boolean;
+  /** Whether an options request is pending; reset it once new options are in */
+  @Input() loading?: boolean;
+  /** Milliseconds of typing pause before options are requested in server mode */
+  @Input() filterDebounce?: number;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();
@@ -153,6 +164,8 @@ export class ComboboxComponent
   @Output() afterHide = new EventEmitter<WaAfterHideEvent>();
   @Output() create = new EventEmitter<WaCreateEvent>();
   @Output() invalid = new EventEmitter<WaInvalidEvent>();
+  @Output() optionsRequest = new EventEmitter<WaOptionsRequestEvent>();
+  @Output() optionsError = new EventEmitter<WaOptionsErrorEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
   private onTouchedCallback: () => void = () => {};
@@ -222,6 +235,18 @@ export class ComboboxComponent
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)
     );
+    const handleOptionsRequest = (e: Event) =>
+      this.optionsRequest.emit(e as WaOptionsRequestEvent);
+    el.addEventListener('wa-options-request', handleOptionsRequest);
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-options-request', handleOptionsRequest)
+    );
+    const handleOptionsError = (e: Event) =>
+      this.optionsError.emit(e as WaOptionsErrorEvent);
+    el.addEventListener('wa-options-error', handleOptionsError);
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-options-error', handleOptionsError)
+    );
 
     const handleValueChange = () =>
       this.onChangeCallback((el as unknown as { value: unknown }).value);
@@ -261,6 +286,11 @@ export class ComboboxComponent
     }
   }
 
+  reload(): void {
+    (
+      this.elementRef.nativeElement as unknown as { reload: () => void }
+    ).reload();
+  }
   show(): void {
     (this.elementRef.nativeElement as unknown as { show: () => void }).show();
   }

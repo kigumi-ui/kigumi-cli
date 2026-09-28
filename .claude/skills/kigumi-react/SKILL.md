@@ -316,7 +316,7 @@ After transformation, verify:
 
 For complete component APIs (props, events, slots, methods, CSS parts, CSS custom properties):
 
-- [React API Surface](../shared/react-api-surface.md) -- all 87 components in one compact reference
+- [React API Surface](../shared/react-api-surface.md) -- all 89 components in one compact reference
 
 ## Troubleshooting
 

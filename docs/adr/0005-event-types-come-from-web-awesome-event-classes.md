@@ -50,6 +50,18 @@ class is pinned. Metadata regeneration only happens on a Web Awesome bump, so
 the stop lands in the bump PR, which is where the new event must be looked at
 anyway.
 
+A non-`wa-` manifest event typed with a Web Awesome event class is refused as
+well. Every class hard-codes its `wa-` name in its constructor, so such an
+event never fires: the analyzer names it after the argument passed to the
+constructor (`detail`, `request`). Web Awesome 3.14 produced two on wrapped
+components, `wa-stepper`'s `detail` and `wa-combobox`'s `request`, and an
+earlier release one on the unwrapped `wa-data-grid`. Accepting them would have
+shipped a handler that can never run. Each is pinned in `MANIFEST_EVENT_ARTIFACTS`
+against the real event it shadows, and the parser drops it. The resolver keeps
+that list honest the same way as the overrides: an entry whose real event
+fires a different class, or which the component does not declare, is refused,
+and an entry nothing matches is stale.
+
 The native table (`NATIVE_EVENT_TYPES`) is still needed, and grew: the
 manifest declares a type for few native events, so `wa-video`'s media events
 (`play`, `pause`, `ended`, `volumechange`, `loadedmetadata`) take the `Event`

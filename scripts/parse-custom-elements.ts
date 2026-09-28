@@ -301,8 +301,21 @@ async function parseCustomElements(): Promise<ParsedOutput> {
       // Never use reactName from custom-elements.json — it says "onWaHide" but templates use "onHide"
       // The type is the class Web Awesome dispatches, never the manifest's
       // `eventName`: see scripts/event-types.ts.
+      // Manifest artifacts (events named after a constructor argument, see
+      // MANIFEST_EVENT_ARTIFACTS) never fire and are dropped here.
+      const declaredEventNames = (declaration.events || []).flatMap((event) =>
+        event.name ? [event.name] : []
+      );
       const events = (declaration.events || [])
-        .filter((event) => event.name)
+        .filter(
+          (event) =>
+            event.name &&
+            !eventTypes.isArtifact(
+              tagName,
+              { name: event.name, type: event.type },
+              declaredEventNames
+            )
+        )
         .map((event) => {
           const name = event.name!;
           const resolved = eventTypes.resolve(tagName, {
@@ -376,6 +389,14 @@ async function parseCustomElements(): Promise<ParsedOutput> {
     throw new Error(
       `EVENT_CLASS_OVERRIDES (scripts/event-types.ts) has entries no manifest ` +
         `event uses: ${stale.join(', ')}. Delete them.`
+    );
+  }
+
+  const staleArtifacts = eventTypes.unusedArtifacts();
+  if (staleArtifacts.length > 0) {
+    throw new Error(
+      `MANIFEST_EVENT_ARTIFACTS (scripts/event-types.ts) has entries no ` +
+        `manifest event matches: ${staleArtifacts.join(', ')}. Delete them.`
     );
   }
 

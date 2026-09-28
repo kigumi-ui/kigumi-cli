@@ -26,6 +26,9 @@ const props = defineProps({
   'without-interaction': { type: Boolean, required: false, default: false },
   sandbox: { type: String, required: false },
   referrerpolicy: { type: String, required: false },
+  allow: { type: String, required: false },
+  name: { type: String, required: false },
+  label: { type: String, required: false, default: '' },
 });
 
 defineOptions({ inheritAttrs: false });

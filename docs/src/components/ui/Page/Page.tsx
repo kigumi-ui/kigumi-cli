@@ -41,6 +41,9 @@ export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
   /** Current viewport classification relative to breakpoint */
   view?: 'mobile' | 'desktop';
+
+  /** CSP nonce for the injected media-query style tag; falls back to window.litNonce */
+  nonce?: string;
 }
 
 export interface PageRef {

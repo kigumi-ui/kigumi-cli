@@ -21,6 +21,7 @@ const props = defineProps({
   'navigation-placement': { type: String, required: false, default: 'start' },
   'nav-open': { type: Boolean, required: false, default: false },
   view: { type: String, required: false, default: 'desktop' },
+  nonce: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

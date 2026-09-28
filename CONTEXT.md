@@ -69,6 +69,15 @@ A component that dispatches a second class under a shared name (the accordion's
 _Avoid_: event name (that is the DOM name, `wa-hide`), `eventName` (the
 manifest's pascal-cased label, which is not a type)
 
+**Manifest artifact**:
+An event the CEM declares that the component never fires. When a component
+dispatches `new WaStepChangeEvent(detail)`, the analyzer also records an event
+named after the argument (`detail`) typed with the class, but every event class
+hard-codes its `wa-` name, so only `wa-step-change` ever arrives. Pinned in
+`MANIFEST_EVENT_ARTIFACTS` against the real event it shadows, and dropped by
+the parser.
+_Avoid_: phantom event, fake event
+
 **Event name transformation**:
 Turning an event's DOM name into the identifier a framework uses for its
 handler, such as `blur` becoming `onBlur` in React or `blurEvent` in Angular.

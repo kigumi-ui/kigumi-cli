@@ -1,0 +1,21 @@
+/**
+ * Step Component Styles
+ * Documentation: https://webawesome.com/docs/components/step
+ *
+ * CSS Custom Properties:
+ * - --pulse-color: The color of the marker's pulse effect when using `attention="pulse"`. Defaults to the step's accent color.
+ *
+ * CSS Parts:
+ * - step: The component's outer wrapper.
+ * - connector: The line connecting this step to its neighbors. Each step draws the half leading in and the half leading out, and both carry this part name.
+ * - button: The `<button>` wrapping the marker and content. Only rendered when the parent stepper is `clickable`; otherwise the same wrapper is a plain, non-focusable element.
+ * - marker: The circular marker that shows the step's number, checkmark, or loading indicator.
+ * - spinner: The spinner shown in the marker while the step is `loading`.
+ * - content: The wrapper around the label, status text, and description.
+ * - label: The step's label.
+ * - status: Visually hidden text that tells assistive technology whether the step is completed, not completed, or locked.
+ * - description: The step's description.
+ */
+:host {
+  display: contents;
+}

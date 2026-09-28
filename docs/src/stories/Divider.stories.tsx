@@ -13,6 +13,12 @@ const meta = {
       description: 'Divider orientation',
       table: { defaultValue: { summary: 'horizontal' } },
     },
+    'label-placement': {
+      control: 'select',
+      options: ['start', 'center', 'end'],
+      description: 'Position of the slotted label along the line',
+      table: { defaultValue: { summary: 'center' } },
+    },
   },
 } satisfies Meta<typeof Divider>;
 
@@ -26,6 +32,17 @@ export const Default: Story = {
       <p>Content above the divider</p>
       <Divider {...args} />
       <p>Content below the divider</p>
+    </div>
+  ),
+};
+
+/** Text inside the divider becomes a label, placed at the start, center or end. */
+export const WithLabel: Story = {
+  render: () => (
+    <div style={{ maxWidth: '400px' }}>
+      <Divider {...{ 'label-placement': 'start' }}>Start</Divider>
+      <Divider>Or continue with</Divider>
+      <Divider {...{ 'label-placement': 'end' }}>End</Divider>
     </div>
   ),
 };
@@ -98,6 +115,11 @@ export const ChromaticOnly: Story = {
         <p>Above</p>
         <Divider />
         <p>Below</p>
+      </div>
+      <div>
+        <Divider {...{ 'label-placement': 'start' }}>Start</Divider>
+        <Divider>Center</Divider>
+        <Divider {...{ 'label-placement': 'end' }}>End</Divider>
       </div>
       <div
         style={{
