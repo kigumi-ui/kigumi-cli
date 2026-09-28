@@ -33,7 +33,7 @@ function ensureLoaded() {
  *
  * // With ref methods
  * const ref = useRef<StepperRef>(null);
- * <button onClick={() => ref.current?.goTo()}>Call Method</button>
+ * <button onClick={() => ref.current?.next()}>Call Method</button>
  * <Stepper ref={ref} />
  * ```
  */

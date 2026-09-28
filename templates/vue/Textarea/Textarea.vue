@@ -147,15 +147,15 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   select: () => elementRef.value?.select?.(),
-  scrollPosition: (position: { top?: number; left?: number }) =>
+  scrollPosition: (position?: { top?: number; left?: number }) =>
     elementRef.value?.scrollPosition?.(position),
   setSelectionRange: (
     selectionStart: number,
     selectionEnd: number,
-    selectionDirection: 'forward' | 'backward' | 'none'
+    selectionDirection?: 'forward' | 'backward' | 'none'
   ) =>
     elementRef.value?.setSelectionRange?.(
       selectionStart,
@@ -164,9 +164,9 @@ defineExpose({
     ),
   setRangeText: (
     replacement: string,
-    start: number,
-    end: number,
-    selectMode: 'select' | 'start' | 'end' | 'preserve'
+    start?: number,
+    end?: number,
+    selectMode?: 'select' | 'start' | 'end' | 'preserve'
   ) => elementRef.value?.setRangeText?.(replacement, start, end, selectMode),
   setCustomValidity: (message: string) =>
     elementRef.value?.setCustomValidity?.(message),

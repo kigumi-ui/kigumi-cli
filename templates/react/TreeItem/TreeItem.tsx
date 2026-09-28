@@ -83,7 +83,7 @@ export interface TreeItemProps extends Omit<
 
 export interface TreeItemRef {
   /** Gets all the nested tree items in this node. */
-  getChildrenItems: (options: { includeDisabled?: boolean }) => void;
+  getChildrenItems: (options?: { includeDisabled?: boolean }) => void;
   /** Reference to the underlying HTML element */
   element: WaTreeItem | null;
 }
@@ -111,7 +111,7 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
     useImperativeHandle(
       ref,
       () => ({
-        getChildrenItems: (options: { includeDisabled?: boolean }) => {
+        getChildrenItems: (options?: { includeDisabled?: boolean }) => {
           if (
             treeitemRef.current &&
             typeof treeitemRef.current.getChildrenItems === 'function'

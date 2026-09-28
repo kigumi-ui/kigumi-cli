@@ -120,7 +120,7 @@ export interface NumberInputProps extends Omit<
 }
 
 export interface NumberInputRef {
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   blur: () => void;
 
@@ -165,7 +165,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             numberinputRef.current &&
             typeof numberinputRef.current.focus === 'function'

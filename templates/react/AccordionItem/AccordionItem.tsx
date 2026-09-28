@@ -58,7 +58,7 @@ export interface AccordionItemRef {
   toggle: () => void;
 
   /** Focuses the accordion item's trigger button. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
   /** Reference to the underlying HTML element */
   element: WaAccordionItem | null;
 }
@@ -97,7 +97,7 @@ export const AccordionItem = forwardRef<AccordionItemRef, AccordionItemProps>(
             accordionitemRef.current.toggle();
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             accordionitemRef.current &&
             typeof accordionitemRef.current.focus === 'function'

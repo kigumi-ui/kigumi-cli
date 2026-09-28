@@ -28,10 +28,6 @@ function ensureLoaded() {
  * // With event handlers
  * <Toast />
  *
- * // With ref methods
- * const ref = useRef<ToastRef>(null);
- * <button onClick={() => ref.current?.create()}>Call Method</button>
- * <Toast ref={ref} />
  * ```
  */
 export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -46,7 +42,7 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface ToastRef {
-  create: (message: string, options: ToastCreateOptions) => void;
+  create: (message: string, options?: ToastCreateOptions) => void;
   /** Reference to the underlying HTML element */
   element: WaToast | null;
 }
@@ -61,7 +57,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
     useImperativeHandle(
       ref,
       () => ({
-        create: (message: string, options: ToastCreateOptions) => {
+        create: (message: string, options?: ToastCreateOptions) => {
           if (
             toastRef.current &&
             typeof toastRef.current.create === 'function'

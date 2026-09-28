@@ -6,14 +6,13 @@
  * Reads installed @awesome.me/webawesome-pro types and writes
  * accurate ambient declarations to typecheck-shims/wa-pro-{paths,jsx}.d.ts.
  *
- * Run when:
- *   - First time setting up the accurate Pro shim
- *   - After any @awesome.me/webawesome (Free) version bump in package.json
- *     (Pro tracks Free's versioning)
+ * Run `pnpm generate:pro-shim` after every Web Awesome bump, after
+ * `generate:metadata` (the method signatures come from COMPONENT_METADATA).
+ * `validate:generated-fresh` Check A regenerates both files and fails when
+ * the committed ones differ, so a bump that skips this step cannot merge.
  *
- * Prerequisites:
- *   pnpm setup:npmrc                                 # token in ~/.npmrc
- *   pnpm add -D @awesome.me/webawesome-pro           # local install
+ * Reads the Pro package the docs site installs (`docs/node_modules`), found
+ * through `resolveCem({ tier: 'pro' })`, so no root install is needed.
  *
  * The script is idempotent: 2 runs produce identical output.
  */
@@ -24,14 +23,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import { toPascalCase } from '../src/utils/naming.js';
+import { formatParameters } from './generator-utils.js';
+import { resolveCem } from './find-cem.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.join(__dirname, '..');
-const PRO_PKG = path.join(
-  PROJECT_ROOT,
-  'node_modules/@awesome.me/webawesome-pro/dist'
-);
+/** The Pro package's `dist/`, set by main() before anything reads it. */
+let PRO_PKG = '';
 const SHIMS_DIR = path.join(PROJECT_ROOT, 'typecheck-shims');
 const FREE_PATH_PREFIX = '@awesome.me/webawesome/dist/components';
 
@@ -159,7 +159,7 @@ function buildClassDeclaration(comp: string): {
         collectUnknownTypeIdents(p.type).forEach((t) => {
           if (!extraTypeIdents.includes(t)) extraTypeIdents.push(t);
         });
-        return `${p.name}: ${p.type}`;
+        return formatParameters([p]);
       })
       .join(', ');
     return `    ${m.name}?(${params}): void;`;
@@ -324,15 +324,15 @@ export {};
 }
 
 async function main() {
-  if (!fs.existsSync(PRO_PKG)) {
+  const pro = await resolveCem(PROJECT_ROOT, { tier: 'pro' });
+  if (!pro.found || pro.path === null) {
     console.error(
-      '❌ Pro package not installed. Run:\n' +
-        '   pnpm setup:npmrc\n' +
-        '   pnpm add -D @awesome.me/webawesome-pro\n' +
-        '   (then revert package.json + pnpm-lock.yaml)\n'
+      '❌ Web Awesome Pro is not installed. Run `pnpm install` in docs/\n' +
+        '   with WEBAWESOME_NPM_TOKEN set (see `pnpm setup:npmrc`).\n'
     );
     process.exit(1);
   }
+  PRO_PKG = path.dirname(pro.path);
 
   console.log('Syncing Pro shim from', PRO_PKG);
 
@@ -345,12 +345,12 @@ async function main() {
   await fs.writeFile(path.join(SHIMS_DIR, 'wa-pro-jsx.d.ts'), jsxContent);
   console.log('✓ wrote wa-pro-jsx.d.ts');
 
-  console.log(
-    '\nNext: pnpm tsx scripts/generate-react-templates.ts && npx tsc -p templates/react/tsconfig.json --noEmit'
-  );
+  console.log('\nNext: pnpm typecheck:templates');
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (isEntryPoint(import.meta.url)) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

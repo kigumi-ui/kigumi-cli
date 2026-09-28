@@ -81,7 +81,7 @@ export interface FileInputProps extends Omit<
 }
 
 export interface FileInputRef {
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   blur: () => void;
 
@@ -119,7 +119,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             fileinputRef.current &&
             typeof fileinputRef.current.focus === 'function'

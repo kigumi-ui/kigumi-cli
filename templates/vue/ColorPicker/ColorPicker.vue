@@ -153,12 +153,12 @@ defineExpose({
     hue: number,
     saturation: number,
     brightness: number,
-    alpha: number
+    alpha?: number
   ) => elementRef.value?.getHexString?.(hue, saturation, brightness, alpha),
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   getFormattedValue: (
-    format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
+    format?: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
   ) => elementRef.value?.getFormattedValue?.(format),
   reportValidity: () => elementRef.value?.reportValidity?.(),
   show: () => elementRef.value?.show?.(),

@@ -60,7 +60,11 @@ shipped a handler that can never run. Each is pinned in `MANIFEST_EVENT_ARTIFACT
 against the real event it shadows, and the parser drops it. The resolver keeps
 that list honest the same way as the overrides: an entry whose real event
 fires a different class, or which the component does not declare, is refused,
-and an entry nothing matches is stale.
+and an entry nothing matches is stale. Staleness is judged against what the
+manifest describes. The free manifest lacks the Pro components, so an entry for
+one of them is untested there rather than stale; against the Pro manifest,
+which describes every component, it names a component that is gone or a typo.
+This applies to both lists.
 
 The native table (`NATIVE_EVENT_TYPES`) is still needed, and grew: the
 manifest declares a type for few native events, so `wa-video`'s media events

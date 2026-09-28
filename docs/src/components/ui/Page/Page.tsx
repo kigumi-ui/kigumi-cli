@@ -22,7 +22,7 @@ import './Page.css';
  *
  * // With ref methods
  * const ref = useRef<PageRef>(null);
- * <button onClick={() => ref.current?.visiblePixelsInViewport()}>Call Method</button>
+ * <button onClick={() => ref.current?.showNavigation()}>Call Method</button>
  * <Page ref={ref} />
  * ```
  */
@@ -48,7 +48,7 @@ export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
 export interface PageRef {
   /** https://stackoverflow.com/a/26831113
-This prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps. */
+This prevents awkward gaps when scrolling the page and the aside / menu don't "fill" the gaps. */
   visiblePixelsInViewport: (element: HTMLElement | null) => void;
 
   /** Shows the mobile navigation drawer */

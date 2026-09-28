@@ -28,7 +28,7 @@ declare module '@awesome.me/webawesome/dist/components/combobox/combobox.js' {
     reload?(): void;
     show?(): void;
     hide?(): void;
-    focus?(options: FocusOptions): void;
+    focus?(options?: FocusOptions): void;
     blur?(): void;
     setCustomValidity?(message: string): void;
     formStateRestoreCallback?(state: string | File | FormData | null, reason: 'autocomplete' | 'restore'): void;
@@ -38,7 +38,7 @@ declare module '@awesome.me/webawesome/dist/components/combobox/combobox.js' {
 
 declare module '@awesome.me/webawesome/dist/components/date-input/date-input.js' {
   export default class WaDateInput extends HTMLElement {
-    focus?(options: FocusOptions): void;
+    focus?(options?: FocusOptions): void;
     blur?(): void;
     show?(): void;
     hide?(): void;
@@ -52,7 +52,7 @@ declare module '@awesome.me/webawesome/dist/components/date-input/date-input.js'
 declare module '@awesome.me/webawesome/dist/components/date-picker/date-picker.js' {
   export type Date = unknown;
   export default class WaDatePicker extends HTMLElement {
-    focus?(options: FocusOptions): void;
+    focus?(options?: FocusOptions): void;
     goToDate?(date: string | Date): void;
     goToToday?(): void;
     clear?(): void;
@@ -65,7 +65,7 @@ declare module '@awesome.me/webawesome/dist/components/doughnut-chart/doughnut-c
 
 declare module '@awesome.me/webawesome/dist/components/file-input/file-input.js' {
   export default class WaFileInput extends HTMLElement {
-    focus?(options: FocusOptions): void;
+    focus?(options?: FocusOptions): void;
     blur?(): void;
     setCustomValidity?(message: string): void;
     formStateRestoreCallback?(state: string | File | FormData | null, reason: 'autocomplete' | 'restore'): void;
@@ -79,7 +79,7 @@ declare module '@awesome.me/webawesome/dist/components/line-chart/line-chart.js'
 
 declare module '@awesome.me/webawesome/dist/components/number-input/number-input.js' {
   export default class WaNumberInput extends HTMLElement {
-    focus?(options: FocusOptions): void;
+    focus?(options?: FocusOptions): void;
     blur?(): void;
     select?(): void;
     stepUp?(): void;
@@ -113,7 +113,7 @@ declare module '@awesome.me/webawesome/dist/components/sparkline/sparkline.js' {
 declare module '@awesome.me/webawesome/dist/components/toast/toast.js' {
   export type ToastCreateOptions = unknown;
   export default class WaToast extends HTMLElement {
-    create?(message: string, options: ToastCreateOptions): void;
+    create?(message: string, options?: ToastCreateOptions): void;
   }
 }
 

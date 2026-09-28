@@ -97,10 +97,10 @@ export class StepperComponent implements AfterViewInit, OnDestroy {
     this.cleanups.forEach((fn) => fn());
   }
 
-  goTo(name?: string): void {
+  goTo(name: string): void {
     (
       this.elementRef.nativeElement as unknown as {
-        goTo: (name?: string) => void;
+        goTo: (name: string) => void;
       }
     ).goTo(name);
   }

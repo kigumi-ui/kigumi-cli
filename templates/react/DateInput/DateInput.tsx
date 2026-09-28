@@ -174,7 +174,7 @@ export interface DateInputProps extends Omit<
 }
 
 export interface DateInputRef {
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   blur: () => void;
 
@@ -220,7 +220,7 @@ export const DateInput = forwardRef<DateInputRef, DateInputProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             dateinputRef.current &&
             typeof dateinputRef.current.focus === 'function'

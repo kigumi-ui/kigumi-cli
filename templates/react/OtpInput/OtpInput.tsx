@@ -132,7 +132,7 @@ export interface OtpInputRef {
   clear: () => void;
 
   /** Focuses the field. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the field. */
   blur: () => void;
@@ -190,7 +190,7 @@ export const OtpInput = forwardRef<OtpInputRef, OtpInputProps>(
             otpinputRef.current.clear();
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             otpinputRef.current &&
             typeof otpinputRef.current.focus === 'function'

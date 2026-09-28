@@ -33,6 +33,7 @@
     "dev": "tsx watch src/index.ts",
     "generate:metadata": "tsx scripts/parse-custom-elements.ts",
     "generate:skill-refs": "tsx scripts/generate-skill-references.ts",
+    "generate:pro-shim": "tsx scripts/sync-wa-pro-shim.ts",
     "generate:react": "tsx scripts/generate-react-templates.ts",
     "generate:vue": "tsx scripts/generate-vue-templates.ts",
     "generate:angular": "tsx scripts/generate-angular-templates.ts",

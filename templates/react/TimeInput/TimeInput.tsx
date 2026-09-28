@@ -148,7 +148,7 @@ export interface TimeInputProps extends Omit<
 
 export interface TimeInputRef {
   /** Sets focus on the first empty (else first) segment. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the time picker. */
   blur: () => void;
@@ -201,7 +201,7 @@ export const TimeInput = forwardRef<TimeInputRef, TimeInputProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             timeinputRef.current &&
             typeof timeinputRef.current.focus === 'function'

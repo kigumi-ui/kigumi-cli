@@ -203,19 +203,19 @@ export class TimeInputComponent implements AfterViewInit, OnDestroy {
   hide(): void {
     (this.elementRef.nativeElement as unknown as { hide: () => void }).hide();
   }
-  formStateRestoreCallback(state?: string | File | FormData | null): void {
+  formStateRestoreCallback(state: string | File | FormData | null): void {
     (
       this.elementRef.nativeElement as unknown as {
         formStateRestoreCallback: (
-          state?: string | File | FormData | null
+          state: string | File | FormData | null
         ) => void;
       }
     ).formStateRestoreCallback(state);
   }
-  setCustomValidity(message?: string): void {
+  setCustomValidity(message: string): void {
     (
       this.elementRef.nativeElement as unknown as {
-        setCustomValidity: (message?: string) => void;
+        setCustomValidity: (message: string) => void;
       }
     ).setCustomValidity(message);
   }

@@ -29,7 +29,7 @@ function ensureLoaded() {
  *
  * // With ref methods
  * const ref = useRef<PageRef>(null);
- * <button onClick={() => ref.current?.visiblePixelsInViewport()}>Call Method</button>
+ * <button onClick={() => ref.current?.showNavigation()}>Call Method</button>
  * <Page ref={ref} />
  * ```
  */

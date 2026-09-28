@@ -102,7 +102,7 @@ export interface KnownDateProps extends Omit<
 
 export interface KnownDateRef {
   /** Focuses the first empty field, or the first field when all are filled. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the known date. */
   blur: () => void;
@@ -144,7 +144,7 @@ export const KnownDate = forwardRef<KnownDateRef, KnownDateProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             knowndateRef.current &&
             typeof knowndateRef.current.focus === 'function'

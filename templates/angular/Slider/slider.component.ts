@@ -202,22 +202,22 @@ export class SliderComponent
       this.elementRef.nativeElement as unknown as { stepUp: () => void }
     ).stepUp();
   }
-  setCustomValidity(message?: string): void {
+  setCustomValidity(message: string): void {
     (
       this.elementRef.nativeElement as unknown as {
-        setCustomValidity: (message?: string) => void;
+        setCustomValidity: (message: string) => void;
       }
     ).setCustomValidity(message);
   }
   formStateRestoreCallback(
-    state?: string | File | FormData | null,
-    reason?: 'autocomplete' | 'restore'
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
   ): void {
     (
       this.elementRef.nativeElement as unknown as {
         formStateRestoreCallback: (
-          state?: string | File | FormData | null,
-          reason?: 'autocomplete' | 'restore'
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
         ) => void;
       }
     ).formStateRestoreCallback(state, reason);

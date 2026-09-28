@@ -73,10 +73,10 @@ export class PageComponent implements AfterViewInit {
     }
   }
 
-  visiblePixelsInViewport(element?: HTMLElement | null): void {
+  visiblePixelsInViewport(element: HTMLElement | null): void {
     (
       this.elementRef.nativeElement as unknown as {
-        visiblePixelsInViewport: (element?: HTMLElement | null) => void;
+        visiblePixelsInViewport: (element: HTMLElement | null) => void;
       }
     ).visiblePixelsInViewport(element);
   }

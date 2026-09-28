@@ -48,8 +48,19 @@ export interface ComponentMetadata {
   methods: Array<{
     name: string;
     description?: string;
-    parameters?: Array<{ name: string; type: string }>;
+    parameters?: MethodParameter[];
   }>;
+}
+
+/**
+ * One parameter of a public component method. `optional` is present only when
+ * a call may leave the argument out: the CEM marks it optional or gives it a
+ * default, and no required parameter follows it.
+ */
+export interface MethodParameter {
+  name: string;
+  type: string;
+  optional?: true;
 }
 
 export interface CSSPart {

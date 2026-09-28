@@ -196,7 +196,7 @@ export interface ComboboxRef {
 
   hide: () => void;
 
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   blur: () => void;
 
@@ -268,7 +268,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
             comboboxRef.current.hide();
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             comboboxRef.current &&
             typeof comboboxRef.current.focus === 'function'

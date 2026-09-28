@@ -130,7 +130,7 @@ onBeforeUnmount(() => {
 
 defineExpose({
   clear: () => elementRef.value?.clear?.(),
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   select: () => elementRef.value?.select?.(),
   setCustomValidity: (message: string) =>

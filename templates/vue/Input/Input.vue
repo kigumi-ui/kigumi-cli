@@ -167,13 +167,13 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   select: () => elementRef.value?.select?.(),
   setSelectionRange: (
     selectionStart: number,
     selectionEnd: number,
-    selectionDirection: 'forward' | 'backward' | 'none'
+    selectionDirection?: 'forward' | 'backward' | 'none'
   ) =>
     elementRef.value?.setSelectionRange?.(
       selectionStart,
@@ -182,9 +182,9 @@ defineExpose({
     ),
   setRangeText: (
     replacement: string,
-    start: number,
-    end: number,
-    selectMode: 'select' | 'start' | 'end' | 'preserve'
+    start?: number,
+    end?: number,
+    selectMode?: 'select' | 'start' | 'end' | 'preserve'
   ) => elementRef.value?.setRangeText?.(replacement, start, end, selectMode),
   showPicker: () => elementRef.value?.showPicker?.(),
   stepUp: () => elementRef.value?.stepUp?.(),

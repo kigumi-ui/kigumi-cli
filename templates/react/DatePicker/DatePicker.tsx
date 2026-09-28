@@ -120,7 +120,7 @@ export interface DatePickerProps extends Omit<
 }
 
 export interface DatePickerRef {
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   goToDate: (date: string | Date) => void;
 
@@ -152,7 +152,7 @@ export const DatePicker = forwardRef<DatePickerRef, DatePickerProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             datepickerRef.current &&
             typeof datepickerRef.current.focus === 'function'

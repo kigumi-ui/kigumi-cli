@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   goToDate: (date: string | Date) => elementRef.value?.goToDate?.(date),
   goToToday: () => elementRef.value?.goToToday?.(),
   clear: () => elementRef.value?.clear?.(),

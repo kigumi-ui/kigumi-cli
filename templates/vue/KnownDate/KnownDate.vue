@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   formStateRestoreCallback: (state: string | File | FormData | null) =>
     elementRef.value?.formStateRestoreCallback?.(state),

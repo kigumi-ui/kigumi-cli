@@ -165,7 +165,7 @@ export interface TagInputProps extends Omit<
 
 export interface TagInputRef {
   /** Sets focus on the text box. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the text box. */
   blur: () => void;
@@ -214,7 +214,7 @@ export const TagInput = forwardRef<TagInputRef, TagInputProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             taginputRef.current &&
             typeof taginputRef.current.focus === 'function'

@@ -59,7 +59,7 @@ defineExpose({
   expand: () => elementRef.value?.expand?.(),
   collapse: () => elementRef.value?.collapse?.(),
   toggle: () => elementRef.value?.toggle?.(),
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   element: elementRef,
 });
 </script>

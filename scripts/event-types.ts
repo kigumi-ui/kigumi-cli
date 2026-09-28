@@ -90,10 +90,43 @@ export const EVENT_CLASS_OVERRIDES: EventClassOverrides = {
   },
 };
 
-/** Component tag -> manifest event name -> the event that really fires. */
+/** A manifest artifact, and the real event it shadows. */
+export interface ManifestEventArtifact {
+  /** The event the component really fires with the artifact's class. */
+  shadows: string;
+}
+
+/** Component tag -> manifest event name -> what the artifact shadows. */
 export type ManifestEventArtifacts = Readonly<
-  Record<string, Readonly<Record<string, string>>>
+  Record<string, Readonly<Record<string, ManifestEventArtifact>>>
 >;
+
+/**
+ * What a manifest describes, so pinned entries can be judged stale.
+ *
+ * The free manifest lacks the Pro components, so an entry for one of them
+ * goes unconsulted there without being wrong. The Pro manifest describes
+ * every component, so against it such an entry names a component that is
+ * gone, or a typo.
+ */
+export interface ManifestCoverage {
+  /** Tag of every component the manifest declares. */
+  tags: ReadonlySet<string>;
+  /** True when the manifest describes every Web Awesome component (Pro). */
+  complete: boolean;
+}
+
+/** Pinned entries no manifest event consulted, per list. */
+export interface StaleEntries {
+  overrides: string[];
+  artifacts: string[];
+}
+
+/** A manifest event with the handler type resolved for it. */
+export interface ResolvedManifestEvent<E extends ManifestEvent> {
+  event: E;
+  resolved: ResolvedEventType;
+}
 
 /**
  * Manifest events that never fire: analyzer artifacts, each shadowing a real
@@ -105,17 +138,17 @@ export type ManifestEventArtifacts = Readonly<
  * manifest analyzer records a second event named after the argument, here
  * `detail`, typed with the class. A handler for it would never run.
  *
- * Each entry maps the artifact to the real event carrying the same class.
- * The resolver keeps the list honest the same way it keeps
- * `EVENT_CLASS_OVERRIDES`: it refuses an entry whose real event fires a
- * different class or that the component does not declare, and reports an
- * entry no manifest event consults as stale. An unlisted artifact is refused
- * by `resolve()`, so a new one stops `generate:metadata` in the bump PR.
+ * Each entry names the real event carrying the same class, and
+ * `resolveEvents()` drops the artifact. The resolver keeps the list honest the
+ * same way it keeps `EVENT_CLASS_OVERRIDES`: it refuses an entry whose real
+ * event fires a different class or that the component does not declare, and
+ * `staleEntries()` reports an entry no manifest event consults. An unlisted
+ * artifact is refused, so a new one stops `generate:metadata` in the bump PR.
  */
 export const MANIFEST_EVENT_ARTIFACTS: ManifestEventArtifacts = {
-  'wa-combobox': { request: 'wa-options-request' },
-  'wa-data-grid': { request: 'wa-data-request' },
-  'wa-stepper': { detail: 'wa-step-change' },
+  'wa-combobox': { request: { shadows: 'wa-options-request' } },
+  'wa-data-grid': { request: { shadows: 'wa-data-request' } },
+  'wa-stepper': { detail: { shadows: 'wa-step-change' } },
 };
 
 /**
@@ -330,14 +363,18 @@ function declaredShapeKeys(text: string): string[] | null {
 
 const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 
+/** The resolver `createEventTypeResolver()` returns. */
+export type EventTypeResolver = ReturnType<typeof createEventTypeResolver>;
+
 /**
  * Resolve manifest events to handler types against one package's catalog.
  *
- * Stateful only to track which overrides and artifacts were consulted, so a
- * caller that has resolved every event can ask which entries are stale.
+ * `resolveEvents()` takes every event one component declares, drops its
+ * manifest artifacts and types the rest; `resolve()` types a single event and
+ * refuses an artifact like any other non-`wa-` event carrying an event class.
  *
- * A caller asks `isArtifact()` first and skips the event when it answers
- * true; `resolve()` refuses a listed artifact like any other.
+ * Stateful only to track which overrides and artifacts were consulted, so a
+ * caller that has resolved every component can ask which entries are stale.
  */
 export function createEventTypeResolver(
   catalog: EventCatalog,
@@ -345,16 +382,13 @@ export function createEventTypeResolver(
   artifacts: ManifestEventArtifacts = MANIFEST_EVENT_ARTIFACTS
 ): {
   resolve(tagName: string, event: ManifestEvent): ResolvedEventType;
-  isArtifact(
+  resolveEvents<E extends ManifestEvent>(
     tagName: string,
-    event: ManifestEvent,
-    componentEvents: readonly string[]
-  ): boolean;
-  unusedOverrides(): string[];
-  unusedArtifacts(): string[];
+    events: readonly E[]
+  ): Array<ResolvedManifestEvent<E>>;
+  staleEntries(coverage: ManifestCoverage): StaleEntries;
 } {
   const used = new Set<string>();
-  const usedArtifacts = new Set<string>();
 
   const classType = (name: string): ResolvedEventType => {
     const cls = catalog.classes.get(name);
@@ -483,28 +517,29 @@ export function createEventTypeResolver(
     );
   }
 
+  /** True for a listed artifact of `tagName`, after checking the entry holds. */
   function isArtifact(
     tagName: string,
     event: ManifestEvent,
-    componentEvents: readonly string[]
+    declared: readonly string[]
   ): boolean {
-    const realEvent = artifacts[tagName]?.[event.name];
-    if (!realEvent) return false;
+    const entry = artifacts[tagName]?.[event.name];
+    if (!entry) return false;
     const where = `${tagName} ${event.name}`;
-    usedArtifacts.add(where);
+    used.add(where);
 
-    const declared = event.type?.text?.trim();
-    const realClass = catalog.registered.get(realEvent);
-    if (!declared || declared !== realClass) {
+    const declaredType = event.type?.text?.trim();
+    const realClass = catalog.registered.get(entry.shadows);
+    if (!declaredType || declaredType !== realClass) {
       throw new Error(
-        `${where}: MANIFEST_EVENT_ARTIFACTS says it shadows ${realEvent}, ` +
-          `but the manifest declares ${declared ?? 'no type'} for it and ` +
-          `${realEvent} fires ${realClass ?? 'no registered class'}.`
+        `${where}: MANIFEST_EVENT_ARTIFACTS says it shadows ${entry.shadows}, ` +
+          `but the manifest declares ${declaredType ?? 'no type'} for it and ` +
+          `${entry.shadows} fires ${realClass ?? 'no registered class'}.`
       );
     }
-    if (!componentEvents.includes(realEvent)) {
+    if (!declared.includes(entry.shadows)) {
       throw new Error(
-        `${where}: MANIFEST_EVENT_ARTIFACTS says it shadows ${realEvent}, ` +
+        `${where}: MANIFEST_EVENT_ARTIFACTS says it shadows ${entry.shadows}, ` +
           `which ${tagName} does not declare. Dropping it would lose the ` +
           `only record that ${tagName} fires ${realClass}.`
       );
@@ -512,22 +547,27 @@ export function createEventTypeResolver(
     return true;
   }
 
-  const entriesOf = (list: EventClassOverrides | ManifestEventArtifacts) =>
-    Object.entries(list).flatMap(([tag, events]) =>
-      Object.keys(events).map((name) => `${tag} ${name}`)
-    );
-
-  function unusedOverrides(): string[] {
-    return entriesOf(overrides)
-      .filter((key) => !used.has(key))
-      .sort();
+  function resolveEvents<E extends ManifestEvent>(
+    tagName: string,
+    events: readonly E[]
+  ): Array<ResolvedManifestEvent<E>> {
+    const declared = events.map((event) => event.name);
+    return events
+      .filter((event) => !isArtifact(tagName, event, declared))
+      .map((event) => ({ event, resolved: resolve(tagName, event) }));
   }
 
-  function unusedArtifacts(): string[] {
-    return entriesOf(artifacts)
-      .filter((key) => !usedArtifacts.has(key))
-      .sort();
+  function staleEntries(coverage: ManifestCoverage): StaleEntries {
+    const stale = (list: EventClassOverrides | ManifestEventArtifacts) =>
+      Object.entries(list)
+        .filter(([tag]) => coverage.complete || coverage.tags.has(tag))
+        .flatMap(([tag, events]) =>
+          Object.keys(events).map((name) => `${tag} ${name}`)
+        )
+        .filter((key) => !used.has(key))
+        .sort();
+    return { overrides: stale(overrides), artifacts: stale(artifacts) };
   }
 
-  return { resolve, isArtifact, unusedOverrides, unusedArtifacts };
+  return { resolve, resolveEvents, staleEntries };
 }

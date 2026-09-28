@@ -17,8 +17,10 @@ import {
 import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
+  callableWithoutArguments,
   formatCustomTypeImports,
   formatEventTypeImports,
+  formatParameters,
   enumeratedProps,
   generateCssTemplate,
   handlerArgument,
@@ -133,9 +135,7 @@ ${ownProps}
   const refMethods = metadata.methods
     .map((method) => {
       if (method.parameters && method.parameters.length > 0) {
-        const params = method.parameters
-          .map((p) => `${p.name}: ${p.type}`)
-          .join(', ');
+        const params = formatParameters(method.parameters);
         const comment = method.description
           ? `\n  /** ${method.description} */`
           : '';
@@ -159,9 +159,7 @@ ${ownProps}
     .map((method) => {
       const methodName = method.name;
       if (method.parameters && method.parameters.length > 0) {
-        const params = method.parameters
-          .map((p) => `${p.name}: ${p.type}`)
-          .join(', ');
+        const params = formatParameters(method.parameters);
         const args = method.parameters.map((p) => p.name).join(', ');
         return `        ${methodName}: (${params}) => {
           if (${component.name.toLowerCase()}Ref.current && typeof ${component.name.toLowerCase()}Ref.current.${methodName} === 'function') {
@@ -270,6 +268,10 @@ ${enumerated.map((p) => `      setEnumeratedAttribute(el, '${p.name}', ${p.name}
     formatCustomTypeImports(metadata.methods, component.importPath) +
     formatEventTypeImports(metadata.events);
 
+  // The JSDoc ref example calls a method with no arguments, so it has to be
+  // one that allows that; with none, the example is left out.
+  const exampleMethod = metadata.methods.find(callableWithoutArguments);
+
   // Convert "AnimatedImage" → "animated-image" for the WA Free path.
   const kebabName = component.tagName.replace(/^wa-/, '');
 
@@ -295,11 +297,11 @@ ${enumeratedHelper}
  * // With event handlers
  * <${component.name}${metadata.events.length > 0 ? `\n *   ${toReactEventName(metadata.events[0].name)}={(e) => console.log(e)}` : ''} />
  *${
-   metadata.methods.length > 0
+   exampleMethod
      ? `
  * // With ref methods
  * const ref = useRef<${component.name}Ref>(null);
- * <button onClick={() => ref.current?.${metadata.methods[0].name}()}>Call Method</button>
+ * <button onClick={() => ref.current?.${exampleMethod.name}()}>Call Method</button>
  * <${component.name} ref={ref} />`
      : ''
  }

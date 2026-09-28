@@ -11,6 +11,7 @@
 import { CSS_METADATA } from './css-metadata.js';
 import { toKebabCase } from '../src/utils/naming.js';
 import type { ComponentProp } from '../src/utils/registry/types.js';
+import type { MethodParameter } from '../src/utils/metadata-types.js';
 
 export const DOM_GLOBALS = new Set([
   // Element / event types
@@ -65,6 +66,27 @@ export const DOM_GLOBALS = new Set([
   'String',
   'Boolean',
 ]);
+
+/**
+ * A method's parameter list as every wrapper declares it: `name?: Type` for a
+ * parameter the metadata marks optional, `name: Type` otherwise. React, Vue,
+ * Angular and the Pro typecheck shim all write it through here, so the three
+ * frameworks agree on which arguments a call may leave out (issue #108).
+ */
+export function formatParameters(
+  parameters: readonly MethodParameter[] | undefined
+): string {
+  return (parameters ?? [])
+    .map((p) => `${p.name}${p.optional ? '?' : ''}: ${p.type}`)
+    .join(', ');
+}
+
+/** True when a method can be called with no arguments. */
+export function callableWithoutArguments(method: {
+  parameters?: readonly MethodParameter[];
+}): boolean {
+  return (method.parameters ?? []).every((p) => p.optional);
+}
 
 export function extractCustomTypeImports(
   methods: { parameters?: Array<{ name: string; type: string }> }[]

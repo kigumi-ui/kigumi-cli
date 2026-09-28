@@ -196,7 +196,7 @@ defineExpose({
   reload: () => elementRef.value?.reload?.(),
   show: () => elementRef.value?.show?.(),
   hide: () => elementRef.value?.hide?.(),
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   setCustomValidity: (message: string) =>
     elementRef.value?.setCustomValidity?.(message),

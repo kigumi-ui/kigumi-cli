@@ -15,7 +15,11 @@ import { spawn } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createEventTypeResolver, readEventCatalog } from './event-types.js';
+import {
+  createEventTypeResolver,
+  readEventCatalog,
+  type EventTypeResolver,
+} from './event-types.js';
 import { resolveCem } from './find-cem.js';
 import { isEntryPoint } from './is-entry-point.js';
 import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
@@ -24,6 +28,7 @@ import type {
   CSSPart,
   CSSCustomProperty,
   ComponentCSSMetadata,
+  MethodParameter,
 } from '../src/utils/metadata-types.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,6 +39,7 @@ export interface CemParameter {
   name?: string;
   type?: { text?: string };
   default?: string;
+  optional?: boolean;
 }
 
 export interface CustomElementDeclaration {
@@ -75,7 +81,7 @@ export interface CustomElementDeclaration {
   }>;
 }
 
-interface CustomElementsJSON {
+export interface CustomElementsJSON {
   modules: Array<{
     declarations?: Array<CustomElementDeclaration>;
   }>;
@@ -119,6 +125,27 @@ export function paramType(param: CemParameter): string {
   if (/^(['"]).*\1$/.test(fallback)) return 'string';
   if (fallback === 'true' || fallback === 'false') return 'boolean';
   return 'unknown';
+}
+
+/**
+ * A CEM method's parameters as the wrappers declare them.
+ *
+ * A parameter is optional when the CEM marks it `optional` or gives it a
+ * default, and only if every parameter after it is optional too: TypeScript
+ * rejects a required parameter after an optional one. The flag is written
+ * only when true, so required parameters read as before (issue #108).
+ *
+ * Exported for unit testing.
+ */
+export function methodParameters(params: CemParameter[]): MethodParameter[] {
+  const omittable = params.map(
+    (p) => p.optional === true || p.default !== undefined
+  );
+  return params.map((p, i) => ({
+    name: sanitizeParamName(p.name || '', i),
+    type: paramType(p),
+    ...(omittable.slice(i).every(Boolean) ? { optional: true as const } : {}),
+  }));
 }
 
 /**
@@ -282,8 +309,32 @@ async function parseCustomElements(): Promise<ParsedOutput> {
   const eventTypes = createEventTypeResolver(
     await readEventCatalog(path.join(path.dirname(filePath), 'events'))
   );
+  // Only the Pro manifest describes every component; see ManifestCoverage.
+  return buildMetadata(data, eventTypes, {
+    complete: resolution.tier === 'pro',
+  });
+}
+
+/**
+ * Component and CSS metadata for every component a manifest declares: the
+ * parser without its I/O.
+ *
+ * Refuses pinned event entries (`EVENT_CLASS_OVERRIDES`,
+ * `MANIFEST_EVENT_ARTIFACTS`) that no manifest event consulted. An entry for a
+ * component the manifest does not declare is only judged when the manifest is
+ * `complete`: the free manifest lacks the Pro components, so there such an
+ * entry is untested rather than stale.
+ *
+ * Exported for unit testing.
+ */
+export function buildMetadata(
+  data: CustomElementsJSON,
+  eventTypes: EventTypeResolver,
+  { complete }: { complete: boolean }
+): ParsedOutput {
   const metadata: Record<string, ComponentMetadata> = {};
   const cssMetadata: Record<string, ComponentCSSMetadata> = {};
+  const tags = new Set<string>();
 
   for (const module of data.modules) {
     if (!module.declarations) continue;
@@ -295,41 +346,36 @@ async function parseCustomElements(): Promise<ParsedOutput> {
       const tagName = declaration.tagName;
       const className = declaration.name;
       const componentKey = tagName.replace('wa-', '');
+      tags.add(tagName);
 
       // Extract events
       // Derive reactName from the raw event name (strip wa- prefix, camelCase, prepend on)
       // Never use reactName from custom-elements.json — it says "onWaHide" but templates use "onHide"
       // The type is the class Web Awesome dispatches, never the manifest's
-      // `eventName`: see scripts/event-types.ts.
-      // Manifest artifacts (events named after a constructor argument, see
-      // MANIFEST_EVENT_ARTIFACTS) never fire and are dropped here.
-      const declaredEventNames = (declaration.events || []).flatMap((event) =>
-        event.name ? [event.name] : []
-      );
-      const events = (declaration.events || [])
-        .filter(
-          (event) =>
-            event.name &&
-            !eventTypes.isArtifact(
-              tagName,
-              { name: event.name, type: event.type },
-              declaredEventNames
-            )
+      // `eventName`, and manifest artifacts are dropped: see
+      // scripts/event-types.ts.
+      const events = eventTypes
+        .resolveEvents(
+          tagName,
+          (declaration.events || []).flatMap((event) =>
+            event.name
+              ? [
+                  {
+                    name: event.name,
+                    type: event.type,
+                    description: event.description,
+                  },
+                ]
+              : []
+          )
         )
-        .map((event) => {
-          const name = event.name!;
-          const resolved = eventTypes.resolve(tagName, {
-            name,
-            type: event.type,
-          });
-          return {
-            name,
-            description: event.description || '',
-            reactName: `on${toPascalCase(stripWaPrefix(name))}`,
-            eventType: resolved.type,
-            ...(resolved.module ? { eventTypeModule: resolved.module } : {}),
-          };
-        });
+        .map(({ event, resolved }) => ({
+          name: event.name,
+          description: event.description || '',
+          reactName: `on${toPascalCase(stripWaPrefix(event.name))}`,
+          eventType: resolved.type,
+          ...(resolved.module ? { eventTypeModule: resolved.module } : {}),
+        }));
 
       // Extract slots
       const slots = (declaration.slots || []).map((slot) => ({
@@ -354,11 +400,7 @@ async function parseCustomElements(): Promise<ParsedOutput> {
             member.name
         )
         .map((method) => {
-          const params =
-            method.parameters?.map((p, i) => ({
-              name: sanitizeParamName(p.name || '', i),
-              type: paramType(p),
-            })) || [];
+          const params = methodParameters(method.parameters ?? []);
 
           return {
             name: method.name!,
@@ -384,19 +426,17 @@ async function parseCustomElements(): Promise<ParsedOutput> {
     }
   }
 
-  const stale = eventTypes.unusedOverrides();
-  if (stale.length > 0) {
+  const stale = eventTypes.staleEntries({ tags, complete });
+  if (stale.overrides.length > 0) {
     throw new Error(
       `EVENT_CLASS_OVERRIDES (scripts/event-types.ts) has entries no manifest ` +
-        `event uses: ${stale.join(', ')}. Delete them.`
+        `event uses: ${stale.overrides.join(', ')}. Delete them.`
     );
   }
-
-  const staleArtifacts = eventTypes.unusedArtifacts();
-  if (staleArtifacts.length > 0) {
+  if (stale.artifacts.length > 0) {
     throw new Error(
       `MANIFEST_EVENT_ARTIFACTS (scripts/event-types.ts) has entries no ` +
-        `manifest event matches: ${staleArtifacts.join(', ')}. Delete them.`
+        `manifest event matches: ${stale.artifacts.join(', ')}. Delete them.`
     );
   }
 

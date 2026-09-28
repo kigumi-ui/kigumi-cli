@@ -106,3 +106,50 @@ export const WithIcon: Story = {
     </Stepper>
   ),
 };
+
+/** Static snapshot for visual regression testing. */
+export const ChromaticOnly: Story = {
+  tags: ['!dev', '!autodocs'],
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
+  render: () => (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2rem',
+        padding: '1.5rem',
+      }}
+    >
+      <Stepper label="Variants">
+        <Step name="neutral" variant="neutral" completed>
+          Neutral
+        </Step>
+        <Step name="brand" variant="brand" completed>
+          Brand
+        </Step>
+        <Step name="success" variant="success" completed>
+          Success
+        </Step>
+        <Step name="warning" variant="warning" completed>
+          Warning
+        </Step>
+        <Step name="danger" variant="danger" completed>
+          Danger
+        </Step>
+      </Stepper>
+      <Stepper active="profile" label="States">
+        <Step name="account" completed>
+          <Icon slot="icon" name="user" />
+          Account
+          <span slot="description">Done</span>
+        </Step>
+        <Step name="profile">Profile</Step>
+        <Step name="billing" disabled>
+          Billing
+        </Step>
+      </Stepper>
+    </div>
+  ),
+};

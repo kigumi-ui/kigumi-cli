@@ -165,6 +165,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -373,6 +374,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -522,6 +524,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: '{ includeDisabled?: boolean }',
+            optional: true,
           },
         ],
       },
@@ -1396,6 +1399,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -1687,6 +1691,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'behavior',
             type: 'ScrollBehavior',
+            optional: true,
           },
         ],
       },
@@ -1697,6 +1702,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'behavior',
             type: 'ScrollBehavior',
+            optional: true,
           },
         ],
       },
@@ -1731,6 +1737,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'behavior',
             type: 'ScrollBehavior',
+            optional: true,
           },
         ],
       },
@@ -2034,6 +2041,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -2061,6 +2069,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'selectionDirection',
             type: "'forward' | 'backward' | 'none'",
+            optional: true,
           },
         ],
       },
@@ -2075,14 +2084,17 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'start',
             type: 'number',
+            optional: true,
           },
           {
             name: 'end',
             type: 'number',
+            optional: true,
           },
           {
             name: 'selectMode',
             type: "'select' | 'start' | 'end' | 'preserve'",
+            optional: true,
           },
         ],
       },
@@ -2445,6 +2457,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'alpha',
             type: 'number',
+            optional: true,
           },
         ],
       },
@@ -2455,6 +2468,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -2470,6 +2484,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'format',
             type: "'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'",
+            optional: true,
           },
         ],
       },
@@ -2782,6 +2797,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -3126,6 +3142,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -3554,6 +3571,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -3823,6 +3841,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -4138,6 +4157,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -4224,6 +4244,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'visible',
             type: 'boolean',
+            optional: true,
           },
         ],
       },
@@ -4259,6 +4280,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: "{ align?: 'start' | 'center' | 'end' }",
+            optional: true,
           },
         ],
       },
@@ -4270,6 +4292,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: '{\n    columnIds?: string[];\n    includeHeaders?: boolean;\n    delimiter?: string;\n    escapeFormulas?: boolean;\n  }',
+            optional: true,
           },
         ],
       },
@@ -4281,6 +4304,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: '{\n    fileName?: string;\n    columnIds?: string[];\n    includeHeaders?: boolean;\n    delimiter?: string;\n    escapeFormulas?: boolean;\n  }',
+            optional: true,
           },
         ],
       },
@@ -4292,6 +4316,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: "{\n    columnIds?: string[];\n    includeHeaders?: boolean;\n    format?: 'tsv' | 'csv';\n    escapeFormulas?: boolean;\n  }",
+            optional: true,
           },
         ],
       },
@@ -5074,6 +5099,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -5482,6 +5508,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -5857,6 +5884,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -6065,6 +6093,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -7037,6 +7066,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -7995,6 +8025,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -8372,6 +8403,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -8587,6 +8619,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -8605,6 +8638,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'position',
             type: '{ top?: number; left?: number }',
+            optional: true,
           },
         ],
       },
@@ -8624,6 +8658,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'selectionDirection',
             type: "'forward' | 'backward' | 'none'",
+            optional: true,
           },
         ],
       },
@@ -8638,14 +8673,17 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'start',
             type: 'number',
+            optional: true,
           },
           {
             name: 'end',
             type: 'number',
+            optional: true,
           },
           {
             name: 'selectMode',
             type: "'select' | 'start' | 'end' | 'preserve'",
+            optional: true,
           },
         ],
       },
@@ -8902,6 +8940,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -9055,6 +9094,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'ToastCreateOptions',
+            optional: true,
           },
         ],
       },

@@ -80,7 +80,7 @@ export interface ZoomableFrameProps extends Omit<
   /** Accessible name describing the framed content */
   label?: string;
 
-  /** Emitted when the internal iframe when it finishes loading. */
+  /** Emitted from the internal iframe when it finishes loading. */
   onLoad?: (event: Event) => void;
 
   /** Emitted from the internal iframe when it fails to load. */

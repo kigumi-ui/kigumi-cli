@@ -102,7 +102,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   setCustomValidity: (message: string) =>
     elementRef.value?.setCustomValidity?.(message),
   formStateRestoreCallback: (

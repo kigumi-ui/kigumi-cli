@@ -30,7 +30,7 @@ function ensureLoaded() {
  *
  * // With ref methods
  * const ref = useRef<RadioRef>(null);
- * <button onClick={() => ref.current?.setCustomValidity()}>Call Method</button>
+ * <button onClick={() => ref.current?.resetValidity()}>Call Method</button>
  * <Radio ref={ref} />
  * ```
  */

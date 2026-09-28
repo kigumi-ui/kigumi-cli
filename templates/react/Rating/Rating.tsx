@@ -32,7 +32,7 @@ function ensureLoaded() {
  *
  * // With ref methods
  * const ref = useRef<RatingRef>(null);
- * <button onClick={() => ref.current?.setCustomValidity()}>Call Method</button>
+ * <button onClick={() => ref.current?.resetValidity()}>Call Method</button>
  * <Rating ref={ref} />
  * ```
  */

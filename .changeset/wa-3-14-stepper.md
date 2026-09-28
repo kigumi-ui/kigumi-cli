@@ -13,3 +13,4 @@
 ### Changed
 
 - **Web Awesome**: `kigumi add`, `init` and `upgrade` now install Web Awesome 3.14.0.
+- **Method signatures**: Wrapper methods now mark a parameter optional exactly where Web Awesome does, in React, Vue and Angular alike. React and Vue no longer require arguments Web Awesome treats as optional (`focus()`, `Carousel.next()`). Angular now requires the ones it needs: a call such as `stepper.goTo()` or `toast.create()` without an argument no longer compiles, where it used to reach Web Awesome as `undefined`.
