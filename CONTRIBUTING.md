@@ -100,6 +100,9 @@ of mocks is capped and enforced in CI.
 - Branch off `main`. Keep the history linear; rebase rather than merge.
 - Add a changeset for anything user-facing: `pnpm changeset`. Pick `patch`, `minor`, or `major` and
   describe the change from a user's point of view.
+- The PR body becomes the squash commit on `main`, so it follows `.github/PULL_REQUEST_TEMPLATE.md`:
+  a short summary and four sections, checked by the `PR body` check. Review rounds and evidence go in
+  PR log comments, one per push; on a PR from a fork, a maintainer posts those (`docs/adr/0006`).
 - Keep the docs in sync. If you add or rename a command, util, or schema, update the relevant
   `AGENTS.md` and the README.
 - One logical change per pull request. A focused diff gets reviewed faster.

@@ -58,9 +58,12 @@ jobs:
     # Posts the old-to-new diff of every body edit as a comment, written by
     # the workflow from the event payload, so the record of what changed
     # cannot be made up or forgotten. No concurrency group: a queued run
-    # would replace a pending one and lose that edit's trail.
+    # would replace a pending one and lose that edit's trail. Skips forks,
+    # whose token cannot comment (as pr-log.yml does), and bots and the
+    # release PR, which isExempt() in scripts/pr-body-rules.ts exempts.
     if: >-
       github.event.action == 'edited' && github.event.changes.body != null &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.type != 'Bot' && github.event.pull_request.head.ref != 'changeset-release/main'
     runs-on: ubuntu-latest
     permissions:

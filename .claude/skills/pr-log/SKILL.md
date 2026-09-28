@@ -58,6 +58,9 @@ A **round** is one push session. Each round gets exactly one new log comment.
 6. Run `pnpm check:pr-log --pr <pr>`. Done when it reports no commit outside
    a Covers range (a draft reports `pending`, which is expected).
 
+Only log comments by people with write access count (`OWNER`, `MEMBER`,
+`COLLABORATOR`). On a PR from a fork, a maintainer posts the rounds.
+
 ## When the body has become wrong
 
 Correct only the sentences the round made wrong, with

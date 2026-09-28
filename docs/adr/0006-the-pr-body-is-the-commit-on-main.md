@@ -83,7 +83,11 @@ The prose of the body stays unverifiable by a script. `/code-review`'s Spec
 axis covers it: it reads the body and the log against the diff and reports
 body claims the diff does not back and user-facing changes the body omits.
 
-A fork's PR gets no edit trail (its token cannot comment) and gets its
-`pr-log` status only from comment runs. The repo's PRs come from its own
-branches, so this is accepted rather than worked around with
-`pull_request_target`.
+Only log comments by `OWNER`, `MEMBER` or `COLLABORATOR` count, so a comment
+from anyone else can neither cover commits nor fail the status with a
+malformed header. A fork's PR therefore gets its log rounds from a
+maintainer, and its `pr-log` status only from comment runs. It gets no edit
+trail either: the trail job skips forks, whose token cannot comment. A
+rewrite of its body still fails, since the body check reads GitHub's edit
+history. The repo's PRs come from its own branches, so this is accepted
+rather than worked around with `pull_request_target`.
