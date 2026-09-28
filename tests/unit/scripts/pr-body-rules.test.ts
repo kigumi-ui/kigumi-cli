@@ -351,7 +351,7 @@ describe('checkBody: repo paths in inline code', () => {
 
   it('accepts files, line suffixes and directories that exist', () => {
     const extra =
-      '`scripts/event-types.ts:42`, `./scripts/`, `docs/adr/` and `AGENTS.md`.\n';
+      '`scripts/event-types.ts:42`, `./scripts/` and `docs/adr/`.\n';
     expect(checkBody(withSections('none', 'CI only', extra), paths)).toEqual(
       []
     );
@@ -366,6 +366,15 @@ describe('checkBody: repo paths in inline code', () => {
         )
       )
     ).toEqual(['path-missing']);
+  });
+
+  it('leaves a bare file name alone: a nested file and a typo look the same', () => {
+    // `pr-body.yml` names .github/workflows/pr-body.yml; `AGENTS.m` is a typo.
+    // Neither is a top-level entry, and nothing tells the two apart.
+    const extra = 'See `pr-body.yml` and `AGENTS.m`.\n';
+    expect(checkBody(withSections('none', 'CI only', extra), paths)).toEqual(
+      []
+    );
   });
 
   it('leaves tokens alone whose first segment is not in the repo', () => {
@@ -606,7 +615,7 @@ describe('logStatus: the commit status, never a pass for work not done', () => {
     ).toEqual({
       state: 'success',
       description:
-        'All 3 commit(s) pushed after the PR opened are covered by 2 log comment(s)',
+        'All 3 commit(s) committed after the PR opened are covered by 2 log comment(s)',
     });
   });
 
@@ -686,7 +695,7 @@ describe('logStatus: the commit status, never a pass for work not done', () => {
       })
     ).toEqual({
       state: 'success',
-      description: 'No commits pushed after the PR opened (4 on the branch)',
+      description: 'No commits committed after the PR opened (4 on the branch)',
     });
   });
 });

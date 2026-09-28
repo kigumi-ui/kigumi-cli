@@ -45,15 +45,19 @@ two guards hold them:
 
 - `pr-body.yml` (`validate:pr-body`) checks structure and size on every PR,
   and on a PR ready for review, claims matched against artifacts: Impact
-  against the changesets in the diff, each `#N`, each backticked repo path,
-  and a Verification that reads `CI only` or links a log comment on this PR.
+  against the changesets in the diff, each `#N`, each backticked repo path (a
+  token whose first segment is a top-level entry; a bare name could be any
+  nested file, so it is not checked), and a Verification that reads `CI only` or links a log comment on this PR.
   It runs on `edited`, which `ci.yml` does not, so it also carries the PR-body
   half of the attribution check (#97), which never saw a body edited after
   the last push. On every body edit it posts the old-to-new diff itself, from
   the old body GitHub puts in the event, and fails an edit that changes more
   than half of a ready PR's body.
-- `pr-log.yml` (`check:pr-log`) requires every commit pushed after the PR
-  opened to sit in some log comment's `Covers:` range. It runs on
+- `pr-log.yml` (`check:pr-log`) requires every commit committed after the PR
+  opened to sit in some log comment's `Covers:` range. Committer time stands
+  in for push time, which GitHub does not expose per commit: a commit made
+  before the PR opened but pushed later needs no round, and a rebase renews
+  the time, so rewritten commits need one. It runs on
   `issue_comment` too, since posting the comment is what fixes it, and a
   comment-triggered job is attached to main rather than the PR, so it reports
   the `pr-log` commit status instead of a job result.
@@ -69,7 +73,7 @@ outcome never claims a check ran.
 
 The prose of the body stays unverifiable by a script. `/code-review`'s Spec
 axis covers it: it reads the body and the log against the diff and reports
-body claims the diff does not back.
+body claims the diff does not back and user-facing changes the body omits.
 
 A fork's PR gets no edit trail (its token cannot comment) and gets its
 `pr-log` status only from comment runs. The repo's PRs come from its own

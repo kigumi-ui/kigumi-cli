@@ -4,9 +4,11 @@
  * PR Log Coverage (issue #150, ADR 0006)
  *
  * PURPOSE: every session that pushes to a PR posts one log comment headed
- * `**Round N** · Covers: a..b`. This checks that every commit pushed after
- * the PR was opened sits inside some log comment's range, and reports the
- * result as the `pr-log` commit status on the PR's head.
+ * `**Round N** · Covers: a..b`. This checks that every commit committed
+ * after the PR was opened sits inside some log comment's range, and reports
+ * the result as the `pr-log` commit status on the PR's head. Committer time
+ * stands in for push time, which GitHub does not expose per commit; a rebase
+ * renews it, so rewritten commits need a new round too.
  *
  * Why a commit status and not a job result: `pr-log.yml` also runs on
  * `issue_comment` (a new log comment can fix a failing check), and a job

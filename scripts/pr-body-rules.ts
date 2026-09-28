@@ -238,7 +238,8 @@ function findSection(lines: BodyLine[], heading: RegExp): Section | undefined {
   return { heading: lines[start], content };
 }
 
-const BUMP_LEVELS: readonly Bump[] = ['none', 'patch', 'minor', 'major'];
+/** The changeset levels, lowest first. */
+export const BUMP_LEVELS: readonly Bump[] = ['none', 'patch', 'minor', 'major'];
 
 function checkImpact(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
   const section = findSection(lines, /^## Impact$/);
@@ -328,7 +329,9 @@ const NOT_A_PATH = /[\s*?<>{}$[\]()]|:\/\//;
 /**
  * A backticked token is a repo path when its first segment is a top-level
  * entry of the repo. That keeps `kigumi-ui/kigumi-cli` and `dist/index.js`
- * (gitignored) out, and holds `scripts/...` to what actually exists.
+ * (gitignored) out, and holds `scripts/...` to what actually exists. A bare
+ * name is never checkable: it is a top-level entry (so it exists), or it may
+ * name a nested file (`pr-body.yml`), which a typo cannot be told apart from.
  */
 function checkPaths(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
   const topLevel = new Set([...ctx.knownPaths].map((p) => p.split('/')[0]));
@@ -339,7 +342,7 @@ function checkPaths(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
       const token = match[2].trim();
       if (NOT_A_PATH.test(token) || token.startsWith('@')) continue;
       const path = token.replace(/^\.\//, '').replace(/(:\d+){1,2}$/, '');
-      if (!path.includes('/') || !topLevel.has(path.split('/')[0])) continue;
+      if (!topLevel.has(path.split('/')[0])) continue;
       const dir = `${path.replace(/\/$/, '')}/`;
       if (
         ctx.knownPaths.has(path) ||
@@ -531,7 +534,7 @@ export interface LogCoverage {
 }
 
 /**
- * Checks that every required commit (pushed after the PR opened) sits inside
+ * Checks that every required commit (committed after the PR opened) sits inside
  * some log comment's Covers range. `resolveRange` lists the commits a range
  * covers, or returns null when either end no longer exists.
  */
@@ -634,11 +637,11 @@ export function logStatus(input: {
   if (required === 0) {
     return {
       state: 'success',
-      description: `No commits pushed after the PR opened (${branchCommits} on the branch)`,
+      description: `No commits committed after the PR opened (${branchCommits} on the branch)`,
     };
   }
   return {
     state: 'success',
-    description: `All ${required} commit(s) pushed after the PR opened are covered by ${coverage.rounds} log comment(s)`,
+    description: `All ${required} commit(s) committed after the PR opened are covered by ${coverage.rounds} log comment(s)`,
   };
 }

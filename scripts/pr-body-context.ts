@@ -13,7 +13,7 @@
 
 import { execFileSync } from 'child_process';
 
-import type { Bump } from './pr-body-rules.js';
+import { BUMP_LEVELS, type Bump } from './pr-body-rules.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -27,8 +27,6 @@ function lines(output: string): string[] {
   return output.split('\n').filter((line) => line !== '');
 }
 
-const BUMP_ORDER: readonly Bump[] = ['none', 'patch', 'minor', 'major'];
-
 /** The highest bump in a changeset's frontmatter, e.g. `'kigumi': minor`. */
 function frontmatterBump(changeset: string): Bump {
   const frontmatter =
@@ -36,7 +34,8 @@ function frontmatterBump(changeset: string): Bump {
   let highest: Bump = 'none';
   for (const match of frontmatter.matchAll(/:\s*(patch|minor|major)\s*$/gm)) {
     const bump = match[1] as Bump;
-    if (BUMP_ORDER.indexOf(bump) > BUMP_ORDER.indexOf(highest)) highest = bump;
+    if (BUMP_LEVELS.indexOf(bump) > BUMP_LEVELS.indexOf(highest))
+      highest = bump;
   }
   return highest;
 }
@@ -61,7 +60,8 @@ export function changesetBump(cwd: string, base: string, head: string): Bump {
   let highest: Bump = 'none';
   for (const path of changed) {
     const bump = frontmatterBump(git(cwd, ['show', `${head}:${path}`]));
-    if (BUMP_ORDER.indexOf(bump) > BUMP_ORDER.indexOf(highest)) highest = bump;
+    if (BUMP_LEVELS.indexOf(bump) > BUMP_LEVELS.indexOf(highest))
+      highest = bump;
   }
   return highest;
 }
