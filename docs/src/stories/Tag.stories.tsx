@@ -24,7 +24,7 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Tag size',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     variant: {
       control: 'select',

@@ -14,14 +14,12 @@ const meta = {
     name: {
       control: 'text',
       description: 'Form field name',
-      table: { defaultValue: { summary: 'option' } },
     },
     value: { control: 'text', description: 'Selected value' },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Radio size',
-      table: { defaultValue: { summary: 'medium' } },
     },
     required: {
       control: 'boolean',

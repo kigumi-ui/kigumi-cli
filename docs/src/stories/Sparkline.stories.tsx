@@ -19,7 +19,7 @@ const meta = {
       control: 'select',
       options: ['gradient', 'line', 'solid'],
       description: 'Visual style of the sparkline',
-      table: { defaultValue: { summary: 'line' } },
+      table: { defaultValue: { summary: 'solid' } },
     },
     trend: {
       control: 'select',
@@ -30,7 +30,7 @@ const meta = {
       control: 'select',
       options: ['linear', 'natural', 'step'],
       description: 'Interpolation curve style',
-      table: { defaultValue: { summary: 'natural' } },
+      table: { defaultValue: { summary: 'linear' } },
     },
   },
 } satisfies Meta<typeof Sparkline>;

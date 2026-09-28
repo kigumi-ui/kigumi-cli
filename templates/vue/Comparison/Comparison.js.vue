@@ -12,7 +12,7 @@ function ensureLoaded() {
  * Compare visual differences between similar content with a sliding panel
  */
 const props = defineProps({
-  position: { type: Number, required: false, default: 50 },
+  position: { type: Number, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

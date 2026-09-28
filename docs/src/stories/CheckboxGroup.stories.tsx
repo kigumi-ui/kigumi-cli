@@ -22,7 +22,6 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Size applied to all checkboxes in the group',
-      table: { defaultValue: { summary: 'medium' } },
     },
     required: {
       control: 'boolean',

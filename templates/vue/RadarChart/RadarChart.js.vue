@@ -14,18 +14,18 @@ function ensureLoaded() {
 const props = defineProps({
   label: { type: String, required: false },
   description: { type: String, required: false },
-  'legend-position': { type: String, required: false, default: 'top' },
+  'legend-position': { type: String, required: false },
   /** @deprecated Radar charts cannot stack datasets, so remove this prop. Removed in the next major. */
-  stacked: { type: Boolean, required: false, default: false },
+  stacked: { type: Boolean, required: false },
   /** @deprecated Hide the radial grid by setting options.scales.r.grid.display to false in the chart JSON config (the application/json script inside the chart). Removed in the next major. */
-  grid: { type: String, required: false, default: 'both' },
+  grid: { type: String, required: false },
   /** @deprecated Set options.scales.r.min in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major. */
   min: { type: Number, required: false },
   /** @deprecated Set options.scales.r.max in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major. */
   max: { type: Number, required: false },
-  'without-animation': { type: Boolean, required: false, default: false },
-  'without-legend': { type: Boolean, required: false, default: false },
-  'without-tooltip': { type: Boolean, required: false, default: false },
+  'without-animation': { type: Boolean, required: false },
+  'without-legend': { type: Boolean, required: false },
+  'without-tooltip': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

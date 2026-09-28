@@ -50,7 +50,7 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Rating size',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     'custom-error': {
       control: 'text',

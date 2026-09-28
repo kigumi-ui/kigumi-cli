@@ -54,7 +54,7 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'The size of each segment',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     mask: {
       control: 'boolean',

@@ -12,9 +12,9 @@ function ensureLoaded() {
  * A single notification banner that can be stacked inside a Toast container
  */
 const props = defineProps({
-  variant: { type: String, required: false, default: 'neutral' },
-  size: { type: String, required: false, default: 'medium' },
-  duration: { type: Number, required: false, default: 5000 },
+  variant: { type: String, required: false },
+  size: { type: String, required: false },
+  duration: { type: Number, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

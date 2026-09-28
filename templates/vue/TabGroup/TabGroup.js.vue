@@ -12,9 +12,9 @@ function ensureLoaded() {
  * Tab groups organize content into a container that shows one section at a time
  */
 const props = defineProps({
-  placement: { type: String, required: false, default: 'top' },
-  activation: { type: String, required: false, default: 'auto' },
-  'without-scroll-controls': { type: Boolean, required: false, default: false },
+  placement: { type: String, required: false },
+  activation: { type: String, required: false },
+  'without-scroll-controls': { type: Boolean, required: false },
   active: { type: String, required: false },
 });
 

@@ -14,7 +14,7 @@ function ensureLoaded() {
 const props = defineProps({
   src: { type: String, required: true },
   alt: { type: String, required: true },
-  play: { type: Boolean, required: false, default: false },
+  play: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

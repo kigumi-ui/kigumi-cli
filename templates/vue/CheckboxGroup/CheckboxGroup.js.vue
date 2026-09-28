@@ -12,13 +12,13 @@ function ensureLoaded() {
  * Checkbox groups label and group a set of checkboxes so they share hint text and validation
  */
 const props = defineProps({
-  label: { type: String, required: false, default: '' },
-  hint: { type: String, required: false, default: '' },
-  orientation: { type: String, required: false, default: 'vertical' },
-  size: { type: String, required: false, default: 'medium' },
-  required: { type: Boolean, required: false, default: false },
-  'with-label': { type: Boolean, required: false, default: false },
-  'with-hint': { type: Boolean, required: false, default: false },
+  label: { type: String, required: false },
+  hint: { type: String, required: false },
+  orientation: { type: String, required: false },
+  size: { type: String, required: false },
+  required: { type: Boolean, required: false },
+  'with-label': { type: Boolean, required: false },
+  'with-hint': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

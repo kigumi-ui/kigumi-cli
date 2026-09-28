@@ -13,9 +13,9 @@ function ensureLoaded() {
  */
 const props = defineProps({
   date: { type: String, required: false },
-  format: { type: String, required: false, default: 'long' },
-  numeric: { type: String, required: false, default: 'auto' },
-  sync: { type: Boolean, required: false, default: false },
+  format: { type: String, required: false },
+  numeric: { type: String, required: false },
+  sync: { type: Boolean, required: false },
   lang: { type: String, required: false },
 });
 

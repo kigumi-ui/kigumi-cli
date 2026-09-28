@@ -14,7 +14,7 @@ function ensureLoaded() {
 const props = defineProps({
   href: { type: String, required: false },
   target: { type: String, required: false },
-  rel: { type: String, required: false, default: 'noreferrer noopener' },
+  rel: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

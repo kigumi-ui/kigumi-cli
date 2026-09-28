@@ -14,7 +14,7 @@ function ensureLoaded() {
  * @remarks Re-render programmatically by updating the projected source content (slotted children). The previous `getMarked()` / `updateAll()` methods are marked private in WA 3.5.0+ and are no longer exposed; `renderMarkdown()` remains available.
  */
 const props = defineProps({
-  'tab-size': { type: Number, required: false, default: 4 },
+  'tab-size': { type: Number, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

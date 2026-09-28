@@ -13,8 +13,8 @@ function ensureLoaded() {
  */
 const props = defineProps({
   src: { type: String, required: false },
-  mode: { type: String, required: false, default: 'cors' },
-  'allow-scripts': { type: Boolean, required: false, default: false },
+  mode: { type: String, required: false },
+  'allow-scripts': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

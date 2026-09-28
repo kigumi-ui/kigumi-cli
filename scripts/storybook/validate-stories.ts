@@ -10,7 +10,12 @@
 
 import fs from 'fs';
 import path from 'path';
-import { buildAllStoryData } from './story-data.js';
+import {
+  argTypeDefaultSummary,
+  buildAllStoryData,
+  sameDefault,
+} from './story-data.js';
+import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
 
 const STORIES_DIR = path.resolve(import.meta.dirname, '../../docs/src/stories');
 
@@ -86,6 +91,25 @@ function validateStories(): ValidationError[] {
           message: `Missing argType "${argName}" (expected from ${argType.table?.category || 'registry'})`,
         });
       }
+    }
+
+    // 4. Check that each registry prop's default summary matches the registry
+    // default, which validate:cem-sync holds to the element's own (issue #152).
+    // A missing argType is already reported by check 3.
+    for (const prop of LOCAL_REGISTRY[key]?.props ?? []) {
+      const summary = argTypeDefaultSummary(content, prop.name);
+      if (summary === undefined || sameDefault(summary, prop.default)) {
+        continue;
+      }
+      errors.push({
+        component: key,
+        file: storyFile,
+        type: 'wrong-default',
+        message:
+          prop.default === undefined
+            ? `argType "${prop.name}" shows default ${summary}, but the registry states none; remove its defaultValue`
+            : `argType "${prop.name}" shows default ${summary ?? '(none)'}, but the registry default is ${prop.default}`,
+      });
     }
   }
 

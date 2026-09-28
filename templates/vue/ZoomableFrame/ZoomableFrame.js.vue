@@ -14,21 +14,17 @@ function ensureLoaded() {
 const props = defineProps({
   src: { type: String, required: false },
   srcdoc: { type: String, required: false },
-  zoom: { type: Number, required: false, default: 1 },
-  'zoom-levels': {
-    type: String,
-    required: false,
-    default: '25% 50% 75% 100% 125% 150% 175% 200%',
-  },
-  allowfullscreen: { type: Boolean, required: false, default: false },
-  loading: { type: String, required: false, default: 'eager' },
-  'without-controls': { type: Boolean, required: false, default: false },
-  'without-interaction': { type: Boolean, required: false, default: false },
+  zoom: { type: Number, required: false },
+  'zoom-levels': { type: String, required: false },
+  allowfullscreen: { type: Boolean, required: false },
+  loading: { type: String, required: false },
+  'without-controls': { type: Boolean, required: false },
+  'without-interaction': { type: Boolean, required: false },
   sandbox: { type: String, required: false },
   referrerpolicy: { type: String, required: false },
   allow: { type: String, required: false },
   name: { type: String, required: false },
-  label: { type: String, required: false, default: '' },
+  label: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

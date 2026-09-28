@@ -12,9 +12,9 @@ function ensureLoaded() {
  * Accordion items are the individual disclosure panels placed inside an accordion
  */
 const props = defineProps({
-  label: { type: String, required: false, default: '' },
-  expanded: { type: Boolean, required: false, default: false },
-  disabled: { type: Boolean, required: false, default: false },
+  label: { type: String, required: false },
+  expanded: { type: Boolean, required: false },
+  disabled: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

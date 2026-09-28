@@ -12,7 +12,7 @@ function ensureLoaded() {
  * Skeletons are used to provide a visual representation of where content will eventually load
  */
 const props = defineProps({
-  effect: { type: String, required: false, default: 'none' },
+  effect: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

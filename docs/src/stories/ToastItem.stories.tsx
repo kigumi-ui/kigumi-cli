@@ -18,7 +18,7 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Controls the overall dimensions of the notification',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     duration: {
       control: 'number',

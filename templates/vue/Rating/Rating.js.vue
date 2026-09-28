@@ -12,15 +12,15 @@ function ensureLoaded() {
  * Ratings give users a way to quickly view and provide feedback
  */
 const props = defineProps({
-  label: { type: String, required: false, default: '' },
-  'default-value': { type: Number, required: false, default: 0 },
-  max: { type: Number, required: false, default: 5 },
-  precision: { type: Number, required: false, default: 1 },
-  readonly: { type: Boolean, required: false, default: false },
-  disabled: { type: Boolean, required: false, default: false },
-  name: { type: String, required: false, default: '' },
-  required: { type: Boolean, required: false, default: false },
-  size: { type: String, required: false, default: 'medium' },
+  label: { type: String, required: false },
+  'default-value': { type: Number, required: false },
+  max: { type: Number, required: false },
+  precision: { type: Number, required: false },
+  readonly: { type: Boolean, required: false },
+  disabled: { type: Boolean, required: false },
+  name: { type: String, required: false },
+  required: { type: Boolean, required: false },
+  size: { type: String, required: false },
   'custom-error': { type: String, required: false },
 });
 

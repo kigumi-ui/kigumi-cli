@@ -12,8 +12,8 @@ function ensureLoaded() {
  * Tab panels are used inside tab groups to display content for each tab
  */
 const props = defineProps({
-  name: { type: String, required: false, default: '' },
-  active: { type: Boolean, required: false, default: false },
+  name: { type: String, required: false },
+  active: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

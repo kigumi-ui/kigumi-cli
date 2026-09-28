@@ -27,7 +27,6 @@ const meta = {
       control: 'select',
       options: ['start', 'end'],
       description: 'Primary panel',
-      table: { defaultValue: { summary: 'start' } },
     },
     disabled: {
       control: 'boolean',
@@ -78,8 +77,7 @@ export const Default: Story = {
   // documented default position (50) and the two slotted panels mount.
   play: async ({ canvasElement }) => {
     const host = canvasElement.querySelector('wa-split-panel') as
-      | (HTMLElement & { position?: number })
-      | null;
+      (HTMLElement & { position?: number }) | null;
     await expect(host).not.toBeNull();
     await waitFor(() => expect(host!.position).toBe(50));
     await expect(host!.querySelector('[slot="start"]')).not.toBeNull();

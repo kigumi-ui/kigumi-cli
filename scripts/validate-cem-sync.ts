@@ -21,6 +21,7 @@
  *   e.g. the XS/XL/short-form `size` tokens added in WA 3.6.0.
  * - CEM attribute names with no registry prop (warning), see `checkAttributeDrift`.
  * - Deprecations the CEM and the registry disagree on, see `checkDeprecationDrift`.
+ * - Registry defaults that differ from the element's, see `checkDefaultDrift`.
  *
  * Prop-value drift is what silently slipped through before: `component-metadata.ts`
  * does not carry attribute value enums, so this check reads the CEM directly.
@@ -69,7 +70,9 @@ export interface SyncFinding {
     | 'stale-allowlist-entry'
     | 'stale-kigumi-deprecation'
     | 'deprecation-missing-from-registry'
-    | 'deprecation-missing-from-cem';
+    | 'deprecation-missing-from-cem'
+    | 'default-drift'
+    | 'stale-default-allowlist-entry';
   severity: 'error' | 'warning';
   message: string;
 }
@@ -492,6 +495,25 @@ export const KIGUMI_DEPRECATIONS: Readonly<
   },
 };
 
+/** Why a registry prop documents a default the element does not have. */
+export interface DefaultAllowlistEntry {
+  /** Quoted in the stale-entry error, so whoever removes the entry sees why it was there. */
+  reason: string;
+}
+
+/**
+ * Registry defaults that deliberately differ from the CEM attribute's default,
+ * keyed by registry key, then by kebab-cased prop name. `checkDefaultDrift`
+ * errors on every other difference (issue #152).
+ *
+ * An entry is stale, and an error, once the two defaults agree, the prop has
+ * no registry default, the CEM no longer declares the attribute, or its
+ * component is not in the registry.
+ */
+export const REGISTRY_DEFAULT_ALLOWLIST: Readonly<
+  Record<string, Readonly<Record<string, DefaultAllowlistEntry>>>
+> = {};
+
 /**
  * Allowlist keys that already have a registry entry. Those wrappers exist, so
  * the allowlist entry is a lie — remove it when adding the wrapper.
@@ -541,6 +563,11 @@ interface SyncResult {
      * the stale allowlist entries, not counted here.
      */
     deprecationDrift: number;
+    /**
+     * Registry defaults that differ from the element's own. Stale
+     * `REGISTRY_DEFAULT_ALLOWLIST` entries are errors, not counted here.
+     */
+    defaultDrift: number;
   };
 }
 
@@ -590,6 +617,11 @@ export interface CemAttributes {
   types: Map<string, Record<string, string | undefined>>;
   /** attrName -> deprecation, holding only the deprecated attributes. */
   deprecations: Map<string, Record<string, CemDeprecation>>;
+  /**
+   * attrName -> `default` as the manifest writes it (`"'accent'"`, `'null'`),
+   * holding only the attributes that state one.
+   */
+  defaults: Map<string, Record<string, string>>;
 }
 
 export interface CemManifest {
@@ -601,6 +633,7 @@ export interface CemManifest {
         name: string;
         type?: { text?: string };
         deprecated?: boolean | string;
+        default?: string;
       }>;
     }>;
   }>;
@@ -615,6 +648,7 @@ export interface CemManifest {
 export function parseCemAttributes(cem: CemManifest): CemAttributes {
   const types: CemAttributes['types'] = new Map();
   const deprecations: CemAttributes['deprecations'] = new Map();
+  const defaults: CemAttributes['defaults'] = new Map();
 
   for (const mod of cem.modules ?? []) {
     for (const dec of mod.declarations ?? []) {
@@ -634,9 +668,15 @@ export function parseCemAttributes(cem: CemManifest): CemAttributes {
       if (deprecated.length > 0) {
         deprecations.set(dec.tagName, Object.fromEntries(deprecated));
       }
+      const stated = attributes.flatMap((a) =>
+        a.default === undefined ? [] : [[a.name, a.default] as const]
+      );
+      if (stated.length > 0) {
+        defaults.set(dec.tagName, Object.fromEntries(stated));
+      }
     }
   }
-  return { types, deprecations };
+  return { types, deprecations, defaults };
 }
 
 /**
@@ -760,7 +800,10 @@ export interface AttributePolicy {
   >;
 }
 
-type StaleCategory = 'stale-allowlist-entry' | 'stale-kigumi-deprecation';
+type StaleCategory =
+  | 'stale-allowlist-entry'
+  | 'stale-kigumi-deprecation'
+  | 'stale-default-allowlist-entry';
 
 /** An allowlist entry that no longer describes a gap, which fails the run. */
 function staleEntry(
@@ -977,6 +1020,114 @@ export function checkDeprecationDrift(
 }
 
 /**
+ * A default as either side writes it, reduced to the value it names: one pair
+ * of surrounding quotes goes (`'accent'` and `accent` are the same default,
+ * and `''` is the empty string), and `null` / `undefined` mean no default. On
+ * a boolean, `false` means no default too: the attribute's absence already
+ * turns it off.
+ */
+function normalizeDefault(
+  raw: string | undefined,
+  type: string
+): string | null {
+  if (raw === undefined) return null;
+  const text = raw.trim();
+  if (text === 'null' || text === 'undefined') return null;
+  if (type === 'boolean' && text === 'false') return null;
+  const quoted = /^(['"`])([\s\S]*)\1$/.exec(text);
+  return quoted ? quoted[2] : text;
+}
+
+/**
+ * Compare each registry prop's `default` against its CEM attribute's
+ * `default`, matching names kebab-cased on both sides as the other checks do
+ * (issue #152):
+ *
+ * - The registry states a default and the element's differs, or the element
+ *   states none: an error, unless `allowlist` records why. The registry
+ *   default is what the skill surfaces and story tables document, and until
+ *   #152 it was also what every `.js.vue` Template wrote on the host.
+ * - A prop with no registry default makes no claim and is not compared; a
+ *   prop the CEM does not declare is left to the other checks.
+ * - An `allowlist` entry is a `stale-default-allowlist-entry` error once the
+ *   defaults agree, the prop has no registry default, the CEM no longer
+ *   declares the attribute, or its component is not in the registry.
+ *
+ * Pure and exported so each case is table-tested against literal fixtures.
+ */
+export function checkDefaultDrift(
+  registryMap: Map<string, ComponentDefinition>,
+  cem: CemAttributes,
+  allowlist: Readonly<
+    Record<string, Readonly<Record<string, DefaultAllowlistEntry>>>
+  >
+): SyncFinding[] {
+  const findings: SyncFinding[] = [];
+  const stale = (component: string, message: string) =>
+    findings.push(
+      staleEntry('stale-default-allowlist-entry', component, message)
+    );
+
+  for (const [regKey, def] of registryMap) {
+    const declared = new Set(
+      Object.keys(cem.types.get(`wa-${regKey}`) ?? {}).map(toKebabCase)
+    );
+    const upstream = new Map(
+      Object.entries(cem.defaults.get(`wa-${regKey}`) ?? {}).map(
+        ([name, value]) => [toKebabCase(name), value]
+      )
+    );
+    const entries = allowlist[regKey] ?? {};
+    const differing = new Set<string>();
+
+    for (const prop of def.props) {
+      const attr = toKebabCase(prop.name);
+      if (prop.default === undefined || !declared.has(attr)) continue;
+      const documented = normalizeDefault(prop.default, prop.type);
+      const actual = normalizeDefault(upstream.get(attr), prop.type);
+      if (documented === actual) continue;
+      differing.add(attr);
+      if (Object.hasOwn(entries, attr)) continue;
+      findings.push({
+        component: regKey,
+        category: 'default-drift',
+        severity: 'error',
+        message:
+          actual === null
+            ? `${regKey}.${prop.name} documents default "${documented}", but wa-${regKey} states no default; drop the registry default, or record why in REGISTRY_DEFAULT_ALLOWLIST`
+            : `${regKey}.${prop.name} documents default "${documented}", but wa-${regKey} defaults to "${actual}"; use the element's default, or record why in REGISTRY_DEFAULT_ALLOWLIST`,
+      });
+    }
+
+    for (const [attr, entry] of Object.entries(entries)) {
+      const recorded = `is in REGISTRY_DEFAULT_ALLOWLIST ("${entry.reason}")`;
+      if (!declared.has(attr)) {
+        stale(
+          regKey,
+          `${regKey}.${attr} ${recorded} but wa-${regKey} declares no such attribute in the CEM; remove the entry`
+        );
+      } else if (!differing.has(attr)) {
+        stale(
+          regKey,
+          `${regKey}.${attr} ${recorded} but its registry default no longer differs from the element's (or is gone); remove the entry`
+        );
+      }
+    }
+  }
+
+  findings.push(
+    ...unregisteredAllowlistKeys(
+      'stale-default-allowlist-entry',
+      'REGISTRY_DEFAULT_ALLOWLIST',
+      allowlist,
+      registryMap
+    )
+  );
+
+  return findings;
+}
+
+/**
  * The summary's per-kind counts. Stale allowlist and Kigumi-deprecation
  * entries are errors listed with the others, not drift, so no count includes
  * them. Pure so each count is tested on literal findings.
@@ -990,6 +1141,7 @@ export function countDrift(
   | 'propValueDrift'
   | 'attributeDrift'
   | 'deprecationDrift'
+  | 'defaultDrift'
 > {
   const count = (...categories: SyncFinding['category'][]) =>
     findings.filter((f) => categories.includes(f.category)).length;
@@ -1002,6 +1154,7 @@ export function countDrift(
       'deprecation-missing-from-registry',
       'deprecation-missing-from-cem'
     ),
+    defaultDrift: count('default-drift'),
   };
 }
 
@@ -1040,12 +1193,16 @@ export async function validateCemSync(
   const deprecationDriftFindings = cemAttributes
     ? checkDeprecationDrift(registryMap, cemAttributes, KIGUMI_DEPRECATIONS)
     : [];
+  const defaultDriftFindings = cemAttributes
+    ? checkDefaultDrift(registryMap, cemAttributes, REGISTRY_DEFAULT_ALLOWLIST)
+    : [];
 
   const findings = [
     ...checkComponentPresence(cemKeys, registryMap),
     ...propValueFindings,
     ...attributeDriftFindings,
     ...deprecationDriftFindings,
+    ...defaultDriftFindings,
   ];
   const synced = [...registryMap.keys()].filter((k) => cemKeys.has(k)).length;
 
@@ -1080,6 +1237,7 @@ function printResults(result: SyncResult): void {
   console.log(`  Prop-value drift:    ${cemCoverage}`);
   console.log(`  Attribute drift:     ${cemCoverage}`);
   console.log(`  Deprecation drift:   ${cemCoverage}`);
+  console.log(`  Default drift:       ${cemCoverage}`);
   console.log('');
 
   console.log(pc.bold('Statistics:'));
@@ -1103,6 +1261,11 @@ function printResults(result: SyncResult): void {
       result.cem.usable
         ? result.stats.deprecationDrift
         : pc.yellow('not checked')
+    }`
+  );
+  console.log(
+    `  Default drift:       ${
+      result.cem.usable ? result.stats.defaultDrift : pc.yellow('not checked')
     }`
   );
   console.log('');
@@ -1162,11 +1325,11 @@ export function summarizeSync(
     },
     {
       allowSkip: options.allowSkip ?? false,
-      label: 'Prop-value, attribute and deprecation drift',
+      label: 'Prop-value, attribute, deprecation and default drift',
       passHeadline: 'CEM sync validation passed!',
       fixHint:
         'Install the Web Awesome Pro package so the manifest half can compare\n' +
-        'every registry enum, attribute and deprecation against it\n' +
+        'every registry enum, attribute, deprecation and default against it\n' +
         '(pnpm setup:npmrc, then install docs deps).',
     }
   );

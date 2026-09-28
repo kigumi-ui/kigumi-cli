@@ -12,9 +12,9 @@ function ensureLoaded() {
  * Progress bars are used to show the completion of a task or operation
  */
 const props = defineProps({
-  value: { type: Number, required: false, default: 0 },
-  indeterminate: { type: Boolean, required: false, default: false },
-  label: { type: String, required: false, default: '' },
+  value: { type: Number, required: false },
+  indeterminate: { type: Boolean, required: false },
+  label: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

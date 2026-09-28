@@ -119,7 +119,7 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Combobox size',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     spellcheck: {
       control: 'boolean',

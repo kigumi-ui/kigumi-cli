@@ -14,9 +14,9 @@ function ensureLoaded() {
 const props = defineProps({
   data: { type: String, required: false },
   label: { type: String, required: false },
-  appearance: { type: String, required: false, default: 'line' },
+  appearance: { type: String, required: false },
   trend: { type: String, required: false },
-  curve: { type: String, required: false, default: 'natural' },
+  curve: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

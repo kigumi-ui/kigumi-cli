@@ -35,7 +35,7 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Adjusts checkbox dimensions',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     value: { control: 'text', description: 'Form submission value' },
     children: { control: 'text' },

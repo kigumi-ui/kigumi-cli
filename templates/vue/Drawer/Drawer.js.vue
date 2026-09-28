@@ -14,10 +14,10 @@ function ensureLoaded() {
  * @remarks Open and close programmatically by binding the `open` prop (e.g. `<Drawer v-model:open="isOpen">`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.
  */
 const props = defineProps({
-  label: { type: String, required: false, default: '' },
-  placement: { type: String, required: false, default: 'end' },
-  'light-dismiss': { type: Boolean, required: false, default: false },
-  'without-header': { type: Boolean, required: false, default: false },
+  label: { type: String, required: false },
+  placement: { type: String, required: false },
+  'light-dismiss': { type: Boolean, required: false },
+  'without-header': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

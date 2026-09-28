@@ -10,6 +10,8 @@ import {
   eventNameToAction,
   buildStoryData,
   buildAllStoryData,
+  argTypeDefaultSummary,
+  sameDefault,
 } from '../../scripts/storybook/story-data.js';
 
 describe('storybook story-data pipeline', () => {
@@ -161,5 +163,63 @@ describe('storybook story-data pipeline', () => {
         }
       }
     });
+  });
+});
+
+describe('story argType default summaries (issue #152)', () => {
+  const story = `
+const meta = {
+  args: { size: 'large' },
+  argTypes: {
+    appearance: {
+      control: 'select',
+      options: ['accent', 'filled'],
+      table: { defaultValue: { summary: 'accent' } },
+    },
+    'with-tooltip': {
+      control: 'boolean',
+      table: {
+        category: 'Behaviour',
+        defaultValue: { summary: "false" },
+      },
+    },
+    fill: {
+      control: 'text',
+      table: { category: 'Deprecated', defaultValue: { summary: "''" } },
+    },
+    label: { control: 'text', description: 'Has { braces } in prose' },
+    size: {
+      control: 'select',
+    },
+  },
+} satisfies Meta<typeof Widget>;
+`;
+
+  it('reads the summary of each argType, however it is quoted and nested', () => {
+    expect(argTypeDefaultSummary(story, 'appearance')).toBe('accent');
+    expect(argTypeDefaultSummary(story, 'with-tooltip')).toBe('false');
+    expect(argTypeDefaultSummary(story, 'fill')).toBe("''");
+  });
+
+  it('reads null for an argType without a summary, and undefined for a missing one', () => {
+    expect(argTypeDefaultSummary(story, 'label')).toBeNull();
+    expect(argTypeDefaultSummary(story, 'size')).toBeNull();
+    expect(argTypeDefaultSummary(story, 'variant')).toBeUndefined();
+  });
+
+  it('reads the argTypes block, not a same-named key in args', () => {
+    // `args.size` comes first in the file; its value is not a summary.
+    expect(argTypeDefaultSummary(story, 'size')).toBeNull();
+  });
+
+  it('compares a summary to a registry default by the value both name', () => {
+    expect(sameDefault('accent', 'accent')).toBe(true);
+    expect(sameDefault("'accent'", 'accent')).toBe(true);
+    expect(sameDefault("''", "''")).toBe(true);
+    expect(sameDefault(null, undefined)).toBe(true);
+    expect(sameDefault(null, "''")).toBe(true);
+    expect(sameDefault('filled', 'accent')).toBe(false);
+    expect(sameDefault('medium', undefined)).toBe(false);
+    expect(sameDefault(null, 'm')).toBe(false);
   });
 });

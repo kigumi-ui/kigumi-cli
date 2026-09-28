@@ -229,3 +229,86 @@ export function buildAllStoryData(): Map<string, StoryData> {
 
   return result;
 }
+
+// ─── Story default summaries ─────────────────────────────────────────────────
+
+/**
+ * The index of the brace that closes the one at `open`, skipping braces
+ * inside string literals, or -1 when it never closes.
+ */
+function closingBrace(source: string, open: number): number {
+  let depth = 0;
+  let quote: string | null = null;
+  for (let i = open; i < source.length; i++) {
+    const char = source[i];
+    if (quote) {
+      if (char === '\\') i++;
+      else if (char === quote) quote = null;
+      continue;
+    }
+    if (char === "'" || char === '"' || char === '`') quote = char;
+    else if (char === '{') depth++;
+    else if (char === '}' && --depth === 0) return i;
+  }
+  return -1;
+}
+
+const ARG_TYPE_KEY = /(?:'([^']+)'|"([^"]+)"|([A-Za-z_$][\w$]*))\s*:\s*\{/y;
+
+/**
+ * The `defaultValue.summary` a story file's `argTypes` gives `argName`, as the
+ * text inside its quotes. `null` when the argType states no summary,
+ * `undefined` when the file has no such argType. Only the `argTypes` block's
+ * own keys are read, so a same-named key in `args` or inside another argType
+ * is never taken for it (issue #152).
+ */
+export function argTypeDefaultSummary(
+  source: string,
+  argName: string
+): string | null | undefined {
+  const section = /argTypes\s*:\s*\{/.exec(source);
+  if (!section) return undefined;
+  const open = section.index + section[0].length - 1;
+  const close = closingBrace(source, open);
+  if (close === -1) return undefined;
+
+  let i = open + 1;
+  while (i < close) {
+    ARG_TYPE_KEY.lastIndex = i;
+    const key = ARG_TYPE_KEY.exec(source);
+    if (!key) {
+      i++;
+      continue;
+    }
+    const blockOpen = ARG_TYPE_KEY.lastIndex - 1;
+    const blockClose = closingBrace(source, blockOpen);
+    if (blockClose === -1) return undefined;
+    if ((key[1] ?? key[2] ?? key[3]) === argName) {
+      const summary =
+        /defaultValue\s*:\s*\{\s*summary\s*:\s*(['"`])((?:(?!\1)[^\\]|\\.)*)\1/.exec(
+          source.slice(blockOpen, blockClose + 1)
+        );
+      return summary ? summary[2] : null;
+    }
+    i = blockClose + 1;
+  }
+  return undefined;
+}
+
+/**
+ * Whether a story's default summary and a registry default name the same
+ * value: one pair of surrounding quotes goes, and an empty string counts as
+ * no default, since `buildStoryData` leaves an empty default out of the table.
+ */
+export function sameDefault(
+  summary: string | null,
+  registryDefault: string | undefined
+): boolean {
+  const value = (text: string | null | undefined): string | null => {
+    if (text === null || text === undefined) return null;
+    const unquoted = /^(['"`])([\s\S]*)\1$/.exec(text.trim());
+    const inner = unquoted ? unquoted[2] : text.trim();
+    return inner === '' ? null : inner;
+  };
+  return value(summary) === value(registryDefault);
+}

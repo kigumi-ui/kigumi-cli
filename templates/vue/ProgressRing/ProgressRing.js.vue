@@ -12,8 +12,8 @@ function ensureLoaded() {
  * Progress rings are used to show the completion of a task in a circular format
  */
 const props = defineProps({
-  value: { type: Number, required: false, default: 0 },
-  label: { type: String, required: false, default: '' },
+  value: { type: Number, required: false },
+  label: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

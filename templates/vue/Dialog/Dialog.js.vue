@@ -14,9 +14,9 @@ function ensureLoaded() {
  * @remarks Open and close programmatically by binding the `open` prop (e.g. `<Dialog v-model:open="isOpen">`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.
  */
 const props = defineProps({
-  label: { type: String, required: true, default: '' },
-  'without-header': { type: Boolean, required: false, default: false },
-  'light-dismiss': { type: Boolean, required: false, default: false },
+  label: { type: String, required: true },
+  'without-header': { type: Boolean, required: false },
+  'light-dismiss': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

@@ -12,7 +12,7 @@ function ensureLoaded() {
  * Reports changes to the dimensions of an element
  */
 const props = defineProps({
-  disabled: { type: Boolean, required: false, default: false },
+  disabled: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

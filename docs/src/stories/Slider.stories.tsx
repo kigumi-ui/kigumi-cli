@@ -13,7 +13,6 @@ const meta = {
     value: {
       control: 'number',
       description: 'Current value',
-      table: { defaultValue: { summary: '0' } },
     },
     label: { control: 'text', description: 'Accessible label' },
     hint: { control: 'text', description: 'Hint text' },
@@ -76,7 +75,7 @@ const meta = {
     'with-tooltip': {
       control: 'boolean',
       description: 'Draws a tooltip above the thumb',
-      table: { defaultValue: { summary: 'true' } },
+      table: { defaultValue: { summary: 'false' } },
     },
     'tooltip-distance': {
       control: 'number',
@@ -93,7 +92,7 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Slider size',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     'custom-error': {
       control: 'text',

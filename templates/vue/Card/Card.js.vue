@@ -12,11 +12,11 @@ function ensureLoaded() {
  * Cards can be used to group related subjects in a container
  */
 const props = defineProps({
-  appearance: { type: String, required: false, default: 'outlined' },
-  orientation: { type: String, required: false, default: 'vertical' },
-  'with-header': { type: Boolean, required: false, default: false },
-  'with-footer': { type: Boolean, required: false, default: false },
-  'with-media': { type: Boolean, required: false, default: false },
+  appearance: { type: String, required: false },
+  orientation: { type: String, required: false },
+  'with-header': { type: Boolean, required: false },
+  'with-footer': { type: Boolean, required: false },
+  'with-media': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

@@ -18,13 +18,13 @@ const meta = {
       control: 'select',
       options: ['accent', 'filled-outlined', 'filled', 'outlined', 'plain'],
       description: 'Visual appearance style',
-      table: { defaultValue: { summary: 'filled' } },
+      table: { defaultValue: { summary: 'accent' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Button size',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     pill: {
       control: 'boolean',

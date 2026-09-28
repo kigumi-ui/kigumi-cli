@@ -12,14 +12,14 @@ function ensureLoaded() {
  * Tooltips display additional information based on a specific action
  */
 const props = defineProps({
-  placement: { type: String, required: false, default: 'top' },
-  disabled: { type: Boolean, required: false, default: false },
-  distance: { type: Number, required: false, default: 8 },
-  skidding: { type: Number, required: false, default: 0 },
-  trigger: { type: String, required: false, default: 'hover focus' },
-  'without-arrow': { type: Boolean, required: false, default: false },
-  'show-delay': { type: Number, required: false, default: 150 },
-  'hide-delay': { type: Number, required: false, default: 0 },
+  placement: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
+  distance: { type: Number, required: false },
+  skidding: { type: Number, required: false },
+  trigger: { type: String, required: false },
+  'without-arrow': { type: Boolean, required: false },
+  'show-delay': { type: Number, required: false },
+  'hide-delay': { type: Number, required: false },
   for: { type: String, required: false },
 });
 

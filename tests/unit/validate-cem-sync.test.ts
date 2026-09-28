@@ -15,6 +15,7 @@ import {
   allowlistedKeysInRegistry,
   checkAttributeDrift,
   checkDeprecationDrift,
+  checkDefaultDrift,
   countDrift,
   parseCemAttributes,
   GLOBAL_ATTRIBUTE_ALLOWLIST,
@@ -25,6 +26,7 @@ import {
   type AttributeAllowlistEntry,
   type AttributePolicy,
   type CemManifest,
+  type DefaultAllowlistEntry,
   type KigumiDeprecation,
   type SyncFinding,
 } from '../../scripts/validate-cem-sync.js';
@@ -71,6 +73,8 @@ describe('validate:cem-sync', () => {
         'stale-kigumi-deprecation',
         'deprecation-missing-from-registry',
         'deprecation-missing-from-cem',
+        'default-drift',
+        'stale-default-allowlist-entry',
       ]).toContain(finding.category);
     }
   });
@@ -508,6 +512,20 @@ describe('parseCemAttributes', () => {
     ]);
   });
 
+  it('carries each stated default as written, and only stated ones', () => {
+    const { defaults } = parseCemAttributes(
+      manifest([
+        { name: 'appearance', default: "'accent'" },
+        { name: 'name', default: 'null' },
+        { name: 'plain' },
+      ])
+    );
+
+    expect([...defaults]).toEqual([
+      ['wa-widget', { appearance: "'accent'", name: 'null' }],
+    ]);
+  });
+
   it('reads an empty deprecation message as a bare deprecation', () => {
     // The schema's string is the reason, so "" still deprecates the attribute.
     const { deprecations } = parseCemAttributes(
@@ -742,7 +760,7 @@ describe('checkDeprecationDrift', () => {
     // outlive its prop without a manifest on disk to notice.
     const findings = checkDeprecationDrift(
       new Map(Object.entries(LOCAL_REGISTRY)),
-      { types: new Map(), deprecations: new Map() },
+      { types: new Map(), deprecations: new Map(), defaults: new Map() },
       KIGUMI_DEPRECATIONS
     ).filter((f) => f.category === 'stale-kigumi-deprecation');
 
@@ -774,8 +792,10 @@ describe('countDrift', () => {
         finding('attribute-missing-from-registry'),
         finding('deprecation-missing-from-registry'),
         finding('deprecation-missing-from-cem'),
+        finding('default-drift'),
         finding('stale-allowlist-entry'),
         finding('stale-kigumi-deprecation'),
+        finding('stale-default-allowlist-entry'),
       ])
     ).toEqual({
       onlyInCem: 1,
@@ -783,6 +803,206 @@ describe('countDrift', () => {
       propValueDrift: 2,
       attributeDrift: 1,
       deprecationDrift: 2,
+      defaultDrift: 1,
+    });
+  });
+});
+
+describe('checkDefaultDrift', () => {
+  function makeDef(props: ComponentDefinition['props']): ComponentDefinition {
+    return {
+      name: 'Widget',
+      tagName: 'wa-widget',
+      category: 'Test',
+      description: 'Fixture component',
+      dependencies: [],
+      files: {},
+      props,
+      importPath: '@awesome.me/webawesome/dist/components/widget/widget.js',
+      tier: 'free',
+    };
+  }
+
+  const allowed: DefaultAllowlistEntry = { reason: 'fixture' };
+
+  /**
+   * Each CEM attribute maps to its `default` as the manifest writes it, or
+   * `undefined` for an attribute declared without one. Built through
+   * `parseCemAttributes`, so the fixtures read the manifest as the validator
+   * does.
+   */
+  function drift(
+    props: ComponentDefinition['props'],
+    cem: Record<string, string | undefined>,
+    allowlist: Record<string, Record<string, DefaultAllowlistEntry>> = {},
+    registry: Array<[string, ComponentDefinition]> = [
+      ['widget', makeDef(props)],
+    ]
+  ) {
+    return checkDefaultDrift(
+      new Map(registry),
+      parseCemAttributes({
+        modules: [
+          {
+            declarations: [
+              {
+                customElement: true,
+                tagName: 'wa-widget',
+                attributes: Object.entries(cem).map(([name, value]) =>
+                  value === undefined ? { name } : { name, default: value }
+                ),
+              },
+            ],
+          },
+        ],
+      }),
+      allowlist
+    );
+  }
+
+  it('reports a registry default that differs from the element default', () => {
+    const findings = drift(
+      [{ name: 'appearance', type: 'string', default: 'filled' }],
+      { appearance: "'accent'" }
+    );
+
+    expect(findings).toEqual([
+      {
+        component: 'widget',
+        category: 'default-drift',
+        severity: 'error',
+        message: expect.stringContaining('widget.appearance'),
+      },
+    ]);
+    expect(findings[0].message).toContain('"filled"');
+    expect(findings[0].message).toContain('"accent"');
+  });
+
+  it('is clean when the defaults agree, however each side quotes them', () => {
+    const findings = drift(
+      [
+        { name: 'size', type: 'string', default: 'm' },
+        { name: 'label', type: 'string', default: "''" },
+        { name: 'open', type: 'boolean', default: 'false' },
+        { name: 'max', type: 'number', default: '5' },
+      ],
+      { size: "'m'", label: '""', open: 'false', max: '5' }
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('reports a registry default where the element states none', () => {
+    const findings = drift(
+      [
+        { name: 'name', type: 'string', default: "''" },
+        { name: 'primary', type: 'string', default: 'start' },
+      ],
+      { name: 'null', primary: undefined }
+    );
+
+    expect(findings.map((f) => [f.category, f.message])).toEqual([
+      ['default-drift', expect.stringContaining('widget.name')],
+      ['default-drift', expect.stringContaining('widget.primary')],
+    ]);
+    expect(findings[0].message).toContain('no default');
+  });
+
+  it('reads false and no default alike on a boolean prop, which absence already turns off', () => {
+    expect(
+      drift([{ name: 'checked', type: 'boolean', default: 'false' }], {
+        checked: undefined,
+      })
+    ).toEqual([]);
+    // Only a boolean: an empty string is a value, not the absence of one.
+    expect(
+      drift([{ name: 'label', type: 'string', default: 'false' }], {
+        label: undefined,
+      }).map((f) => f.category)
+    ).toEqual(['default-drift']);
+    // And a boolean that is on by default still differs.
+    expect(
+      drift([{ name: 'with-tooltip', type: 'boolean', default: 'false' }], {
+        'with-tooltip': 'true',
+      }).map((f) => f.category)
+    ).toEqual(['default-drift']);
+  });
+
+  it('leaves a prop without a registry default alone', () => {
+    expect(drift([{ name: 'label', type: 'string' }], { label: "''" })).toEqual(
+      []
+    );
+  });
+
+  it('leaves a prop the CEM does not declare to the other checks', () => {
+    expect(
+      drift([{ name: 'strategy', type: 'string', default: 'absolute' }], {})
+    ).toEqual([]);
+  });
+
+  it('matches a camelCase CEM attribute to a kebab-case prop', () => {
+    const findings = drift(
+      [{ name: 'submenu-open', type: 'boolean', default: 'true' }],
+      { submenuOpen: 'false' }
+    );
+
+    expect(findings.map((f) => f.category)).toEqual(['default-drift']);
+  });
+
+  it('honours an allowlisted difference', () => {
+    expect(
+      drift(
+        [{ name: 'appearance', type: 'string', default: 'filled' }],
+        { appearance: "'accent'" },
+        { widget: { appearance: allowed } }
+      )
+    ).toEqual([]);
+  });
+
+  describe('stale allowlist entries', () => {
+    const stale = (findings: SyncFinding[]) =>
+      findings.map((f) => [f.category, f.severity]);
+
+    it('errors on an entry whose defaults now agree', () => {
+      expect(
+        stale(
+          drift(
+            [{ name: 'appearance', type: 'string', default: 'accent' }],
+            { appearance: "'accent'" },
+            { widget: { appearance: allowed } }
+          )
+        )
+      ).toEqual([['stale-default-allowlist-entry', 'error']]);
+    });
+
+    it('errors on an entry for a prop with no registry default', () => {
+      expect(
+        stale(
+          drift(
+            [{ name: 'appearance', type: 'string' }],
+            { appearance: "'accent'" },
+            { widget: { appearance: allowed } }
+          )
+        )
+      ).toEqual([['stale-default-allowlist-entry', 'error']]);
+    });
+
+    it('errors on an entry for an attribute the CEM does not declare', () => {
+      expect(
+        stale(
+          drift(
+            [{ name: 'appearance', type: 'string', default: 'filled' }],
+            {},
+            { widget: { appearance: allowed } }
+          )
+        )
+      ).toEqual([['stale-default-allowlist-entry', 'error']]);
+    });
+
+    it('errors on an entry for a component the registry does not have', () => {
+      expect(
+        stale(drift([], {}, { gone: { appearance: allowed } }, []))
+      ).toEqual([['stale-default-allowlist-entry', 'error']]);
     });
   });
 });

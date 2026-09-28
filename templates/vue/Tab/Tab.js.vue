@@ -13,7 +13,7 @@ function ensureLoaded() {
  */
 const props = defineProps({
   panel: { type: String, required: false },
-  disabled: { type: Boolean, required: false, default: false },
+  disabled: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

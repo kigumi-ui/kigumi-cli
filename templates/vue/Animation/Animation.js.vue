@@ -12,17 +12,17 @@ function ensureLoaded() {
  * Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes
  */
 const props = defineProps({
-  name: { type: String, required: false, default: 'none' },
-  play: { type: Boolean, required: false, default: false },
-  delay: { type: Number, required: false, default: 0 },
-  direction: { type: String, required: false, default: 'normal' },
-  duration: { type: Number, required: false, default: 1000 },
-  easing: { type: String, required: false, default: 'linear' },
-  'end-delay': { type: Number, required: false, default: 0 },
-  fill: { type: String, required: false, default: 'auto' },
-  iterations: { type: Number, required: false, default: Infinity },
-  'iteration-start': { type: Number, required: false, default: 0 },
-  'playback-rate': { type: Number, required: false, default: 1 },
+  name: { type: String, required: false },
+  play: { type: Boolean, required: false },
+  delay: { type: Number, required: false },
+  direction: { type: String, required: false },
+  duration: { type: Number, required: false },
+  easing: { type: String, required: false },
+  'end-delay': { type: Number, required: false },
+  fill: { type: String, required: false },
+  iterations: { type: Number, required: false },
+  'iteration-start': { type: Number, required: false },
+  'playback-rate': { type: Number, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

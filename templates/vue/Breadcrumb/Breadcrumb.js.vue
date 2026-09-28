@@ -12,7 +12,7 @@ function ensureLoaded() {
  * Breadcrumbs provide a group of links so users can easily navigate a website hierarchy
  */
 const props = defineProps({
-  label: { type: String, required: false, default: '' },
+  label: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

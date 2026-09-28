@@ -12,11 +12,11 @@ function ensureLoaded() {
  * Steppers walk users through a multi-stage process and show where they are in it
  */
 const props = defineProps({
-  active: { type: String, required: false, default: '' },
-  orientation: { type: String, required: false, default: 'horizontal' },
-  linear: { type: Boolean, required: false, default: false },
-  clickable: { type: Boolean, required: false, default: false },
-  label: { type: String, required: false, default: '' },
+  active: { type: String, required: false },
+  orientation: { type: String, required: false },
+  linear: { type: Boolean, required: false },
+  clickable: { type: Boolean, required: false },
+  label: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

@@ -14,10 +14,10 @@ function ensureLoaded() {
 const props = defineProps({
   name: { type: String, required: false },
   value: { type: String, required: false },
-  size: { type: String, required: false, default: 'medium' },
-  disabled: { type: Boolean, required: false, default: false },
-  required: { type: Boolean, required: false, default: false },
-  hint: { type: String, required: false, default: '' },
+  size: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
+  required: { type: Boolean, required: false },
+  hint: { type: String, required: false },
   title: { type: String, required: false },
   'custom-error': { type: String, required: false },
 });

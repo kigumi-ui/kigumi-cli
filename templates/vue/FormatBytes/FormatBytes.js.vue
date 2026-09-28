@@ -12,9 +12,9 @@ function ensureLoaded() {
  * Formats a number as a human-readable byte value
  */
 const props = defineProps({
-  value: { type: Number, required: false, default: 0 },
-  unit: { type: String, required: false, default: 'byte' },
-  display: { type: String, required: false, default: 'short' },
+  value: { type: Number, required: false },
+  unit: { type: String, required: false },
+  display: { type: String, required: false },
   lang: { type: String, required: false },
 });
 

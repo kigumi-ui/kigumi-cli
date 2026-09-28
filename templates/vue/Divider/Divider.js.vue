@@ -12,8 +12,8 @@ function ensureLoaded() {
  * Dividers are used to visually separate content
  */
 const props = defineProps({
-  orientation: { type: String, required: false, default: 'horizontal' },
-  'label-placement': { type: String, required: false, default: 'center' },
+  orientation: { type: String, required: false },
+  'label-placement': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

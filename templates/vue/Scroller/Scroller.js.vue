@@ -12,10 +12,10 @@ function ensureLoaded() {
  * Adds a scrollable container with optional shadow indicators
  */
 const props = defineProps({
-  orientation: { type: String, required: false, default: 'horizontal' },
-  'with-scroll-indicator': { type: Boolean, required: false, default: false },
-  'without-scrollbar': { type: Boolean, required: false, default: false },
-  'without-shadow': { type: Boolean, required: false, default: false },
+  orientation: { type: String, required: false },
+  'with-scroll-indicator': { type: Boolean, required: false },
+  'without-scrollbar': { type: Boolean, required: false },
+  'without-shadow': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

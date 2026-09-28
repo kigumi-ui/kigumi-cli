@@ -12,9 +12,9 @@ function ensureLoaded() {
  * Options define the selectable items within various form controls
  */
 const props = defineProps({
-  value: { type: String, required: false, default: '' },
-  disabled: { type: Boolean, required: false, default: false },
-  selected: { type: Boolean, required: false, default: false },
+  value: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
+  selected: { type: Boolean, required: false },
   label: { type: String, required: false },
 });
 

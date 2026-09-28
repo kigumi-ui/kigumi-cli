@@ -12,15 +12,15 @@ function ensureLoaded() {
  * Radio groups are used to group multiple radios so only one can be selected
  */
 const props = defineProps({
-  label: { type: String, required: false, default: '' },
-  hint: { type: String, required: false, default: '' },
-  name: { type: String, required: false, default: 'option' },
-  size: { type: String, required: false, default: 'medium' },
-  required: { type: Boolean, required: false, default: false },
-  orientation: { type: String, required: false, default: 'vertical' },
-  disabled: { type: Boolean, required: false, default: false },
-  invalid: { type: Boolean, required: false, default: false },
-  'help-text': { type: String, required: false, default: '' },
+  label: { type: String, required: false },
+  hint: { type: String, required: false },
+  name: { type: String, required: false },
+  size: { type: String, required: false },
+  required: { type: Boolean, required: false },
+  orientation: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
+  invalid: { type: Boolean, required: false },
+  'help-text': { type: String, required: false },
   'custom-error': { type: String, required: false },
 });
 

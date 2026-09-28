@@ -12,15 +12,15 @@ function ensureLoaded() {
  * Generates QR codes for encoding text, URLs, or data
  */
 const props = defineProps({
-  value: { type: String, required: false, default: '' },
-  label: { type: String, required: false, default: '' },
-  size: { type: Number, required: false, default: 128 },
+  value: { type: String, required: false },
+  label: { type: String, required: false },
+  size: { type: Number, required: false },
   /** @deprecated Set the CSS color property on the QR code instead. */
-  fill: { type: String, required: false, default: '' },
+  fill: { type: String, required: false },
   /** @deprecated Set the CSS background-color property on the QR code instead. */
-  background: { type: String, required: false, default: '' },
-  radius: { type: Number, required: false, default: 0 },
-  'error-correction': { type: String, required: false, default: 'H' },
+  background: { type: String, required: false },
+  radius: { type: Number, required: false },
+  'error-correction': { type: String, required: false },
   image: { type: String, required: false },
   'image-background': { type: String, required: false },
   'image-coverage': { type: Number, required: false },

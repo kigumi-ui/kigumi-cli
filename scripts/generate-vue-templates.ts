@@ -82,19 +82,6 @@ function getValueInputEvent(componentKey: string): string {
 }
 
 /**
- * Format a prop default for emission into Vue Options-API JS templates.
- * Registry defaults are stored as JS-source fragments: `'horizontal'` for strings
- * arrives here as `horizontal` (unquoted), `'false'` for booleans arrives as
- * `false`. Only string-typed defaults need re-quoting; already-quoted values
- * like `"''"` are passed through untouched.
- */
-function formatVueDefault(tsType: string, rawDefault: string): string {
-  if (tsType.toLowerCase() !== 'string') return rawDefault;
-  const alreadyQuoted = /^(['"]).*\1$/.test(rawDefault);
-  return alreadyQuoted ? rawDefault : `'${rawDefault}'`;
-}
-
-/**
  * Convert TypeScript type to Vue prop type
  */
 function convertToVuePropType(tsType: string): string {
@@ -365,13 +352,13 @@ function assembleVueSFC(
       }
       const type = convertToVuePropType(prop.type);
       const required = prop.required ? 'true' : 'false';
-      // An enumerated boolean must stay undefined when unset: Vue would
-      // otherwise cast it to `false`, which writes the false keyword.
-      const defaultValue = prop.keywords
-        ? ', default: undefined'
-        : prop.default
-          ? `, default: ${formatVueDefault(prop.type, prop.default)}`
-          : '';
+      // No registry default reaches the runtime props: `hostAttributes()`
+      // forwards every value that is not `undefined` or `false`, so a default
+      // here would be written to the host, where React, Vue TS and Angular
+      // leave an unset prop to the element (issue #152). An enumerated
+      // boolean still needs `undefined`: Vue would otherwise cast it to
+      // `false`, which writes the false keyword.
+      const defaultValue = prop.keywords ? ', default: undefined' : '';
       return `${tag}    ${quotedName}: { type: ${type}, required: ${required}${defaultValue} }`;
     })
     .join(typed ? '\n' : ',\n');

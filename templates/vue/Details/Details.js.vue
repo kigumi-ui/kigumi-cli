@@ -13,9 +13,9 @@ function ensureLoaded() {
  */
 const props = defineProps({
   summary: { type: String, required: false },
-  disabled: { type: Boolean, required: false, default: false },
-  appearance: { type: String, required: false, default: 'outlined' },
-  'icon-placement': { type: String, required: false, default: 'end' },
+  disabled: { type: Boolean, required: false },
+  appearance: { type: String, required: false },
+  'icon-placement': { type: String, required: false },
   name: { type: String, required: false },
 });
 
