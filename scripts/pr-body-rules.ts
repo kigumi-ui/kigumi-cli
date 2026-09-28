@@ -53,23 +53,36 @@ interface BodyLine {
   fenced: boolean;
 }
 
-/** Splits a body into lines, marking the ones inside fenced code blocks. */
+/** A fence marker and the rest of its line (the info string, if opening). */
+const FENCE = /^\s{0,3}(`{3,}|~{3,})(.*)$/;
+
+/**
+ * Splits a body into lines, marking the ones inside fenced code blocks.
+ * Fences follow CommonMark, as GitHub renders them: a backtick fence's info
+ * string holds no backtick (```` ```pnpm test``` ```` is inline code, not a
+ * fence), and a closing fence carries no info string.
+ */
 function readLines(body: string): BodyLine[] {
   const lines = body.replace(/\r\n?/g, '\n').split('\n');
   let fence: string | null = null;
   return lines.map((text, index) => {
-    const marker = /^\s{0,3}(`{3,}|~{3,})/.exec(text)?.[1];
-    if (fence === null && marker) {
+    const [, marker, rest = ''] = FENCE.exec(text) ?? [];
+    if (fence === null) {
+      if (!marker || (marker[0] === '`' && rest.includes('`'))) {
+        return { number: index + 1, text, fenced: false };
+      }
       fence = marker;
       return { number: index + 1, text, fenced: true };
     }
-    if (fence !== null) {
-      if (marker && marker[0] === fence[0] && marker.length >= fence.length) {
-        fence = null;
-      }
-      return { number: index + 1, text, fenced: true };
+    if (
+      marker &&
+      marker[0] === fence[0] &&
+      marker.length >= fence.length &&
+      rest.trim() === ''
+    ) {
+      fence = null;
     }
-    return { number: index + 1, text, fenced: false };
+    return { number: index + 1, text, fenced: true };
   });
 }
 

@@ -98,6 +98,21 @@ describe('checkBody: headings', () => {
     expect(checkBody(body, context())).toEqual([]);
   });
 
+  it('reads a backtick run closed on its own line as inline code, not a fence', () => {
+    // CommonMark: a backtick fence's info string holds no backtick. As a
+    // fence, this line would hide the table and both required headings.
+    const body = valid(
+      '```pnpm test``` runs the suite.\n\n| a | b |\n| - | - |'
+    );
+    expect(rules(checkBody(body, context()))).toEqual(['table']);
+  });
+
+  it('keeps a fence open past a marker line that carries an info string', () => {
+    // Only a bare marker closes a fence; "```ts" inside one is content.
+    const body = valid('```md\nExample:\n```ts\n## Not a heading\n```');
+    expect(checkBody(body, context())).toEqual([]);
+  });
+
   it('rejects a setext heading, which renders like "## Review"', () => {
     expect(checkBody(valid('Review\n------\nText.'), context())).toEqual([
       {
