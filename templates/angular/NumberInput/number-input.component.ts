@@ -95,7 +95,7 @@ export class NumberInputComponent
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Visual appearance */
   @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined';
-  /** Draws the input with rounded edges */
+  /** Gives the input rounded edges */
   @Input() pill?: boolean;
   /** Hides the stepper buttons */
   @Input() withoutSteppers?: boolean;

@@ -4675,7 +4675,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'pill',
         type: 'boolean',
         default: 'false',
-        description: 'Draws the input with rounded edges',
+        description: 'Gives the input rounded edges',
       },
       {
         name: 'without-steppers',

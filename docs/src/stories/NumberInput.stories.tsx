@@ -44,7 +44,7 @@ const meta = {
     },
     pill: {
       control: 'boolean',
-      description: 'Draws the input with rounded edges',
+      description: 'Gives the input rounded edges',
       table: { defaultValue: { summary: 'false' } },
     },
     'without-steppers': {
