@@ -13,7 +13,8 @@ import fs from 'fs-extra';
 import pc from 'picocolors';
 import * as p from '../prompts/index.js';
 import { getOutput } from '../output/index.js';
-import { getConfig } from '../utils/config.js';
+import { CLI_VERSION } from '../constants.js';
+import { getConfig, saveConfig } from '../utils/config.js';
 import { handleError } from '../errors/index.js';
 import { getComponent } from '../utils/registry.js';
 import { toKebabCase } from '../utils/naming.js';
@@ -131,6 +132,10 @@ export async function updateCommand(
       }
     }
 
+    if (!options.dryRun) {
+      await recordUpdatedVersions(results, config, cwd);
+    }
+
     // 4. Display results
     for (const result of results) {
       output.info('');
@@ -182,6 +187,48 @@ export async function updateCommand(
     output.outro('Done');
   } catch (error) {
     handleError(error, output);
+  }
+}
+
+/**
+ * Record the CLI version for every component this run left at the current
+ * Templates: no file with conflict markers, none skipped for lack of a
+ * snapshot. `kigumi diff` prints this as the installed version, so leaving the
+ * version the component was first added with made an up-to-date component
+ * read as years old (issue #138).
+ */
+async function recordUpdatedVersions(
+  results: ComponentUpdateResult[],
+  config: KigumiConfig,
+  cwd: string
+): Promise<void> {
+  const installedComponents = { ...config.installedComponents };
+  let changed = false;
+
+  for (const { name, files } of results) {
+    const current = files.every(
+      (file) =>
+        file.status !== 'conflict' && file.status !== 'no-snapshot-differ'
+    );
+    const existing = installedComponents[name];
+    if (
+      !current ||
+      (existing?.source === 'builtin' && existing.kigumiVersion === CLI_VERSION)
+    ) {
+      continue;
+    }
+    installedComponents[name] = {
+      installedAt: new Date().toISOString(),
+      ...existing,
+      source: 'builtin',
+      kigumiVersion: CLI_VERSION,
+    };
+    changed = true;
+  }
+
+  if (changed) {
+    config.installedComponents = installedComponents;
+    await saveConfig({ installedComponents }, cwd);
   }
 }
 

@@ -590,6 +590,15 @@ jobs:
         working-directory: starter
         run: pnpm install --frozen-lockfile --ignore-workspace
 
+      # The nine components below all exist in older Web Awesome releases, so
+      # their typecheck cannot notice a starter left behind (issue #138). A Web
+      # Awesome bump changes package.json, which runs all four starters.
+      - name: Starter Web Awesome version
+        working-directory: kigumi-cli
+        env:
+          KIGUMI_STARTER_DIR: ${{ github.workspace }}/starter
+        run: pnpm run check:starter-wa-version
+
       - name: Install kigumi tarball
         working-directory: starter
         run: pnpm add -D "file:${{ steps.pack.outputs.tarball }}" --ignore-workspace

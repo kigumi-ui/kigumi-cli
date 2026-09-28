@@ -38,14 +38,14 @@ src/
 │   ├── list.ts            # List all available components (supports --json)
 │   ├── upgrade.ts        # Version upgrade + dependency installation
 │   ├── diff.ts           # Compare components against current templates (snapshot-aware)
-│   ├── update.ts         # Three-way merge update for installed components
+│   ├── update.ts         # Three-way merge update for installed components; records the CLI version in installedComponents for each component it leaves at the current Templates
 │   └── ...
 ├── utils/                # Business logic
 │   ├── registry.ts       # Component definitions (SOURCE OF TRUTH)
 │   ├── tier.ts           # Tier detection (package.json priority, token fallback)
 │   ├── tier-restrictions.ts
 │   ├── config.ts         # kigumi.config.json handling
-│   ├── dependency-installer.ts # npm/pnpm install + old-package cleanup (shared by init and upgrade)
+│   ├── dependency-installer.ts # npm/pnpm install + old-package cleanup (shared by init and upgrade); writes the exact Web Awesome version over an existing range first, since pnpm keeps a `^` despite --save-exact
 │   ├── template.ts       # Template materialization (read + tier-swap)
 │   ├── regenerate.ts     # Auto-generate kigumi.ts, theme.css
 │   ├── json.ts           # JSON with comments support
@@ -578,7 +578,7 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-27
+**Last Updated:** 2026-09-28
 
 - `validate:cem-sync` gained attribute-name drift detection (`checkAttributeDrift`), a `GLOBAL_ATTRIBUTE_ALLOWLIST` + `COMPONENT_ATTRIBUTE_ALLOWLIST`, and a `stale-allowlist-entry` error so an allowlist entry can't go stale (surfaced prop, attribute removed upstream, or component gone); names are kebab-cased on both sides via `toKebabCase`, since the CEM lists some attributes under camelCase names; `Attribute drift` is now reported separately from `Prop-value drift` in the summary, issue #100
 - `ComponentMetadata` gained `attributes` (boolean-vs-string `type`, omitted when the CEM has none, e.g. `did-ssr`); the Dialog function harness reads them from `COMPONENT_METADATA.dialog` instead of a live CEM read at test time, issue #105
@@ -607,3 +607,5 @@ output.error('Failed to install');
 - `ComponentProp.deprecated` marks a prop that should no longer be used; all three generators write it as a JSDoc `@deprecated` tag via `propJsdocLines()`, the skill surfaces label it, and RadarChart's `stacked`/`grid`/`min`/`max` (removal in #130) and Icon's `auto-width` carry it, issue #129
 - `validate:cem-sync` checks deprecation drift: `checkDeprecationDrift()` warns on a prop the CEM deprecates and the registry does not, and errors on a registry deprecation the CEM does not share unless `KIGUMI_DEPRECATIONS` records it as Kigumi's own; `parseCemAttributes()` now reads the CEM's `deprecated` field. It found QrCode's `fill` / `background`, now deprecated, issue #133
 - review follow-up on #133: stale `KIGUMI_DEPRECATIONS` entries report as `stale-kigumi-deprecation` (quoting their reason) instead of `stale-allowlist-entry`, `deprecated: ""` in the CEM counts as a deprecation, a deprecated prop whose attribute the CEM does not declare gets its own message, and the shared stale-entry helpers replace two copies, issue #133
+- `installDependencies` writes the exact Web Awesome version over an existing range in `package.json` before `pnpm add`, and restores the file if that install fails: pnpm keeps an existing `^`/`~` even with `--save-exact` (npm and yarn do not), so `kigumi upgrade` left the kigumi-react and kigumi-angular starters on `^3.13.0`, issue #138
+- `kigumi update` records `CLI_VERSION` in `installedComponents` for each component with no conflict and no skipped file, keeping the rest of the entry; `kigumi diff` printed the version a component was first added with, so the starters' up-to-date Button read `installed: 0.17.1`, issue #138
