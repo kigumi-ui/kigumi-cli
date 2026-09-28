@@ -376,11 +376,30 @@ describe('checkBody: repo paths in inline code', () => {
     expect(
       rules(
         checkBody(
-          withSections('none', 'CI only', 'See `docs/adr/0005`.\n'),
+          withSections('none', 'CI only', 'See `scripts/event`.\n'),
           paths
         )
       )
     ).toEqual(['path-missing']);
+  });
+
+  it('accepts an ADR cited by number, as AGENTS.md cites them', () => {
+    expect(
+      checkBody(
+        withSections('none', 'CI only', 'See `docs/adr/0005`.\n'),
+        paths
+      )
+    ).toEqual([]);
+  });
+
+  it('rejects an ADR number that no ADR, or more than one, has', () => {
+    const twice = context({
+      knownPaths: new Set(['docs/adr/0007-a.md', 'docs/adr/0007-b.md']),
+    });
+    const cite = (n: string) =>
+      withSections('none', 'CI only', `See \`docs/adr/${n}\`.\n`);
+    expect(rules(checkBody(cite('0099'), paths))).toEqual(['path-missing']);
+    expect(rules(checkBody(cite('0007'), twice))).toEqual(['path-missing']);
   });
 
   it('leaves a bare file name alone: a nested file and a typo look the same', () => {

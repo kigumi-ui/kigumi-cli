@@ -47,7 +47,9 @@ two guards hold them:
   and on a PR ready for review, claims matched against artifacts: Impact
   against the changesets in the diff, each `#N`, each backticked repo path (a
   token whose first segment is a top-level entry; a bare name could be any
-  nested file, so it is not checked), and a Verification that reads `CI only` or links a log comment on this PR.
+  nested file, so it is not checked; `docs/adr/NNNN` counts when exactly one
+  ADR has that number, as AGENTS.md cites them), and a Verification that
+  reads `CI only` or links a log comment on this PR.
   It runs on `edited`, which `ci.yml` does not, so it also carries the PR-body
   half of the attribution check (#97), which never saw a body edited after
   the last push. On every body edit it posts the old-to-new diff itself, from

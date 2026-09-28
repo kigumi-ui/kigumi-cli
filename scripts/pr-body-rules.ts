@@ -344,6 +344,21 @@ function checkIssues(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
 /** Characters that make an inline-code token a pattern or a command, not a path. */
 const NOT_A_PATH = /[\s*?<>{}$[\]()]|:\/\//;
 
+/** `docs/adr/0006`: how AGENTS.md and the skills cite an ADR, by number. */
+const ADR_SHORTHAND = /^docs\/adr\/\d{4}$/;
+
+/** A file or directory at head or deleted by the diff, or an ADR cited by number. */
+function isKnownPath(path: string, known: ReadonlySet<string>): boolean {
+  if (known.has(path)) return true;
+  const all = [...known];
+  const dir = `${path.replace(/\/$/, '')}/`;
+  if (all.some((p) => p.startsWith(dir))) return true;
+  return (
+    ADR_SHORTHAND.test(path) &&
+    all.filter((p) => p.startsWith(`${path}-`)).length === 1
+  );
+}
+
 /**
  * A backticked token is a repo path when its first segment is a top-level
  * entry of the repo. That keeps `kigumi-ui/kigumi-cli` and `dist/index.js`
@@ -361,12 +376,7 @@ function checkPaths(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
       if (NOT_A_PATH.test(token) || token.startsWith('@')) continue;
       const path = token.replace(/^\.\//, '').replace(/(:\d+){1,2}$/, '');
       if (!topLevel.has(path.split('/')[0])) continue;
-      const dir = `${path.replace(/\/$/, '')}/`;
-      if (
-        ctx.knownPaths.has(path) ||
-        [...ctx.knownPaths].some((p) => p.startsWith(dir))
-      )
-        continue;
+      if (isKnownPath(path, ctx.knownPaths)) continue;
       findings.push({
         rule: 'path-missing',
         line: line.number,
