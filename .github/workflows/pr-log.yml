@@ -1,0 +1,65 @@
+name: PR log
+
+# Every session that pushes to a PR posts one log comment headed
+# `**Round N** · Covers: a..b` (issue #150, docs/adr/0006). This checks that
+# every commit pushed after the PR opened is inside some log comment's range
+# and reports the `pr-log` commit status.
+#
+# It also runs on comments, because posting the log comment is what fixes a
+# failing check. A comment-triggered run uses this file and the scripts from
+# main and is attached to main, not to the PR, which is why the result is a
+# commit status on the PR's head and the job itself stays green. It fetches
+# the PR's commits and only reads them with git; nothing from the PR branch
+# is executed.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+  issue_comment:
+    types: [created, edited, deleted]
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: Report PR log coverage
+    # Comment runs: only comments on PRs. Push runs: only branches of this
+    # repo, since a fork's token cannot write statuses; its PRs get the
+    # status from the next comment run instead.
+    if: >-
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request) ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pr-log-${{ github.event.pull_request.number || github.event.issue.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+      statuses: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check log coverage and set the pr-log status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+        run: pnpm run check:pr-log --pr "$PR_NUMBER" --post-status
