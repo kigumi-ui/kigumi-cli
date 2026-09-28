@@ -1,22 +1,26 @@
-## Summary
+Closes #
 
-<!-- What does this change, and why? -->
+<!--
+This body becomes the squash commit on main (docs/adr/0006), so write it as
+history. Delete every HTML comment before posting: the PR body check fails on
+leftovers. Evidence, review rounds and command output go in log comments, one
+per push, headed **Round N** · Covers: a..b (see .claude/skills/pr-log).
 
-## Changes
+Summary, 2-4 sentences, no heading: what changed and why.
+-->
 
-<!-- The notable pieces, one per line. -->
+## Deviations from #N
+
+<!-- Only when the PR deliberately departs from the issue: one bullet each, with the reason. Otherwise delete this section. -->
+
+## Impact
+
+<!-- Start with none, patch, minor or major, matching the changesets in the diff, then one line on who notices. -->
+
+## Review focus
+
+<!-- Where a reviewer should look first, and why. -->
 
 ## Verification
 
-<!-- What you ran, and what it said. Paste output rather than asserting success. -->
-
-- [ ] `pnpm type-check`
-- [ ] `pnpm lint`
-- [ ] `pnpm test`
-- [ ] `pnpm validate:registry` and `pnpm validate:templates` (if templates or the registry changed)
-
-## Checklist
-
-- [ ] Component wrappers were changed in `templates/`, not in generated output
-- [ ] A changeset is included for user-facing changes (`pnpm changeset`)
-- [ ] Docs updated (README and the relevant `AGENTS.md`) if commands, utils, or schemas changed
+<!-- "CI only", or a link to the log comment holding the evidence. -->

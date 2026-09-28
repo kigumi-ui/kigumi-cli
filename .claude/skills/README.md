@@ -15,6 +15,7 @@
 | Generate component wrapper templates | `generate-component-wrapper` | Contributor |
 | Create theme presets for Studio      | `generate-theme-preset`      | Contributor |
 | Prepare a release                    | `release`                    | Contributor |
+| Write a PR body and its log          | `pr-log`                     | Contributor |
 
 ## How Skills Work
 

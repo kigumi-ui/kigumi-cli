@@ -63,7 +63,12 @@ node dist/index.js add button --force
 | `scripts/check-metadata-freshness.ts` | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM or any `dist/events/*.d.ts` beside it, triggering regen |
 | `scripts/guard-outcome.ts` | Shared reporting vocabulary for CEM-dependent guards: `summarizeGuard()` keeps "did it pass" and "did it actually run" as separate facts; `skipPermitted()` decides where an absent manifest may be tolerated. Consumed by `check-generated-fresh.ts` and `validate-cem-sync.ts`. See `docs/adr/0003` |
 | `scripts/is-entry-point.ts` | `isEntryPoint(import.meta.url)`: true only when the script is the process entry point. Compares real paths, so an absolute invocation through a symlinked directory still runs `main()` instead of exiting 0 silently. Used by the parser, the React/Angular generators (issue #106) and the skill-reference generator (issue #129) |
-| `scripts/check-commit-attribution.ts` | `commit-msg` hook: rejects AI attribution trailers (`Co-Authored-By: Claude`/`Cursor`, `Generated/Made/Created with ...`). Prose mentioning Claude is deliberately allowed. `--pr` mode (`validate:attribution`, CI `attribution` job) checks the PR body and every branch commit, since squash merges copy them onto main server-side (issue #97) |
+| `scripts/check-commit-attribution.ts` | `commit-msg` hook: rejects AI attribution trailers (`Co-Authored-By: Claude`/`Cursor`, `Generated/Made/Created with ...`). Prose mentioning Claude is deliberately allowed. `--pr` mode (`validate:attribution`, CI `attribution` job) checks every branch commit, since squash merges copy them onto main server-side (issue #97); the PR body is `validate:pr-body`'s job |
+| `scripts/pr-body-rules.ts` | Pure rules for PR bodies and PR logs (issue #150, `docs/adr/0006`): `checkBody()` (four allowed headings, no tables/`<details>`/HTML comments/checklists, 2,500 characters, attribution, and on a ready PR claims matched against the diff), `checkRewrite()`/`bodyEdit()` (edit ratio and the machine-written trail), `logCoverage()`/`logStatus()` (`**Round N** · Covers: a..b` ranges), `isExempt()` |
+| `scripts/pr-body-context.ts` | The git facts those rules check against: highest changeset bump in the diff, known paths, branch commits with committer time, `rev-list` range resolver |
+| `scripts/pr-github.ts` | Thin `gh api` calls for the PR guards (issue lookup where only a 404 means missing, PR comments, comment and commit-status posting) |
+| `scripts/validate-pr-body.ts` | `validate:pr-body`: runs the body rules in `pr-body.yml` from the event payload (`--event`, `--trail` posts the edit diff), or locally on a body file (`--body-file [--draft] [--pr N]`) |
+| `scripts/check-pr-log.ts` | `check:pr-log`: sets the `pr-log` commit status in `pr-log.yml` (`--post-status`); fetches the PR's commits and only reads them, so it is safe on comment-triggered runs |
 | `scripts/check-generated-fresh.ts` | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx`/`.js.vue` stay within `.tsx`/`.vue`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs/Pro typecheck shim in a tmp copy + diff; the copy's generator output is cleared first and the Template trees are compared both ways, so a committed Template no generator writes is drift as much as one that differs, issue #80) requires a CEM covering every registry component; a partial one is refused and an unverified run is never reported as a pass (issue #43). Runs in CI's own `freshness` job |
 | `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
 | `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
@@ -118,6 +123,7 @@ node dist/index.js add button --force
 | `release` | `.claude/skills/release/` | Contributor | Prepare and publish releases |
 | `kigumi-feature-spec` | `.claude/skills/kigumi-feature-spec/` | Contributor | Create feature specs and plans |
 | `apply-theme-to-figma` | `.claude/skills/apply-theme-to-figma/` | Contributor | Apply CSS tokens to Figma UI Kit |
+| `pr-log` | `.claude/skills/pr-log/` | Contributor | Write the PR body and post one log comment per push |
 
 ### Skills Publishing
 
@@ -976,8 +982,16 @@ Content without a header is silently dropped from `CHANGELOG.md` at release time
 
 ```bash
 git push -u origin HEAD
-gh pr create --title "feat: my feature" --body "Description..."
+gh pr create --draft --title "feat: my feature" --body-file body.md
 ```
+
+The PR body becomes the squash commit on main, so it is written as history:
+a summary and four sections, per `.github/PULL_REQUEST_TEMPLATE.md`. Review
+rounds and evidence go in the PR log, one new comment per push. Use the
+`pr-log` skill when opening a PR and after every push to one; `pr-body.yml`
+and the `pr-log` status enforce it (`docs/adr/0006`). When `/code-review`
+runs on a PR, give its Spec sub-agent the PR body and the log comments too,
+and have it report body claims the diff does not back.
 
 **Step 4: Wait for CI, review, merge**
 
