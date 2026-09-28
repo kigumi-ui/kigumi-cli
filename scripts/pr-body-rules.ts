@@ -466,13 +466,36 @@ function commonLength(before: string[], after: string[]): number {
   );
 }
 
-export interface BodyEdit {
+/** How much of a body an edit changed, in non-blank lines. */
+interface EditSize {
   /** Non-blank lines the edit changed. */
   changed: number;
   /** Non-blank lines in the longer version. */
   counted: number;
   /** `changed / counted`, 0 for two empty bodies. */
   changedRatio: number;
+}
+
+function toLines(body: string): string[] {
+  return body.replace(/\r\n?/g, '\n').split('\n');
+}
+
+function measureEdit(before: string[], after: string[]): EditSize {
+  const nonBlank = (lines: string[]) => lines.filter((l) => l.trim() !== '');
+  const counted = Math.max(nonBlank(before).length, nonBlank(after).length);
+  const changed = counted - commonLength(nonBlank(before), nonBlank(after));
+  return {
+    changed,
+    counted,
+    changedRatio: counted === 0 ? 0 : changed / counted,
+  };
+}
+
+function percent(ratio: number): string {
+  return `${Math.round(ratio * 100)}%`;
+}
+
+export interface BodyEdit extends EditSize {
   /** The machine-written trail comment: a summary line and a diff. */
   trail: string;
 }
@@ -487,12 +510,9 @@ export function bodyEdit(
   rawAfter: string,
   actor: string
 ): BodyEdit {
-  const before = rawBefore.replace(/\r\n?/g, '\n').split('\n');
-  const after = rawAfter.replace(/\r\n?/g, '\n').split('\n');
-  const nonBlank = (lines: string[]) => lines.filter((l) => l.trim() !== '');
-  const counted = Math.max(nonBlank(before).length, nonBlank(after).length);
-  const changed = counted - commonLength(nonBlank(before), nonBlank(after));
-  const changedRatio = counted === 0 ? 0 : changed / counted;
+  const before = toLines(rawBefore);
+  const after = toLines(rawAfter);
+  const size = measureEdit(before, after);
 
   const diff = comm(before, after).flatMap((chunk) =>
     'common' in chunk
@@ -508,37 +528,99 @@ export function bodyEdit(
   );
   const fence = '`'.repeat(Math.max(3, longestRun + 1));
   const trail = [
-    `**Body edit** by @${actor}: ${changed} of ${counted} lines changed (${Math.round(changedRatio * 100)}%).`,
+    `**Body edit** by @${actor}: ${size.changed} of ${size.counted} lines changed (${percent(size.changedRatio)}).`,
     '',
     `${fence}diff`,
     ...diff,
     fence,
   ].join('\n');
-  return { changed, counted, changedRatio, trail };
+  return { ...size, trail };
 }
 
 /** Above this share of changed lines, an edit on a ready PR is a rewrite. */
 export const MAX_EDIT_RATIO = 0.5;
 
+function isRewrite(size: EditSize): boolean {
+  return size.changedRatio > MAX_EDIT_RATIO;
+}
+
 /**
  * The body is written once and then only corrected (ADR 0006), so on a PR
- * ready for review an edit that replaces most of it fails. Drafts may be
- * rewritten while the work is still moving.
+ * ready for review an edit that replaces most of it is a rewrite. Drafts may
+ * be rewritten while the work is still moving. For one edit not yet posted:
+ * a local run measures it before `gh pr edit`.
  */
 export function checkRewrite(
   before: string,
   after: string,
-  pr: { draft: boolean; actor: string }
+  pr: { draft: boolean }
 ): BodyFinding[] {
   if (pr.draft) return [];
-  const { changed, counted, changedRatio } = bodyEdit(before, after, pr.actor);
-  if (changedRatio <= MAX_EDIT_RATIO) return [];
+  const size = measureEdit(toLines(before), toLines(after));
+  if (!isRewrite(size)) return [];
+  const { changed, counted, changedRatio } = size;
   return [
     {
       rule: 'rewrite',
-      message: `this edit changed ${changed} of ${counted} lines (${Math.round(changedRatio * 100)}%); edit the sentences that became wrong, and say why in a log comment`,
+      message: `this edit changes ${changed} of ${counted} lines (${percent(changedRatio)}); posted on a PR ready for review, it fails the PR body check until the PR goes back to draft. Edit only the sentences that became wrong, and say why in a log comment`,
     },
   ];
+}
+
+/** One revision of a PR body, from GitHub's edit history. */
+export interface BodyRevision {
+  /** When the revision was saved, seconds since the epoch. */
+  editedAt: number;
+  /** The whole body at that revision; null when it was deleted from the history. */
+  body: string | null;
+}
+
+export interface EditHistory {
+  /** Edits saved since the PR last became ready for review. */
+  edits: number;
+  /** Of those, edits next to a deleted revision, which cannot be measured. */
+  unmeasured: number;
+  /** One `rewrite` finding per edit that changed more than half of the body. */
+  findings: BodyFinding[];
+}
+
+/**
+ * Every edit since the PR last became ready for review, each measured
+ * against the revision before it. It reads GitHub's edit history rather
+ * than the event that started the run, so a rewrite keeps failing on every
+ * later push and edit, until the PR goes back to draft and is marked ready
+ * again, which moves `readySince` past it (ADR 0006).
+ *
+ * `revisions` may come in any order; revisions saved in the same second keep
+ * the order given, so pass them oldest first. `readySince` is when the PR
+ * last became ready, or when it was opened if it was opened ready.
+ */
+export function checkEditHistory(
+  revisions: readonly BodyRevision[],
+  readySince: number
+): EditHistory {
+  const ordered = [...revisions].sort((a, b) => a.editedAt - b.editedAt);
+  const history: EditHistory = { edits: 0, unmeasured: 0, findings: [] };
+  ordered.forEach((revision, index) => {
+    const previous = ordered[index - 1];
+    if (!previous || revision.editedAt <= readySince) return;
+    history.edits += 1;
+    if (previous.body === null || revision.body === null) {
+      history.unmeasured += 1;
+      return;
+    }
+    const size = measureEdit(toLines(previous.body), toLines(revision.body));
+    if (!isRewrite(size)) return;
+    const { changed, counted, changedRatio } = size;
+    const at = new Date(revision.editedAt * 1000)
+      .toISOString()
+      .replace('.000Z', 'Z');
+    history.findings.push({
+      rule: 'rewrite',
+      message: `the edit at ${at} changed ${changed} of ${counted} lines (${percent(changedRatio)}) after the PR became ready for review; if the body is right now, convert the PR to draft and mark it ready again`,
+    });
+  });
+  return history;
 }
 
 // ── PR log ──────────────────────────────────────────────────────────────────

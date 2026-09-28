@@ -53,8 +53,11 @@ two guards hold them:
   It runs on `edited`, which `ci.yml` does not, so it also carries the PR-body
   half of the attribution check (#97), which never saw a body edited after
   the last push. On every body edit it posts the old-to-new diff itself, from
-  the old body GitHub puts in the event, and fails an edit that changes more
-  than half of a ready PR's body.
+  the old body GitHub puts in the event. An edit that changes more than half
+  of a ready PR's body is a rewrite, and a rewrite is a draft's privilege:
+  every run reads GitHub's own edit history since the PR last became ready,
+  so the check keeps failing on later pushes and edits until the PR goes
+  back to draft and is marked ready again.
 - `pr-log.yml` (`check:pr-log`) requires every commit committed after the PR
   opened to sit in some log comment's `Covers:` range. Committer time stands
   in for push time, which GitHub does not expose per commit: a commit made

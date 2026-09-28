@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest';
 import {
   bodyEdit,
   checkBody,
+  checkEditHistory,
   checkRewrite,
   isExempt,
   logCoverage,
@@ -778,26 +779,76 @@ describe('checkRewrite: an edit may fix the body, not replace it', () => {
   const BODY = 'a\nb\nc\nd';
 
   it('accepts changing half of the lines', () => {
-    expect(
-      checkRewrite(BODY, 'a\nb\nC\nD', { draft: false, actor: 'mischa' })
-    ).toEqual([]);
+    expect(checkRewrite(BODY, 'a\nb\nC\nD', { draft: false })).toEqual([]);
   });
 
   it('rejects changing more than half on a PR ready for review', () => {
-    expect(
-      checkRewrite(BODY, 'a\nB\nC\nD', { draft: false, actor: 'mischa' })
-    ).toEqual([
+    expect(checkRewrite(BODY, 'a\nB\nC\nD', { draft: false })).toEqual([
       {
         rule: 'rewrite',
         message:
-          'this edit changed 3 of 4 lines (75%); edit the sentences that became wrong, and say why in a log comment',
+          'this edit changes 3 of 4 lines (75%); posted on a PR ready for review, it fails the PR body check until the PR goes back to draft. Edit only the sentences that became wrong, and say why in a log comment',
       },
     ]);
   });
 
   it('lets a draft be rewritten', () => {
-    expect(
-      checkRewrite(BODY, 'w\nx\ny\nz', { draft: true, actor: 'mischa' })
-    ).toEqual([]);
+    expect(checkRewrite(BODY, 'w\nx\ny\nz', { draft: true })).toEqual([]);
+  });
+});
+
+describe('checkEditHistory: a rewrite keeps failing until the PR goes back to draft', () => {
+  // Revisions as GitHub's edit history holds them: the whole body each time.
+  const ORIGINAL = { editedAt: 100, body: 'a\nb\nc\nd' };
+  const REWRITE = { editedAt: 300, body: 'a\nB\nC\nD' };
+
+  it('fails a rewrite made after the PR became ready, on every run after it', () => {
+    expect(checkEditHistory([ORIGINAL, REWRITE], 200)).toEqual({
+      edits: 1,
+      unmeasured: 0,
+      findings: [
+        {
+          rule: 'rewrite',
+          message:
+            'the edit at 1970-01-01T00:05:00Z changed 3 of 4 lines (75%) after the PR became ready for review; if the body is right now, convert the PR to draft and mark it ready again',
+        },
+      ],
+    });
+  });
+
+  it('forgets a rewrite once the PR was marked ready again after it', () => {
+    expect(checkEditHistory([ORIGINAL, REWRITE], 400)).toEqual({
+      edits: 0,
+      unmeasured: 0,
+      findings: [],
+    });
+  });
+
+  it('measures each edit against the revision before it, not the first one', () => {
+    // Three edits of one line each: 75% of the original by the end.
+    const history = [
+      ORIGINAL,
+      { editedAt: 300, body: 'A\nb\nc\nd' },
+      { editedAt: 400, body: 'A\nB\nc\nd' },
+      { editedAt: 500, body: 'A\nB\nC\nd' },
+    ];
+    expect(checkEditHistory(history, 200)).toEqual({
+      edits: 3,
+      unmeasured: 0,
+      findings: [],
+    });
+  });
+
+  it('orders the revisions by time, as GitHub lists them newest first', () => {
+    expect(checkEditHistory([REWRITE, ORIGINAL], 200).findings).toHaveLength(1);
+  });
+
+  it('counts an edit next to a deleted revision as unmeasured, not as passed', () => {
+    const deleted = { editedAt: 100, body: null };
+    expect(checkEditHistory([deleted, REWRITE], 200)).toEqual({
+      edits: 1,
+      unmeasured: 1,
+      findings: [],
+    });
   });
 });

@@ -9,6 +9,8 @@
 
 import { execFileSync } from 'child_process';
 
+import type { BodyRevision } from './pr-body-rules.js';
+
 function ghApi(args: string[], input?: string): string {
   return execFileSync('gh', ['api', ...args], {
     encoding: 'utf8',
@@ -16,6 +18,14 @@ function ghApi(args: string[], input?: string): string {
     stdio: ['pipe', 'pipe', 'pipe'],
     maxBuffer: 64 * 1024 * 1024,
   });
+}
+
+function lines(output: string): string[] {
+  return output.split('\n').filter((line) => line !== '');
+}
+
+function seconds(isoTime: string): number {
+  return Math.floor(Date.parse(isoTime) / 1000);
 }
 
 function stderrOf(error: unknown): string {
@@ -54,17 +64,14 @@ export function prComments(pr: number): PullRequestComment[] {
     '--jq',
     '.[] | [.id, .author_association, .body] | @json',
   ]);
-  return out
-    .split('\n')
-    .filter((line) => line !== '')
-    .map((line) => {
-      const [id, authorAssociation, body] = JSON.parse(line) as [
-        number,
-        string,
-        string | null,
-      ];
-      return { id, authorAssociation, body: body ?? '' };
-    });
+  return lines(out).map((line) => {
+    const [id, authorAssociation, body] = JSON.parse(line) as [
+      number,
+      string,
+      string | null,
+    ];
+    return { id, authorAssociation, body: body ?? '' };
+  });
 }
 
 export function postComment(pr: number, body: string): void {
@@ -91,6 +98,7 @@ export interface PullRequestInfo {
   baseRef: string;
   /** Seconds since the epoch. */
   createdAt: number;
+  body: string;
 }
 
 export function pullRequest(pr: number): PullRequestInfo {
@@ -98,6 +106,7 @@ export function pullRequest(pr: number): PullRequestInfo {
     number: number;
     draft: boolean;
     created_at: string;
+    body: string | null;
     user: { type: string };
     // `repo` is null once a fork's repository is deleted.
     head: { ref: string; sha: string; repo: { full_name: string } | null };
@@ -111,8 +120,66 @@ export function pullRequest(pr: number): PullRequestInfo {
     headSha: raw.head.sha,
     sameRepo: raw.head.repo?.full_name === raw.base.repo.full_name,
     baseRef: raw.base.ref,
-    createdAt: Math.floor(Date.parse(raw.created_at) / 1000),
+    createdAt: seconds(raw.created_at),
+    body: raw.body ?? '',
   };
+}
+
+const BODY_REVISIONS = `
+  query($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $pr) {
+        userContentEdits(first: 100, after: $endCursor) {
+          pageInfo { hasNextPage endCursor }
+          nodes { editedAt diff }
+        }
+      }
+    }
+  }`;
+
+/**
+ * The PR body's edit history, oldest first, the original body included:
+ * GitHub's `diff` holds each revision's whole text, despite its name, and
+ * null once a revision is deleted from the history. Empty while the body
+ * was never edited.
+ */
+export function bodyRevisions(pr: number): BodyRevision[] {
+  const out = ghApi([
+    'graphql',
+    '--paginate',
+    '-F',
+    'owner={owner}',
+    '-F',
+    'repo={repo}',
+    '-F',
+    `pr=${pr}`,
+    '-f',
+    `query=${BODY_REVISIONS}`,
+    '--jq',
+    '.data.repository.pullRequest.userContentEdits.nodes[] | [.editedAt, .diff] | @json',
+  ]);
+  return lines(out)
+    .map((line) => {
+      const [editedAt, body] = JSON.parse(line) as [string, string | null];
+      return { editedAt: seconds(editedAt), body };
+    })
+    .reverse();
+}
+
+/**
+ * When the PR was last marked ready for review, or null when it never was:
+ * it was opened ready, or it is still a draft.
+ */
+export function lastReadyForReview(pr: number): number | null {
+  const times = lines(
+    ghApi([
+      '--paginate',
+      `repos/{owner}/{repo}/issues/${pr}/timeline`,
+      '--jq',
+      '.[] | select(.event == "ready_for_review") | .created_at',
+    ])
+  ).map(seconds);
+  return times.length === 0 ? null : Math.max(...times);
 }
 
 /** Sets a commit status on `sha`. Needs `statuses: write`. */

@@ -9,8 +9,10 @@
  * comments / checklists, at most 2,500 characters, no AI attribution, and on
  * a PR ready for review, claims that match the diff (Impact vs changesets,
  * `#N` that exist, repo paths that exist, a Verification that links a log
- * comment on this PR). On an `edited` event it also refuses a rewrite of a
- * ready PR's body.
+ * comment on this PR). On a ready PR it also refuses a rewrite: an edit
+ * since the PR last became ready that changed more than half of the body,
+ * read from GitHub's edit history, so it fails every run until the PR goes
+ * back to draft.
  *
  * USAGE:
  *   tsx scripts/validate-pr-body.ts --event "$GITHUB_EVENT_PATH"
@@ -18,8 +20,10 @@
  *   tsx scripts/validate-pr-body.ts --event "$GITHUB_EVENT_PATH" --trail
  *       CI: posts the old-to-new diff of an `edited` event as a comment.
  *   tsx scripts/validate-pr-body.ts --body-file body.md [--draft] [--pr N] [--base origin/main]
- *       Locally, before `gh pr create` / `gh pr edit`. Without --pr, a
- *       Verification link cannot be checked and is reported.
+ *       Locally, before `gh pr create` / `gh pr edit`. With --pr it also
+ *       measures the edit from the PR's current body. Without --pr, a
+ *       Verification link cannot be checked and is reported, and the edit
+ *       history is not read.
  */
 
 import fs from 'fs-extra';
@@ -30,13 +34,21 @@ import { changesetBump, knownPaths } from './pr-body-context.js';
 import {
   bodyEdit,
   checkBody,
+  checkEditHistory,
   checkRewrite,
   isExempt,
   mentionedIssues,
   type BodyContext,
   type BodyFinding,
 } from './pr-body-rules.js';
-import { issueExists, postComment, prComments } from './pr-github.js';
+import {
+  bodyRevisions,
+  issueExists,
+  lastReadyForReview,
+  postComment,
+  prComments,
+  pullRequest,
+} from './pr-github.js';
 
 interface PullRequestEvent {
   action: string;
@@ -47,6 +59,7 @@ interface PullRequestEvent {
     number: number;
     body: string | null;
     draft: boolean;
+    created_at: string;
     user: { type: string };
     // `repo` is null once a fork's repository is deleted.
     head: { ref: string; sha: string; repo: { full_name: string } | null };
@@ -61,9 +74,14 @@ interface Input {
   exempt: string | null;
   base: string;
   head: string;
-  pr?: number;
-  /** Present when this run is for an edit of the body. */
-  edit?: { before: string; actor: string };
+  /** The PR on GitHub, when known. */
+  pr?: {
+    number: number;
+    /** When it was opened, seconds since the epoch. */
+    createdAt: number;
+    /** A local run: the body on GitHub that this one would replace. */
+    current?: string;
+  };
 }
 
 function flag(name: string): string | undefined {
@@ -95,7 +113,9 @@ function gatherContext(input: Input): { ctx: BodyContext; evidence: string } {
     changesetBump: changesetBump(cwd, input.base, input.head),
     existingIssues: new Set(mentioned.filter((issue) => issueExists(issue))),
     knownPaths: knownPaths(cwd, input.base, input.head),
-    commentIds: new Set(input.pr ? prComments(input.pr).map((c) => c.id) : []),
+    commentIds: new Set(
+      input.pr ? prComments(input.pr.number).map((c) => c.id) : []
+    ),
   };
   // Every number here is read from the evidence, so a run that looked
   // nothing up cannot print the same line as one that did (ADR 0003).
@@ -105,16 +125,43 @@ function gatherContext(input: Input): { ctx: BodyContext; evidence: string } {
   return { ctx, evidence };
 }
 
+/**
+ * The rewrite rule on a ready PR: GitHub's edit history since the PR last
+ * became ready, plus, in a local run, the edit this body would make.
+ */
+function checkEdits(input: Input): {
+  findings: BodyFinding[];
+  evidence?: string;
+} {
+  if (input.exempt || input.draft) return { findings: [] };
+  if (!input.pr) {
+    return { findings: [], evidence: 'edit history not read: no --pr' };
+  }
+  const readySince = lastReadyForReview(input.pr.number) ?? input.pr.createdAt;
+  const history = checkEditHistory(bodyRevisions(input.pr.number), readySince);
+  const pending =
+    input.pr.current === undefined
+      ? []
+      : checkRewrite(input.pr.current, input.body, { draft: false });
+  const unmeasured =
+    history.unmeasured > 0
+      ? ` (${history.unmeasured} next to a deleted revision, unmeasured)`
+      : '';
+  return {
+    findings: [...history.findings, ...pending],
+    evidence: `${history.edits} body edit(s) since ready for review${unmeasured}`,
+  };
+}
+
 function validate(input: Input): number {
-  const { ctx, evidence } = gatherContext(input);
+  const context = gatherContext(input);
+  const edits = checkEdits(input);
+  const evidence = [context.evidence, edits.evidence]
+    .filter((part) => part !== undefined)
+    .join('; ');
   const findings: BodyFinding[] = [
-    ...checkBody(input.body, ctx),
-    ...(input.edit && !input.exempt
-      ? checkRewrite(input.edit.before, input.body, {
-          draft: input.draft,
-          actor: input.edit.actor,
-        })
-      : []),
+    ...checkBody(input.body, context.ctx),
+    ...edits.findings,
   ];
 
   if (findings.length === 0) {
@@ -149,18 +196,16 @@ function fromEvent(eventPath: string): Input {
     headRef: pr.head.ref,
     sameRepo: pr.head.repo?.full_name === event.repository.full_name,
   });
-  const bodyChanged =
-    event.action === 'edited' && event.changes?.body !== undefined;
   return {
     body: pr.body ?? '',
     draft: pr.draft,
     exempt,
     base: pr.base.sha,
     head: pr.head.sha,
-    pr: pr.number,
-    edit: bodyChanged
-      ? { before: event.changes?.body?.from ?? '', actor: event.sender.login }
-      : undefined,
+    pr: {
+      number: pr.number,
+      createdAt: Math.floor(Date.parse(pr.created_at) / 1000),
+    },
   };
 }
 
@@ -201,14 +246,19 @@ function main(): number {
     );
     return 1;
   }
-  const pr = flag('--pr');
+  const prFlag = flag('--pr');
+  const pr = prFlag ? pullRequest(Number(prFlag)) : undefined;
   return validate({
     body: fs.readFileSync(bodyFile, 'utf8'),
     draft: process.argv.includes('--draft'),
     exempt: null,
     base: flag('--base') ?? 'origin/main',
     head: 'HEAD',
-    pr: pr ? Number(pr) : undefined,
+    pr: pr && {
+      number: pr.number,
+      createdAt: pr.createdAt,
+      current: pr.body,
+    },
   });
 }
 

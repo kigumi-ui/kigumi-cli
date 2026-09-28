@@ -41,7 +41,7 @@ tests/
 │   ├── scripts/check-starter-wa-version.test.ts # Starter job guard: a starter older than DEFAULT_WEBAWESOME_VERSION fails, numeric compare, missing install fails (#138)
 │   ├── parse-custom-elements-import.test.ts # Importing the parser never starts main() (#106)
 │   ├── scripts/validate-cem-sync-coverage.test.ts # cem-sync two-half coverage reporting (presence, and the manifest half: prop-value + attribute drift)
-│   ├── scripts/pr-body-rules.test.ts # PR body rules (headings, noise constructs, size, attribution, claims vs the diff), body-edit ratio and trail, log coverage and the pr-log status (#150)
+│   ├── scripts/pr-body-rules.test.ts # PR body rules (headings, noise constructs, size, attribution, claims vs the diff), body-edit ratio and trail, rewrites since ready from the edit history, log coverage and the pr-log status (#150)
 │   ├── scripts/pr-body-context.test.ts # Git facts for the PR guards on real temp repos: changeset bump and known paths (also once main moved on), branch commits, the PR's merge base via a clone, rev-list ranges (#150)
 │   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain

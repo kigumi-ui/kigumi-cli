@@ -66,7 +66,10 @@ Correct only the sentences the round made wrong, with
 comment. The workflow also posts the old-to-new diff of every body edit
 itself, so the record of _what_ changed is kept for you; your comment
 supplies _why_. On a PR ready for review, an edit that changes more than half
-of the body's lines fails the `PR body` check.
+of the body's lines fails the `PR body` check, and keeps failing on every
+later run until the PR goes back to draft and is marked ready again
+(`gh pr ready <pr> --undo`, then `gh pr ready <pr>`). With `--pr`, the local
+run measures your edit against the body on GitHub before you post it.
 
 Once a round has evidence, point `## Verification` at it: a link to that log
 comment. `CI only` is the whole section when CI is the only evidence.
