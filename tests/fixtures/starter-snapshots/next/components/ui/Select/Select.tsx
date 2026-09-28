@@ -152,7 +152,7 @@ export interface SelectRef {
   hide: () => void;
 
   /** Sets focus on the control. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the control. */
   blur: () => void;
@@ -218,7 +218,7 @@ export const Select = forwardRef<SelectRef, SelectProps>(
             selectRef.current.hide();
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             selectRef.current &&
             typeof selectRef.current.focus === 'function'
