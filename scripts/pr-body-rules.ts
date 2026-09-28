@@ -239,7 +239,12 @@ function findSection(lines: BodyLine[], heading: RegExp): Section | undefined {
 }
 
 /** The changeset levels, lowest first. */
-export const BUMP_LEVELS: readonly Bump[] = ['none', 'patch', 'minor', 'major'];
+const BUMP_LEVELS: readonly Bump[] = ['none', 'patch', 'minor', 'major'];
+
+/** The higher of two changeset levels, e.g. to reduce a list of them. */
+export function higherBump(a: Bump, b: Bump): Bump {
+  return BUMP_LEVELS.indexOf(b) > BUMP_LEVELS.indexOf(a) ? b : a;
+}
 
 function checkImpact(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
   const section = findSection(lines, /^## Impact$/);

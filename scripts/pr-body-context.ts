@@ -13,7 +13,7 @@
 
 import { execFileSync } from 'child_process';
 
-import { BUMP_LEVELS, type Bump } from './pr-body-rules.js';
+import { higherBump, type Bump } from './pr-body-rules.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -31,13 +31,9 @@ function lines(output: string): string[] {
 function frontmatterBump(changeset: string): Bump {
   const frontmatter =
     /^---\n([\s\S]*?)\n---/.exec(changeset.replace(/\r\n?/g, '\n'))?.[1] ?? '';
-  let highest: Bump = 'none';
-  for (const match of frontmatter.matchAll(/:\s*(patch|minor|major)\s*$/gm)) {
-    const bump = match[1] as Bump;
-    if (BUMP_LEVELS.indexOf(bump) > BUMP_LEVELS.indexOf(highest))
-      highest = bump;
-  }
-  return highest;
+  return [...frontmatter.matchAll(/:\s*(patch|minor|major)\s*$/gm)]
+    .map((match) => match[1] as Bump)
+    .reduce(higherBump, 'none');
 }
 
 /**
@@ -57,13 +53,9 @@ export function changesetBump(cwd: string, base: string, head: string): Bump {
       '.changeset',
     ])
   ).filter((path) => path.endsWith('.md') && !path.endsWith('/README.md'));
-  let highest: Bump = 'none';
-  for (const path of changed) {
-    const bump = frontmatterBump(git(cwd, ['show', `${head}:${path}`]));
-    if (BUMP_LEVELS.indexOf(bump) > BUMP_LEVELS.indexOf(highest))
-      highest = bump;
-  }
-  return highest;
+  return changed
+    .map((path) => frontmatterBump(git(cwd, ['show', `${head}:${path}`])))
+    .reduce(higherBump, 'none');
 }
 
 /** Every file at `head`, plus every file the branch deletes (a body may name those). */
