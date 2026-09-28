@@ -98,6 +98,23 @@ describe('changesetBump', () => {
     const head = commit('feat');
     expect(changesetBump(repo, base, head)).toBe('major');
   });
+
+  it('diffs from the merge base once main has moved on', () => {
+    // A release on main consumed old.md after the branch was cut. The branch
+    // still has it, unchanged since the merge base, so it says nothing about
+    // this PR; a diff from main's tip would read it as added.
+    write('.changeset/old.md', changeset('major'));
+    const forkPoint = commit('base');
+    git(['switch', '-q', '-c', 'feature']);
+    write('.changeset/new.md', changeset('patch'));
+    const head = commit('feat');
+    git(['switch', '-q', 'main']);
+    rmSync(join(repo, '.changeset/old.md'));
+    const movedBase = commit('release');
+    // Premise: the base has moved past the fork point.
+    expect(git(['merge-base', movedBase, head])).toBe(forkPoint);
+    expect(changesetBump(repo, movedBase, head)).toBe('patch');
+  });
 });
 
 describe('knownPaths', () => {
@@ -111,6 +128,23 @@ describe('knownPaths', () => {
     expect([...knownPaths(repo, base, head)].sort()).toEqual([
       'scripts/new.ts',
       'scripts/old.ts',
+      'src/kept.ts',
+    ]);
+  });
+
+  it('does not count a file main added after the fork as deleted by the branch', () => {
+    write('src/kept.ts', 'k');
+    const forkPoint = commit('base');
+    git(['switch', '-q', '-c', 'feature']);
+    write('scripts/new.ts', 'n');
+    const head = commit('feat');
+    git(['switch', '-q', 'main']);
+    write('scripts/main-only.ts', 'm');
+    const movedBase = commit('main moves on');
+    // Premise: the base has moved past the fork point.
+    expect(git(['merge-base', movedBase, head])).toBe(forkPoint);
+    expect([...knownPaths(repo, movedBase, head)].sort()).toEqual([
+      'scripts/new.ts',
       'src/kept.ts',
     ]);
   });
