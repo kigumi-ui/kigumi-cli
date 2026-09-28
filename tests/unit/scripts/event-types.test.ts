@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {
   EVENT_CLASS_OVERRIDES,
+  MANIFEST_EVENT_ARTIFACTS,
   createEventTypeResolver,
   parseEventDeclarations,
   readEventCatalog,
@@ -332,14 +333,20 @@ describe('createEventTypeResolver', () => {
       });
     });
 
-    it('take a declared Web Awesome class with its module', () => {
+    it('refuse a declared Web Awesome class, which fires only under its own wa- name', () => {
+      // Every class hard-codes its event name in its constructor, so
+      // WaDataRequestEvent can only ever arrive as wa-data-request. A manifest
+      // event called `request` carrying it is named after the constructor
+      // argument and never fires; typing it would ship a dead handler.
       const resolver = createEventTypeResolver(CATALOG, {});
-      expect(
+      expect(() =>
         resolver.resolve('wa-data-grid', {
           name: 'request',
           type: { text: 'WaDataRequestEvent' },
         })
-      ).toEqual({ type: 'WaDataRequestEvent', module: 'data-request' });
+      ).toThrow(
+        /wa-data-grid request.*WaDataRequestEvent.*wa-data-request.*MANIFEST_EVENT_ARTIFACTS/s
+      );
     });
 
     it('refuse a native event neither the manifest nor the table types', () => {
@@ -370,10 +377,13 @@ describe('createEventTypeResolver', () => {
   describe('overrides are pinned data and must stay true', () => {
     it('reports an override no manifest event consulted', () => {
       const resolver = createEventTypeResolver(CATALOG, ACCORDION_OVERRIDE);
+      const coverage = { tags: new Set(['wa-accordion']), complete: false };
       resolver.resolve('wa-dialog', { name: 'wa-hide' });
-      expect(resolver.unusedOverrides()).toEqual(['wa-accordion wa-expand']);
+      expect(resolver.staleEntries(coverage).overrides).toEqual([
+        'wa-accordion wa-expand',
+      ]);
       resolver.resolve('wa-accordion', { name: 'wa-expand' });
-      expect(resolver.unusedOverrides()).toEqual([]);
+      expect(resolver.staleEntries(coverage).overrides).toEqual([]);
     });
 
     it('refuses an override naming a class the package does not ship', () => {
@@ -394,6 +404,111 @@ describe('createEventTypeResolver', () => {
       ).toThrow(/WaHideEvent.*wa-hide/s);
     });
   });
+
+  describe('manifest artifacts are pinned data and must stay true', () => {
+    const GRID_ARTIFACT = {
+      'wa-data-grid': { request: { shadows: 'wa-data-request' } },
+    };
+    const REQUEST = {
+      name: 'request',
+      type: { text: 'WaDataRequestEvent' },
+    };
+    const DATA_REQUEST = { name: 'wa-data-request' };
+
+    it('drops a listed artifact and types the real event it shadows', () => {
+      const resolver = createEventTypeResolver(CATALOG, {}, GRID_ARTIFACT);
+      const resolved = resolver.resolveEvents('wa-data-grid', [
+        REQUEST,
+        DATA_REQUEST,
+      ]);
+      expect(
+        resolved.map(({ event, resolved }) => [event.name, resolved.type])
+      ).toEqual([['wa-data-request', 'WaDataRequestEvent']]);
+    });
+
+    it('keeps each event object, so callers read its other fields', () => {
+      const resolver = createEventTypeResolver(CATALOG, {}, {});
+      const hide = { name: 'wa-hide', description: 'Closes.' };
+      expect(resolver.resolveEvents('wa-dialog', [hide])[0]?.event).toBe(hide);
+    });
+
+    it('drops nothing for a component without an entry', () => {
+      // The entry is per component: another element's `request` is not one,
+      // and without an entry the refusal in resolve() still applies.
+      const resolver = createEventTypeResolver(CATALOG, {}, GRID_ARTIFACT);
+      expect(() =>
+        resolver.resolveEvents('wa-combobox', [REQUEST, DATA_REQUEST])
+      ).toThrow(/wa-combobox request.*MANIFEST_EVENT_ARTIFACTS/s);
+    });
+
+    it('refuses an entry whose real event fires a different class', () => {
+      const resolver = createEventTypeResolver(
+        CATALOG,
+        {},
+        { 'wa-data-grid': { request: { shadows: 'wa-hide' } } }
+      );
+      expect(() =>
+        resolver.resolveEvents('wa-data-grid', [REQUEST, { name: 'wa-hide' }])
+      ).toThrow(
+        /wa-data-grid request.*WaDataRequestEvent.*wa-hide.*WaHideEvent/s
+      );
+    });
+
+    it('refuses to drop an artifact whose real event the component does not declare', () => {
+      // Dropping it would then lose the only record that the component fires
+      // this class at all.
+      const resolver = createEventTypeResolver(CATALOG, {}, GRID_ARTIFACT);
+      expect(() => resolver.resolveEvents('wa-data-grid', [REQUEST])).toThrow(
+        /wa-data-grid request.*wa-data-request/s
+      );
+    });
+
+    it('reports an entry no manifest event consulted', () => {
+      const resolver = createEventTypeResolver(CATALOG, {}, GRID_ARTIFACT);
+      const coverage = { tags: new Set(['wa-data-grid']), complete: false };
+      resolver.resolveEvents('wa-dialog', [{ name: 'wa-hide' }]);
+      expect(resolver.staleEntries(coverage).artifacts).toEqual([
+        'wa-data-grid request',
+      ]);
+      resolver.resolveEvents('wa-data-grid', [REQUEST, DATA_REQUEST]);
+      expect(resolver.staleEntries(coverage).artifacts).toEqual([]);
+    });
+  });
+
+  describe('stale entries are judged against what the manifest describes', () => {
+    const GRID_ARTIFACT = {
+      'wa-data-grid': { request: { shadows: 'wa-data-request' } },
+    };
+
+    it('cannot judge an entry for a component a partial manifest lacks', () => {
+      // The free manifest has no Pro components: their entries go
+      // unconsulted there without being wrong.
+      const resolver = createEventTypeResolver(
+        CATALOG,
+        ACCORDION_OVERRIDE,
+        GRID_ARTIFACT
+      );
+      expect(
+        resolver.staleEntries({ tags: new Set(['wa-dialog']), complete: false })
+      ).toEqual({ overrides: [], artifacts: [] });
+    });
+
+    it('reports every unconsulted entry against a complete manifest', () => {
+      // The Pro manifest describes every component, so an entry for a tag it
+      // lacks names a component that is gone or a typo.
+      const resolver = createEventTypeResolver(
+        CATALOG,
+        ACCORDION_OVERRIDE,
+        GRID_ARTIFACT
+      );
+      expect(
+        resolver.staleEntries({ tags: new Set(['wa-dialog']), complete: true })
+      ).toEqual({
+        overrides: ['wa-accordion wa-expand'],
+        artifacts: ['wa-data-grid request'],
+      });
+    });
+  });
 });
 
 describe('resolving the real manifest', () => {
@@ -404,7 +519,11 @@ describe('resolving the real manifest', () => {
     const catalog = await readEventCatalog(
       path.join(path.dirname(cemPath), 'events')
     );
-    const resolver = createEventTypeResolver(catalog, EVENT_CLASS_OVERRIDES);
+    const resolver = createEventTypeResolver(
+      catalog,
+      EVENT_CLASS_OVERRIDES,
+      MANIFEST_EVENT_ARTIFACTS
+    );
 
     const manifest = (await fs.readJson(cemPath)) as {
       modules: Array<{
@@ -415,25 +534,41 @@ describe('resolving the real manifest', () => {
       }>;
     };
 
+    let declared = 0;
     let resolved = 0;
+    const tags = new Set<string>();
     const accordion: Record<string, string> = {};
     for (const mod of manifest.modules) {
       for (const decl of mod.declarations ?? []) {
         if (!decl.tagName) continue;
-        for (const event of decl.events ?? []) {
-          if (!event.name) continue;
-          const { type } = resolver.resolve(decl.tagName, {
-            name: event.name,
-            type: event.type,
-          });
+        tags.add(decl.tagName);
+        const events = (decl.events ?? []).flatMap((e) =>
+          e.name ? [{ name: e.name, type: e.type }] : []
+        );
+        declared += events.length;
+        for (const { event, resolved: type } of resolver.resolveEvents(
+          decl.tagName,
+          events
+        )) {
           resolved++;
-          if (decl.tagName === 'wa-accordion') accordion[event.name] = type;
+          if (decl.tagName === 'wa-accordion') {
+            accordion[event.name] = type.type;
+          }
         }
       }
     }
 
+    // Exactly the listed artifacts of the components this manifest
+    // describes were dropped; nothing else was.
+    const dropped = Object.entries(MANIFEST_EVENT_ARTIFACTS)
+      .filter(([tag]) => tags.has(tag))
+      .flatMap(([, events]) => Object.keys(events));
     expect(resolved).toBeGreaterThan(100);
-    expect(resolver.unusedOverrides()).toEqual([]);
+    expect(dropped.length).toBeGreaterThan(0);
+    expect(declared - resolved).toBe(dropped.length);
+    expect(
+      resolver.staleEntries({ tags, complete: cem.tier === 'pro' })
+    ).toEqual({ overrides: [], artifacts: [] });
     expect(accordion['wa-expand']).toBe('WaAccordionExpandEvent');
   });
 });

@@ -52,6 +52,8 @@ export * from './Skeleton/Skeleton';
 export * from './Slider/Slider';
 export * from './Spinner/Spinner';
 export * from './SplitPanel/SplitPanel';
+export * from './Step/Step';
+export * from './Stepper/Stepper';
 export * from './Switch/Switch';
 export * from './Tab/Tab';
 export * from './TabGroup/TabGroup';

@@ -61,7 +61,7 @@ onMounted(() => {
 });
 
 defineExpose({
-  create: (message: string, options: ToastCreateOptions) =>
+  create: (message: string, options?: ToastCreateOptions) =>
     elementRef.value?.create?.(message, options),
   element: elementRef,
 });

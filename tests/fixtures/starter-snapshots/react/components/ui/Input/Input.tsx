@@ -192,7 +192,7 @@ export interface InputProps extends Omit<
 
 export interface InputRef {
   /** Sets focus on the input. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the input. */
   blur: () => void;
@@ -204,15 +204,15 @@ export interface InputRef {
   setSelectionRange: (
     selectionStart: number,
     selectionEnd: number,
-    selectionDirection: 'forward' | 'backward' | 'none'
+    selectionDirection?: 'forward' | 'backward' | 'none'
   ) => void;
 
   /** Replaces a range of text with a new string. */
   setRangeText: (
     replacement: string,
-    start: number,
-    end: number,
-    selectMode: 'select' | 'start' | 'end' | 'preserve'
+    start?: number,
+    end?: number,
+    selectMode?: 'select' | 'start' | 'end' | 'preserve'
   ) => void;
 
   /** Displays the browser picker for an input element (only works if the browser supports it for the input type). */
@@ -267,7 +267,7 @@ export const Input = forwardRef<InputRef, InputProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             inputRef.current &&
             typeof inputRef.current.focus === 'function'
@@ -291,7 +291,7 @@ export const Input = forwardRef<InputRef, InputProps>(
         setSelectionRange: (
           selectionStart: number,
           selectionEnd: number,
-          selectionDirection: 'forward' | 'backward' | 'none'
+          selectionDirection?: 'forward' | 'backward' | 'none'
         ) => {
           if (
             inputRef.current &&
@@ -306,9 +306,9 @@ export const Input = forwardRef<InputRef, InputProps>(
         },
         setRangeText: (
           replacement: string,
-          start: number,
-          end: number,
-          selectMode: 'select' | 'start' | 'end' | 'preserve'
+          start?: number,
+          end?: number,
+          selectMode?: 'select' | 'start' | 'end' | 'preserve'
         ) => {
           if (
             inputRef.current &&

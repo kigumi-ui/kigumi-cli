@@ -165,10 +165,101 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
     ],
+  },
+  spinner: {
+    tagName: 'wa-spinner',
+    className: 'WaSpinner',
+    attributes: [
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
+    events: [],
+    slots: [],
+    methods: [],
+  },
+  step: {
+    tagName: 'wa-step',
+    className: 'WaStep',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'completed',
+        type: 'boolean',
+      },
+      {
+        name: 'loading',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'attention',
+        type: 'string',
+      },
+      {
+        name: 'with-description',
+        type: 'boolean',
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+      },
+      {
+        name: 'role',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The step's label.",
+      },
+      {
+        name: 'description',
+        description: 'Optional text shown under the label.',
+      },
+      {
+        name: 'icon',
+        description:
+          'An element, such as `<wa-icon>`, that replaces the step number, checkmark, or loading indicator.',
+      },
+    ],
+    methods: [],
   },
   checkbox: {
     tagName: 'wa-checkbox',
@@ -283,6 +374,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -322,26 +414,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
-  },
-  spinner: {
-    tagName: 'wa-spinner',
-    className: 'WaSpinner',
-    attributes: [
-      {
-        name: 'dir',
-        type: 'string',
-      },
-      {
-        name: 'lang',
-        type: 'string',
-      },
-      {
-        name: 'did-ssr',
-      },
-    ],
-    events: [],
-    slots: [],
-    methods: [],
   },
   'tree-item': {
     tagName: 'wa-tree-item',
@@ -452,6 +524,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: '{ includeDisabled?: boolean }',
+            optional: true,
           },
         ],
       },
@@ -1326,6 +1399,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -1617,6 +1691,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'behavior',
             type: 'ScrollBehavior',
+            optional: true,
           },
         ],
       },
@@ -1627,6 +1702,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'behavior',
             type: 'ScrollBehavior',
+            optional: true,
           },
         ],
       },
@@ -1661,6 +1737,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'behavior',
             type: 'ScrollBehavior',
+            optional: true,
           },
         ],
       },
@@ -1964,6 +2041,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -1991,6 +2069,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'selectionDirection',
             type: "'forward' | 'backward' | 'none'",
+            optional: true,
           },
         ],
       },
@@ -2005,14 +2084,17 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'start',
             type: 'number',
+            optional: true,
           },
           {
             name: 'end',
             type: 'number',
+            optional: true,
           },
           {
             name: 'selectMode',
             type: "'select' | 'start' | 'end' | 'preserve'",
+            optional: true,
           },
         ],
       },
@@ -2375,6 +2457,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'alpha',
             type: 'number',
+            optional: true,
           },
         ],
       },
@@ -2385,6 +2468,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -2400,6 +2484,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'format',
             type: "'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'",
+            optional: true,
           },
         ],
       },
@@ -2712,6 +2797,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -2882,6 +2968,18 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         type: 'boolean',
       },
       {
+        name: 'server',
+        type: 'boolean',
+      },
+      {
+        name: 'loading',
+        type: 'boolean',
+      },
+      {
+        name: 'filter-debounce',
+        type: 'string',
+      },
+      {
         name: 'autocapitalize',
         type: 'string',
       },
@@ -2980,6 +3078,18 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         eventType: 'WaInvalidEvent',
         eventTypeModule: 'invalid',
       },
+      {
+        name: 'wa-options-request',
+        reactName: 'onOptionsRequest',
+        eventType: 'WaOptionsRequestEvent',
+        eventTypeModule: 'options-request',
+      },
+      {
+        name: 'wa-options-error',
+        reactName: 'onOptionsError',
+        eventType: 'WaOptionsErrorEvent',
+        eventTypeModule: 'options-error',
+      },
     ],
     slots: [
       {
@@ -3003,8 +3113,23 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'hint',
       },
+      {
+        name: 'loading',
+      },
+      {
+        name: 'no-results',
+      },
+      {
+        name: 'empty',
+      },
+      {
+        name: 'error',
+      },
     ],
     methods: [
+      {
+        name: 'reload',
+      },
       {
         name: 'show',
       },
@@ -3017,6 +3142,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -3445,6 +3571,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -3714,6 +3841,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -3869,13 +3997,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
     ],
     events: [
-      {
-        name: 'request',
-        description: '',
-        reactName: 'onRequest',
-        eventType: 'WaDataRequestEvent',
-        eventTypeModule: 'data-request',
-      },
       {
         name: 'wa-sort-change',
         description: 'Emitted when the sort order changes.',
@@ -4036,6 +4157,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -4122,6 +4244,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'visible',
             type: 'boolean',
+            optional: true,
           },
         ],
       },
@@ -4157,6 +4280,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: "{ align?: 'start' | 'center' | 'end' }",
+            optional: true,
           },
         ],
       },
@@ -4168,6 +4292,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: '{\n    columnIds?: string[];\n    includeHeaders?: boolean;\n    delimiter?: string;\n    escapeFormulas?: boolean;\n  }',
+            optional: true,
           },
         ],
       },
@@ -4179,6 +4304,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: '{\n    fileName?: string;\n    columnIds?: string[];\n    includeHeaders?: boolean;\n    delimiter?: string;\n    escapeFormulas?: boolean;\n  }',
+            optional: true,
           },
         ],
       },
@@ -4190,6 +4316,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: "{\n    columnIds?: string[];\n    includeHeaders?: boolean;\n    format?: 'tsv' | 'csv';\n    escapeFormulas?: boolean;\n  }",
+            optional: true,
           },
         ],
       },
@@ -4350,6 +4477,10 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         type: 'boolean',
       },
       {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
         name: 'dir',
         type: 'string',
       },
@@ -4426,6 +4557,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         type: 'string',
       },
       {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'label-placement',
+        type: 'string',
+      },
+      {
         name: 'dir',
         type: 'string',
       },
@@ -4438,7 +4577,12 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
     ],
     events: [],
-    slots: [],
+    slots: [
+      {
+        name: '',
+        description: 'An optional label to show in the center of the divider.',
+      },
+    ],
     methods: [],
   },
   'doughnut-chart': {
@@ -4551,6 +4695,10 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'with-footer',
+        type: 'boolean',
+      },
+      {
+        name: 'with-label',
         type: 'boolean',
       },
       {
@@ -4951,6 +5099,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -5359,6 +5508,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -5734,6 +5884,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -5942,6 +6093,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -5992,6 +6144,10 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     attributes: [
       {
         name: 'view',
+        type: 'string',
+      },
+      {
+        name: 'nonce',
         type: 'string',
       },
       {
@@ -6101,7 +6257,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'visiblePixelsInViewport',
         description:
-          'https://stackoverflow.com/a/26831113\nThis prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps.',
+          'https://stackoverflow.com/a/26831113\nThis prevents awkward gaps when scrolling the page and the aside / menu don\'t "fill" the gaps.',
         parameters: [
           {
             name: 'element',
@@ -6910,6 +7066,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -7674,6 +7831,87 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     ],
     methods: [],
   },
+  stepper: {
+    tagName: 'wa-stepper',
+    className: 'WaStepper',
+    attributes: [
+      {
+        name: 'active',
+        type: 'string',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'linear',
+        type: 'boolean',
+      },
+      {
+        name: 'clickable',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
+    events: [
+      {
+        name: 'wa-before-step-change',
+        description:
+          'Emitted before the active step changes. Calling `event.preventDefault()` prevents the change, to guard against invalid or unsaved data.',
+        reactName: 'onBeforeStepChange',
+        eventType: 'WaBeforeStepChangeEvent',
+        eventTypeModule: 'before-step-change',
+      },
+      {
+        name: 'wa-step-change',
+        description: 'Emitted after the active step changes.',
+        reactName: 'onStepChange',
+        eventType: 'WaStepChangeEvent',
+        eventTypeModule: 'step-change',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description: 'One or more `<wa-step>` elements.',
+      },
+    ],
+    methods: [
+      {
+        name: 'goTo',
+        description:
+          "Requests a change to the named step. Emits a cancelable `wa-before-step-change`; if not canceled, updates\n`active`, emits `wa-step-change`, and announces the new position to assistive technology. No-ops silently if the\nstep doesn't exist, is disabled, or (in `linear` mode) isn't reachable yet.",
+        parameters: [
+          {
+            name: 'name',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'next',
+        description: 'Advances to the step after the active one, if any.',
+      },
+      {
+        name: 'previous',
+        description: 'Goes back to the step before the active one, if any.',
+      },
+    ],
+  },
   switch: {
     tagName: 'wa-switch',
     className: 'WaSwitch',
@@ -7787,6 +8025,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -8164,6 +8403,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -8379,6 +8619,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -8397,6 +8638,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'position',
             type: '{ top?: number; left?: number }',
+            optional: true,
           },
         ],
       },
@@ -8416,6 +8658,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'selectionDirection',
             type: "'forward' | 'backward' | 'none'",
+            optional: true,
           },
         ],
       },
@@ -8430,14 +8673,17 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'start',
             type: 'number',
+            optional: true,
           },
           {
             name: 'end',
             type: 'number',
+            optional: true,
           },
           {
             name: 'selectMode',
             type: "'select' | 'start' | 'end' | 'preserve'",
+            optional: true,
           },
         ],
       },
@@ -8694,6 +8940,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'FocusOptions',
+            optional: true,
           },
         ],
       },
@@ -8847,6 +9094,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'ToastCreateOptions',
+            optional: true,
           },
         ],
       },
@@ -9178,6 +9426,10 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         type: 'string',
       },
       {
+        name: 'allow',
+        type: 'string',
+      },
+      {
         name: 'allowfullscreen',
         type: 'boolean',
       },
@@ -9186,11 +9438,19 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         type: 'string',
       },
       {
+        name: 'name',
+        type: 'string',
+      },
+      {
         name: 'referrerpolicy',
         type: 'string',
       },
       {
         name: 'sandbox',
+        type: 'string',
+      },
+      {
+        name: 'label',
         type: 'string',
       },
       {
@@ -9229,7 +9489,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'load',
         description:
-          'Emitted when the internal iframe when it finishes loading.',
+          'Emitted from the internal iframe when it finishes loading.',
         reactName: 'onLoad',
         eventType: 'Event',
       },

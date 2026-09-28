@@ -27,6 +27,7 @@ import {
   COMPONENT_METADATA,
   type ComponentMetadata,
 } from '../src/utils/component-metadata.js';
+import type { MethodParameter } from '../src/utils/metadata-types.js';
 import {
   toKebabCase,
   toPascalCase,
@@ -36,6 +37,7 @@ import {
 import {
   formatCustomTypeImports,
   formatEventTypeImports,
+  formatParameters,
   generateCssTemplate,
   handlerArgument,
   keywordExpression,
@@ -95,11 +97,6 @@ const REMOVED_IMPERATIVE_METHODS: Record<string, string> = {
 /** A metadata event plus the @Output() name it gets in this class. */
 type EventInfo = ComponentMetadata['events'][number] & { outputName: string };
 
-interface MethodParameter {
-  name: string;
-  type: string;
-}
-
 interface MethodInfo {
   name: string;
   parameters: MethodParameter[];
@@ -132,7 +129,7 @@ function getMethods(componentKey: string): MethodInfo[] {
   return metadata.methods.map((m) => ({
     name: m.name,
     parameters: (m.parameters ?? []).map((p) => ({
-      name: p.name,
+      ...p,
       type: p.type || 'unknown',
     })),
   }));
@@ -475,28 +472,15 @@ export function generateComponentTS(
     lines.push('  }');
   }
 
-  // Public methods (for overlay components and others).
-  //
-  // Limitation: the CEM's `parameters` array carries no optionality flag (the
-  // raw custom-elements.json has `optional: boolean` per parameter, but
-  // scripts/parse-custom-elements.ts does not currently surface it on
-  // ComponentMetadata). As a result every emitted parameter — public
-  // signature AND cast — is marked optional with `?:`, even when WA's actual
-  // API requires the argument (e.g. `Toast.create(message)` where `message`
-  // is required). This is a deliberate looseness of the wrapper's type
-  // contract relative to the underlying API. To tighten: extend
-  // ComponentMetadata.methods[].parameters with `optional: boolean` and
-  // gate the `?:` emission on it in both places below.
+  // Public methods (for overlay components and others). A parameter is
+  // optional exactly where the metadata says a call may leave it out, the
+  // same rule React and Vue follow (formatParameters, issue #108).
   if (methods.length > 0) {
     lines.push('');
     for (const method of methods) {
-      const signature = method.parameters
-        .map((p) => `${p.name}?: ${p.type}`)
-        .join(', ');
+      const signature = formatParameters(method.parameters);
       const argNames = method.parameters.map((p) => p.name).join(', ');
-      const argTypes = method.parameters
-        .map((p) => `${p.name}?: ${p.type}`)
-        .join(', ');
+      const argTypes = signature;
       lines.push(`  ${method.name}(${signature}): void {`);
       lines.push(
         `    (this.elementRef.nativeElement as unknown as { ${method.name}: (${argTypes}) => void }).${method.name}(${argNames});`

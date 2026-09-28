@@ -7,6 +7,8 @@ import type { WaClearEvent } from '@awesome.me/webawesome/dist/events/clear.js';
 import type { WaCreateEvent } from '@awesome.me/webawesome/dist/events/create.js';
 import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
 import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
+import type { WaOptionsErrorEvent } from '@awesome.me/webawesome/dist/events/options-error.js';
+import type { WaOptionsRequestEvent } from '@awesome.me/webawesome/dist/events/options-request.js';
 import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 import './Combobox.css';
 
@@ -51,6 +53,9 @@ export interface ComboboxProps {
   spellcheck?: boolean;
   'with-clear'?: boolean;
   'custom-error'?: string;
+  server?: boolean;
+  loading?: boolean;
+  'filter-debounce'?: number;
 }
 
 const props = withDefaults(defineProps<ComboboxProps>(), {
@@ -111,6 +116,8 @@ const emit = defineEmits<{
   'wa-after-hide': [event: WaAfterHideEvent];
   'wa-create': [event: WaCreateEvent];
   'wa-invalid': [event: WaInvalidEvent];
+  'wa-options-request': [event: WaOptionsRequestEvent];
+  'wa-options-error': [event: WaOptionsErrorEvent];
 }>();
 
 const model = defineModel<string>();
@@ -142,6 +149,10 @@ const handleWaAfterHide = (e: Event) =>
   emit('wa-after-hide', e as WaAfterHideEvent);
 const handleWaCreate = (e: Event) => emit('wa-create', e as WaCreateEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
+const handleWaOptionsRequest = (e: Event) =>
+  emit('wa-options-request', e as WaOptionsRequestEvent);
+const handleWaOptionsError = (e: Event) =>
+  emit('wa-options-error', e as WaOptionsErrorEvent);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -158,6 +169,8 @@ onMounted(() => {
   el.addEventListener('wa-after-hide', handleWaAfterHide);
   el.addEventListener('wa-create', handleWaCreate);
   el.addEventListener('wa-invalid', handleWaInvalid);
+  el.addEventListener('wa-options-request', handleWaOptionsRequest);
+  el.addEventListener('wa-options-error', handleWaOptionsError);
 });
 
 onBeforeUnmount(() => {
@@ -175,12 +188,15 @@ onBeforeUnmount(() => {
   el.removeEventListener('wa-after-hide', handleWaAfterHide);
   el.removeEventListener('wa-create', handleWaCreate);
   el.removeEventListener('wa-invalid', handleWaInvalid);
+  el.removeEventListener('wa-options-request', handleWaOptionsRequest);
+  el.removeEventListener('wa-options-error', handleWaOptionsError);
 });
 
 defineExpose({
+  reload: () => elementRef.value?.reload?.(),
   show: () => elementRef.value?.show?.(),
   hide: () => elementRef.value?.hide?.(),
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  focus: (options?: FocusOptions) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   setCustomValidity: (message: string) =>
     elementRef.value?.setCustomValidity?.(message),

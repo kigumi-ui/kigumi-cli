@@ -14,6 +14,8 @@ import type { WaClearEvent } from '@awesome.me/webawesome/dist/events/clear.js';
 import type { WaCreateEvent } from '@awesome.me/webawesome/dist/events/create.js';
 import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
 import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
+import type { WaOptionsErrorEvent } from '@awesome.me/webawesome/dist/events/options-error.js';
+import type { WaOptionsRequestEvent } from '@awesome.me/webawesome/dist/events/options-request.js';
 import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 import './Combobox.css';
 
@@ -52,7 +54,7 @@ function setEnumeratedAttribute(
  *
  * // With ref methods
  * const ref = useRef<ComboboxRef>(null);
- * <button onClick={() => ref.current?.show()}>Call Method</button>
+ * <button onClick={() => ref.current?.reload()}>Call Method</button>
  * <Combobox ref={ref} />
  * ```
  */
@@ -69,6 +71,8 @@ export interface ComboboxProps extends Omit<
   | 'onAfterHide'
   | 'onCreate'
   | 'onInvalid'
+  | 'onOptionsRequest'
+  | 'onOptionsError'
   | 'dir'
 > {
   /** Allows entering custom values */
@@ -149,6 +153,15 @@ export interface ComboboxProps extends Omit<
   /** Custom validation message; the control is invalid while it is set */
   'custom-error'?: string;
 
+  /** Turns off client-side filtering; swap the options yourself on options-request */
+  server?: boolean;
+
+  /** Whether an options request is pending; reset it once new options are in */
+  loading?: boolean;
+
+  /** Milliseconds of typing pause before options are requested in server mode */
+  'filter-debounce'?: number;
+
   onInput?: (event: InputEvent) => void;
 
   onChange?: (event: Event) => void;
@@ -170,14 +183,20 @@ export interface ComboboxProps extends Omit<
   onCreate?: (event: WaCreateEvent) => void;
 
   onInvalid?: (event: WaInvalidEvent) => void;
+
+  onOptionsRequest?: (event: WaOptionsRequestEvent) => void;
+
+  onOptionsError?: (event: WaOptionsErrorEvent) => void;
 }
 
 export interface ComboboxRef {
+  reload: () => void;
+
   show: () => void;
 
   hide: () => void;
 
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   blur: () => void;
 
@@ -209,6 +228,8 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       onAfterHide,
       onCreate,
       onInvalid,
+      onOptionsRequest,
+      onOptionsError,
       autocorrect,
       spellcheck,
       ...props
@@ -223,6 +244,14 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
     useImperativeHandle(
       ref,
       () => ({
+        reload: () => {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.reload === 'function'
+          ) {
+            comboboxRef.current.reload();
+          }
+        },
         show: () => {
           if (
             comboboxRef.current &&
@@ -239,7 +268,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
             comboboxRef.current.hide();
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             comboboxRef.current &&
             typeof comboboxRef.current.focus === 'function'
@@ -338,6 +367,14 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
         if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
+      const handleWaOptionsRequest = (e: Event) => {
+        if (onOptionsRequest) onOptionsRequest(e as WaOptionsRequestEvent);
+      };
+
+      const handleWaOptionsError = (e: Event) => {
+        if (onOptionsError) onOptionsError(e as WaOptionsErrorEvent);
+      };
+
       el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);
       el.addEventListener('focus', handleFocus);
@@ -349,6 +386,8 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       el.addEventListener('wa-after-hide', handleWaAfterHide);
       el.addEventListener('wa-create', handleWaCreate);
       el.addEventListener('wa-invalid', handleWaInvalid);
+      el.addEventListener('wa-options-request', handleWaOptionsRequest);
+      el.addEventListener('wa-options-error', handleWaOptionsError);
 
       return () => {
         el.removeEventListener('input', handleInput);
@@ -362,6 +401,8 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
         el.removeEventListener('wa-after-hide', handleWaAfterHide);
         el.removeEventListener('wa-create', handleWaCreate);
         el.removeEventListener('wa-invalid', handleWaInvalid);
+        el.removeEventListener('wa-options-request', handleWaOptionsRequest);
+        el.removeEventListener('wa-options-error', handleWaOptionsError);
       };
     }, [
       onInput,
@@ -375,6 +416,8 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       onAfterHide,
       onCreate,
       onInvalid,
+      onOptionsRequest,
+      onOptionsError,
     ]);
 
     useEffect(() => {

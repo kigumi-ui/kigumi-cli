@@ -190,7 +190,9 @@ export const INERT_ON_RADIAL_CHART: AttributeAllowlistEntry = {
  * Issue #116 then surfaced three of the Pro-only entries as registry props
  * (`file-input` `capture`, `scatter-chart` `stacked` / `index-axis`) and moved
  * its other 24 to `intentional`, leaving 73 across 24 components (23
- * `backfill`, 50 `intentional`).
+ * `backfill`, 50 `intentional`). Web Awesome 3.14.0 added `step`'s `role`
+ * (`intentional`), leaving 74 across 25 components (23 `backfill`, 51
+ * `intentional`).
  *
  * `backfill` entries are triaged by issue #102 (component-specific
  * attributes): each either becomes a real prop or moves to `intentional`.
@@ -289,6 +291,13 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     'tooltip-placement': {
       kind: 'backfill',
       reason: 'tooltip placement, see #102',
+    },
+  },
+  step: {
+    role: {
+      kind: 'intentional',
+      reason:
+        'ARIA role Web Awesome manages internally for the stepper list pattern',
     },
   },
   tab: {

@@ -89,7 +89,7 @@ export interface SwitchRef {
   click: () => void;
 
   /** Sets focus on the switch. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the switch. */
   blur: () => void;
@@ -142,7 +142,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
             switchRef.current.click();
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             switchRef.current &&
             typeof switchRef.current.focus === 'function'

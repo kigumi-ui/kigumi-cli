@@ -37,6 +37,11 @@ const meta = {
       description: 'Current viewport classification relative to breakpoint',
       table: { defaultValue: { summary: 'desktop' } },
     },
+    nonce: {
+      control: 'text',
+      description:
+        'CSP nonce for the injected media-query style tag; falls back to window.litNonce',
+    },
   },
 } satisfies Meta<typeof Page>;
 

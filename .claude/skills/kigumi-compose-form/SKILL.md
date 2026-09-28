@@ -87,7 +87,7 @@ User needs a form
 |   --> Pattern C (Settings) with Details sections
 |
 +-- Multi-step process?
-|   --> Pattern D (Wizard) with TabGroup
+|   --> Pattern D (Wizard) with Stepper (Angular: ProgressBar)
 ```
 
 ## Form Component Selection
@@ -113,6 +113,7 @@ User needs a form
 | Known date (DOB)  | `KnownDate`                                         | free  | label, min, max, locale      |
 | One-time code     | `OtpInput`                                          | free  | length, type, format, mask   |
 | Keyword tags      | `TagInput`                                          | free  | delimiter, max-tags, value   |
+| Wizard progress   | `Stepper` + `Step`                                  | free  | active, linear, completed    |
 
 ## Layout
 

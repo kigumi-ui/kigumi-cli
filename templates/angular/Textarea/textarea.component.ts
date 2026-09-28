@@ -247,22 +247,22 @@ export class TextareaComponent
     ).scrollPosition(position);
   }
   setSelectionRange(
-    selectionStart?: number,
-    selectionEnd?: number,
+    selectionStart: number,
+    selectionEnd: number,
     selectionDirection?: 'forward' | 'backward' | 'none'
   ): void {
     (
       this.elementRef.nativeElement as unknown as {
         setSelectionRange: (
-          selectionStart?: number,
-          selectionEnd?: number,
+          selectionStart: number,
+          selectionEnd: number,
           selectionDirection?: 'forward' | 'backward' | 'none'
         ) => void;
       }
     ).setSelectionRange(selectionStart, selectionEnd, selectionDirection);
   }
   setRangeText(
-    replacement?: string,
+    replacement: string,
     start?: number,
     end?: number,
     selectMode?: 'select' | 'start' | 'end' | 'preserve'
@@ -270,7 +270,7 @@ export class TextareaComponent
     (
       this.elementRef.nativeElement as unknown as {
         setRangeText: (
-          replacement?: string,
+          replacement: string,
           start?: number,
           end?: number,
           selectMode?: 'select' | 'start' | 'end' | 'preserve'
@@ -278,22 +278,22 @@ export class TextareaComponent
       }
     ).setRangeText(replacement, start, end, selectMode);
   }
-  setCustomValidity(message?: string): void {
+  setCustomValidity(message: string): void {
     (
       this.elementRef.nativeElement as unknown as {
-        setCustomValidity: (message?: string) => void;
+        setCustomValidity: (message: string) => void;
       }
     ).setCustomValidity(message);
   }
   formStateRestoreCallback(
-    state?: string | File | FormData | null,
-    reason?: 'autocomplete' | 'restore'
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
   ): void {
     (
       this.elementRef.nativeElement as unknown as {
         formStateRestoreCallback: (
-          state?: string | File | FormData | null,
-          reason?: 'autocomplete' | 'restore'
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
         ) => void;
       }
     ).formStateRestoreCallback(state, reason);

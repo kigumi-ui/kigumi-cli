@@ -62,10 +62,10 @@ export class ToastComponent implements AfterViewInit {
     }
   }
 
-  create(message?: string, options?: ToastCreateOptions): void {
+  create(message: string, options?: ToastCreateOptions): void {
     (
       this.elementRef.nativeElement as unknown as {
-        create: (message?: string, options?: ToastCreateOptions) => void;
+        create: (message: string, options?: ToastCreateOptions) => void;
       }
     ).create(message, options);
   }

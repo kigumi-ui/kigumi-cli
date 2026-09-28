@@ -327,6 +327,8 @@ export class SettingsFormComponent {
 
 Step-by-step form with validation per step.
 
+Angular keeps a `ProgressBar` as the step indicator. The React and Vue patterns use `Stepper` + `Step`, but Kigumi's Angular `k-step` renders a host element that `k-stepper` does not recognize as a step yet, so a wrapped stepper would show no steps.
+
 **Components needed:** `npx kigumi add input select option checkbox button progress-bar`
 
 ```typescript

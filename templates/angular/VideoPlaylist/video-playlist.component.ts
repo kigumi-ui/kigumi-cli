@@ -88,10 +88,10 @@ export class VideoPlaylistComponent implements AfterViewInit, OnDestroy {
       this.elementRef.nativeElement as unknown as { previous: () => void }
     ).previous();
   }
-  goTo(index?: number): void {
+  goTo(index: number): void {
     (
       this.elementRef.nativeElement as unknown as {
-        goTo: (index?: number) => void;
+        goTo: (index: number) => void;
       }
     ).goTo(index);
   }

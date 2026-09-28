@@ -45,6 +45,8 @@ export const Combobox = React.forwardRef(
       onClear,
       onInvalid,
       onCreate,
+      onOptionsRequest,
+      onOptionsError,
       autocorrect,
       spellcheck,
       ...props
@@ -56,6 +58,7 @@ export const Combobox = React.forwardRef(
     React.useImperativeHandle(
       ref,
       () => ({
+        reload: () => comboboxRef.current?.reload?.(),
         show: () => comboboxRef.current?.show?.(),
         hide: () => comboboxRef.current?.hide?.(),
         focus: (options) => comboboxRef.current?.focus?.(options),
@@ -83,6 +86,8 @@ export const Combobox = React.forwardRef(
       const handleClear = (e) => onClear?.(e);
       const handleInvalid = (e) => onInvalid?.(e);
       const handleCreate = (e) => onCreate?.(e);
+      const handleOptionsRequest = (e) => onOptionsRequest?.(e);
+      const handleOptionsError = (e) => onOptionsError?.(e);
 
       el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);
@@ -95,6 +100,8 @@ export const Combobox = React.forwardRef(
       el.addEventListener('wa-clear', handleClear);
       el.addEventListener('wa-invalid', handleInvalid);
       el.addEventListener('wa-create', handleCreate);
+      el.addEventListener('wa-options-request', handleOptionsRequest);
+      el.addEventListener('wa-options-error', handleOptionsError);
 
       return () => {
         el.removeEventListener('input', handleInput);
@@ -108,6 +115,8 @@ export const Combobox = React.forwardRef(
         el.removeEventListener('wa-clear', handleClear);
         el.removeEventListener('wa-invalid', handleInvalid);
         el.removeEventListener('wa-create', handleCreate);
+        el.removeEventListener('wa-options-request', handleOptionsRequest);
+        el.removeEventListener('wa-options-error', handleOptionsError);
       };
     }, [
       onInput,
@@ -121,6 +130,8 @@ export const Combobox = React.forwardRef(
       onClear,
       onInvalid,
       onCreate,
+      onOptionsRequest,
+      onOptionsError,
     ]);
 
     React.useEffect(() => {

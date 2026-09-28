@@ -35,7 +35,7 @@ function ensureLoaded() {
  *
  * // With ref methods
  * const ref = useRef<ColorPickerRef>(null);
- * <button onClick={() => ref.current?.getHexString()}>Call Method</button>
+ * <button onClick={() => ref.current?.focus()}>Call Method</button>
  * <ColorPicker ref={ref} />
  * ```
  */
@@ -142,18 +142,18 @@ export interface ColorPickerRef {
     hue: number,
     saturation: number,
     brightness: number,
-    alpha: number
+    alpha?: number
   ) => void;
 
   /** Sets focus on the color picker. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the color picker. */
   blur: () => void;
 
   /** Returns the current value as a string in the specified format. */
   getFormattedValue: (
-    format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
+    format?: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
   ) => void;
 
   /** Checks for validity and shows the browser's validation message if the control is invalid. */
@@ -213,7 +213,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
           hue: number,
           saturation: number,
           brightness: number,
-          alpha: number
+          alpha?: number
         ) => {
           if (
             colorpickerRef.current &&
@@ -227,7 +227,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
             );
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             colorpickerRef.current &&
             typeof colorpickerRef.current.focus === 'function'
@@ -244,7 +244,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
           }
         },
         getFormattedValue: (
-          format:
+          format?:
             'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
         ) => {
           if (

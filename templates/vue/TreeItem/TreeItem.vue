@@ -108,7 +108,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  getChildrenItems: (options: { includeDisabled?: boolean }) =>
+  getChildrenItems: (options?: { includeDisabled?: boolean }) =>
     elementRef.value?.getChildrenItems?.(options),
   element: elementRef,
 });

@@ -29,7 +29,7 @@ function ensureLoaded() {
  *
  * // With ref methods
  * const ref = useRef<PageRef>(null);
- * <button onClick={() => ref.current?.visiblePixelsInViewport()}>Call Method</button>
+ * <button onClick={() => ref.current?.showNavigation()}>Call Method</button>
  * <Page ref={ref} />
  * ```
  */
@@ -48,11 +48,14 @@ export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
   /** Current viewport classification relative to breakpoint */
   view?: 'mobile' | 'desktop';
+
+  /** CSP nonce for the injected media-query style tag; falls back to window.litNonce */
+  nonce?: string;
 }
 
 export interface PageRef {
   /** https://stackoverflow.com/a/26831113
-This prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps. */
+This prevents awkward gaps when scrolling the page and the aside / menu don't "fill" the gaps. */
   visiblePixelsInViewport: (element: HTMLElement | null) => void;
 
   /** Shows the mobile navigation drawer */

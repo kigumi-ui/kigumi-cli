@@ -30,19 +30,25 @@ import {
   getThemeOptionsForTier,
   getPaletteOptionsForTier,
 } from '../../utils/display-options.js';
-import { CLI_VERSION, DEFAULT_WEBAWESOME_VERSION } from '../../constants.js';
-import { getVersionEntry } from '../../utils/version-map.js';
+import { DEFAULT_WEBAWESOME_VERSION } from '../../constants.js';
 import {
   ProThemeRequiredError,
   UserCancelledError,
   InternalInvariantError,
 } from '../../errors/index.js';
 
+/**
+ * The exact Web Awesome version a new project gets: the one this build's
+ * Templates target.
+ *
+ * Not `getVersionEntry(CLI_VERSION)`. Between a Web Awesome bump and its
+ * release, package.json still names the previous release, whose entry pins
+ * the previous Web Awesome, so init installed an older package than the
+ * Templates import (issue #108). A released CLI gets the same answer either
+ * way: `validate:wa-pins` holds the newest VERSION_MAP entry to this constant.
+ */
 function resolveWebAwesomeVersion(): string {
-  return (
-    getVersionEntry(CLI_VERSION)?.webAwesomeVersion ??
-    DEFAULT_WEBAWESOME_VERSION
-  );
+  return DEFAULT_WEBAWESOME_VERSION;
 }
 
 // =============================================================================

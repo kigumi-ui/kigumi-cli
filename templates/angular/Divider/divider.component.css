@@ -6,7 +6,11 @@
  * - --color: The color of the divider.
  * - --width: The width of the divider.
  * - --spacing: The spacing of the divider.
+ * - --label-spacing: The amount of space between the label and the divider's lines.
+ * - --label-offset: The length of the line between the divider's edge and a label placed at the `start` or `end`.
  *
+ * CSS Parts:
+ * - label: The container that wraps the divider's label.
  */
 :host {
   display: contents;

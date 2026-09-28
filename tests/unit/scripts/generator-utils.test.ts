@@ -1,11 +1,48 @@
 import { describe, expect, it } from 'vitest';
 import {
+  callableWithoutArguments,
   enumeratedProps,
   formatCustomTypeImports,
   formatEventTypeImports,
+  formatParameters,
   keywordExpression,
   keywordPairLiteral,
 } from '../../../scripts/generator-utils.js';
+
+describe('formatParameters', () => {
+  it('writes an optional parameter with ?: and a required one without', () => {
+    expect(
+      formatParameters([
+        { name: 'index', type: 'number' },
+        { name: 'behavior', type: 'ScrollBehavior', optional: true },
+      ])
+    ).toBe('index: number, behavior?: ScrollBehavior');
+  });
+
+  it('writes nothing for a method without parameters', () => {
+    expect(formatParameters(undefined)).toBe('');
+    expect(formatParameters([])).toBe('');
+  });
+});
+
+describe('callableWithoutArguments', () => {
+  it('is true when every parameter is optional, or there are none', () => {
+    expect(callableWithoutArguments({})).toBe(true);
+    expect(
+      callableWithoutArguments({
+        parameters: [{ name: 'options', type: 'FocusOptions', optional: true }],
+      })
+    ).toBe(true);
+  });
+
+  it('is false when any parameter is required', () => {
+    expect(
+      callableWithoutArguments({
+        parameters: [{ name: 'name', type: 'string' }],
+      })
+    ).toBe(false);
+  });
+});
 
 describe('formatEventTypeImports', () => {
   it('imports each Web Awesome event class from its own dist/events module', () => {

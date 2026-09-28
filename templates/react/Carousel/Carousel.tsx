@@ -73,10 +73,10 @@ export interface CarouselProps extends Omit<
 
 export interface CarouselRef {
   /** Move the carousel backward by `slides-per-move` slides. */
-  previous: (behavior: ScrollBehavior) => void;
+  previous: (behavior?: ScrollBehavior) => void;
 
   /** Move the carousel forward by `slides-per-move` slides. */
-  next: (behavior: ScrollBehavior) => void;
+  next: (behavior?: ScrollBehavior) => void;
 
   /** Adds a carousel item as the last real slide. */
   addSlide: (slide: WaCarouselItem) => void;
@@ -85,7 +85,7 @@ export interface CarouselRef {
   removeSlide: (index: number) => void;
 
   /** Scrolls the carousel to the slide specified by `index`. */
-  goToSlide: (index: number, behavior: ScrollBehavior) => void;
+  goToSlide: (index: number, behavior?: ScrollBehavior) => void;
   /** Reference to the underlying HTML element */
   element: WaCarousel | null;
 }
@@ -100,7 +100,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
     useImperativeHandle(
       ref,
       () => ({
-        previous: (behavior: ScrollBehavior) => {
+        previous: (behavior?: ScrollBehavior) => {
           if (
             carouselRef.current &&
             typeof carouselRef.current.previous === 'function'
@@ -108,7 +108,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
             carouselRef.current.previous(behavior);
           }
         },
-        next: (behavior: ScrollBehavior) => {
+        next: (behavior?: ScrollBehavior) => {
           if (
             carouselRef.current &&
             typeof carouselRef.current.next === 'function'
@@ -132,7 +132,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
             carouselRef.current.removeSlide(index);
           }
         },
-        goToSlide: (index: number, behavior: ScrollBehavior) => {
+        goToSlide: (index: number, behavior?: ScrollBehavior) => {
           if (
             carouselRef.current &&
             typeof carouselRef.current.goToSlide === 'function'

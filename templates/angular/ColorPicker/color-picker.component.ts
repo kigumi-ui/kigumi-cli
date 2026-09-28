@@ -229,17 +229,17 @@ export class ColorPickerComponent
   }
 
   getHexString(
-    hue?: number,
-    saturation?: number,
-    brightness?: number,
+    hue: number,
+    saturation: number,
+    brightness: number,
     alpha?: number
   ): void {
     (
       this.elementRef.nativeElement as unknown as {
         getHexString: (
-          hue?: number,
-          saturation?: number,
-          brightness?: number,
+          hue: number,
+          saturation: number,
+          brightness: number,
           alpha?: number
         ) => void;
       }
@@ -278,22 +278,22 @@ export class ColorPickerComponent
   hide(): void {
     (this.elementRef.nativeElement as unknown as { hide: () => void }).hide();
   }
-  setCustomValidity(message?: string): void {
+  setCustomValidity(message: string): void {
     (
       this.elementRef.nativeElement as unknown as {
-        setCustomValidity: (message?: string) => void;
+        setCustomValidity: (message: string) => void;
       }
     ).setCustomValidity(message);
   }
   formStateRestoreCallback(
-    state?: string | File | FormData | null,
-    reason?: 'autocomplete' | 'restore'
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
   ): void {
     (
       this.elementRef.nativeElement as unknown as {
         formStateRestoreCallback: (
-          state?: string | File | FormData | null,
-          reason?: 'autocomplete' | 'restore'
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
         ) => void;
       }
     ).formStateRestoreCallback(state, reason);

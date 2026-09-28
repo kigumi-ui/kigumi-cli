@@ -76,7 +76,7 @@ export interface RatingProps extends Omit<
 
 export interface RatingRef {
   /** Sets focus on the rating. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the rating. */
   blur: () => void;
@@ -88,7 +88,7 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
   ({ children, className, onChange, onHover, onInvalid, ...props }, ref) => {
     const ratingRef = useRef<
       HTMLElement & {
-        focus?: (options: FocusOptions) => void;
+        focus?: (options?: FocusOptions) => void;
         blur?: () => void;
       }
     >(null);
@@ -100,7 +100,7 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             ratingRef.current &&
             typeof ratingRef.current.focus === 'function'

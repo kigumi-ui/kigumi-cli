@@ -133,10 +133,11 @@ export const INSTALL_TIMEOUT_MS = 300_000;
  * Default Web Awesome package version.
  *
  * Exact pin (no `^`/`~`): a kigumi release is conformant to one specific Web
- * Awesome version and must never auto-float. Used only as a fallback when the
- * version map has no entry for the running CLI version (see version-map.ts).
+ * Awesome version and must never auto-float. It is the version this build's
+ * Templates target: `init` pins it, `doctor` compares against it, and
+ * `validate:wa-pins` holds the newest version-map entry to it.
  */
-export const DEFAULT_WEBAWESOME_VERSION = '3.13.0';
+export const DEFAULT_WEBAWESOME_VERSION = '3.14.0';
 
 // =============================================================================
 // Test Fixtures

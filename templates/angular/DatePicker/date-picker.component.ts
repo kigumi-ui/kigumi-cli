@@ -168,10 +168,10 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy {
       }
     ).focus(options);
   }
-  goToDate(date?: string | Date): void {
+  goToDate(date: string | Date): void {
     (
       this.elementRef.nativeElement as unknown as {
-        goToDate: (date?: string | Date) => void;
+        goToDate: (date: string | Date) => void;
       }
     ).goToDate(date);
   }

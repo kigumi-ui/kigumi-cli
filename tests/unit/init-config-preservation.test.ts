@@ -174,12 +174,11 @@ describe('config preservation during re-init', () => {
       expect(config.installedThemes).toBeUndefined();
     });
 
-    it('should pin webAwesome.version exactly from the version map', async () => {
+    it('should pin webAwesome.version exactly to the version the Templates target', async () => {
       const { buildConfigNonInteractive } =
         await import('../../src/commands/init/config-builder.js');
-      const { CLI_VERSION } = await import('../../src/constants.js');
-      const { getVersionEntry } =
-        await import('../../src/utils/version-map.js');
+      const { DEFAULT_WEBAWESOME_VERSION } =
+        await import('../../src/constants.js');
 
       const { config } = await buildConfigNonInteractive(
         { yes: true },
@@ -189,10 +188,12 @@ describe('config preservation during re-init', () => {
         'free'
       );
 
-      const expected = getVersionEntry(CLI_VERSION)?.webAwesomeVersion;
-      expect(expected).toBeDefined();
+      // Not the version-map entry for CLI_VERSION: between a Web Awesome bump
+      // and its release, package.json still names the previous release, whose
+      // entry pins the previous Web Awesome. init then installed 3.13.0 under
+      // Templates that import 3.14.0's wa-stepper (issue #108).
+      expect(config.webAwesome?.version).toBe(DEFAULT_WEBAWESOME_VERSION);
       // Exact pin: no caret/tilde range carried into the project config.
-      expect(config.webAwesome?.version).toBe(expected);
       expect(config.webAwesome?.version).toMatch(/^\d+\.\d+\.\d+$/);
     });
 

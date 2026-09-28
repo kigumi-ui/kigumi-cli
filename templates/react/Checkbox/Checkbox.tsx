@@ -90,7 +90,7 @@ export interface CheckboxRef {
   click: () => void;
 
   /** Sets focus on the checkbox. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the checkbox. */
   blur: () => void;
@@ -143,7 +143,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
             checkboxRef.current.click();
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             checkboxRef.current &&
             typeof checkboxRef.current.focus === 'function'

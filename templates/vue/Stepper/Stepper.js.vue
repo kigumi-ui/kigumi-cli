@@ -1,0 +1,90 @@
+<script setup>
+import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import './Stepper.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/stepper/stepper.js'));
+}
+
+/**
+ * Steppers walk users through a multi-stage process and show where they are in it
+ */
+const props = defineProps({
+  active: { type: String, required: false, default: '' },
+  orientation: { type: String, required: false, default: 'horizontal' },
+  linear: { type: Boolean, required: false, default: false },
+  clickable: { type: Boolean, required: false, default: false },
+  label: { type: String, required: false, default: '' },
+});
+
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so `false` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   `false`, and would render a fallthrough `false` as the string "false".
+//   `aria-*` / `data-*` keep `false`, where "false" is a real value.
+// - Vue camelizes declared prop keys (`with-caret` -> `withCaret`). Before
+//   the element upgrades, that key lands as the attribute `withcaret`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not `computed`: `attrs` is tracked per property read,
+// so a computed over an empty `attrs` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
+  const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
+  for (const [key, value] of Object.entries(props)) {
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)] = value;
+  }
+  return result;
+}
+
+const emit = defineEmits(['wa-before-step-change', 'wa-step-change']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleWaBeforeStepChange = (e) => emit('wa-before-step-change', e);
+const handleWaStepChange = (e) => emit('wa-step-change', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('wa-before-step-change', handleWaBeforeStepChange);
+  el.addEventListener('wa-step-change', handleWaStepChange);
+});
+
+onBeforeUnmount(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-before-step-change', handleWaBeforeStepChange);
+  el.removeEventListener('wa-step-change', handleWaStepChange);
+});
+
+defineExpose({
+  goTo: (name) => elementRef.value?.goTo?.(name),
+  next: () => elementRef.value?.next?.(),
+  previous: () => elementRef.value?.previous?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-stepper ref="elementRef" v-bind="hostAttributes()" :class="$attrs.class">
+    <slot />
+  </wa-stepper>
+</template>

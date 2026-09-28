@@ -41,6 +41,7 @@ export const INTERACTION_STORIES = [
   'Select',
   'Slider',
   'SplitPanel',
+  'Stepper',
   'Switch',
   'TabGroup',
   'Tag',

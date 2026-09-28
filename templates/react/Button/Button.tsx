@@ -117,7 +117,7 @@ export interface ButtonRef {
   click: () => void;
 
   /** Sets focus on the button. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the button. */
   blur: () => void;
@@ -158,7 +158,7 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
             buttonRef.current.click();
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             buttonRef.current &&
             typeof buttonRef.current.focus === 'function'

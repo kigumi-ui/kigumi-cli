@@ -158,24 +158,24 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
       this.elementRef.nativeElement as unknown as { toggleMute: () => void }
     ).toggleMute();
   }
-  seek(time?: number): void {
+  seek(time: number): void {
     (
       this.elementRef.nativeElement as unknown as {
-        seek: (time?: number) => void;
+        seek: (time: number) => void;
       }
     ).seek(time);
   }
-  setVolume(volume?: number): void {
+  setVolume(volume: number): void {
     (
       this.elementRef.nativeElement as unknown as {
-        setVolume: (volume?: number) => void;
+        setVolume: (volume: number) => void;
       }
     ).setVolume(volume);
   }
-  setPlaybackRate(rate?: number): void {
+  setPlaybackRate(rate: number): void {
     (
       this.elementRef.nativeElement as unknown as {
-        setPlaybackRate: (rate?: number) => void;
+        setPlaybackRate: (rate: number) => void;
       }
     ).setPlaybackRate(rate);
   }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn, userEvent } from 'storybook/test';
 import { Combobox, Option } from '@/components/ui';
@@ -135,6 +136,24 @@ const meta = {
       description:
         'Custom validation message; the control is invalid while it is set',
     },
+    server: {
+      control: 'boolean',
+      description:
+        'Turns off client-side filtering; swap the options yourself on options-request',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    loading: {
+      control: 'boolean',
+      description:
+        'Whether an options request is pending; reset it once new options are in',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'filter-debounce': {
+      control: 'number',
+      description:
+        'Milliseconds of typing pause before options are requested in server mode',
+      table: { defaultValue: { summary: '250' } },
+    },
     onInput: {
       action: 'input',
       description: 'Emitted when the control receives input.',
@@ -194,6 +213,17 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
+    onOptionsRequest: {
+      action: 'options-request',
+      description:
+        'Server mode: fires when options should be loaded; `event.detail` has the query and an AbortSignal.',
+      table: { category: 'Events' },
+    },
+    onOptionsError: {
+      action: 'options-error',
+      description: 'Server mode: fires when a data source request fails.',
+      table: { category: 'Events' },
+    },
   },
   args: {
     onInput: fn(),
@@ -207,6 +237,8 @@ const meta = {
     onAfterHide: fn(),
     onCreate: fn(),
     onInvalid: fn(),
+    onOptionsRequest: fn(),
+    onOptionsError: fn(),
   },
 } satisfies Meta<typeof Combobox>;
 
@@ -352,6 +384,44 @@ export const WithHint: Story = {
       </Combobox>
     </div>
   ),
+};
+
+/**
+ * Server mode: client-side filtering is off, and each typed query fires
+ * `onOptionsRequest`. This demo filters a local list after a short delay to
+ * stand in for a network call, and resets `loading` once the options are in.
+ */
+export const ServerMode: Story = {
+  args: { label: 'Fruit', placeholder: 'Type to search', server: true },
+  render: (args) => {
+    const [matches, setMatches] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    return (
+      <div style={{ maxWidth: '300px' }}>
+        <Combobox
+          {...args}
+          loading={loading}
+          onOptionsRequest={(e) => {
+            args.onOptionsRequest?.(e);
+            const { query, signal } = e.detail;
+            setLoading(true);
+            const timer = setTimeout(() => {
+              const q = query.toLowerCase();
+              setMatches(fruits.filter((f) => f.toLowerCase().includes(q)));
+              setLoading(false);
+            }, 400);
+            signal.addEventListener('abort', () => clearTimeout(timer));
+          }}
+        >
+          {matches.map((f) => (
+            <Option key={f} value={f.toLowerCase()}>
+              {f}
+            </Option>
+          ))}
+        </Combobox>
+      </div>
+    );
+  },
 };
 
 /** A non-interactive disabled combobox. */

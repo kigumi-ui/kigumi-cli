@@ -155,7 +155,7 @@ export interface TextareaProps extends Omit<
 
 export interface TextareaRef {
   /** Sets focus on the textarea. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the textarea. */
   blur: () => void;
@@ -164,21 +164,21 @@ export interface TextareaRef {
   select: () => void;
 
   /** Gets or sets the textarea's scroll position. */
-  scrollPosition: (position: { top?: number; left?: number }) => void;
+  scrollPosition: (position?: { top?: number; left?: number }) => void;
 
   /** Sets the start and end positions of the text selection (0-based). */
   setSelectionRange: (
     selectionStart: number,
     selectionEnd: number,
-    selectionDirection: 'forward' | 'backward' | 'none'
+    selectionDirection?: 'forward' | 'backward' | 'none'
   ) => void;
 
   /** Replaces a range of text with a new string. */
   setRangeText: (
     replacement: string,
-    start: number,
-    end: number,
-    selectMode: 'select' | 'start' | 'end' | 'preserve'
+    start?: number,
+    end?: number,
+    selectMode?: 'select' | 'start' | 'end' | 'preserve'
   ) => void;
 
   /** Do not use this when creating a "Validator". This is intended for end users of components.
@@ -223,7 +223,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             textareaRef.current &&
             typeof textareaRef.current.focus === 'function'
@@ -247,7 +247,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
             textareaRef.current.select();
           }
         },
-        scrollPosition: (position: { top?: number; left?: number }) => {
+        scrollPosition: (position?: { top?: number; left?: number }) => {
           if (
             textareaRef.current &&
             typeof textareaRef.current.scrollPosition === 'function'
@@ -258,7 +258,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
         setSelectionRange: (
           selectionStart: number,
           selectionEnd: number,
-          selectionDirection: 'forward' | 'backward' | 'none'
+          selectionDirection?: 'forward' | 'backward' | 'none'
         ) => {
           if (
             textareaRef.current &&
@@ -273,9 +273,9 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
         },
         setRangeText: (
           replacement: string,
-          start: number,
-          end: number,
-          selectMode: 'select' | 'start' | 'end' | 'preserve'
+          start?: number,
+          end?: number,
+          selectMode?: 'select' | 'start' | 'end' | 'preserve'
         ) => {
           if (
             textareaRef.current &&

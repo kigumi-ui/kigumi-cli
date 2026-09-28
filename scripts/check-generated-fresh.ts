@@ -879,6 +879,10 @@ const GENERATED_DIFF_TARGETS = [
   '.claude/skills/shared/react-api-surface.md',
   '.claude/skills/shared/vue-api-surface.md',
   '.claude/skills/shared/angular-api-surface.md',
+  // The Pro typecheck shim missed the 3.10 and 3.13 bumps while no check read
+  // it (issue #108).
+  'typecheck-shims/wa-pro-paths.d.ts',
+  'typecheck-shims/wa-pro-jsx.d.ts',
 ];
 
 // Only the .ts outputs are Prettier-formatted before comparing, so the
@@ -892,8 +896,12 @@ const GENERATED_DIFF_TARGETS = [
 // names that agents copy into user code, so mangling them makes the reference
 // wrong. Compare the generator's raw markdown instead, and keep these files out
 // of `format`/`format:check` so nothing re-mangles them.
+//
+// The typecheck shims are excluded too: they are committed as the generator
+// writes them (typecheck-shims/ is outside `format`), so formatting only the
+// regenerated copy would report drift that is not there.
 const PRETTIER_TARGETS = GENERATED_DIFF_TARGETS.filter(
-  (target) => !target.endsWith('.md')
+  (target) => !target.endsWith('.md') && !target.startsWith('typecheck-shims/')
 );
 
 /** Symlink `target` -> `linkPath` when `target` exists; no-op otherwise. */
@@ -962,6 +970,8 @@ async function checkGeneratorFreshness(): Promise<{
     run('pnpm generate:metadata');
     run('pnpm generate:templates');
     run('pnpm generate:skill-refs');
+    // After generate:metadata: the shim's method signatures come from it.
+    run('pnpm generate:pro-shim');
     // Prettier the markdown outputs so committed (prettier-clean) files match
     // the generator's raw markdown without false whitespace diffs.
     run(

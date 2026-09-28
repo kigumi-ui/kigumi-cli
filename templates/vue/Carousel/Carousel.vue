@@ -85,12 +85,12 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  previous: (behavior: ScrollBehavior) =>
+  previous: (behavior?: ScrollBehavior) =>
     elementRef.value?.previous?.(behavior),
-  next: (behavior: ScrollBehavior) => elementRef.value?.next?.(behavior),
+  next: (behavior?: ScrollBehavior) => elementRef.value?.next?.(behavior),
   addSlide: (slide: WaCarouselItem) => elementRef.value?.addSlide?.(slide),
   removeSlide: (index: number) => elementRef.value?.removeSlide?.(index),
-  goToSlide: (index: number, behavior: ScrollBehavior) =>
+  goToSlide: (index: number, behavior?: ScrollBehavior) =>
     elementRef.value?.goToSlide?.(index, behavior),
   element: elementRef,
 });

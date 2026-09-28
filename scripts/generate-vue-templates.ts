@@ -26,6 +26,7 @@ import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   formatCustomTypeImports,
   formatEventTypeImports,
+  formatParameters,
   handlerArgument,
   enumeratedProps,
   generateCssTemplate,
@@ -403,9 +404,7 @@ function assembleVueSFC(
             const ref = 'elementRef.value';
             if (method.parameters && method.parameters.length > 0) {
               const params = typed
-                ? method.parameters
-                    .map((p) => `${p.name}: ${p.type}`)
-                    .join(', ')
+                ? formatParameters(method.parameters)
                 : method.parameters.map((p) => p.name).join(', ');
               const args = method.parameters.map((p) => p.name).join(', ');
               return `  ${method.name}: (${params}) => ${ref}?.${method.name}?.(${args})`;

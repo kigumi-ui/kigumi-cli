@@ -116,24 +116,24 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
       }
     ).next(behavior);
   }
-  addSlide(slide?: WaCarouselItem): void {
+  addSlide(slide: WaCarouselItem): void {
     (
       this.elementRef.nativeElement as unknown as {
-        addSlide: (slide?: WaCarouselItem) => void;
+        addSlide: (slide: WaCarouselItem) => void;
       }
     ).addSlide(slide);
   }
-  removeSlide(index?: number): void {
+  removeSlide(index: number): void {
     (
       this.elementRef.nativeElement as unknown as {
-        removeSlide: (index?: number) => void;
+        removeSlide: (index: number) => void;
       }
     ).removeSlide(index);
   }
-  goToSlide(index?: number, behavior?: ScrollBehavior): void {
+  goToSlide(index: number, behavior?: ScrollBehavior): void {
     (
       this.elementRef.nativeElement as unknown as {
-        goToSlide: (index?: number, behavior?: ScrollBehavior) => void;
+        goToSlide: (index: number, behavior?: ScrollBehavior) => void;
       }
     ).goToSlide(index, behavior);
   }

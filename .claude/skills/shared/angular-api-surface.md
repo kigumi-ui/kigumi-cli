@@ -205,11 +205,11 @@ wa-color-picker -> <ColorPicker> (selector: k-color-picker)
 Form Controls | pro | Combines a text input with a listbox for filtering and selecting options
 wa-combobox -> <Combobox> (selector: k-combobox)
 
-**Props:** allow-custom-value(boolean=false), appearance(filled|outlined|filled-outlined=outlined), allow-create(boolean=false), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean), disabled(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), hint(string=''), inputmode(none|text|decimal|numeric|tel|search|email|url), label(string=''), max-options-visible(number=3), multiple(boolean=false), name(string=''), open(boolean=false), pill(boolean=false), placeholder(string=''), placement(top|bottom=bottom), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), spellcheck(boolean), with-clear(boolean=false), value(string=''), custom-error(string)
-**Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (create), (invalid), (inputEvent)
-**Slots:** default, label, start, end, clear-icon, expand-icon, hint
-**Methods:** show(), hide(), focus(), blur()
-**Parts:** form-control, form-control-label, label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon
+**Props:** allow-custom-value(boolean=false), appearance(filled|outlined|filled-outlined=outlined), allow-create(boolean=false), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean), disabled(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), hint(string=''), inputmode(none|text|decimal|numeric|tel|search|email|url), label(string=''), max-options-visible(number=3), multiple(boolean=false), name(string=''), open(boolean=false), pill(boolean=false), placeholder(string=''), placement(top|bottom=bottom), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), spellcheck(boolean), with-clear(boolean=false), value(string=''), custom-error(string), server(boolean=false), loading(boolean=false), filter-debounce(number=250)
+**Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (create), (invalid), (optionsRequest), (optionsError), (inputEvent)
+**Slots:** default, label, start, end, clear-icon, expand-icon, hint, loading, no-results, empty, error
+**Methods:** reload(), show(), hide(), focus(), blur()
+**Parts:** form-control, form-control-label, label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon, spinner, status, loading, no-results, empty, error
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --tag-max-size(10ch)
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 **Requires:** Button, Icon, Option, Popup, Tag
@@ -229,7 +229,7 @@ wa-comparison -> <Comparison> (selector: k-comparison)
 Layout | free | Pages offer an easy way to scaffold entire page layouts using minimal markup
 wa-page -> <Page> (selector: k-page)
 
-**Props:** disable-navigation-toggle(boolean=false), mobile-breakpoint(string=768px), navigation-placement(start|end=start), nav-open(boolean=false), view(mobile|desktop=desktop)
+**Props:** disable-navigation-toggle(boolean=false), mobile-breakpoint(string=768px), navigation-placement(start|end=start), nav-open(boolean=false), view(mobile|desktop=desktop), nonce(string)
 **Slots:** default, banner, header, subheader, menu, navigation-header, navigation, navigation-footer, navigation-toggle, navigation-toggle-icon, main-header, main-footer, aside, skip-to-content, footer
 **Methods:** visiblePixelsInViewport(), showNavigation(), hideNavigation(), toggleNavigation()
 **Parts:** base, page, banner, header, subheader, body, menu, navigation, navigation-desktop, navigation-header, navigation-footer, navigation-toggle, navigation-toggle-icon, drawer, main, main-header, main-content, main-footer, aside, skip-to-content, footer
@@ -261,8 +261,10 @@ wa-details -> <Details> (selector: k-details)
 Layout | free | Dividers are used to visually separate content
 wa-divider -> <Divider> (selector: k-divider)
 
-**Props:** orientation(horizontal|vertical=horizontal)
-**CSS:** --color, --width, --spacing
+**Props:** orientation(horizontal|vertical=horizontal), label-placement(start|center|end=center)
+**Slots:** default
+**Parts:** label
+**CSS:** --color, --width, --spacing, --label-spacing, --label-offset
 
 ## Drawer
 Overlays | free | Drawers slide in from a container edge to expose additional options
@@ -564,6 +566,27 @@ wa-tab-panel -> <TabPanel> (selector: k-tab-panel)
 **Parts:** base
 **CSS:** --padding
 
+## Stepper
+Navigation | free | Steppers walk users through a multi-stage process and show where they are in it
+wa-stepper -> <Stepper> (selector: k-stepper)
+
+**Props:** active(string=''), orientation(horizontal|vertical|auto=horizontal), linear(boolean=false), clickable(boolean=false), label(string='')
+**Outputs:** (stepChange), (beforeStepChange)
+**Slots:** default
+**Methods:** goTo(), next(), previous()
+**Parts:** stepper, summary, steps
+**CSS:** --gap(var(--wa-space-l)), --marker-size(2em), --connector-color(var(--wa-color-neutral-fill-normal)), --connector-color-active, --connector-width(var(--wa-border-width-m)), --connector-gap(0.35em)
+**Requires:** Step
+
+## Step
+Navigation | free | Steps are the individual stages of a stepper, each with a label and a status
+wa-step -> <Step> (selector: k-step)
+
+**Props:** name(string=''), completed(boolean=false), loading(boolean=false), disabled(boolean=false), variant(neutral|brand|success|warning|danger=brand), attention(none|pulse|bounce=none), active(boolean=false)
+**Slots:** default, description, icon
+**Parts:** step, connector, button, marker, spinner, content, label, status, description
+**CSS:** --pulse-color
+
 ## Tag
 Display | free | Tags are used as labels to organize things or indicate selections
 wa-tag -> <Tag> (selector: k-tag)
@@ -635,7 +658,7 @@ wa-tree-item -> <TreeItem> (selector: k-tree-item)
 Display | free | Zoomable frames display iframe content with zoom controls
 wa-zoomable-frame -> <ZoomableFrame> (selector: k-zoomable-frame)
 
-**Props:** src(string), srcdoc(string), zoom(number=1), zoom-levels(string=25% 50% 75% 100% 125% 150% 175% 200%), allowfullscreen(boolean=false), loading(eager|lazy=eager), without-controls(boolean=false), without-interaction(boolean=false), sandbox(string), referrerpolicy(string)
+**Props:** src(string), srcdoc(string), zoom(number=1), zoom-levels(string=25% 50% 75% 100% 125% 150% 175% 200%), allowfullscreen(boolean=false), loading(eager|lazy=eager), without-controls(boolean=false), without-interaction(boolean=false), sandbox(string), referrerpolicy(string), allow(string), name(string), label(string='')
 **Outputs:** (error), (load)
 **Slots:** zoom-in-icon, zoom-out-icon
 **Methods:** zoomIn(), zoomOut()

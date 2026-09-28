@@ -23,6 +23,9 @@ export interface ZoomableFrameProps {
   'without-interaction'?: boolean;
   sandbox?: string;
   referrerpolicy?: string;
+  allow?: string;
+  name?: string;
+  label?: string;
 }
 
 const props = defineProps<ZoomableFrameProps>();

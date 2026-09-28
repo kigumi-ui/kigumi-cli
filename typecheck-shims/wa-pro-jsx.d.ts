@@ -32,1278 +32,1318 @@ import type WaToastItem from '@awesome.me/webawesome/dist/components/toast-item/
 import type WaVideo from '@awesome.me/webawesome/dist/components/video/video.js';
 import type WaVideoPlaylist from '@awesome.me/webawesome/dist/components/video-playlist/video-playlist.js';
 
+// Inlined Pro props interfaces
 export type WaBarChartProps = {
-  "type"?: WaBarChart['type'];
+  type?: WaBarChart["type"];
   
-  "orientation"?: WaBarChart['orientation'];
+  orientation?: WaBarChart["orientation"];
   
-  "label"?: WaBarChart['label'];
+  label?: WaBarChart["label"];
   
-  "description"?: WaBarChart['description'];
+  description?: WaBarChart["description"];
   
-  "xLabel"?: WaBarChart['xLabel'];
+  "x-label"?: WaBarChart["xLabel"];
   
-  "yLabel"?: WaBarChart['yLabel'];
+  xLabel?: WaBarChart["xLabel"];
   
-  "legend-position"?: WaBarChart['legendPosition'];
+  "y-label"?: WaBarChart["yLabel"];
   
-  "legendPosition"?: WaBarChart['legendPosition'];
+  yLabel?: WaBarChart["yLabel"];
   
-  "stacked"?: WaBarChart['stacked'];
+  "legend-position"?: WaBarChart["legendPosition"];
   
-  "index-axis"?: WaBarChart['indexAxis'];
+  legendPosition?: WaBarChart["legendPosition"];
   
-  "indexAxis"?: WaBarChart['indexAxis'];
+  stacked?: WaBarChart["stacked"];
   
-  "grid"?: WaBarChart['grid'];
+  "index-axis"?: WaBarChart["indexAxis"];
   
-  "min"?: WaBarChart['min'];
+  indexAxis?: WaBarChart["indexAxis"];
   
-  "max"?: WaBarChart['max'];
+  grid?: WaBarChart["grid"];
   
-  "without-animation"?: WaBarChart['withoutAnimation'];
+  min?: WaBarChart["min"];
   
-  "withoutAnimation"?: WaBarChart['withoutAnimation'];
+  max?: WaBarChart["max"];
   
-  "without-legend"?: WaBarChart['withoutLegend'];
+  "without-animation"?: WaBarChart["withoutAnimation"];
   
-  "withoutLegend"?: WaBarChart['withoutLegend'];
+  withoutAnimation?: WaBarChart["withoutAnimation"];
   
-  "without-tooltip"?: WaBarChart['withoutTooltip'];
+  "without-legend"?: WaBarChart["withoutLegend"];
   
-  "withoutTooltip"?: WaBarChart['withoutTooltip'];
+  withoutLegend?: WaBarChart["withoutLegend"];
   
-  "plugins"?: WaBarChart['plugins'];
+  "without-tooltip"?: WaBarChart["withoutTooltip"];
   
-  "dir"?: WaBarChart['dir'];
+  withoutTooltip?: WaBarChart["withoutTooltip"];
   
-  "lang"?: WaBarChart['lang'];
+  plugins?: WaBarChart["plugins"];
   
-  "did-ssr"?: WaBarChart['didSSR'];
+  dir?: WaBarChart["dir"];
   
-  "didSSR"?: WaBarChart['didSSR'];
+  lang?: WaBarChart["lang"];
   
-  "config"?: WaBarChart['config'];
+  "did-ssr"?: WaBarChart["didSSR"];
   
-  "chart"?: WaBarChart['chart'];
+  didSSR?: WaBarChart["didSSR"];
   
-  "initialReflectedProperties"?: WaBarChart['initialReflectedProperties'];
+  config?: WaBarChart["config"];
   
-  "internals"?: WaBarChart['internals'];
-
-}
+  chart?: WaBarChart["chart"];
+  
+  initialReflectedProperties?: WaBarChart["initialReflectedProperties"];
+  
+  internals?: WaBarChart["internals"];
+};
 
 export type WaBubbleChartProps = {
-  "type"?: WaBubbleChart['type'];
+  type?: WaBubbleChart["type"];
   
-  "label"?: WaBubbleChart['label'];
+  label?: WaBubbleChart["label"];
   
-  "description"?: WaBubbleChart['description'];
+  description?: WaBubbleChart["description"];
   
-  "xLabel"?: WaBubbleChart['xLabel'];
+  "x-label"?: WaBubbleChart["xLabel"];
   
-  "yLabel"?: WaBubbleChart['yLabel'];
+  xLabel?: WaBubbleChart["xLabel"];
   
-  "legend-position"?: WaBubbleChart['legendPosition'];
+  "y-label"?: WaBubbleChart["yLabel"];
   
-  "legendPosition"?: WaBubbleChart['legendPosition'];
+  yLabel?: WaBubbleChart["yLabel"];
   
-  "stacked"?: WaBubbleChart['stacked'];
+  "legend-position"?: WaBubbleChart["legendPosition"];
   
-  "index-axis"?: WaBubbleChart['indexAxis'];
+  legendPosition?: WaBubbleChart["legendPosition"];
   
-  "indexAxis"?: WaBubbleChart['indexAxis'];
+  stacked?: WaBubbleChart["stacked"];
   
-  "grid"?: WaBubbleChart['grid'];
+  "index-axis"?: WaBubbleChart["indexAxis"];
   
-  "min"?: WaBubbleChart['min'];
+  indexAxis?: WaBubbleChart["indexAxis"];
   
-  "max"?: WaBubbleChart['max'];
+  grid?: WaBubbleChart["grid"];
   
-  "without-animation"?: WaBubbleChart['withoutAnimation'];
+  min?: WaBubbleChart["min"];
   
-  "withoutAnimation"?: WaBubbleChart['withoutAnimation'];
+  max?: WaBubbleChart["max"];
   
-  "without-legend"?: WaBubbleChart['withoutLegend'];
+  "without-animation"?: WaBubbleChart["withoutAnimation"];
   
-  "withoutLegend"?: WaBubbleChart['withoutLegend'];
+  withoutAnimation?: WaBubbleChart["withoutAnimation"];
   
-  "without-tooltip"?: WaBubbleChart['withoutTooltip'];
+  "without-legend"?: WaBubbleChart["withoutLegend"];
   
-  "withoutTooltip"?: WaBubbleChart['withoutTooltip'];
+  withoutLegend?: WaBubbleChart["withoutLegend"];
   
-  "plugins"?: WaBubbleChart['plugins'];
+  "without-tooltip"?: WaBubbleChart["withoutTooltip"];
   
-  "dir"?: WaBubbleChart['dir'];
+  withoutTooltip?: WaBubbleChart["withoutTooltip"];
   
-  "lang"?: WaBubbleChart['lang'];
+  plugins?: WaBubbleChart["plugins"];
   
-  "did-ssr"?: WaBubbleChart['didSSR'];
+  dir?: WaBubbleChart["dir"];
   
-  "didSSR"?: WaBubbleChart['didSSR'];
+  lang?: WaBubbleChart["lang"];
   
-  "config"?: WaBubbleChart['config'];
+  "did-ssr"?: WaBubbleChart["didSSR"];
   
-  "chart"?: WaBubbleChart['chart'];
+  didSSR?: WaBubbleChart["didSSR"];
   
-  "initialReflectedProperties"?: WaBubbleChart['initialReflectedProperties'];
+  config?: WaBubbleChart["config"];
   
-  "internals"?: WaBubbleChart['internals'];
-
-}
+  chart?: WaBubbleChart["chart"];
+  
+  initialReflectedProperties?: WaBubbleChart["initialReflectedProperties"];
+  
+  internals?: WaBubbleChart["internals"];
+};
 
 export type WaChartProps = {
-  "label"?: WaChart['label'];
+  label?: WaChart["label"];
   
-  "description"?: WaChart['description'];
+  description?: WaChart["description"];
   
-  "type"?: WaChart['type'];
+  type?: WaChart["type"];
   
-  "xLabel"?: WaChart['xLabel'];
+  "x-label"?: WaChart["xLabel"];
   
-  "yLabel"?: WaChart['yLabel'];
+  xLabel?: WaChart["xLabel"];
   
-  "legend-position"?: WaChart['legendPosition'];
+  "y-label"?: WaChart["yLabel"];
   
-  "legendPosition"?: WaChart['legendPosition'];
+  yLabel?: WaChart["yLabel"];
   
-  "stacked"?: WaChart['stacked'];
+  "legend-position"?: WaChart["legendPosition"];
   
-  "index-axis"?: WaChart['indexAxis'];
+  legendPosition?: WaChart["legendPosition"];
   
-  "indexAxis"?: WaChart['indexAxis'];
+  stacked?: WaChart["stacked"];
   
-  "grid"?: WaChart['grid'];
+  "index-axis"?: WaChart["indexAxis"];
   
-  "min"?: WaChart['min'];
+  indexAxis?: WaChart["indexAxis"];
   
-  "max"?: WaChart['max'];
+  grid?: WaChart["grid"];
   
-  "without-animation"?: WaChart['withoutAnimation'];
+  min?: WaChart["min"];
   
-  "withoutAnimation"?: WaChart['withoutAnimation'];
+  max?: WaChart["max"];
   
-  "without-legend"?: WaChart['withoutLegend'];
+  "without-animation"?: WaChart["withoutAnimation"];
   
-  "withoutLegend"?: WaChart['withoutLegend'];
+  withoutAnimation?: WaChart["withoutAnimation"];
   
-  "without-tooltip"?: WaChart['withoutTooltip'];
+  "without-legend"?: WaChart["withoutLegend"];
   
-  "withoutTooltip"?: WaChart['withoutTooltip'];
+  withoutLegend?: WaChart["withoutLegend"];
   
-  "plugins"?: WaChart['plugins'];
+  "without-tooltip"?: WaChart["withoutTooltip"];
   
-  "dir"?: WaChart['dir'];
+  withoutTooltip?: WaChart["withoutTooltip"];
   
-  "lang"?: WaChart['lang'];
+  plugins?: WaChart["plugins"];
   
-  "did-ssr"?: WaChart['didSSR'];
+  dir?: WaChart["dir"];
   
-  "didSSR"?: WaChart['didSSR'];
+  lang?: WaChart["lang"];
   
-  "config"?: WaChart['config'];
+  "did-ssr"?: WaChart["didSSR"];
   
-  "chart"?: WaChart['chart'];
+  didSSR?: WaChart["didSSR"];
   
-  "initialReflectedProperties"?: WaChart['initialReflectedProperties'];
+  config?: WaChart["config"];
   
-  "internals"?: WaChart['internals'];
-
-}
+  chart?: WaChart["chart"];
+  
+  initialReflectedProperties?: WaChart["initialReflectedProperties"];
+  
+  internals?: WaChart["internals"];
+};
 
 export type WaComboboxProps = {
-  "name"?: WaCombobox['name'];
+  name?: WaCombobox["name"];
   
-  "value"?: WaCombobox['value'];
+  value?: WaCombobox["value"];
   
-  "size"?: WaCombobox['size'];
+  size?: WaCombobox["size"];
   
-  "placeholder"?: WaCombobox['placeholder'];
+  placeholder?: WaCombobox["placeholder"];
   
-  "multiple"?: WaCombobox['multiple'];
+  multiple?: WaCombobox["multiple"];
   
-  "max-options-visible"?: WaCombobox['maxOptionsVisible'];
+  "max-options-visible"?: WaCombobox["maxOptionsVisible"];
   
-  "maxOptionsVisible"?: WaCombobox['maxOptionsVisible'];
+  maxOptionsVisible?: WaCombobox["maxOptionsVisible"];
   
-  "disabled"?: WaCombobox['disabled'];
+  disabled?: WaCombobox["disabled"];
   
-  "with-clear"?: WaCombobox['withClear'];
+  "with-clear"?: WaCombobox["withClear"];
   
-  "withClear"?: WaCombobox['withClear'];
+  withClear?: WaCombobox["withClear"];
   
-  "open"?: WaCombobox['open'];
+  open?: WaCombobox["open"];
   
-  "appearance"?: WaCombobox['appearance'];
+  appearance?: WaCombobox["appearance"];
   
-  "pill"?: WaCombobox['pill'];
+  pill?: WaCombobox["pill"];
   
-  "label"?: WaCombobox['label'];
+  label?: WaCombobox["label"];
   
-  "placement"?: WaCombobox['placement'];
+  placement?: WaCombobox["placement"];
   
-  "hint"?: WaCombobox['hint'];
+  hint?: WaCombobox["hint"];
   
-  "with-label"?: WaCombobox['withLabel'];
+  "with-label"?: WaCombobox["withLabel"];
   
-  "withLabel"?: WaCombobox['withLabel'];
+  withLabel?: WaCombobox["withLabel"];
   
-  "with-hint"?: WaCombobox['withHint'];
+  "with-hint"?: WaCombobox["withHint"];
   
-  "withHint"?: WaCombobox['withHint'];
+  withHint?: WaCombobox["withHint"];
   
-  "required"?: WaCombobox['required'];
+  required?: WaCombobox["required"];
   
-  "allow-custom-value"?: WaCombobox['allowCustomValue'];
+  "allow-custom-value"?: WaCombobox["allowCustomValue"];
   
-  "allowCustomValue"?: WaCombobox['allowCustomValue'];
+  allowCustomValue?: WaCombobox["allowCustomValue"];
   
-  "allow-create"?: WaCombobox['allowCreate'];
+  "allow-create"?: WaCombobox["allowCreate"];
   
-  "allowCreate"?: WaCombobox['allowCreate'];
+  allowCreate?: WaCombobox["allowCreate"];
   
-  "autocapitalize"?: WaCombobox['autocapitalize'];
+  server?: WaCombobox["server"];
   
-  "autocorrect"?: WaCombobox['autocorrect'];
+  loading?: WaCombobox["loading"];
   
-  "inputmode"?: WaCombobox['inputmode'];
+  "filter-debounce"?: WaCombobox["filterDebounce"];
   
-  "enterkeyhint"?: WaCombobox['enterkeyhint'];
+  filterDebounce?: WaCombobox["filterDebounce"];
   
-  "spellcheck"?: WaCombobox['spellcheck'];
+  autocapitalize?: WaCombobox["autocapitalize"];
   
-  "custom-error"?: WaCombobox['customError'];
+  autocorrect?: WaCombobox["autocorrect"];
   
-  "customError"?: WaCombobox['customError'];
+  inputmode?: WaCombobox["inputmode"];
   
-  "dir"?: WaCombobox['dir'];
+  enterkeyhint?: WaCombobox["enterkeyhint"];
   
-  "lang"?: WaCombobox['lang'];
+  spellcheck?: WaCombobox["spellcheck"];
   
-  "did-ssr"?: WaCombobox['didSSR'];
+  "custom-error"?: WaCombobox["customError"];
   
-  "didSSR"?: WaCombobox['didSSR'];
+  customError?: WaCombobox["customError"];
   
-  "assumeInteractionOn"?: WaCombobox['assumeInteractionOn'];
+  dir?: WaCombobox["dir"];
   
-  "popup"?: WaCombobox['popup'];
+  lang?: WaCombobox["lang"];
   
-  "combobox"?: WaCombobox['combobox'];
+  "did-ssr"?: WaCombobox["didSSR"];
   
-  "comboboxInput"?: WaCombobox['comboboxInput'];
+  didSSR?: WaCombobox["didSSR"];
   
-  "valueInput"?: WaCombobox['valueInput'];
+  assumeInteractionOn?: WaCombobox["assumeInteractionOn"];
   
-  "listbox"?: WaCombobox['listbox'];
+  popup?: WaCombobox["popup"];
   
-  "liveRegion"?: WaCombobox['liveRegion'];
+  combobox?: WaCombobox["combobox"];
   
-  "currentOption"?: WaCombobox['currentOption'];
+  comboboxInput?: WaCombobox["comboboxInput"];
   
-  "selectedOptions"?: WaCombobox['selectedOptions'];
+  valueInput?: WaCombobox["valueInput"];
   
-  "filteredOptions"?: WaCombobox['filteredOptions'];
+  listbox?: WaCombobox["listbox"];
   
-  "inputValue"?: WaCombobox['inputValue'];
+  currentOption?: WaCombobox["currentOption"];
   
-  "defaultValue"?: WaCombobox['defaultValue'];
+  selectedOptions?: WaCombobox["selectedOptions"];
   
-  "filter"?: WaCombobox['filter'];
+  filteredOptions?: WaCombobox["filteredOptions"];
   
-  "getTag"?: WaCombobox['getTag'];
+  inputValue?: WaCombobox["inputValue"];
   
-  "input"?: WaCombobox['input'];
+  defaultValue?: WaCombobox["defaultValue"];
   
-  "valueHasChanged"?: WaCombobox['valueHasChanged'];
+  filter?: WaCombobox["filter"];
   
-  "hasInteracted"?: WaCombobox['hasInteracted'];
+  dataSource?: WaCombobox["dataSource"];
   
-  "states"?: WaCombobox['states'];
+  getTag?: WaCombobox["getTag"];
   
-  "emitInvalid"?: WaCombobox['emitInvalid'];
+  input?: WaCombobox["input"];
   
-  "form"?: WaCombobox['form'];
+  valueHasChanged?: WaCombobox["valueHasChanged"];
   
-  "initialReflectedProperties"?: WaCombobox['initialReflectedProperties'];
+  hasInteracted?: WaCombobox["hasInteracted"];
   
-  "internals"?: WaCombobox['internals'];
+  states?: WaCombobox["states"];
+  
+  emitInvalid?: WaCombobox["emitInvalid"];
+  
+  form?: WaCombobox["form"];
+  
+  initialReflectedProperties?: WaCombobox["initialReflectedProperties"];
+  
+  internals?: WaCombobox["internals"];
 
   
-  "oninput"?: (e: CustomEvent<InputEvent>) => void;
+  oninput?: (e: InputEvent) => void;
   
-  "onchange"?: (e: CustomEvent<Event>) => void;
+  onchange?: (e: Event) => void;
   
-  "onfocus"?: (e: CustomEvent<never>) => void;
+  onrequest?: (e: WaOptionsRequestEvent) => void;
   
-  "onblur"?: (e: CustomEvent<never>) => void;
+  onfocus?: (e: Event) => void;
   
-  "onwa-clear"?: (e: CustomEvent<never>) => void;
+  onblur?: (e: Event) => void;
   
-  "onwa-show"?: (e: CustomEvent<never>) => void;
+  "onwa-clear"?: (e: Event) => void;
   
-  "onwa-after-show"?: (e: CustomEvent<never>) => void;
+  "onwa-show"?: (e: Event) => void;
   
-  "onwa-hide"?: (e: CustomEvent<never>) => void;
+  "onwa-after-show"?: (e: Event) => void;
   
-  "onwa-after-hide"?: (e: CustomEvent<never>) => void;
+  "onwa-hide"?: (e: Event) => void;
   
-  "onwa-create"?: (e: CustomEvent<never>) => void;
+  "onwa-after-hide"?: (e: Event) => void;
   
-  "onwa-invalid"?: (e: CustomEvent<never>) => void;
-}
+  "onwa-create"?: (e: Event) => void;
+  
+  "onwa-invalid"?: (e: Event) => void;
+  
+  "onwa-options-request"?: (e: Event) => void;
+  
+  "onwa-options-error"?: (e: Event) => void;
+};
 
 export type WaDateInputProps = {
-  "name"?: WaDateInput['name'];
+  name?: WaDateInput["name"];
   
-  "value"?: WaDateInput['defaultValue'];
+  value?: WaDateInput["defaultValue"];
   
-  "defaultValue"?: WaDateInput['defaultValue'];
+  defaultValue?: WaDateInput["defaultValue"];
   
-  "disabled"?: WaDateInput['disabled'];
+  disabled?: WaDateInput["disabled"];
   
-  "required"?: WaDateInput['required'];
+  required?: WaDateInput["required"];
   
-  "readonly"?: WaDateInput['readonly'];
+  readonly?: WaDateInput["readonly"];
   
-  "size"?: WaDateInput['size'];
+  size?: WaDateInput["size"];
   
-  "appearance"?: WaDateInput['appearance'];
+  appearance?: WaDateInput["appearance"];
   
-  "pill"?: WaDateInput['pill'];
+  pill?: WaDateInput["pill"];
   
-  "label"?: WaDateInput['label'];
+  label?: WaDateInput["label"];
   
-  "hint"?: WaDateInput['hint'];
+  hint?: WaDateInput["hint"];
   
-  "autocomplete"?: WaDateInput['autocomplete'];
+  autocomplete?: WaDateInput["autocomplete"];
   
-  "with-clear"?: WaDateInput['withClear'];
+  "with-clear"?: WaDateInput["withClear"];
   
-  "withClear"?: WaDateInput['withClear'];
+  withClear?: WaDateInput["withClear"];
   
-  "with-label"?: WaDateInput['withLabel'];
+  "with-label"?: WaDateInput["withLabel"];
   
-  "withLabel"?: WaDateInput['withLabel'];
+  withLabel?: WaDateInput["withLabel"];
   
-  "with-hint"?: WaDateInput['withHint'];
+  "with-hint"?: WaDateInput["withHint"];
   
-  "withHint"?: WaDateInput['withHint'];
+  withHint?: WaDateInput["withHint"];
   
-  "mode"?: WaDateInput['mode'];
+  mode?: WaDateInput["mode"];
   
-  "min"?: WaDateInput['min'];
+  min?: WaDateInput["min"];
   
-  "max"?: WaDateInput['max'];
+  max?: WaDateInput["max"];
   
-  "today"?: WaDateInput['today'];
+  today?: WaDateInput["today"];
   
-  "first-day-of-week"?: WaDateInput['firstDayOfWeek'];
+  "first-day-of-week"?: WaDateInput["firstDayOfWeek"];
   
-  "firstDayOfWeek"?: WaDateInput['firstDayOfWeek'];
+  firstDayOfWeek?: WaDateInput["firstDayOfWeek"];
   
-  "disabled-dates"?: WaDateInput['disabledDates'];
+  "disabled-dates"?: WaDateInput["disabledDates"];
   
-  "disabledDates"?: WaDateInput['disabledDates'];
+  disabledDates?: WaDateInput["disabledDates"];
   
-  "disabled-days-of-week"?: WaDateInput['disabledDaysOfWeek'];
+  "disabled-days-of-week"?: WaDateInput["disabledDaysOfWeek"];
   
-  "disabledDaysOfWeek"?: WaDateInput['disabledDaysOfWeek'];
+  disabledDaysOfWeek?: WaDateInput["disabledDaysOfWeek"];
   
-  "disable-past"?: WaDateInput['disablePast'];
+  "disable-past"?: WaDateInput["disablePast"];
   
-  "disablePast"?: WaDateInput['disablePast'];
+  disablePast?: WaDateInput["disablePast"];
   
-  "disable-future"?: WaDateInput['disableFuture'];
+  "disable-future"?: WaDateInput["disableFuture"];
   
-  "disableFuture"?: WaDateInput['disableFuture'];
+  disableFuture?: WaDateInput["disableFuture"];
   
-  "min-range"?: WaDateInput['minRange'];
+  "min-range"?: WaDateInput["minRange"];
   
-  "minRange"?: WaDateInput['minRange'];
+  minRange?: WaDateInput["minRange"];
   
-  "max-range"?: WaDateInput['maxRange'];
+  "max-range"?: WaDateInput["maxRange"];
   
-  "maxRange"?: WaDateInput['maxRange'];
+  maxRange?: WaDateInput["maxRange"];
   
-  "months"?: WaDateInput['months'];
+  months?: WaDateInput["months"];
   
-  "page-by"?: WaDateInput['pageBy'];
+  "page-by"?: WaDateInput["pageBy"];
   
-  "pageBy"?: WaDateInput['pageBy'];
+  pageBy?: WaDateInput["pageBy"];
   
-  "with-outside-days"?: WaDateInput['withOutsideDays'];
+  "with-outside-days"?: WaDateInput["withOutsideDays"];
   
-  "withOutsideDays"?: WaDateInput['withOutsideDays'];
+  withOutsideDays?: WaDateInput["withOutsideDays"];
   
-  "with-week-numbers"?: WaDateInput['withWeekNumbers'];
+  "with-week-numbers"?: WaDateInput["withWeekNumbers"];
   
-  "withWeekNumbers"?: WaDateInput['withWeekNumbers'];
+  withWeekNumbers?: WaDateInput["withWeekNumbers"];
   
-  "weekday-format"?: WaDateInput['weekdayFormat'];
+  "weekday-format"?: WaDateInput["weekdayFormat"];
   
-  "weekdayFormat"?: WaDateInput['weekdayFormat'];
+  weekdayFormat?: WaDateInput["weekdayFormat"];
   
-  "open"?: WaDateInput['open'];
+  open?: WaDateInput["open"];
   
-  "placement"?: WaDateInput['placement'];
+  placement?: WaDateInput["placement"];
   
-  "distance"?: WaDateInput['distance'];
+  distance?: WaDateInput["distance"];
   
-  "custom-error"?: WaDateInput['customError'];
+  "custom-error"?: WaDateInput["customError"];
   
-  "customError"?: WaDateInput['customError'];
+  customError?: WaDateInput["customError"];
   
-  "dir"?: WaDateInput['dir'];
+  dir?: WaDateInput["dir"];
   
-  "lang"?: WaDateInput['lang'];
+  lang?: WaDateInput["lang"];
   
-  "did-ssr"?: WaDateInput['didSSR'];
+  "did-ssr"?: WaDateInput["didSSR"];
   
-  "didSSR"?: WaDateInput['didSSR'];
+  didSSR?: WaDateInput["didSSR"];
   
-  "assumeInteractionOn"?: WaDateInput['assumeInteractionOn'];
+  assumeInteractionOn?: WaDateInput["assumeInteractionOn"];
   
-  "popup"?: WaDateInput['popup'];
+  popup?: WaDateInput["popup"];
   
-  "valueInput"?: WaDateInput['valueInput'];
+  valueInput?: WaDateInput["valueInput"];
   
-  "inputGroup"?: WaDateInput['inputGroup'];
+  inputGroup?: WaDateInput["inputGroup"];
   
-  "calendar"?: WaDateInput['calendar'];
+  calendar?: WaDateInput["calendar"];
   
-  "isDateDisabled"?: WaDateInput['isDateDisabled'];
+  isDateDisabled?: WaDateInput["isDateDisabled"];
   
-  "dayContent"?: WaDateInput['dayContent'];
+  dayContent?: WaDateInput["dayContent"];
   
-  "input"?: WaDateInput['input'];
+  input?: WaDateInput["input"];
   
-  "valueHasChanged"?: WaDateInput['valueHasChanged'];
+  valueHasChanged?: WaDateInput["valueHasChanged"];
   
-  "hasInteracted"?: WaDateInput['hasInteracted'];
+  hasInteracted?: WaDateInput["hasInteracted"];
   
-  "states"?: WaDateInput['states'];
+  states?: WaDateInput["states"];
   
-  "emitInvalid"?: WaDateInput['emitInvalid'];
+  emitInvalid?: WaDateInput["emitInvalid"];
   
-  "form"?: WaDateInput['form'];
+  form?: WaDateInput["form"];
   
-  "initialReflectedProperties"?: WaDateInput['initialReflectedProperties'];
+  initialReflectedProperties?: WaDateInput["initialReflectedProperties"];
   
-  "internals"?: WaDateInput['internals'];
+  internals?: WaDateInput["internals"];
 
   
-  "oninput"?: (e: CustomEvent<InputEvent>) => void;
+  oninput?: (e: InputEvent) => void;
   
-  "onchange"?: (e: CustomEvent<Event>) => void;
+  onchange?: (e: Event) => void;
   
-  "onfocus"?: (e: CustomEvent<never>) => void;
+  onfocus?: (e: Event) => void;
   
-  "onblur"?: (e: CustomEvent<never>) => void;
+  onblur?: (e: Event) => void;
   
-  "onwa-clear"?: (e: CustomEvent<never>) => void;
+  "onwa-clear"?: (e: Event) => void;
   
-  "onwa-show"?: (e: CustomEvent<never>) => void;
+  "onwa-show"?: (e: Event) => void;
   
-  "onwa-after-show"?: (e: CustomEvent<never>) => void;
+  "onwa-after-show"?: (e: Event) => void;
   
-  "onwa-hide"?: (e: CustomEvent<never>) => void;
+  "onwa-hide"?: (e: Event) => void;
   
-  "onwa-after-hide"?: (e: CustomEvent<never>) => void;
+  "onwa-after-hide"?: (e: Event) => void;
   
-  "onwa-invalid"?: (e: CustomEvent<never>) => void;
-}
+  "onwa-invalid"?: (e: Event) => void;
+};
 
 export type WaDatePickerProps = {
-  "mode"?: WaDatePicker['mode'];
+  mode?: WaDatePicker["mode"];
   
-  "value"?: WaDatePicker['value'];
+  value?: WaDatePicker["value"];
   
-  "min"?: WaDatePicker['min'];
+  min?: WaDatePicker["min"];
   
-  "max"?: WaDatePicker['max'];
+  max?: WaDatePicker["max"];
   
-  "today"?: WaDatePicker['today'];
+  today?: WaDatePicker["today"];
   
-  "focused-date"?: WaDatePicker['focusedDate'];
+  "focused-date"?: WaDatePicker["focusedDate"];
   
-  "focusedDate"?: WaDatePicker['focusedDate'];
+  focusedDate?: WaDatePicker["focusedDate"];
   
-  "view"?: WaDatePicker['view'];
+  view?: WaDatePicker["view"];
   
-  "months"?: WaDatePicker['months'];
+  months?: WaDatePicker["months"];
   
-  "page-by"?: WaDatePicker['pageBy'];
+  "page-by"?: WaDatePicker["pageBy"];
   
-  "pageBy"?: WaDatePicker['pageBy'];
+  pageBy?: WaDatePicker["pageBy"];
   
-  "first-day-of-week"?: WaDatePicker['firstDayOfWeek'];
+  "first-day-of-week"?: WaDatePicker["firstDayOfWeek"];
   
-  "firstDayOfWeek"?: WaDatePicker['firstDayOfWeek'];
+  firstDayOfWeek?: WaDatePicker["firstDayOfWeek"];
   
-  "with-outside-days"?: WaDatePicker['withOutsideDays'];
+  "with-outside-days"?: WaDatePicker["withOutsideDays"];
   
-  "withOutsideDays"?: WaDatePicker['withOutsideDays'];
+  withOutsideDays?: WaDatePicker["withOutsideDays"];
   
-  "with-week-numbers"?: WaDatePicker['withWeekNumbers'];
+  "with-week-numbers"?: WaDatePicker["withWeekNumbers"];
   
-  "withWeekNumbers"?: WaDatePicker['withWeekNumbers'];
+  withWeekNumbers?: WaDatePicker["withWeekNumbers"];
   
-  "weekday-format"?: WaDatePicker['weekdayFormat'];
+  "weekday-format"?: WaDatePicker["weekdayFormat"];
   
-  "weekdayFormat"?: WaDatePicker['weekdayFormat'];
+  weekdayFormat?: WaDatePicker["weekdayFormat"];
   
-  "disabled"?: WaDatePicker['disabled'];
+  disabled?: WaDatePicker["disabled"];
   
-  "readonly"?: WaDatePicker['readonly'];
+  readonly?: WaDatePicker["readonly"];
   
-  "disabled-dates"?: WaDatePicker['disabledDates'];
+  "disabled-dates"?: WaDatePicker["disabledDates"];
   
-  "disabledDates"?: WaDatePicker['disabledDates'];
+  disabledDates?: WaDatePicker["disabledDates"];
   
-  "disabled-days-of-week"?: WaDatePicker['disabledDaysOfWeek'];
+  "disabled-days-of-week"?: WaDatePicker["disabledDaysOfWeek"];
   
-  "disabledDaysOfWeek"?: WaDatePicker['disabledDaysOfWeek'];
+  disabledDaysOfWeek?: WaDatePicker["disabledDaysOfWeek"];
   
-  "disable-past"?: WaDatePicker['disablePast'];
+  "disable-past"?: WaDatePicker["disablePast"];
   
-  "disablePast"?: WaDatePicker['disablePast'];
+  disablePast?: WaDatePicker["disablePast"];
   
-  "disable-future"?: WaDatePicker['disableFuture'];
+  "disable-future"?: WaDatePicker["disableFuture"];
   
-  "disableFuture"?: WaDatePicker['disableFuture'];
+  disableFuture?: WaDatePicker["disableFuture"];
   
-  "min-range"?: WaDatePicker['minRange'];
+  "min-range"?: WaDatePicker["minRange"];
   
-  "minRange"?: WaDatePicker['minRange'];
+  minRange?: WaDatePicker["minRange"];
   
-  "max-range"?: WaDatePicker['maxRange'];
+  "max-range"?: WaDatePicker["maxRange"];
   
-  "maxRange"?: WaDatePicker['maxRange'];
+  maxRange?: WaDatePicker["maxRange"];
   
-  "size"?: WaDatePicker['size'];
+  size?: WaDatePicker["size"];
   
-  "locale"?: WaDatePicker['locale'];
+  locale?: WaDatePicker["locale"];
   
-  "dir"?: WaDatePicker['dir'];
+  dir?: WaDatePicker["dir"];
   
-  "lang"?: WaDatePicker['lang'];
+  lang?: WaDatePicker["lang"];
   
-  "did-ssr"?: WaDatePicker['didSSR'];
+  "did-ssr"?: WaDatePicker["didSSR"];
   
-  "didSSR"?: WaDatePicker['didSSR'];
+  didSSR?: WaDatePicker["didSSR"];
   
-  "isDateDisabled"?: WaDatePicker['isDateDisabled'];
+  isDateDisabled?: WaDatePicker["isDateDisabled"];
   
-  "dayContent"?: WaDatePicker['dayContent'];
+  dayContent?: WaDatePicker["dayContent"];
   
-  "initialReflectedProperties"?: WaDatePicker['initialReflectedProperties'];
+  initialReflectedProperties?: WaDatePicker["initialReflectedProperties"];
   
-  "internals"?: WaDatePicker['internals'];
+  internals?: WaDatePicker["internals"];
 
   
-  "oninput"?: (e: CustomEvent<InputEvent>) => void;
+  oninput?: (e: InputEvent) => void;
   
-  "onchange"?: (e: CustomEvent<Event>) => void;
+  onchange?: (e: Event) => void;
   
-  "onwa-focus-day"?: (e: CustomEvent<never>) => void;
+  "onwa-focus-day"?: (e: Event) => void;
   
-  "onwa-view-change"?: (e: CustomEvent<never>) => void;
-}
+  "onwa-view-change"?: (e: Event) => void;
+};
 
 export type WaDoughnutChartProps = {
-  "type"?: WaDoughnutChart['type'];
+  type?: WaDoughnutChart["type"];
   
-  "label"?: WaDoughnutChart['label'];
+  label?: WaDoughnutChart["label"];
   
-  "description"?: WaDoughnutChart['description'];
+  description?: WaDoughnutChart["description"];
   
-  "xLabel"?: WaDoughnutChart['xLabel'];
+  "x-label"?: WaDoughnutChart["xLabel"];
   
-  "yLabel"?: WaDoughnutChart['yLabel'];
+  xLabel?: WaDoughnutChart["xLabel"];
   
-  "legend-position"?: WaDoughnutChart['legendPosition'];
+  "y-label"?: WaDoughnutChart["yLabel"];
   
-  "legendPosition"?: WaDoughnutChart['legendPosition'];
+  yLabel?: WaDoughnutChart["yLabel"];
   
-  "stacked"?: WaDoughnutChart['stacked'];
+  "legend-position"?: WaDoughnutChart["legendPosition"];
   
-  "index-axis"?: WaDoughnutChart['indexAxis'];
+  legendPosition?: WaDoughnutChart["legendPosition"];
   
-  "indexAxis"?: WaDoughnutChart['indexAxis'];
+  stacked?: WaDoughnutChart["stacked"];
   
-  "grid"?: WaDoughnutChart['grid'];
+  "index-axis"?: WaDoughnutChart["indexAxis"];
   
-  "min"?: WaDoughnutChart['min'];
+  indexAxis?: WaDoughnutChart["indexAxis"];
   
-  "max"?: WaDoughnutChart['max'];
+  grid?: WaDoughnutChart["grid"];
   
-  "without-animation"?: WaDoughnutChart['withoutAnimation'];
+  min?: WaDoughnutChart["min"];
   
-  "withoutAnimation"?: WaDoughnutChart['withoutAnimation'];
+  max?: WaDoughnutChart["max"];
   
-  "without-legend"?: WaDoughnutChart['withoutLegend'];
+  "without-animation"?: WaDoughnutChart["withoutAnimation"];
   
-  "withoutLegend"?: WaDoughnutChart['withoutLegend'];
+  withoutAnimation?: WaDoughnutChart["withoutAnimation"];
   
-  "without-tooltip"?: WaDoughnutChart['withoutTooltip'];
+  "without-legend"?: WaDoughnutChart["withoutLegend"];
   
-  "withoutTooltip"?: WaDoughnutChart['withoutTooltip'];
+  withoutLegend?: WaDoughnutChart["withoutLegend"];
   
-  "plugins"?: WaDoughnutChart['plugins'];
+  "without-tooltip"?: WaDoughnutChart["withoutTooltip"];
   
-  "dir"?: WaDoughnutChart['dir'];
+  withoutTooltip?: WaDoughnutChart["withoutTooltip"];
   
-  "lang"?: WaDoughnutChart['lang'];
+  plugins?: WaDoughnutChart["plugins"];
   
-  "did-ssr"?: WaDoughnutChart['didSSR'];
+  dir?: WaDoughnutChart["dir"];
   
-  "didSSR"?: WaDoughnutChart['didSSR'];
+  lang?: WaDoughnutChart["lang"];
   
-  "config"?: WaDoughnutChart['config'];
+  "did-ssr"?: WaDoughnutChart["didSSR"];
   
-  "chart"?: WaDoughnutChart['chart'];
+  didSSR?: WaDoughnutChart["didSSR"];
   
-  "initialReflectedProperties"?: WaDoughnutChart['initialReflectedProperties'];
+  config?: WaDoughnutChart["config"];
   
-  "internals"?: WaDoughnutChart['internals'];
-
-}
+  chart?: WaDoughnutChart["chart"];
+  
+  initialReflectedProperties?: WaDoughnutChart["initialReflectedProperties"];
+  
+  internals?: WaDoughnutChart["internals"];
+};
 
 export type WaFileInputProps = {
-  "size"?: WaFileInput['size'];
+  size?: WaFileInput["size"];
   
-  "label"?: WaFileInput['label'];
+  label?: WaFileInput["label"];
   
-  "hint"?: WaFileInput['hint'];
+  hint?: WaFileInput["hint"];
   
-  "multiple"?: WaFileInput['multiple'];
+  multiple?: WaFileInput["multiple"];
   
-  "accept"?: WaFileInput['accept'];
+  accept?: WaFileInput["accept"];
   
-  "required"?: WaFileInput['required'];
+  required?: WaFileInput["required"];
   
-  "capture"?: WaFileInput['capture'];
+  capture?: WaFileInput["capture"];
   
-  "with-label"?: WaFileInput['withLabel'];
+  "with-label"?: WaFileInput["withLabel"];
   
-  "withLabel"?: WaFileInput['withLabel'];
+  withLabel?: WaFileInput["withLabel"];
   
-  "with-hint"?: WaFileInput['withHint'];
+  "with-hint"?: WaFileInput["withHint"];
   
-  "withHint"?: WaFileInput['withHint'];
+  withHint?: WaFileInput["withHint"];
   
-  "name"?: WaFileInput['name'];
+  name?: WaFileInput["name"];
   
-  "disabled"?: WaFileInput['disabled'];
+  disabled?: WaFileInput["disabled"];
   
-  "custom-error"?: WaFileInput['customError'];
+  "custom-error"?: WaFileInput["customError"];
   
-  "customError"?: WaFileInput['customError'];
+  customError?: WaFileInput["customError"];
   
-  "dir"?: WaFileInput['dir'];
+  dir?: WaFileInput["dir"];
   
-  "lang"?: WaFileInput['lang'];
+  lang?: WaFileInput["lang"];
   
-  "did-ssr"?: WaFileInput['didSSR'];
+  "did-ssr"?: WaFileInput["didSSR"];
   
-  "didSSR"?: WaFileInput['didSSR'];
+  didSSR?: WaFileInput["didSSR"];
   
-  "assumeInteractionOn"?: WaFileInput['assumeInteractionOn'];
+  assumeInteractionOn?: WaFileInput["assumeInteractionOn"];
   
-  "dropzone"?: WaFileInput['dropzone'];
+  dropzone?: WaFileInput["dropzone"];
   
-  "input"?: WaFileInput['input'];
+  input?: WaFileInput["input"];
   
-  "files"?: WaFileInput['files'];
+  files?: WaFileInput["files"];
   
-  "dragging"?: WaFileInput['dragging'];
+  dragging?: WaFileInput["dragging"];
   
-  "valueHasChanged"?: WaFileInput['valueHasChanged'];
+  valueHasChanged?: WaFileInput["valueHasChanged"];
   
-  "hasInteracted"?: WaFileInput['hasInteracted'];
+  hasInteracted?: WaFileInput["hasInteracted"];
   
-  "states"?: WaFileInput['states'];
+  states?: WaFileInput["states"];
   
-  "emitInvalid"?: WaFileInput['emitInvalid'];
+  emitInvalid?: WaFileInput["emitInvalid"];
   
-  "form"?: WaFileInput['form'];
+  form?: WaFileInput["form"];
   
-  "initialReflectedProperties"?: WaFileInput['initialReflectedProperties'];
+  initialReflectedProperties?: WaFileInput["initialReflectedProperties"];
   
-  "internals"?: WaFileInput['internals'];
+  internals?: WaFileInput["internals"];
 
   
-  "oninput"?: (e: CustomEvent<Event>) => void;
+  oninput?: (e: Event) => void;
   
-  "onchange"?: (e: CustomEvent<Event>) => void;
+  onchange?: (e: Event) => void;
   
-  "onfocus"?: (e: CustomEvent<never>) => void;
+  onfocus?: (e: Event) => void;
   
-  "onblur"?: (e: CustomEvent<never>) => void;
+  onblur?: (e: Event) => void;
   
-  "onwa-invalid"?: (e: CustomEvent<never>) => void;
-}
+  "onwa-invalid"?: (e: Event) => void;
+};
 
 export type WaLineChartProps = {
-  "type"?: WaLineChart['type'];
+  type?: WaLineChart["type"];
   
-  "label"?: WaLineChart['label'];
+  label?: WaLineChart["label"];
   
-  "description"?: WaLineChart['description'];
+  description?: WaLineChart["description"];
   
-  "xLabel"?: WaLineChart['xLabel'];
+  "x-label"?: WaLineChart["xLabel"];
   
-  "yLabel"?: WaLineChart['yLabel'];
+  xLabel?: WaLineChart["xLabel"];
   
-  "legend-position"?: WaLineChart['legendPosition'];
+  "y-label"?: WaLineChart["yLabel"];
   
-  "legendPosition"?: WaLineChart['legendPosition'];
+  yLabel?: WaLineChart["yLabel"];
   
-  "stacked"?: WaLineChart['stacked'];
+  "legend-position"?: WaLineChart["legendPosition"];
   
-  "index-axis"?: WaLineChart['indexAxis'];
+  legendPosition?: WaLineChart["legendPosition"];
   
-  "indexAxis"?: WaLineChart['indexAxis'];
+  stacked?: WaLineChart["stacked"];
   
-  "grid"?: WaLineChart['grid'];
+  "index-axis"?: WaLineChart["indexAxis"];
   
-  "min"?: WaLineChart['min'];
+  indexAxis?: WaLineChart["indexAxis"];
   
-  "max"?: WaLineChart['max'];
+  grid?: WaLineChart["grid"];
   
-  "without-animation"?: WaLineChart['withoutAnimation'];
+  min?: WaLineChart["min"];
   
-  "withoutAnimation"?: WaLineChart['withoutAnimation'];
+  max?: WaLineChart["max"];
   
-  "without-legend"?: WaLineChart['withoutLegend'];
+  "without-animation"?: WaLineChart["withoutAnimation"];
   
-  "withoutLegend"?: WaLineChart['withoutLegend'];
+  withoutAnimation?: WaLineChart["withoutAnimation"];
   
-  "without-tooltip"?: WaLineChart['withoutTooltip'];
+  "without-legend"?: WaLineChart["withoutLegend"];
   
-  "withoutTooltip"?: WaLineChart['withoutTooltip'];
+  withoutLegend?: WaLineChart["withoutLegend"];
   
-  "plugins"?: WaLineChart['plugins'];
+  "without-tooltip"?: WaLineChart["withoutTooltip"];
   
-  "dir"?: WaLineChart['dir'];
+  withoutTooltip?: WaLineChart["withoutTooltip"];
   
-  "lang"?: WaLineChart['lang'];
+  plugins?: WaLineChart["plugins"];
   
-  "did-ssr"?: WaLineChart['didSSR'];
+  dir?: WaLineChart["dir"];
   
-  "didSSR"?: WaLineChart['didSSR'];
+  lang?: WaLineChart["lang"];
   
-  "config"?: WaLineChart['config'];
+  "did-ssr"?: WaLineChart["didSSR"];
   
-  "chart"?: WaLineChart['chart'];
+  didSSR?: WaLineChart["didSSR"];
   
-  "initialReflectedProperties"?: WaLineChart['initialReflectedProperties'];
+  config?: WaLineChart["config"];
   
-  "internals"?: WaLineChart['internals'];
-
-}
+  chart?: WaLineChart["chart"];
+  
+  initialReflectedProperties?: WaLineChart["initialReflectedProperties"];
+  
+  internals?: WaLineChart["internals"];
+};
 
 export type WaNumberInputProps = {
-  "title"?: WaNumberInput['title'];
+  title?: WaNumberInput["title"];
   
-  "value"?: WaNumberInput['defaultValue'];
+  value?: WaNumberInput["defaultValue"];
   
-  "defaultValue"?: WaNumberInput['defaultValue'];
+  defaultValue?: WaNumberInput["defaultValue"];
   
-  "size"?: WaNumberInput['size'];
+  size?: WaNumberInput["size"];
   
-  "appearance"?: WaNumberInput['appearance'];
+  appearance?: WaNumberInput["appearance"];
   
-  "pill"?: WaNumberInput['pill'];
+  pill?: WaNumberInput["pill"];
   
-  "label"?: WaNumberInput['label'];
+  label?: WaNumberInput["label"];
   
-  "hint"?: WaNumberInput['hint'];
+  hint?: WaNumberInput["hint"];
   
-  "placeholder"?: WaNumberInput['placeholder'];
+  placeholder?: WaNumberInput["placeholder"];
   
-  "readonly"?: WaNumberInput['readonly'];
+  readonly?: WaNumberInput["readonly"];
   
-  "required"?: WaNumberInput['required'];
+  required?: WaNumberInput["required"];
   
-  "min"?: WaNumberInput['min'];
+  min?: WaNumberInput["min"];
   
-  "max"?: WaNumberInput['max'];
+  max?: WaNumberInput["max"];
   
-  "step"?: WaNumberInput['step'];
+  step?: WaNumberInput["step"];
   
-  "without-steppers"?: WaNumberInput['withoutSteppers'];
+  "without-steppers"?: WaNumberInput["withoutSteppers"];
   
-  "withoutSteppers"?: WaNumberInput['withoutSteppers'];
+  withoutSteppers?: WaNumberInput["withoutSteppers"];
   
-  "autocomplete"?: WaNumberInput['autocomplete'];
+  autocomplete?: WaNumberInput["autocomplete"];
   
-  "autofocus"?: WaNumberInput['autofocus'];
+  autofocus?: WaNumberInput["autofocus"];
   
-  "enterkeyhint"?: WaNumberInput['enterkeyhint'];
+  enterkeyhint?: WaNumberInput["enterkeyhint"];
   
-  "inputmode"?: WaNumberInput['inputmode'];
+  inputmode?: WaNumberInput["inputmode"];
   
-  "with-label"?: WaNumberInput['withLabel'];
+  "with-label"?: WaNumberInput["withLabel"];
   
-  "withLabel"?: WaNumberInput['withLabel'];
+  withLabel?: WaNumberInput["withLabel"];
   
-  "with-hint"?: WaNumberInput['withHint'];
+  "with-hint"?: WaNumberInput["withHint"];
   
-  "withHint"?: WaNumberInput['withHint'];
+  withHint?: WaNumberInput["withHint"];
   
-  "name"?: WaNumberInput['name'];
+  name?: WaNumberInput["name"];
   
-  "disabled"?: WaNumberInput['disabled'];
+  disabled?: WaNumberInput["disabled"];
   
-  "custom-error"?: WaNumberInput['customError'];
+  "custom-error"?: WaNumberInput["customError"];
   
-  "customError"?: WaNumberInput['customError'];
+  customError?: WaNumberInput["customError"];
   
-  "dir"?: WaNumberInput['dir'];
+  dir?: WaNumberInput["dir"];
   
-  "lang"?: WaNumberInput['lang'];
+  lang?: WaNumberInput["lang"];
   
-  "did-ssr"?: WaNumberInput['didSSR'];
+  "did-ssr"?: WaNumberInput["didSSR"];
   
-  "didSSR"?: WaNumberInput['didSSR'];
+  didSSR?: WaNumberInput["didSSR"];
   
-  "assumeInteractionOn"?: WaNumberInput['assumeInteractionOn'];
+  assumeInteractionOn?: WaNumberInput["assumeInteractionOn"];
   
-  "input"?: WaNumberInput['input'];
+  input?: WaNumberInput["input"];
   
-  "valueHasChanged"?: WaNumberInput['valueHasChanged'];
+  valueHasChanged?: WaNumberInput["valueHasChanged"];
   
-  "hasInteracted"?: WaNumberInput['hasInteracted'];
+  hasInteracted?: WaNumberInput["hasInteracted"];
   
-  "states"?: WaNumberInput['states'];
+  states?: WaNumberInput["states"];
   
-  "emitInvalid"?: WaNumberInput['emitInvalid'];
+  emitInvalid?: WaNumberInput["emitInvalid"];
   
-  "form"?: WaNumberInput['form'];
+  form?: WaNumberInput["form"];
   
-  "initialReflectedProperties"?: WaNumberInput['initialReflectedProperties'];
+  initialReflectedProperties?: WaNumberInput["initialReflectedProperties"];
   
-  "internals"?: WaNumberInput['internals'];
+  internals?: WaNumberInput["internals"];
 
   
-  "oninput"?: (e: CustomEvent<InputEvent>) => void;
+  oninput?: (e: InputEvent) => void;
   
-  "onchange"?: (e: CustomEvent<Event>) => void;
+  onchange?: (e: Event) => void;
   
-  "onblur"?: (e: CustomEvent<never>) => void;
+  onblur?: (e: Event) => void;
   
-  "onfocus"?: (e: CustomEvent<never>) => void;
+  onfocus?: (e: Event) => void;
   
-  "onbeforeinput"?: (e: CustomEvent<never>) => void;
+  onbeforeinput?: (e: Event) => void;
   
-  "onwa-invalid"?: (e: CustomEvent<never>) => void;
-}
+  "onwa-invalid"?: (e: Event) => void;
+};
 
 export type WaPieChartProps = {
-  "type"?: WaPieChart['type'];
+  type?: WaPieChart["type"];
   
-  "label"?: WaPieChart['label'];
+  label?: WaPieChart["label"];
   
-  "description"?: WaPieChart['description'];
+  description?: WaPieChart["description"];
   
-  "xLabel"?: WaPieChart['xLabel'];
+  "x-label"?: WaPieChart["xLabel"];
   
-  "yLabel"?: WaPieChart['yLabel'];
+  xLabel?: WaPieChart["xLabel"];
   
-  "legend-position"?: WaPieChart['legendPosition'];
+  "y-label"?: WaPieChart["yLabel"];
   
-  "legendPosition"?: WaPieChart['legendPosition'];
+  yLabel?: WaPieChart["yLabel"];
   
-  "stacked"?: WaPieChart['stacked'];
+  "legend-position"?: WaPieChart["legendPosition"];
   
-  "index-axis"?: WaPieChart['indexAxis'];
+  legendPosition?: WaPieChart["legendPosition"];
   
-  "indexAxis"?: WaPieChart['indexAxis'];
+  stacked?: WaPieChart["stacked"];
   
-  "grid"?: WaPieChart['grid'];
+  "index-axis"?: WaPieChart["indexAxis"];
   
-  "min"?: WaPieChart['min'];
+  indexAxis?: WaPieChart["indexAxis"];
   
-  "max"?: WaPieChart['max'];
+  grid?: WaPieChart["grid"];
   
-  "without-animation"?: WaPieChart['withoutAnimation'];
+  min?: WaPieChart["min"];
   
-  "withoutAnimation"?: WaPieChart['withoutAnimation'];
+  max?: WaPieChart["max"];
   
-  "without-legend"?: WaPieChart['withoutLegend'];
+  "without-animation"?: WaPieChart["withoutAnimation"];
   
-  "withoutLegend"?: WaPieChart['withoutLegend'];
+  withoutAnimation?: WaPieChart["withoutAnimation"];
   
-  "without-tooltip"?: WaPieChart['withoutTooltip'];
+  "without-legend"?: WaPieChart["withoutLegend"];
   
-  "withoutTooltip"?: WaPieChart['withoutTooltip'];
+  withoutLegend?: WaPieChart["withoutLegend"];
   
-  "plugins"?: WaPieChart['plugins'];
+  "without-tooltip"?: WaPieChart["withoutTooltip"];
   
-  "dir"?: WaPieChart['dir'];
+  withoutTooltip?: WaPieChart["withoutTooltip"];
   
-  "lang"?: WaPieChart['lang'];
+  plugins?: WaPieChart["plugins"];
   
-  "did-ssr"?: WaPieChart['didSSR'];
+  dir?: WaPieChart["dir"];
   
-  "didSSR"?: WaPieChart['didSSR'];
+  lang?: WaPieChart["lang"];
   
-  "config"?: WaPieChart['config'];
+  "did-ssr"?: WaPieChart["didSSR"];
   
-  "chart"?: WaPieChart['chart'];
+  didSSR?: WaPieChart["didSSR"];
   
-  "initialReflectedProperties"?: WaPieChart['initialReflectedProperties'];
+  config?: WaPieChart["config"];
   
-  "internals"?: WaPieChart['internals'];
-
-}
+  chart?: WaPieChart["chart"];
+  
+  initialReflectedProperties?: WaPieChart["initialReflectedProperties"];
+  
+  internals?: WaPieChart["internals"];
+};
 
 export type WaPolarAreaChartProps = {
-  "type"?: WaPolarAreaChart['type'];
+  type?: WaPolarAreaChart["type"];
   
-  "label"?: WaPolarAreaChart['label'];
+  label?: WaPolarAreaChart["label"];
   
-  "description"?: WaPolarAreaChart['description'];
+  description?: WaPolarAreaChart["description"];
   
-  "xLabel"?: WaPolarAreaChart['xLabel'];
+  "x-label"?: WaPolarAreaChart["xLabel"];
   
-  "yLabel"?: WaPolarAreaChart['yLabel'];
+  xLabel?: WaPolarAreaChart["xLabel"];
   
-  "legend-position"?: WaPolarAreaChart['legendPosition'];
+  "y-label"?: WaPolarAreaChart["yLabel"];
   
-  "legendPosition"?: WaPolarAreaChart['legendPosition'];
+  yLabel?: WaPolarAreaChart["yLabel"];
   
-  "stacked"?: WaPolarAreaChart['stacked'];
+  "legend-position"?: WaPolarAreaChart["legendPosition"];
   
-  "index-axis"?: WaPolarAreaChart['indexAxis'];
+  legendPosition?: WaPolarAreaChart["legendPosition"];
   
-  "indexAxis"?: WaPolarAreaChart['indexAxis'];
+  stacked?: WaPolarAreaChart["stacked"];
   
-  "grid"?: WaPolarAreaChart['grid'];
+  "index-axis"?: WaPolarAreaChart["indexAxis"];
   
-  "min"?: WaPolarAreaChart['min'];
+  indexAxis?: WaPolarAreaChart["indexAxis"];
   
-  "max"?: WaPolarAreaChart['max'];
+  grid?: WaPolarAreaChart["grid"];
   
-  "without-animation"?: WaPolarAreaChart['withoutAnimation'];
+  min?: WaPolarAreaChart["min"];
   
-  "withoutAnimation"?: WaPolarAreaChart['withoutAnimation'];
+  max?: WaPolarAreaChart["max"];
   
-  "without-legend"?: WaPolarAreaChart['withoutLegend'];
+  "without-animation"?: WaPolarAreaChart["withoutAnimation"];
   
-  "withoutLegend"?: WaPolarAreaChart['withoutLegend'];
+  withoutAnimation?: WaPolarAreaChart["withoutAnimation"];
   
-  "without-tooltip"?: WaPolarAreaChart['withoutTooltip'];
+  "without-legend"?: WaPolarAreaChart["withoutLegend"];
   
-  "withoutTooltip"?: WaPolarAreaChart['withoutTooltip'];
+  withoutLegend?: WaPolarAreaChart["withoutLegend"];
   
-  "plugins"?: WaPolarAreaChart['plugins'];
+  "without-tooltip"?: WaPolarAreaChart["withoutTooltip"];
   
-  "dir"?: WaPolarAreaChart['dir'];
+  withoutTooltip?: WaPolarAreaChart["withoutTooltip"];
   
-  "lang"?: WaPolarAreaChart['lang'];
+  plugins?: WaPolarAreaChart["plugins"];
   
-  "did-ssr"?: WaPolarAreaChart['didSSR'];
+  dir?: WaPolarAreaChart["dir"];
   
-  "didSSR"?: WaPolarAreaChart['didSSR'];
+  lang?: WaPolarAreaChart["lang"];
   
-  "config"?: WaPolarAreaChart['config'];
+  "did-ssr"?: WaPolarAreaChart["didSSR"];
   
-  "chart"?: WaPolarAreaChart['chart'];
+  didSSR?: WaPolarAreaChart["didSSR"];
   
-  "initialReflectedProperties"?: WaPolarAreaChart['initialReflectedProperties'];
+  config?: WaPolarAreaChart["config"];
   
-  "internals"?: WaPolarAreaChart['internals'];
-
-}
+  chart?: WaPolarAreaChart["chart"];
+  
+  initialReflectedProperties?: WaPolarAreaChart["initialReflectedProperties"];
+  
+  internals?: WaPolarAreaChart["internals"];
+};
 
 export type WaRadarChartProps = {
-  "type"?: WaRadarChart['type'];
+  type?: WaRadarChart["type"];
   
-  "label"?: WaRadarChart['label'];
+  label?: WaRadarChart["label"];
   
-  "description"?: WaRadarChart['description'];
+  description?: WaRadarChart["description"];
   
-  "xLabel"?: WaRadarChart['xLabel'];
+  "x-label"?: WaRadarChart["xLabel"];
   
-  "yLabel"?: WaRadarChart['yLabel'];
+  xLabel?: WaRadarChart["xLabel"];
   
-  "legend-position"?: WaRadarChart['legendPosition'];
+  "y-label"?: WaRadarChart["yLabel"];
   
-  "legendPosition"?: WaRadarChart['legendPosition'];
+  yLabel?: WaRadarChart["yLabel"];
   
-  "stacked"?: WaRadarChart['stacked'];
+  "legend-position"?: WaRadarChart["legendPosition"];
   
-  "index-axis"?: WaRadarChart['indexAxis'];
+  legendPosition?: WaRadarChart["legendPosition"];
   
-  "indexAxis"?: WaRadarChart['indexAxis'];
+  stacked?: WaRadarChart["stacked"];
   
-  "grid"?: WaRadarChart['grid'];
+  "index-axis"?: WaRadarChart["indexAxis"];
   
-  "min"?: WaRadarChart['min'];
+  indexAxis?: WaRadarChart["indexAxis"];
   
-  "max"?: WaRadarChart['max'];
+  grid?: WaRadarChart["grid"];
   
-  "without-animation"?: WaRadarChart['withoutAnimation'];
+  min?: WaRadarChart["min"];
   
-  "withoutAnimation"?: WaRadarChart['withoutAnimation'];
+  max?: WaRadarChart["max"];
   
-  "without-legend"?: WaRadarChart['withoutLegend'];
+  "without-animation"?: WaRadarChart["withoutAnimation"];
   
-  "withoutLegend"?: WaRadarChart['withoutLegend'];
+  withoutAnimation?: WaRadarChart["withoutAnimation"];
   
-  "without-tooltip"?: WaRadarChart['withoutTooltip'];
+  "without-legend"?: WaRadarChart["withoutLegend"];
   
-  "withoutTooltip"?: WaRadarChart['withoutTooltip'];
+  withoutLegend?: WaRadarChart["withoutLegend"];
   
-  "plugins"?: WaRadarChart['plugins'];
+  "without-tooltip"?: WaRadarChart["withoutTooltip"];
   
-  "dir"?: WaRadarChart['dir'];
+  withoutTooltip?: WaRadarChart["withoutTooltip"];
   
-  "lang"?: WaRadarChart['lang'];
+  plugins?: WaRadarChart["plugins"];
   
-  "did-ssr"?: WaRadarChart['didSSR'];
+  dir?: WaRadarChart["dir"];
   
-  "didSSR"?: WaRadarChart['didSSR'];
+  lang?: WaRadarChart["lang"];
   
-  "config"?: WaRadarChart['config'];
+  "did-ssr"?: WaRadarChart["didSSR"];
   
-  "chart"?: WaRadarChart['chart'];
+  didSSR?: WaRadarChart["didSSR"];
   
-  "initialReflectedProperties"?: WaRadarChart['initialReflectedProperties'];
+  config?: WaRadarChart["config"];
   
-  "internals"?: WaRadarChart['internals'];
-
-}
+  chart?: WaRadarChart["chart"];
+  
+  initialReflectedProperties?: WaRadarChart["initialReflectedProperties"];
+  
+  internals?: WaRadarChart["internals"];
+};
 
 export type WaScatterChartProps = {
-  "type"?: WaScatterChart['type'];
+  type?: WaScatterChart["type"];
   
-  "label"?: WaScatterChart['label'];
+  label?: WaScatterChart["label"];
   
-  "description"?: WaScatterChart['description'];
+  description?: WaScatterChart["description"];
   
-  "xLabel"?: WaScatterChart['xLabel'];
+  "x-label"?: WaScatterChart["xLabel"];
   
-  "yLabel"?: WaScatterChart['yLabel'];
+  xLabel?: WaScatterChart["xLabel"];
   
-  "legend-position"?: WaScatterChart['legendPosition'];
+  "y-label"?: WaScatterChart["yLabel"];
   
-  "legendPosition"?: WaScatterChart['legendPosition'];
+  yLabel?: WaScatterChart["yLabel"];
   
-  "stacked"?: WaScatterChart['stacked'];
+  "legend-position"?: WaScatterChart["legendPosition"];
   
-  "index-axis"?: WaScatterChart['indexAxis'];
+  legendPosition?: WaScatterChart["legendPosition"];
   
-  "indexAxis"?: WaScatterChart['indexAxis'];
+  stacked?: WaScatterChart["stacked"];
   
-  "grid"?: WaScatterChart['grid'];
+  "index-axis"?: WaScatterChart["indexAxis"];
   
-  "min"?: WaScatterChart['min'];
+  indexAxis?: WaScatterChart["indexAxis"];
   
-  "max"?: WaScatterChart['max'];
+  grid?: WaScatterChart["grid"];
   
-  "without-animation"?: WaScatterChart['withoutAnimation'];
+  min?: WaScatterChart["min"];
   
-  "withoutAnimation"?: WaScatterChart['withoutAnimation'];
+  max?: WaScatterChart["max"];
   
-  "without-legend"?: WaScatterChart['withoutLegend'];
+  "without-animation"?: WaScatterChart["withoutAnimation"];
   
-  "withoutLegend"?: WaScatterChart['withoutLegend'];
+  withoutAnimation?: WaScatterChart["withoutAnimation"];
   
-  "without-tooltip"?: WaScatterChart['withoutTooltip'];
+  "without-legend"?: WaScatterChart["withoutLegend"];
   
-  "withoutTooltip"?: WaScatterChart['withoutTooltip'];
+  withoutLegend?: WaScatterChart["withoutLegend"];
   
-  "plugins"?: WaScatterChart['plugins'];
+  "without-tooltip"?: WaScatterChart["withoutTooltip"];
   
-  "dir"?: WaScatterChart['dir'];
+  withoutTooltip?: WaScatterChart["withoutTooltip"];
   
-  "lang"?: WaScatterChart['lang'];
+  plugins?: WaScatterChart["plugins"];
   
-  "did-ssr"?: WaScatterChart['didSSR'];
+  dir?: WaScatterChart["dir"];
   
-  "didSSR"?: WaScatterChart['didSSR'];
+  lang?: WaScatterChart["lang"];
   
-  "config"?: WaScatterChart['config'];
+  "did-ssr"?: WaScatterChart["didSSR"];
   
-  "chart"?: WaScatterChart['chart'];
+  didSSR?: WaScatterChart["didSSR"];
   
-  "initialReflectedProperties"?: WaScatterChart['initialReflectedProperties'];
+  config?: WaScatterChart["config"];
   
-  "internals"?: WaScatterChart['internals'];
-
-}
+  chart?: WaScatterChart["chart"];
+  
+  initialReflectedProperties?: WaScatterChart["initialReflectedProperties"];
+  
+  internals?: WaScatterChart["internals"];
+};
 
 export type WaSparklineProps = {
-  "label"?: WaSparkline['label'];
+  label?: WaSparkline["label"];
   
-  "data"?: WaSparkline['data'];
+  data?: WaSparkline["data"];
   
-  "appearance"?: WaSparkline['appearance'];
+  appearance?: WaSparkline["appearance"];
   
-  "trend"?: WaSparkline['trend'];
+  trend?: WaSparkline["trend"];
   
-  "curve"?: WaSparkline['curve'];
+  curve?: WaSparkline["curve"];
   
-  "dir"?: WaSparkline['dir'];
+  dir?: WaSparkline["dir"];
   
-  "lang"?: WaSparkline['lang'];
+  lang?: WaSparkline["lang"];
   
-  "did-ssr"?: WaSparkline['didSSR'];
+  "did-ssr"?: WaSparkline["didSSR"];
   
-  "didSSR"?: WaSparkline['didSSR'];
+  didSSR?: WaSparkline["didSSR"];
   
-  "initialReflectedProperties"?: WaSparkline['initialReflectedProperties'];
+  initialReflectedProperties?: WaSparkline["initialReflectedProperties"];
   
-  "internals"?: WaSparkline['internals'];
-
-}
+  internals?: WaSparkline["internals"];
+};
 
 export type WaToastItemProps = {
-  "variant"?: WaToastItem['variant'];
+  variant?: WaToastItem["variant"];
   
-  "size"?: WaToastItem['size'];
+  size?: WaToastItem["size"];
   
-  "duration"?: WaToastItem['duration'];
+  duration?: WaToastItem["duration"];
   
-  "with-icon"?: WaToastItem['withIcon'];
+  "with-icon"?: WaToastItem["withIcon"];
   
-  "withIcon"?: WaToastItem['withIcon'];
+  withIcon?: WaToastItem["withIcon"];
   
-  "dir"?: WaToastItem['dir'];
+  dir?: WaToastItem["dir"];
   
-  "lang"?: WaToastItem['lang'];
+  lang?: WaToastItem["lang"];
   
-  "did-ssr"?: WaToastItem['didSSR'];
+  "did-ssr"?: WaToastItem["didSSR"];
   
-  "didSSR"?: WaToastItem['didSSR'];
+  didSSR?: WaToastItem["didSSR"];
   
-  "toastItemElement"?: WaToastItem['toastItemElement'];
+  toastItemElement?: WaToastItem["toastItemElement"];
   
-  "initialReflectedProperties"?: WaToastItem['initialReflectedProperties'];
+  initialReflectedProperties?: WaToastItem["initialReflectedProperties"];
   
-  "internals"?: WaToastItem['internals'];
+  internals?: WaToastItem["internals"];
 
   
-  "onwa-show"?: (e: CustomEvent<never>) => void;
+  "onwa-show"?: (e: Event) => void;
   
-  "onwa-after-show"?: (e: CustomEvent<never>) => void;
+  "onwa-after-show"?: (e: Event) => void;
   
-  "onwa-hide"?: (e: CustomEvent<never>) => void;
+  "onwa-hide"?: (e: Event) => void;
   
-  "onwa-after-hide"?: (e: CustomEvent<never>) => void;
-}
+  "onwa-after-hide"?: (e: Event) => void;
+};
 
 export type WaToastProps = {
-  "placement"?: WaToast['placement'];
+  placement?: WaToast["placement"];
   
-  "dir"?: WaToast['dir'];
+  dir?: WaToast["dir"];
   
-  "lang"?: WaToast['lang'];
+  lang?: WaToast["lang"];
   
-  "did-ssr"?: WaToast['didSSR'];
+  "did-ssr"?: WaToast["didSSR"];
   
-  "didSSR"?: WaToast['didSSR'];
+  didSSR?: WaToast["didSSR"];
   
-  "stack"?: WaToast['stack'];
+  stack?: WaToast["stack"];
   
-  "initialReflectedProperties"?: WaToast['initialReflectedProperties'];
+  initialReflectedProperties?: WaToast["initialReflectedProperties"];
   
-  "internals"?: WaToast['internals'];
-
-}
+  internals?: WaToast["internals"];
+};
 
 export type WaVideoPlaylistProps = {
-  "controls"?: WaVideoPlaylist['controls'];
+  controls?: WaVideoPlaylist["controls"];
   
-  "icon-library"?: WaVideoPlaylist['iconLibrary'];
+  "icon-library"?: WaVideoPlaylist["iconLibrary"];
   
-  "iconLibrary"?: WaVideoPlaylist['iconLibrary'];
+  iconLibrary?: WaVideoPlaylist["iconLibrary"];
   
-  "dir"?: WaVideoPlaylist['dir'];
+  dir?: WaVideoPlaylist["dir"];
   
-  "lang"?: WaVideoPlaylist['lang'];
+  lang?: WaVideoPlaylist["lang"];
   
-  "did-ssr"?: WaVideoPlaylist['didSSR'];
+  "did-ssr"?: WaVideoPlaylist["didSSR"];
   
-  "didSSR"?: WaVideoPlaylist['didSSR'];
+  didSSR?: WaVideoPlaylist["didSSR"];
   
-  "initialReflectedProperties"?: WaVideoPlaylist['initialReflectedProperties'];
+  initialReflectedProperties?: WaVideoPlaylist["initialReflectedProperties"];
   
-  "internals"?: WaVideoPlaylist['internals'];
+  internals?: WaVideoPlaylist["internals"];
 
   
-  "onwa-video-change"?: (e: CustomEvent<never>) => void;
-}
+  "onwa-video-change"?: (e: Event) => void;
+};
 
 export type WaVideoProps = {
-  "controls"?: WaVideo['controls'];
+  controls?: WaVideo["controls"];
   
-  "thumbnails"?: WaVideo['thumbnails'];
+  thumbnails?: WaVideo["thumbnails"];
   
-  "src"?: WaVideo['src'];
+  src?: WaVideo["src"];
   
-  "poster"?: WaVideo['poster'];
+  poster?: WaVideo["poster"];
   
-  "title"?: WaVideo['title'];
+  title?: WaVideo["title"];
   
-  "playing"?: WaVideo['playing'];
+  playing?: WaVideo["playing"];
   
-  "muted"?: WaVideo['muted'];
+  muted?: WaVideo["muted"];
   
-  "volume"?: WaVideo['volume'];
+  volume?: WaVideo["volume"];
   
-  "duration"?: WaVideo['duration'];
+  duration?: WaVideo["duration"];
   
-  "currentTime"?: WaVideo['currentTime'];
+  currentTime?: WaVideo["currentTime"];
   
-  "autoplay"?: WaVideo['autoplay'];
+  autoplay?: WaVideo["autoplay"];
   
-  "loop"?: WaVideo['loop'];
+  loop?: WaVideo["loop"];
   
-  "autoplay-muted"?: WaVideo['autoplayMuted'];
+  "autoplay-muted"?: WaVideo["autoplayMuted"];
   
-  "autoplayMuted"?: WaVideo['autoplayMuted'];
+  autoplayMuted?: WaVideo["autoplayMuted"];
   
-  "autoplay-on-visible"?: WaVideo['autoplayOnVisible'];
+  "autoplay-on-visible"?: WaVideo["autoplayOnVisible"];
   
-  "autoplayOnVisible"?: WaVideo['autoplayOnVisible'];
+  autoplayOnVisible?: WaVideo["autoplayOnVisible"];
   
-  "preload"?: WaVideo['preload'];
+  preload?: WaVideo["preload"];
   
-  "icon-library"?: WaVideo['iconLibrary'];
+  "icon-library"?: WaVideo["iconLibrary"];
   
-  "iconLibrary"?: WaVideo['iconLibrary'];
+  iconLibrary?: WaVideo["iconLibrary"];
   
-  "dir"?: WaVideo['dir'];
+  dir?: WaVideo["dir"];
   
-  "lang"?: WaVideo['lang'];
+  lang?: WaVideo["lang"];
   
-  "did-ssr"?: WaVideo['didSSR'];
+  "did-ssr"?: WaVideo["didSSR"];
   
-  "didSSR"?: WaVideo['didSSR'];
+  didSSR?: WaVideo["didSSR"];
   
-  "initialReflectedProperties"?: WaVideo['initialReflectedProperties'];
+  initialReflectedProperties?: WaVideo["initialReflectedProperties"];
   
-  "internals"?: WaVideo['internals'];
+  internals?: WaVideo["internals"];
 
   
-  "ontimeupdate"?: (e: CustomEvent<Event>) => void;
+  ontimeupdate?: (e: Event) => void;
   
-  "onplay"?: (e: CustomEvent<never>) => void;
+  onplay?: (e: Event) => void;
   
-  "onpause"?: (e: CustomEvent<never>) => void;
+  onpause?: (e: Event) => void;
   
-  "onvolumechange"?: (e: CustomEvent<never>) => void;
+  onvolumechange?: (e: Event) => void;
   
-  "onerror"?: (e: CustomEvent<never>) => void;
+  onerror?: (e: Event) => void;
   
-  "onended"?: (e: CustomEvent<never>) => void;
+  onended?: (e: Event) => void;
   
-  "onloadedmetadata"?: (e: CustomEvent<never>) => void;
-}
+  onloadedmetadata?: (e: Event) => void;
+};
 
 type BaseProps<T extends HTMLElement> = {
   children?: any;
@@ -1319,34 +1359,62 @@ type BaseEvents = Record<string, ((e: any) => void) | undefined>;
 
 interface WaProIntrinsicElements {
   'wa-bar-chart': Partial<WaBarChartProps & BaseProps<WaBarChart> & BaseEvents>;
-  'wa-bubble-chart': Partial<WaBubbleChartProps & BaseProps<WaBubbleChart> & BaseEvents>;
+  'wa-bubble-chart': Partial<
+    WaBubbleChartProps & BaseProps<WaBubbleChart> & BaseEvents
+  >;
   'wa-chart': Partial<WaChartProps & BaseProps<WaChart> & BaseEvents>;
   'wa-combobox': Partial<WaComboboxProps & BaseProps<WaCombobox> & BaseEvents>;
-  'wa-date-input': Partial<WaDateInputProps & BaseProps<WaDateInput> & BaseEvents>;
-  'wa-date-picker': Partial<WaDatePickerProps & BaseProps<WaDatePicker> & BaseEvents>;
-  'wa-doughnut-chart': Partial<WaDoughnutChartProps & BaseProps<WaDoughnutChart> & BaseEvents>;
-  'wa-file-input': Partial<WaFileInputProps & BaseProps<WaFileInput> & BaseEvents>;
-  'wa-line-chart': Partial<WaLineChartProps & BaseProps<WaLineChart> & BaseEvents>;
-  'wa-number-input': Partial<WaNumberInputProps & BaseProps<WaNumberInput> & BaseEvents>;
+  'wa-date-input': Partial<
+    WaDateInputProps & BaseProps<WaDateInput> & BaseEvents
+  >;
+  'wa-date-picker': Partial<
+    WaDatePickerProps & BaseProps<WaDatePicker> & BaseEvents
+  >;
+  'wa-doughnut-chart': Partial<
+    WaDoughnutChartProps & BaseProps<WaDoughnutChart> & BaseEvents
+  >;
+  'wa-file-input': Partial<
+    WaFileInputProps & BaseProps<WaFileInput> & BaseEvents
+  >;
+  'wa-line-chart': Partial<
+    WaLineChartProps & BaseProps<WaLineChart> & BaseEvents
+  >;
+  'wa-number-input': Partial<
+    WaNumberInputProps & BaseProps<WaNumberInput> & BaseEvents
+  >;
   'wa-pie-chart': Partial<WaPieChartProps & BaseProps<WaPieChart> & BaseEvents>;
-  'wa-polar-area-chart': Partial<WaPolarAreaChartProps & BaseProps<WaPolarAreaChart> & BaseEvents>;
-  'wa-radar-chart': Partial<WaRadarChartProps & BaseProps<WaRadarChart> & BaseEvents>;
-  'wa-scatter-chart': Partial<WaScatterChartProps & BaseProps<WaScatterChart> & BaseEvents>;
-  'wa-sparkline': Partial<WaSparklineProps & BaseProps<WaSparkline> & BaseEvents>;
+  'wa-polar-area-chart': Partial<
+    WaPolarAreaChartProps & BaseProps<WaPolarAreaChart> & BaseEvents
+  >;
+  'wa-radar-chart': Partial<
+    WaRadarChartProps & BaseProps<WaRadarChart> & BaseEvents
+  >;
+  'wa-scatter-chart': Partial<
+    WaScatterChartProps & BaseProps<WaScatterChart> & BaseEvents
+  >;
+  'wa-sparkline': Partial<
+    WaSparklineProps & BaseProps<WaSparkline> & BaseEvents
+  >;
   'wa-toast': Partial<WaToastProps & BaseProps<WaToast> & BaseEvents>;
-  'wa-toast-item': Partial<WaToastItemProps & BaseProps<WaToastItem> & BaseEvents>;
+  'wa-toast-item': Partial<
+    WaToastItemProps & BaseProps<WaToastItem> & BaseEvents
+  >;
   'wa-video': Partial<WaVideoProps & BaseProps<WaVideo> & BaseEvents>;
-  'wa-video-playlist': Partial<WaVideoPlaylistProps & BaseProps<WaVideoPlaylist> & BaseEvents>;
+  'wa-video-playlist': Partial<
+    WaVideoPlaylistProps & BaseProps<WaVideoPlaylist> & BaseEvents
+  >;
 }
 
 declare module 'react' {
   namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface IntrinsicElements extends WaProIntrinsicElements {}
   }
 }
 
 declare global {
   namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface IntrinsicElements extends WaProIntrinsicElements {}
   }
 }

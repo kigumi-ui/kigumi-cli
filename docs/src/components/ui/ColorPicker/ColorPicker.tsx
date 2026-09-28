@@ -29,7 +29,7 @@ import type { WaShowEvent } from '@awesome.me/webawesome-pro/dist/events/show.js
  *
  * // With ref methods
  * const ref = useRef<ColorPickerRef>(null);
- * <button onClick={() => ref.current?.getHexString()}>Call Method</button>
+ * <button onClick={() => ref.current?.focus()}>Call Method</button>
  * <ColorPicker ref={ref} />
  * ```
  */
@@ -140,7 +140,7 @@ export interface ColorPickerRef {
   ) => void;
 
   /** Sets focus on the color picker. */
-  focus: (options: FocusOptions) => void;
+  focus: (options?: FocusOptions) => void;
 
   /** Removes focus from the color picker. */
   blur: () => void;
@@ -195,7 +195,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
           brightness: number,
           alpha: number
         ) => void;
-        focus?: (options: FocusOptions) => void;
+        focus?: (options?: FocusOptions) => void;
         blur?: () => void;
         getFormattedValue?: (
           format:
@@ -235,7 +235,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
             );
           }
         },
-        focus: (options: FocusOptions) => {
+        focus: (options?: FocusOptions) => {
           if (
             colorpickerRef.current &&
             typeof colorpickerRef.current.focus === 'function'

@@ -42,6 +42,7 @@ export const EVENTLESS_COMPONENTS: readonly string[] = [
   'skeleton',
   'sparkline',
   'spinner',
+  'step',
   'tab',
   'tab-panel',
   'toast',
