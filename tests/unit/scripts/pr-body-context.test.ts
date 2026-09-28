@@ -13,15 +13,21 @@ import {
   branchCommits,
   changesetBump,
   knownPaths,
+  prMergeBase,
   rangeResolver,
 } from '../../../scripts/pr-body-context.js';
-import { isolatedGitEnv } from '../_helpers/git-env.js';
+import { isolatedGitEnv, stripGitEnv } from '../_helpers/git-env.js';
 
 let repo: string;
+let restoreGitEnv: () => void;
 
-function git(args: string[], env: Record<string, string> = {}): string {
+function git(
+  args: string[],
+  env: Record<string, string> = {},
+  cwd = repo
+): string {
   return execFileSync('git', args, {
-    cwd: repo,
+    cwd,
     encoding: 'utf8',
     env: isolatedGitEnv(env),
   }).trim();
@@ -47,6 +53,8 @@ function changeset(bump: string): string {
 }
 
 beforeEach(() => {
+  // The functions under test spawn git with process.env, not through git().
+  restoreGitEnv = stripGitEnv();
   repo = mkdtempSync(join(tmpdir(), 'pr-body-context-'));
   git(['init', '-q', '-b', 'main']);
   git(['config', 'user.name', 'Test']);
@@ -56,6 +64,7 @@ beforeEach(() => {
 
 afterEach(() => {
   rmSync(repo, { recursive: true, force: true });
+  restoreGitEnv();
 });
 
 describe('changesetBump', () => {
@@ -172,6 +181,36 @@ describe('branchCommits', () => {
       { sha: c, committedAt: 2_000 },
       { sha: b, committedAt: 1_000 },
     ]);
+  });
+});
+
+describe('prMergeBase', () => {
+  it('fetches the PR and its base from origin and returns their merge base', () => {
+    // `repo` plays GitHub: main moved on after the PR's branch point, and the
+    // PR's head is reachable only through refs/pull/7/head.
+    const forkPoint = commit('base');
+    git(['switch', '-q', '-c', 'feature']);
+    const prHead = commit('pr work');
+    git(['switch', '-q', 'main']);
+    const mainTip = commit('main moves on');
+    git(['update-ref', 'refs/pull/7/head', prHead]);
+    git(['branch', '-q', '-D', 'feature']);
+    const clone = mkdtempSync(join(tmpdir(), 'pr-body-context-clone-'));
+    try {
+      // --no-local: a path clone would hardlink every object, the PR's too.
+      git(['clone', '-q', '--no-local', repo, clone]);
+      // Premise: the clone lacks the PR's head, and main's tip is not the
+      // merge base, so neither "no fetch" nor "the base tip" can pass.
+      expect(() => git(['cat-file', '-e', prHead], {}, clone)).toThrow();
+      expect(mainTip).not.toBe(forkPoint);
+
+      expect(
+        prMergeBase(clone, { number: 7, baseRef: 'main', headSha: prHead })
+      ).toBe(forkPoint);
+      expect(git(['for-each-ref', 'refs/pr-log'], {}, clone)).toBe('');
+    } finally {
+      rmSync(clone, { recursive: true, force: true });
+    }
   });
 });
 

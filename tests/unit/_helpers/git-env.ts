@@ -18,3 +18,20 @@ export function isolatedGitEnv(
   }
   return { ...env, ...extra };
 }
+
+/**
+ * Removes every `GIT_*` variable from `process.env` and returns a function
+ * that puts them back. For code under test that spawns git with the
+ * inherited environment, which `isolatedGitEnv()` cannot reach: inside the
+ * pre-commit hook, its `git fetch` or `update-ref` would otherwise follow
+ * the hook's variables to the real repository.
+ */
+export function stripGitEnv(): () => void {
+  const saved = Object.entries(process.env).filter(([key]) =>
+    key.startsWith('GIT_')
+  );
+  for (const [key] of saved) delete process.env[key];
+  return () => {
+    for (const [key, value] of saved) process.env[key] = value;
+  };
+}

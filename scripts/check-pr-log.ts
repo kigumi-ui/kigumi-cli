@@ -23,11 +23,14 @@
  *   tsx scripts/check-pr-log.ts --pr 150 --post-status    CI: set the status, exit 0
  */
 
-import { execFileSync } from 'child_process';
 import pc from 'picocolors';
 
 import { isEntryPoint } from './is-entry-point.js';
-import { branchCommits, rangeResolver } from './pr-body-context.js';
+import {
+  branchCommits,
+  prMergeBase,
+  rangeResolver,
+} from './pr-body-context.js';
 import {
   isExempt,
   logCoverage,
@@ -46,13 +49,6 @@ const CONTEXT = 'pr-log';
 
 /** Comment authors whose log headers count: people with write access. */
 const TRUSTED = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-
-function git(args: string[]): string {
-  return execFileSync('git', args, {
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
-  }).trim();
-}
 
 function flag(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -83,25 +79,7 @@ function check(pr: PullRequestInfo): {
     return { status, coverage: NOTHING };
   }
 
-  // The PR's commits are not part of a main checkout (issue_comment runs).
-  // The refs only pin them for this run; a local run removes them again.
-  const headRef = `refs/pr-log/${prNumber}/head`;
-  const baseRef = `refs/pr-log/${prNumber}/base`;
-  git([
-    'fetch',
-    '--no-tags',
-    '--quiet',
-    'origin',
-    `+refs/pull/${prNumber}/head:${headRef}`,
-    `+refs/heads/${pr.baseRef}:${baseRef}`,
-  ]);
-  let base: string;
-  try {
-    base = git(['merge-base', baseRef, pr.headSha]);
-  } finally {
-    git(['update-ref', '-d', headRef]);
-    git(['update-ref', '-d', baseRef]);
-  }
+  const base = prMergeBase(process.cwd(), pr);
   const commits = branchCommits(process.cwd(), base, pr.headSha);
   const required = commits
     .filter((c) => c.committedAt > pr.createdAt)

@@ -78,6 +78,35 @@ export function knownPaths(
   ]);
 }
 
+/**
+ * The merge base of a PR's head and its base branch, as they are on
+ * `origin`. A main checkout (the comment-triggered pr-log run) has neither
+ * the PR's commits nor necessarily the base branch's tip, so both are
+ * fetched under `refs/pr-log/<n>/`, which only pins them for this read and
+ * is removed again, even when the fetch fails halfway.
+ */
+export function prMergeBase(
+  cwd: string,
+  pr: { number: number; baseRef: string; headSha: string }
+): string {
+  const headRef = `refs/pr-log/${pr.number}/head`;
+  const baseRef = `refs/pr-log/${pr.number}/base`;
+  try {
+    git(cwd, [
+      'fetch',
+      '--no-tags',
+      '--quiet',
+      'origin',
+      `+refs/pull/${pr.number}/head:${headRef}`,
+      `+refs/heads/${pr.baseRef}:${baseRef}`,
+    ]);
+    return git(cwd, ['merge-base', baseRef, pr.headSha]).trim();
+  } finally {
+    git(cwd, ['update-ref', '-d', headRef]);
+    git(cwd, ['update-ref', '-d', baseRef]);
+  }
+}
+
 export interface BranchCommit {
   sha: string;
   /** Committer time, seconds since the epoch. A rebase or amend renews it. */
