@@ -154,6 +154,57 @@ function isEresolveError(error: unknown): boolean {
 }
 
 /**
+ * Write the exact version over an existing entry for `pkg` in package.json.
+ *
+ * `pnpm add <pkg>@<version> --save-exact` keeps the range prefix of an entry
+ * that is already there, so `^3.6.0` becomes `^3.13.0` and Web Awesome floats
+ * again. npm and yarn write the exact version. Handing pnpm an exact entry
+ * leaves it no prefix to keep.
+ *
+ * Returns the original file text when it changed anything, so a failed install
+ * can put it back, and null when there was nothing to change.
+ */
+async function pinExistingDependency(
+  cwd: string,
+  pkg: string,
+  version: string
+): Promise<string | null> {
+  const manifestPath = path.join(cwd, 'package.json');
+  if (!(await fs.pathExists(manifestPath))) return null;
+
+  const original = await fs.readFile(manifestPath, 'utf-8');
+  const manifest = JSON.parse(original) as Record<string, unknown>;
+  let changed = false;
+  for (const field of ['dependencies', 'devDependencies']) {
+    const deps = manifest[field] as Record<string, string> | undefined;
+    if (deps?.[pkg] !== undefined && deps[pkg] !== version) {
+      deps[pkg] = version;
+      changed = true;
+    }
+  }
+  if (!changed) return null;
+
+  const indent = /^([ \t]+)"/m.exec(original)?.[1] ?? 2;
+  await fs.writeFile(
+    manifestPath,
+    JSON.stringify(manifest, null, indent) + '\n'
+  );
+  return original;
+}
+
+/**
+ * Put back the package.json text `pinExistingDependency` replaced, when the
+ * install it was written for failed. The lockfile still records the old range.
+ */
+async function restoreManifest(
+  cwd: string,
+  original: string | null
+): Promise<void> {
+  if (original === null) return;
+  await fs.writeFile(path.join(cwd, 'package.json'), original);
+}
+
+/**
  * Install project dependencies
  *
  * @param options - Installation options
@@ -218,6 +269,10 @@ export async function installDependencies(
     const exactFlag = packageManager === 'yarn' ? '--exact' : '--save-exact';
     const args = [installCmd, ...dependencies, exactFlag];
 
+    const originalManifest = waVersion
+      ? await pinExistingDependency(cwd, waPackage, waVersion)
+      : null;
+
     try {
       await execa(packageManager, args, {
         cwd,
@@ -231,12 +286,18 @@ export async function installDependencies(
         output.warn(
           'Peer dependency conflict detected, retrying with --legacy-peer-deps'
         );
-        await execa(packageManager, [...args, '--legacy-peer-deps'], {
-          cwd,
-          stdio: 'pipe',
-          env,
-        });
+        try {
+          await execa(packageManager, [...args, '--legacy-peer-deps'], {
+            cwd,
+            stdio: 'pipe',
+            env,
+          });
+        } catch (retryError) {
+          await restoreManifest(cwd, originalManifest);
+          throw retryError;
+        }
       } else {
+        await restoreManifest(cwd, originalManifest);
         throw firstError;
       }
     }

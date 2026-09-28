@@ -716,6 +716,137 @@ describe('updateCommand', () => {
     expect(await fs.pathExists(snapshotDir)).toBe(false);
   });
 
+  describe('installedComponents provenance', () => {
+    // `kigumi diff` prints installedComponents[name].kigumiVersion as the
+    // installed version. Before this, update rewrote a component to the
+    // current Templates and left that at the version it was first added with,
+    // so a component matching 1.1.0 read "installed: 0.17.1" (issue #138).
+    const OLD = {
+      source: 'builtin',
+      installedAt: '2026-03-24T14:12:47.767Z',
+      kigumiVersion: '0.17.1',
+    };
+
+    async function readProvenance(): Promise<
+      Record<string, Record<string, string>> | undefined
+    > {
+      return (await fs.readJSON(path.join(testDir, 'kigumi.config.json')))
+        .installedComponents;
+    }
+
+    async function installOutdatedButton(): Promise<void> {
+      await installComponent('Button', {
+        'Button.tsx': '// old generated component',
+        'Button.css': '/* old generated css */',
+      });
+      await createSnapshot('Button', {
+        'Button.tsx': '// old generated component',
+        'Button.css': '/* old generated css */',
+      });
+    }
+
+    it('records the CLI version for a component it brought up to date', async () => {
+      const { CLI_VERSION } = await import('../../src/constants.js');
+      await createConfig({ installedComponents: { Button: OLD } });
+      await installOutdatedButton();
+
+      const { updateCommand } = await import('../../src/commands/update.js');
+      await updateCommand(['Button'], { cwd: testDir });
+
+      // Premise: the old version differs, so an unchanged entry cannot pass.
+      expect(CLI_VERSION).not.toBe(OLD.kigumiVersion);
+      expect((await readProvenance())?.Button).toEqual({
+        ...OLD,
+        kigumiVersion: CLI_VERSION,
+      });
+    });
+
+    it('records the CLI version when the files already match the Templates', async () => {
+      const { CLI_VERSION } = await import('../../src/constants.js');
+      await createConfig({ installedComponents: { Button: OLD } });
+      await installComponent('Button', {
+        'Button.tsx': '// generated component',
+        'Button.css': '/* generated css */',
+      });
+
+      const { updateCommand } = await import('../../src/commands/update.js');
+      await updateCommand(['Button'], { cwd: testDir });
+
+      expect((await readProvenance())?.Button?.kigumiVersion).toBe(CLI_VERSION);
+    });
+
+    it('adds a builtin entry for a component that had none', async () => {
+      const { CLI_VERSION } = await import('../../src/constants.js');
+      await createConfig();
+      await installOutdatedButton();
+
+      const { updateCommand } = await import('../../src/commands/update.js');
+      await updateCommand(['Button'], { cwd: testDir });
+
+      expect((await readProvenance())?.Button).toMatchObject({
+        source: 'builtin',
+        kigumiVersion: CLI_VERSION,
+      });
+    });
+
+    it('leaves the version alone when a file is left with conflicts', async () => {
+      await createConfig({ installedComponents: { Button: OLD } });
+      await installComponent('Button', {
+        'Button.tsx': 'line1\nuser change\nline3',
+        'Button.css': '/* generated css */',
+      });
+      await createSnapshot('Button', {
+        'Button.tsx': 'line1\nshared line\nline3',
+        'Button.css': '/* generated css */',
+      });
+      generateComponentSpy.mockResolvedValue('line1\ntemplate change\nline3');
+
+      const { updateCommand } = await import('../../src/commands/update.js');
+      await updateCommand(['Button'], { cwd: testDir });
+
+      expect((await readProvenance())?.Button).toEqual(OLD);
+    });
+
+    it('leaves the version alone when files differ and there is no snapshot', async () => {
+      await createConfig({ installedComponents: { Button: OLD } });
+      await installComponent('Button', {
+        'Button.tsx': '// user customized',
+        'Button.css': '/* custom css */',
+      });
+
+      const { updateCommand } = await import('../../src/commands/update.js');
+      await updateCommand(['Button'], { cwd: testDir, yes: true });
+
+      expect((await readProvenance())?.Button).toEqual(OLD);
+    });
+
+    it('writes nothing in dry-run mode', async () => {
+      await createConfig({ installedComponents: { Button: OLD } });
+      await installOutdatedButton();
+
+      const { updateCommand } = await import('../../src/commands/update.js');
+      await updateCommand(['Button'], { cwd: testDir, dryRun: true });
+
+      expect((await readProvenance())?.Button).toEqual(OLD);
+    });
+
+    it('keeps entries of components it did not process', async () => {
+      const community = {
+        source: 'community',
+        registryUrl: 'https://github.com/example/registry',
+      };
+      await createConfig({
+        installedComponents: { Button: OLD, Fancy: community },
+      });
+      await installOutdatedButton();
+
+      const { updateCommand } = await import('../../src/commands/update.js');
+      await updateCommand(['Button'], { cwd: testDir });
+
+      expect((await readProvenance())?.Fancy).toEqual(community);
+    });
+  });
+
   describe('resolveComponents (multi-word regression)', () => {
     // Regression guard: previously the scan branch used name.toLowerCase()
     // to build registry keys, so ButtonGroup → buttongroup missed the

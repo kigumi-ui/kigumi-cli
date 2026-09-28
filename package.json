@@ -45,6 +45,7 @@
     "typecheck:templates:pro": "vue-tsc --noEmit -p typecheck-shims/tsconfig.vue-pro.json",
     "check:tests": "tsx scripts/check-tests-baseline.ts",
     "check:mocks": "tsx scripts/check-mock-budget.ts",
+    "check:starter-wa-version": "tsx scripts/check-starter-wa-version.ts",
     "test": "vitest run tests/unit --config vitest.unit.config.ts",
     "test:coverage": "vitest run tests/unit --config vitest.unit.config.ts --coverage",
     "coverage:all": "tsx scripts/coverage-all.ts",
