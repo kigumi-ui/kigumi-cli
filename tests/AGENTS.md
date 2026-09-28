@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (119 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (120 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
