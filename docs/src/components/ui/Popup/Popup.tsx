@@ -72,6 +72,9 @@ export interface PopupProps extends Omit<
   /** Arrow edge padding */
   'arrow-padding'?: number;
 
+  /** Area flip, shift and auto-size keep the popup inside: the viewport, or the anchor's scrolling ancestors */
+  boundary?: 'viewport' | 'scroll';
+
   /** Flips when constrained */
   flip?: boolean;
 
@@ -98,6 +101,9 @@ export interface PopupProps extends Omit<
 
   /** Auto-size boundary padding */
   'auto-size-padding'?: number;
+
+  /** Covers the gap between anchor and popup with an invisible element, so the pointer can cross it without leaving either */
+  'hover-bridge'?: boolean;
 
   /** Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it. */
   onReposition?: (event: WaRepositionEvent) => void;

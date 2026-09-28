@@ -36,6 +36,13 @@ const meta = {
       description: 'Duration of feedback state in milliseconds',
       table: { defaultValue: { summary: '1000' } },
     },
+    tooltip: {
+      control: 'select',
+      options: ['full', 'copy', 'none'],
+      description:
+        'When the tooltip shows: full (on hover, focus and after copying), copy (only after copying) or none',
+      table: { defaultValue: { summary: 'full' } },
+    },
     'tooltip-placement': {
       control: 'select',
       options: ['top', 'right', 'bottom', 'left'],
@@ -163,6 +170,15 @@ export const CustomLabels: Story = {
     'success-label': 'Done! ✓',
     'feedback-duration': 3000,
   },
+};
+
+/**
+ * Keeps the tooltip quiet on hover and focus, and only shows it to confirm
+ * that a copy worked or failed. Useful where many copy buttons sit close
+ * together, such as a table of values.
+ */
+export const TooltipAfterCopyOnly: Story = {
+  args: { value: 'Copied without a hover tooltip', tooltip: 'copy' },
 };
 
 /** A non-interactive disabled copy button. */

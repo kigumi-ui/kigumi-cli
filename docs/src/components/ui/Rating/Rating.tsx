@@ -43,6 +43,9 @@ export interface RatingProps extends Omit<
   /** Current rating value */
   value?: number;
 
+  /** Value the rating returns to when its form is reset */
+  'default-value'?: number;
+
   /** Maximum rating value */
   max?: number;
 

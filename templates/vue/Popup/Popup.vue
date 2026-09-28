@@ -35,6 +35,7 @@ export interface PopupProps {
   arrow?: boolean;
   'arrow-placement'?: 'start' | 'end' | 'center' | 'anchor';
   'arrow-padding'?: number;
+  boundary?: 'viewport' | 'scroll';
   flip?: boolean;
   'flip-fallback-placements'?: string;
   'flip-fallback-strategy'?: 'best-fit' | 'initial';
@@ -44,6 +45,7 @@ export interface PopupProps {
   'auto-size'?: 'horizontal' | 'vertical' | 'both';
   sync?: 'width' | 'height' | 'both';
   'auto-size-padding'?: number;
+  'hover-bridge'?: boolean;
 }
 
 const props = defineProps<PopupProps>();

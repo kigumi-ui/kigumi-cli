@@ -103,6 +103,9 @@ export interface TimeInputProps extends Omit<
   placement?:
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
+  /** Gap in pixels between the input and the dropdown */
+  distance?: number;
+
   /** Hint for browser autofill */
   autocomplete?: string;
 

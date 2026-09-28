@@ -15,6 +15,7 @@ const props = defineProps({
   disabled: { type: Boolean, required: false, default: false },
   once: { type: Boolean, required: false, default: false },
   threshold: { type: String, required: false, default: '0' },
+  root: { type: String, required: false },
   'root-margin': { type: String, required: false, default: '0px' },
   'intersect-class': { type: String, required: false },
 });

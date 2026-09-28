@@ -21,6 +21,7 @@ const props = defineProps({
   arrow: { type: Boolean, required: false, default: false },
   'arrow-placement': { type: String, required: false, default: 'anchor' },
   'arrow-padding': { type: Number, required: false, default: 10 },
+  boundary: { type: String, required: false, default: 'viewport' },
   flip: { type: Boolean, required: false, default: false },
   'flip-fallback-placements': { type: String, required: false },
   'flip-fallback-strategy': {
@@ -34,6 +35,7 @@ const props = defineProps({
   'auto-size': { type: String, required: false },
   sync: { type: String, required: false },
   'auto-size-padding': { type: Number, required: false, default: 0 },
+  'hover-bridge': { type: Boolean, required: false, default: false },
 });
 
 defineOptions({ inheritAttrs: false });

@@ -69,6 +69,13 @@ const meta = {
       description: 'Arrow edge padding',
       table: { defaultValue: { summary: '10' } },
     },
+    boundary: {
+      control: 'select',
+      options: ['viewport', 'scroll'],
+      description:
+        "Area flip, shift and auto-size keep the popup inside: the viewport, or the anchor's scrolling ancestors",
+      table: { defaultValue: { summary: 'viewport' } },
+    },
     flip: {
       control: 'boolean',
       description: 'Flips when constrained',
@@ -113,6 +120,12 @@ const meta = {
       control: 'number',
       description: 'Auto-size boundary padding',
       table: { defaultValue: { summary: '0' } },
+    },
+    'hover-bridge': {
+      control: 'boolean',
+      description:
+        'Covers the gap between anchor and popup with an invisible element, so the pointer can cross it without leaving either',
+      table: { defaultValue: { summary: 'false' } },
     },
     onReposition: {
       action: 'reposition',

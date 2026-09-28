@@ -19,6 +19,9 @@ function ensureLoaded() {
  * @property {string} [background] - Deprecated: Set the CSS background-color property on the QR code instead.
  * @property {number} [radius] - Corner radius
  * @property {string} [error-correction] - Error correction level: L | M | Q | H
+ * @property {string} [image] - URL or data URI of an image, such as a logo, drawn in the centre of the code
+ * @property {string} [image-background] - Colour filled behind the centre image
+ * @property {number} [image-coverage] - Share of the error-correction capacity the centre image may take, 0 to 1
  */
 
 export const QrCode = React.forwardRef(({ className, ...props }, ref) => {

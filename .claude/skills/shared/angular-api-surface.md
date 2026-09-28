@@ -239,7 +239,7 @@ wa-page -> <Page> (selector: k-page)
 Actions | free | Copies text data to the clipboard when clicked
 wa-copy-button -> <CopyButton> (selector: k-copy-button)
 
-**Props:** value(string=''), from(string=''), disabled(boolean=false), copy-label(string=''), success-label(string=''), error-label(string=''), feedback-duration(number=1000), tooltip-placement(top|right|bottom|left=top)
+**Props:** value(string=''), from(string=''), disabled(boolean=false), copy-label(string=''), success-label(string=''), error-label(string=''), feedback-duration(number=1000), tooltip(full|copy|none=full), tooltip-placement(top|right|bottom|left=top)
 **Outputs:** (error), (copy)
 **Slots:** default, copy-icon, success-icon, error-icon
 **Parts:** button, copy-icon, success-icon, error-icon, feedback
@@ -329,7 +329,7 @@ wa-include -> <Include> (selector: k-include)
 Utilities | free | Observes changes in the intersection of a target element with an ancestor
 wa-intersection-observer -> <IntersectionObserver> (selector: k-intersection-observer)
 
-**Props:** disabled(boolean=false), once(boolean=false), threshold(string=0), root-margin(string=0px), intersect-class(string)
+**Props:** disabled(boolean=false), once(boolean=false), threshold(string=0), root(string), root-margin(string=0px), intersect-class(string)
 **Outputs:** (intersect)
 **Slots:** default
 
@@ -372,7 +372,7 @@ wa-popover -> <Popover> (selector: k-popover)
 Overlays | free | Popup is a utility component for positioning elements relative to an anchor
 wa-popup -> <Popup> (selector: k-popup)
 
-**Props:** active(boolean=false), anchor(string), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=top), strategy(absolute|fixed=absolute), distance(number=0), skidding(number=0), arrow(boolean=false), arrow-placement(start|end|center|anchor=anchor), arrow-padding(number=10), flip(boolean=false), flip-fallback-placements(string), flip-fallback-strategy(best-fit|initial=best-fit), flip-padding(number=0), shift(boolean=false), shift-padding(number=0), auto-size(horizontal|vertical|both), sync(width|height|both), auto-size-padding(number=0)
+**Props:** active(boolean=false), anchor(string), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=top), strategy(absolute|fixed=absolute), distance(number=0), skidding(number=0), arrow(boolean=false), arrow-placement(start|end|center|anchor=anchor), arrow-padding(number=10), boundary(viewport|scroll=viewport), flip(boolean=false), flip-fallback-placements(string), flip-fallback-strategy(best-fit|initial=best-fit), flip-padding(number=0), shift(boolean=false), shift-padding(number=0), auto-size(horizontal|vertical|both), sync(width|height|both), auto-size-padding(number=0), hover-bridge(boolean=false)
 **Outputs:** (repositionEvent)
 **Slots:** default, anchor
 **Methods:** reposition()
@@ -401,7 +401,7 @@ wa-progress-ring -> <ProgressRing> (selector: k-progress-ring)
 Display | free | Generates QR codes for encoding text, URLs, or data
 wa-qr-code -> <QrCode> (selector: k-qr-code)
 
-**Props:** value(string=''), label(string=''), size(number=128), fill(string='', deprecated), background(string='', deprecated), radius(number=0), error-correction(L|M|Q|H=H)
+**Props:** value(string=''), label(string=''), size(number=128), fill(string='', deprecated), background(string='', deprecated), radius(number=0), error-correction(L|M|Q|H=H), image(string), image-background(string), image-coverage(number)
 **Parts:** base, qr-code
 
 ## RadioGroup
@@ -441,7 +441,7 @@ wa-random-content -> <RandomContent> (selector: k-random-content)
 Form Controls | free | Ratings give users a way to quickly view and provide feedback
 wa-rating -> <Rating> (selector: k-rating)
 
-**Props:** label(string=''), value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), name(string=''), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), custom-error(string)
+**Props:** label(string=''), value(number=0), default-value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), name(string=''), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), custom-error(string)
 **Outputs:** (hover), (invalid), (change)
 **Parts:** base, rating
 **CSS:** --symbol-color, --symbol-color-active, --symbol-spacing
@@ -498,7 +498,7 @@ wa-skeleton -> <Skeleton> (selector: k-skeleton)
 Form Controls | free | Sliders allow the user to select a value within a range
 wa-slider -> <Slider> (selector: k-slider)
 
-**Props:** name(string=''), value(number=0), label(string=''), hint(string=''), min(number=0), max(number=100), step(number=1), orientation(horizontal|vertical=horizontal), disabled(boolean=false), readonly(boolean=false), range(boolean=false), with-markers(boolean=false), with-tooltip(boolean=true), size(small|medium|large|xs|s|m|l|xl=medium), autofocus(boolean=false), custom-error(string)
+**Props:** name(string=''), value(number=0), label(string=''), hint(string=''), min(number=0), max(number=100), step(number=1), orientation(horizontal|vertical=horizontal), disabled(boolean=false), readonly(boolean=false), range(boolean=false), min-value(number=0), max-value(number=50), indicator-offset(number), with-markers(boolean=false), with-tooltip(boolean=true), tooltip-distance(number=8), tooltip-placement(top|right|bottom|left=top), size(small|medium|large|xs|s|m|l|xl=medium), autofocus(boolean=false), custom-error(string)
 **Outputs:** (blurEvent), (focusEvent), (inputEvent), (invalid), (change)
 **Slots:** label, hint, reference
 **Methods:** focus(), blur(), stepDown(), stepUp()
@@ -688,7 +688,7 @@ wa-file-input -> <FileInput> (selector: k-file-input)
 Form Controls | pro | Number inputs allow users to enter numeric values with optional step controls
 wa-number-input -> <NumberInput> (selector: k-number-input)
 
-**Props:** label(string), hint(string), value(number), min(number), max(number), step(number=1), disabled(boolean=false), required(boolean=false), placeholder(string), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), without-steppers(boolean=false), title(string), name(string), readonly(boolean=false), autocomplete(string), autofocus(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), inputmode(numeric|decimal), custom-error(string)
+**Props:** label(string), hint(string), value(number), min(number), max(number), step(number=1), disabled(boolean=false), required(boolean=false), placeholder(string), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), without-steppers(boolean=false), title(string), name(string), readonly(boolean=false), autocomplete(string), autofocus(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), inputmode(numeric|decimal), custom-error(string)
 **Outputs:** (change), (blurEvent), (focusEvent), (beforeinput), (invalid), (inputEvent)
 **Slots:** label, start, end, increment-icon, decrement-icon, hint
 **Methods:** focus(), blur(), select(), stepUp(), stepDown()
@@ -833,7 +833,7 @@ wa-accordion-item -> <AccordionItem> (selector: k-accordion-item)
 Form Controls | free | Time inputs collect a time of day from the user
 wa-time-input -> <TimeInput> (selector: k-time-input)
 
-**Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), with-clear(boolean=false), with-now(boolean=false), min(string=''), max(string=''), step(number=60), hour-format(auto|12|24=auto), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start), autocomplete(string), custom-error(string)
+**Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), with-clear(boolean=false), with-now(boolean=false), min(string=''), max(string=''), step(number=60), hour-format(auto|12|24=auto), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start), distance(number=0), autocomplete(string), custom-error(string)
 **Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (invalid), (inputEvent)
 **Slots:** label, hint, start, end, clear-icon, expand-icon, footer
 **Methods:** focus(), blur(), show(), hide()

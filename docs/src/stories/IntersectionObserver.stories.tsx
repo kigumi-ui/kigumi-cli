@@ -24,6 +24,11 @@ const meta = {
       description: 'Intersection thresholds',
       table: { defaultValue: { summary: '0' } },
     },
+    root: {
+      control: 'text',
+      description:
+        'ID of the element whose bounds count as the viewport; the browser viewport when unset',
+    },
     'root-margin': {
       control: 'text',
       description: 'Root element margin',

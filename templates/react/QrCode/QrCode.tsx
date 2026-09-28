@@ -58,6 +58,15 @@ export interface QrCodeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
   /** Error correction level */
   'error-correction'?: 'L' | 'M' | 'Q' | 'H';
+
+  /** URL or data URI of an image, such as a logo, drawn in the centre of the code */
+  image?: string;
+
+  /** Colour filled behind the centre image, so the code does not show through a transparent one */
+  'image-background'?: string;
+
+  /** Share of the code's error-correction capacity the centre image may take, from 0 to 1 (0.5 when unset); higher values scan less reliably */
+  'image-coverage'?: number;
 }
 
 export interface QrCodeRef {

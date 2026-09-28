@@ -13,6 +13,7 @@ function ensureLoaded() {
  */
 const props = defineProps({
   label: { type: String, required: false, default: '' },
+  'default-value': { type: Number, required: false, default: 0 },
   max: { type: Number, required: false, default: 5 },
   precision: { type: Number, required: false, default: 1 },
   readonly: { type: Boolean, required: false, default: false },

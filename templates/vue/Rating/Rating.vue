@@ -16,6 +16,7 @@ function ensureLoaded() {
  */
 export interface RatingProps {
   label?: string;
+  'default-value'?: number;
   max?: number;
   precision?: number;
   readonly?: boolean;

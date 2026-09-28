@@ -1683,6 +1683,14 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: 'Duration of feedback state in milliseconds',
       },
       {
+        name: 'tooltip',
+        type: 'string',
+        values: ['full', 'copy', 'none'],
+        default: 'full',
+        description:
+          'When the tooltip shows: full (on hover, focus and after copying), copy (only after copying) or none',
+      },
+      {
         name: 'tooltip-placement',
         type: 'string',
         values: ['top', 'right', 'bottom', 'left'],
@@ -2264,6 +2272,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: 'Intersection thresholds',
       },
       {
+        name: 'root',
+        type: 'string',
+        description:
+          'ID of the element whose bounds count as the viewport; the browser viewport when unset',
+      },
+      {
         name: 'root-margin',
         type: 'string',
         default: '0px',
@@ -2550,6 +2564,14 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: 'Arrow edge padding',
       },
       {
+        name: 'boundary',
+        type: 'string',
+        values: ['viewport', 'scroll'],
+        default: 'viewport',
+        description:
+          "Area flip, shift and auto-size keep the popup inside: the viewport, or the anchor's scrolling ancestors",
+      },
+      {
         name: 'flip',
         type: 'boolean',
         default: 'false',
@@ -2602,6 +2624,13 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'number',
         default: '0',
         description: 'Auto-size boundary padding',
+      },
+      {
+        name: 'hover-bridge',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Covers the gap between anchor and popup with an invisible element, so the pointer can cross it without leaving either',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/popup/popup.js`,
@@ -2728,6 +2757,24 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         values: ['L', 'M', 'Q', 'H'],
         default: 'H',
         description: 'Error correction level',
+      },
+      {
+        name: 'image',
+        type: 'string',
+        description:
+          'URL or data URI of an image, such as a logo, drawn in the centre of the code',
+      },
+      {
+        name: 'image-background',
+        type: 'string',
+        description:
+          'Colour filled behind the centre image, so the code does not show through a transparent one',
+      },
+      {
+        name: 'image-coverage',
+        type: 'number',
+        description:
+          "Share of the code's error-correction capacity the centre image may take, from 0 to 1 (0.5 when unset); higher values scan less reliably",
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/qr-code/qr-code.js`,
@@ -2952,6 +2999,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'number',
         default: '0',
         description: 'Current rating value',
+      },
+      {
+        name: 'default-value',
+        type: 'number',
+        default: '0',
+        description: 'Value the rating returns to when its form is reset',
       },
       {
         name: 'max',
@@ -3373,6 +3426,24 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: 'Converts to a range slider with two thumbs',
       },
       {
+        name: 'min-value',
+        type: 'number',
+        default: '0',
+        description: 'Lower value of a range slider; used only with `range`',
+      },
+      {
+        name: 'max-value',
+        type: 'number',
+        default: '50',
+        description: 'Upper value of a range slider; used only with `range`',
+      },
+      {
+        name: 'indicator-offset',
+        type: 'number',
+        description:
+          'Value the filled part of the track starts from; `min` when unset',
+      },
+      {
         name: 'with-markers',
         type: 'boolean',
         default: 'false',
@@ -3383,6 +3454,19 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'boolean',
         default: 'true',
         description: 'Draws a tooltip above the thumb',
+      },
+      {
+        name: 'tooltip-distance',
+        type: 'number',
+        default: '8',
+        description: 'Gap in pixels between the thumb and its tooltip',
+      },
+      {
+        name: 'tooltip-placement',
+        type: 'string',
+        values: ['top', 'right', 'bottom', 'left'],
+        default: 'top',
+        description: 'Side of the thumb the tooltip appears on',
       },
       {
         name: 'size',
@@ -4586,6 +4670,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         values: ['filled', 'outlined', 'filled-outlined'],
         default: 'outlined',
         description: 'Visual appearance',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+        default: 'false',
+        description: 'Draws the input with rounded edges',
       },
       {
         name: 'without-steppers',
@@ -5845,6 +5935,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         ],
         default: 'bottom-start',
         description: 'The preferred placement of the dropdown',
+      },
+      {
+        name: 'distance',
+        type: 'number',
+        default: '0',
+        description: 'Gap in pixels between the input and the dropdown',
       },
       {
         name: 'autocomplete',

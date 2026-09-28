@@ -42,6 +42,11 @@ const meta = {
       description: 'Visual appearance',
       table: { defaultValue: { summary: 'outlined' } },
     },
+    pill: {
+      control: 'boolean',
+      description: 'Draws the input with rounded edges',
+      table: { defaultValue: { summary: 'false' } },
+    },
     'without-steppers': {
       control: 'boolean',
       description: 'Hides the stepper buttons',

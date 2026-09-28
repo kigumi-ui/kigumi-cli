@@ -99,6 +99,11 @@ const meta = {
       description: 'The preferred placement of the dropdown',
       table: { defaultValue: { summary: 'bottom-start' } },
     },
+    distance: {
+      control: 'number',
+      description: 'Gap in pixels between the input and the dropdown',
+      table: { defaultValue: { summary: '0' } },
+    },
     autocomplete: {
       control: 'text',
       description: 'Hint for browser autofill',

@@ -34,6 +34,9 @@ function ensureLoaded() {
       [attr.background]="background"
       [attr.radius]="radius"
       [attr.error-correction]="errorCorrection"
+      [attr.image]="image"
+      [attr.image-background]="imageBackground"
+      [attr.image-coverage]="imageCoverage"
     >
       <ng-content />
     </wa-qr-code>
@@ -66,6 +69,12 @@ export class QrCodeComponent implements AfterViewInit {
   @Input() radius?: number;
   /** Error correction level */
   @Input() errorCorrection?: 'L' | 'M' | 'Q' | 'H';
+  /** URL or data URI of an image, such as a logo, drawn in the centre of the code */
+  @Input() image?: string;
+  /** Colour filled behind the centre image, so the code does not show through a transparent one */
+  @Input() imageBackground?: string;
+  /** Share of the code's error-correction capacity the centre image may take, from 0 to 1 (0.5 when unset); higher values scan less reliably */
+  @Input() imageCoverage?: number;
 
   ngAfterViewInit(): void {
     ensureLoaded();

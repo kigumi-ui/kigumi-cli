@@ -15,6 +15,11 @@ const meta = {
       description: 'Current rating value',
       table: { defaultValue: { summary: '0' } },
     },
+    'default-value': {
+      control: 'number',
+      description: 'Value the rating returns to when its form is reset',
+      table: { defaultValue: { summary: '0' } },
+    },
     max: {
       control: 'number',
       description: 'Maximum rating value',

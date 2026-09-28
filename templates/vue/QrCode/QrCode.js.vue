@@ -21,6 +21,9 @@ const props = defineProps({
   background: { type: String, required: false, default: '' },
   radius: { type: Number, required: false, default: 0 },
   'error-correction': { type: String, required: false, default: 'H' },
+  image: { type: String, required: false },
+  'image-background': { type: String, required: false },
+  'image-coverage': { type: Number, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

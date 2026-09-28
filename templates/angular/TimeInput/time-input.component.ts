@@ -54,6 +54,7 @@ function ensureLoaded() {
       [attr.hour-format]="hourFormat"
       [attr.open]="open || null"
       [attr.placement]="placement"
+      [attr.distance]="distance"
       [attr.autocomplete]="autocomplete"
       [attr.custom-error]="customError"
     >
@@ -103,6 +104,8 @@ export class TimeInputComponent implements AfterViewInit, OnDestroy {
   /** The preferred placement of the dropdown */
   @Input() placement?:
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
+  /** Gap in pixels between the input and the dropdown */
+  @Input() distance?: number;
   /** Hint for browser autofill */
   @Input() autocomplete?: string;
   /** Custom validation message; the control is invalid while it is set */

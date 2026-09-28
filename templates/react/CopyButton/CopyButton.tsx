@@ -57,6 +57,9 @@ export interface CopyButtonProps extends Omit<
   /** Duration of feedback state in milliseconds */
   'feedback-duration'?: number;
 
+  /** When the tooltip shows: full (on hover, focus and after copying), copy (only after copying) or none */
+  tooltip?: 'full' | 'copy' | 'none';
+
   /** Tooltip position */
   'tooltip-placement'?: 'top' | 'right' | 'bottom' | 'left';
 
