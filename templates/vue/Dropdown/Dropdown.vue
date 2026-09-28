@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaDropdown from '@awesome.me/webawesome/dist/components/dropdown/dropdown.js';
 import './Dropdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -74,10 +75,10 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>('open', { default: false });
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaDropdown | null>(null);
 
 watch(open, (newOpen) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { open: boolean }) | null;
   if (el && el.open !== newOpen) el.open = newOpen;
 });
 

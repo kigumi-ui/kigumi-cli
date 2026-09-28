@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (117 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (118 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -116,6 +116,7 @@ tests/
 │   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
 │   ├── parse-custom-elements-types.test.ts # Shared metadata types: generated modules import+re-export, never re-declare (issue #34)
 │   ├── parse-custom-elements-attributes.test.ts # extractAttributes: boolean-vs-string classification, untyped attributes kept (did-ssr), otp-input/pagination/tag-input coverage (issue #105)
+│   ├── parse-custom-elements-params.test.ts # paramType: a CEM parameter without a type is typed from its default, else `unknown`, never `any`; the committed COMPONENT_METADATA carries no `any` parameter (issue #136)
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
@@ -137,14 +138,15 @@ tests/
 │   ├── scripts/
 │   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset), plus Check C's Vue arm (issue #122): the SFC surface reader (including its plain-`<script>` reader) on literal snippets and, for the `<script setup>` half, against the Vue compiler on every committed Template; the variant comparer; and the templates/vue and templates/react walks (one pair per registry component)
 │   │   ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
-│   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
-│   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
-│   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
+│   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge); output linted as a consumer (issue #136)
+│   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge); output linted as a consumer (issue #136)
+│   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch); both dialects linted as a consumer (issue #136)
 │   │   ├── generate-skill-references.test.ts   # formatCompactProps: the compact prop list the skill API surfaces print, including the `deprecated` label (issue #129)
 │   │   ├── generator-utils.test.ts             # Custom method-param type imports (sibling Wa* vs named self); the enumerated-boolean emitters (narrowing, named pair literal, keyword expression)
 │   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
 │   ├── eslint-rules/
-│   │   └── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
+│   │   ├── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
+│   │   └── templates-consumer-rules.test.ts    # Resolves eslint.config.js for every Template file and fails when a consumer-baseline rule is off or has other options there, `no-undef` excepted, and when that exception no longer excuses anything (issue #136)
 │   ├── schemas/
 │   │   ├── config-corrupt.test.ts              # Cluster T: corrupt-config edge cases (BOM, trailing comma, truncated, null byte, wrong-type per required field)
 │   │   └── config-property.test.ts             # Cluster T: fast-check property tests (round-trip, strict rejection, mergeWithDefaults invariance)
@@ -161,6 +163,7 @@ tests/
 │   │   ├── resolve-components-tolowercase.test.ts       # Multi-word components survive kebab/Pascal
 │   │   └── f-058-config-monorepo-isolation.test.ts      # loadConfig stopDir: cwd, no parent inheritance
 │   ├── _helpers/                               # Shared test helpers (see Test Helpers below); not test files
+│   │   ├── consumer-lint.ts                    # CONSUMER_BASELINE (`@eslint/js` + typescript-eslint `recommended`, unmodified), the one `consumerESLint` instance, SETUP_DEPENDENT_RULES (`no-undef`) and lintAsConsumer(): lint generated source as a consumer would (issue #136)
 │   │   ├── angular-omitted-inputs.ts           # ANGULAR_OMITTED_INPUTS / ANGULAR_INHERITED_OMISSIONS: the CEM attributes each Angular Template has no @Input() for, pinned as committed data independent of validate:cem-sync's allowlists
 │   │   ├── deprecation-readers.ts              # How each surface states a deprecation: readPropDeprecations() via TypeScript's own JSDoc parser (interface member, class property, defineProps key; SFCs via Vue's parser), plus the `.jsx` typedef and story argType text readers
 │   │   ├── deprecated-props-fixture.ts         # DEPRECATED_PROPS / DEPRECATION_MESSAGES: the plain and kebab-case deprecated props every deprecation test generates from
@@ -930,3 +933,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 - added tests/unit/scripts/check-starter-wa-version.test.ts for `scripts/check-starter-wa-version.ts`: behind, equal and ahead of `DEFAULT_WEBAWESOME_VERSION`, numeric (not string) comparison, and a starter with no Web Awesome installed failing, issue #138
 - dependency-installer.test.ts covers the pnpm range case: the exact Web Awesome version is in `package.json` when pnpm runs, a failed install restores the file byte for byte, and a project without Web Awesome or without a configured version is untouched; update-command.test.ts covers `installedComponents` provenance (recorded after an update or an already-current run, created when missing, left alone on conflict, missing snapshot and dry run), issue #138
+- added eslint-rules/templates-consumer-rules.test.ts, parse-custom-elements-params.test.ts and `_helpers/consumer-lint.ts`; the three generator suites lint their output through `lintAsConsumer()`, and the React suite pins the otherwise unreachable `array`/`object` prop arms. The rules test resolves every Template file, with `no-undef` as its one named exception. Bug-injected: `no-explicit-any` off for `templates/vue/Button/**` only, dropping the repo's `no-undef` carve-out, and `any[]` back in the array arm each go red. component-installer.test.ts pins that every snapshot is byte-identical to its installed file, the ground for adding no `.kigumi/` lint ignore; a one-byte divergence goes red, issue #136

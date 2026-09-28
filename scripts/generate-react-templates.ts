@@ -63,10 +63,11 @@ function convertToReactPropType(tsType: string, values?: string[]): string {
       return 'number';
     case 'boolean':
       return 'boolean';
+    // `unknown`, not `any`: a consumer's lint rejects `any` (issue #136).
     case 'array':
-      return 'any[]';
+      return 'unknown[]';
     case 'object':
-      return 'Record<string, any>';
+      return 'Record<string, unknown>';
     default:
       return 'string';
   }
@@ -117,6 +118,15 @@ export function generateReactTypescriptTemplate(
   const propsInterfaceExtends = eventsToOmit
     ? `Omit<HTMLAttributes<HTMLElement>, ${eventsToOmit} | 'dir'>`
     : `Omit<HTMLAttributes<HTMLElement>, 'dir'>`;
+  // A wrapper that adds nothing to the host attributes is a type alias:
+  // `interface X extends Y {}` is `no-empty-object-type` in a consumer's
+  // typescript-eslint `recommended` config (issue #136).
+  const ownProps = [propsFromRegistry, eventProps].filter(Boolean).join('\n');
+  const propsDeclaration = ownProps
+    ? `export interface ${component.name}Props extends ${propsInterfaceExtends} {
+${ownProps}
+}`
+    : `export type ${component.name}Props = ${propsInterfaceExtends};`;
 
   // 3. Ref Interface
   const refMethods = metadata.methods
@@ -294,9 +304,7 @@ ${enumeratedHelper}
  }
  * \`\`\`
  */
-export interface ${component.name}Props extends ${propsInterfaceExtends} {
-${propsFromRegistry}${eventProps ? '\n' + eventProps : ''}
-}
+${propsDeclaration}
 
 export interface ${component.name}Ref {
 ${refInterface}

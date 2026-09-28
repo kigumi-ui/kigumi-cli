@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaPopup from '@awesome.me/webawesome/dist/components/popup/popup.js';
 import './Popup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -79,7 +80,7 @@ const emit = defineEmits<{
   'wa-reposition': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaPopup | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -103,7 +104,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  reposition: () => (elementRef.value as any)?.reposition?.(),
+  reposition: () => elementRef.value?.reposition?.(),
   element: elementRef,
 });
 </script>

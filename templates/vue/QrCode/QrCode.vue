@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaQrCode from '@awesome.me/webawesome/dist/components/qr-code/qr-code.js';
 import './QrCode.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -54,11 +55,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaQrCode | null>(null);
 
 onMounted(() => {
   ensureLoaded();

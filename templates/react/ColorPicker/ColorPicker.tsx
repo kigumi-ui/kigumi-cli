@@ -137,7 +137,7 @@ export interface ColorPickerRef {
     hue: number,
     saturation: number,
     brightness: number,
-    alpha: any
+    alpha: number
   ) => void;
 
   /** Sets focus on the color picker. */
@@ -208,7 +208,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
           hue: number,
           saturation: number,
           brightness: number,
-          alpha: any
+          alpha: number
         ) => {
           if (
             colorpickerRef.current &&

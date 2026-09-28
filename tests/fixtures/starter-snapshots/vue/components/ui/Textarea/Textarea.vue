@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaTextarea from '@awesome.me/webawesome/dist/components/textarea/textarea.js';
 import './Textarea.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -102,10 +103,10 @@ const emit = defineEmits<{
 
 const model = defineModel<string>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaTextarea | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { value: unknown }) | null;
   if (el && el.value !== val) el.value = val ?? '';
 });
 
@@ -117,7 +118,7 @@ const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleChange = (e: Event) => emit('change', e as Event);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleInput = (e: Event) => {
-  model.value = (e.target as any).value;
+  model.value = (e.target as HTMLElement & { value: string }).value;
   emit('input', e as InputEvent);
 };
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
@@ -145,17 +146,17 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
-  select: () => (elementRef.value as any)?.select?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  select: () => elementRef.value?.select?.(),
   scrollPosition: (position: { top?: number; left?: number }) =>
-    (elementRef.value as any)?.scrollPosition?.(position),
+    elementRef.value?.scrollPosition?.(position),
   setSelectionRange: (
     selectionStart: number,
     selectionEnd: number,
     selectionDirection: 'forward' | 'backward' | 'none'
   ) =>
-    (elementRef.value as any)?.setSelectionRange?.(
+    elementRef.value?.setSelectionRange?.(
       selectionStart,
       selectionEnd,
       selectionDirection
@@ -165,20 +166,14 @@ defineExpose({
     start: number,
     end: number,
     selectMode: 'select' | 'start' | 'end' | 'preserve'
-  ) =>
-    (elementRef.value as any)?.setRangeText?.(
-      replacement,
-      start,
-      end,
-      selectMode
-    ),
+  ) => elementRef.value?.setRangeText?.(replacement, start, end, selectMode),
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
+    elementRef.value?.setCustomValidity?.(message),
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
-  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  ) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

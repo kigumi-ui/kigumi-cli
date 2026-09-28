@@ -3,7 +3,11 @@ import {
   generateReactTypescriptTemplate,
   generateTestTypescriptTemplate,
 } from '../../../scripts/generate-react-templates.js';
-import type { ComponentDefinition } from '../../../src/utils/registry.js';
+import {
+  getComponent,
+  type ComponentDefinition,
+} from '../../../src/utils/registry.js';
+import { lintAsConsumer } from '../_helpers/consumer-lint.js';
 import { readPropDeprecations } from '../_helpers/deprecation-readers.js';
 import {
   DEPRECATED_PROPS,
@@ -191,6 +195,23 @@ const BADGE_FIXTURE: ComponentDefinition = {
   tier: 'free',
 };
 
+const SPINNER_FIXTURE: ComponentDefinition = {
+  name: 'Spinner',
+  tagName: 'wa-spinner',
+  category: 'Feedback',
+  description: 'Spinners indicate an indeterminate wait',
+  dependencies: [],
+  files: {
+    react: ['components/Spinner.tsx'],
+    angular: ['components/Spinner/spinner.component.ts'],
+  },
+  props: [],
+  importPath: '@awesome.me/webawesome/dist/components/spinner/spinner.js',
+  tier: 'free',
+};
+
+const COLOR_PICKER = getComponent('color-picker')!;
+
 /** Badge plus the shared deprecated props, beside undeprecated ones. */
 const DEPRECATED_PROPS_FIXTURE: ComponentDefinition = {
   ...BADGE_FIXTURE,
@@ -204,6 +225,50 @@ describe('generateReactTypescriptTemplate', () => {
 
   it('emits the Badge wrapper (no events, no methods branch)', () => {
     expect(generateReactTypescriptTemplate(BADGE_FIXTURE)).toMatchSnapshot();
+  });
+});
+
+describe('consumer lint baseline (issue #136)', () => {
+  it('declares a wrapper with no props and no events as a type alias', () => {
+    // An `interface X extends Y {}` is `no-empty-object-type`.
+    const source = generateReactTypescriptTemplate(SPINNER_FIXTURE);
+    expect(source).toContain(
+      "export type SpinnerProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;"
+    );
+    expect(source).not.toContain('interface SpinnerProps');
+  });
+
+  it('types array and object props with unknown, not any', async () => {
+    // No registry prop is an array or object today, so this fixture is the
+    // only thing that runs those branches.
+    const component: ComponentDefinition = {
+      ...BADGE_FIXTURE,
+      props: [
+        { name: 'items', type: 'array', description: 'Fixture' },
+        { name: 'options', type: 'object', description: 'Fixture' },
+      ],
+    };
+    const source = generateReactTypescriptTemplate(component);
+    expect(source).toContain('items?: unknown[];');
+    expect(source).toContain('options?: Record<string, unknown>;');
+    expect(
+      await lintAsConsumer(source, 'src/components/ui/Badge/Badge.tsx')
+    ).toEqual([]);
+  });
+
+  it.each([
+    ['Spinner (no props, no events)', SPINNER_FIXTURE],
+    ['Badge (props, no events)', BADGE_FIXTURE],
+    ['Button (props, events, methods)', BUTTON_FIXTURE],
+    ['ColorPicker (a CEM parameter typed from its default)', COLOR_PICKER],
+  ])('emits %s that a consumer lints clean', async (_label, component) => {
+    const name = component.name;
+    expect(
+      await lintAsConsumer(
+        generateReactTypescriptTemplate(component),
+        `src/components/ui/${name}/${name}.tsx`
+      )
+    ).toEqual([]);
   });
 });
 

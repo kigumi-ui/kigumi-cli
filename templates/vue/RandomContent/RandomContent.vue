@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaRandomContent from '@awesome.me/webawesome/dist/components/random-content/random-content.js';
 import './RandomContent.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -55,7 +56,7 @@ const emit = defineEmits<{
   'wa-content-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaRandomContent | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -79,7 +80,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  randomize: () => (elementRef.value as any)?.randomize?.(),
+  randomize: () => elementRef.value?.randomize?.(),
   element: elementRef,
 });
 </script>

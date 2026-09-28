@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaDatePicker from '@awesome.me/webawesome/dist/components/date-picker/date-picker.js';
 import './DatePicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -76,7 +77,7 @@ const emit = defineEmits<{
   'wa-view-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaDatePicker | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -109,11 +110,10 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  goToDate: (date: string | Date) =>
-    (elementRef.value as any)?.goToDate?.(date),
-  goToToday: () => (elementRef.value as any)?.goToToday?.(),
-  clear: () => (elementRef.value as any)?.clear?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  goToDate: (date: string | Date) => elementRef.value?.goToDate?.(date),
+  goToToday: () => elementRef.value?.goToToday?.(),
+  clear: () => elementRef.value?.clear?.(),
   element: elementRef,
 });
 </script>

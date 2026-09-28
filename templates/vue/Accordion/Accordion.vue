@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaAccordion from '@awesome.me/webawesome/dist/components/accordion/accordion.js';
 import './Accordion.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -56,7 +57,7 @@ const emit = defineEmits<{
   'wa-after-collapse': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaAccordion | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -90,8 +91,8 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  expandAll: () => (elementRef.value as any)?.expandAll?.(),
-  collapseAll: () => (elementRef.value as any)?.collapseAll?.(),
+  expandAll: () => elementRef.value?.expandAll?.(),
+  collapseAll: () => elementRef.value?.collapseAll?.(),
   element: elementRef,
 });
 </script>

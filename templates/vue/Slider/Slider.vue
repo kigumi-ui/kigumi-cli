@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaSlider from '@awesome.me/webawesome/dist/components/slider/slider.js';
 import './Slider.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -70,10 +71,10 @@ const emit = defineEmits<{
 
 const model = defineModel<number>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaSlider | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { value: unknown }) | null;
   if (el && el.value !== val) el.value = val ?? '';
 });
 
@@ -85,7 +86,7 @@ const handleChange = (e: Event) => emit('change', e as Event);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleInput = (e: Event) => {
-  model.value = (e.target as any).value;
+  model.value = (e.target as HTMLElement & { value: number }).value;
   emit('input', e as InputEvent);
 };
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
@@ -113,17 +114,17 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: () => (elementRef.value as any)?.focus?.(),
-  blur: () => (elementRef.value as any)?.blur?.(),
-  stepDown: () => (elementRef.value as any)?.stepDown?.(),
-  stepUp: () => (elementRef.value as any)?.stepUp?.(),
+  focus: () => elementRef.value?.focus?.(),
+  blur: () => elementRef.value?.blur?.(),
+  stepDown: () => elementRef.value?.stepDown?.(),
+  stepUp: () => elementRef.value?.stepUp?.(),
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
+    elementRef.value?.setCustomValidity?.(message),
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
-  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  ) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

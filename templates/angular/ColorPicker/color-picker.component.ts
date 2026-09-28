@@ -225,7 +225,7 @@ export class ColorPickerComponent
     hue?: number,
     saturation?: number,
     brightness?: number,
-    alpha?: any
+    alpha?: number
   ): void {
     (
       this.elementRef.nativeElement as unknown as {
@@ -233,7 +233,7 @@ export class ColorPickerComponent
           hue?: number,
           saturation?: number,
           brightness?: number,
-          alpha?: any
+          alpha?: number
         ) => void;
       }
     ).getHexString(hue, saturation, brightness, alpha);

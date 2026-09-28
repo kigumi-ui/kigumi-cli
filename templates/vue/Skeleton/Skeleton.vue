@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaSkeleton from '@awesome.me/webawesome/dist/components/skeleton/skeleton.js';
 import './Skeleton.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -46,11 +47,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaSkeleton | null>(null);
 
 onMounted(() => {
   ensureLoaded();

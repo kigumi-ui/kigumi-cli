@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaSplitPanel from '@awesome.me/webawesome/dist/components/split-panel/split-panel.js';
 import './SplitPanel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -56,7 +57,7 @@ const emit = defineEmits<{
   'wa-reposition': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaSplitPanel | null>(null);
 
 onMounted(() => {
   ensureLoaded();

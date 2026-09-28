@@ -1,0 +1,24 @@
+// The Vue Templates checked against the real Web Awesome Pro types, which
+// `pnpm typecheck:templates` only sees through wa-pro-paths.d.ts: that shim
+// declares each Pro element's methods but no properties, so it cannot tell
+// whether a typed `elementRef` call matches what Pro ships (issue #136).
+//
+// Every Template import of `@awesome.me/webawesome/...` resolves into the
+// Pro package, which also contains the Free components. It needs the docs
+// dependencies installed with the Pro token (CI's `freshness` job). Without
+// them every import fails to resolve, so this cannot pass on missing types.
+{
+  "extends": "../templates/vue/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@awesome.me/webawesome/*": [
+        "../docs/node_modules/@awesome.me/webawesome-pro/*"
+      ]
+    }
+  },
+  "include": [
+    "../templates/vue/**/*.vue",
+    "../templates/vue/**/*.ts",
+    "./css.d.ts"
+  ]
+}

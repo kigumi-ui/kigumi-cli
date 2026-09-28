@@ -261,6 +261,32 @@ describe('ComponentInstaller', () => {
     expect(snapshot!['Button.tsx']).toBe('// generated component');
   });
 
+  it('snapshots every installed file byte for byte', async () => {
+    // `kigumi init` adds no lint ignore for `.kigumi/` on the strength of
+    // this: a snapshot is the file as installed, so it lints clean exactly
+    // when the installed file does (issue #136).
+    const { installer } = await createInstaller(testDir);
+
+    await installer.installComponents(
+      ['Button'],
+      createTestAddOptions({ yes: true })
+    );
+
+    const installedDir = path.join(testDir, 'src/components/Button');
+    const snapshotDir = path.join(testDir, '.kigumi/snapshots/Button');
+    const installed = (await fs.readdir(installedDir)).sort();
+    // Premise: both files were written (this project has no test runner,
+    // so no test file is generated).
+    expect(installed).toEqual(['Button.css', 'Button.tsx']);
+    expect((await fs.readdir(snapshotDir)).sort()).toEqual(installed);
+    for (const file of installed) {
+      expect(
+        await fs.readFile(path.join(snapshotDir, file), 'utf-8'),
+        file
+      ).toBe(await fs.readFile(path.join(installedDir, file), 'utf-8'));
+    }
+  });
+
   // ── Test 4: User declines prompt -> file unchanged, snapshot unchanged ──
 
   it('preserves original file and shows diff when user declines prompt', async () => {

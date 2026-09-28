@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaFormatDate from '@awesome.me/webawesome/dist/components/format-date/format-date.js';
 import './FormatDate.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -58,11 +59,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaFormatDate | null>(null);
 
 onMounted(() => {
   ensureLoaded();

@@ -29,10 +29,7 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface SpinnerProps extends Omit<
-  HTMLAttributes<HTMLElement>,
-  'dir'
-> {}
+export type SpinnerProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
 
 export interface SpinnerRef {
   /** Reference to the underlying HTML element */

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaSelect from '@awesome.me/webawesome/dist/components/select/select.js';
 import './Select.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -78,10 +79,10 @@ const emit = defineEmits<{
 
 const model = defineModel<string>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaSelect | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { value: unknown }) | null;
   if (el && el.value !== val) el.value = val ?? '';
 });
 
@@ -90,7 +91,7 @@ onMounted(() => {
 });
 
 const handleInput = (e: Event) => {
-  model.value = (e.target as any).value;
+  model.value = (e.target as HTMLElement & { value: string }).value;
   emit('input', e as InputEvent);
 };
 const handleChange = (e: Event) => emit('change', e as Event);
@@ -136,17 +137,17 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  show: () => (elementRef.value as any)?.show?.(),
-  hide: () => (elementRef.value as any)?.hide?.(),
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
+  show: () => elementRef.value?.show?.(),
+  hide: () => elementRef.value?.hide?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
+    elementRef.value?.setCustomValidity?.(message),
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
-  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  ) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

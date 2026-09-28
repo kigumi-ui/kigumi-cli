@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaDropdownItem from '@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js';
 import './DropdownItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -60,7 +61,7 @@ const emit = defineEmits<{
   focus: [event: FocusEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaDropdownItem | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -86,8 +87,8 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  openSubmenu: () => (elementRef.value as any)?.openSubmenu?.(),
-  closeSubmenu: () => (elementRef.value as any)?.closeSubmenu?.(),
+  openSubmenu: () => elementRef.value?.openSubmenu?.(),
+  closeSubmenu: () => elementRef.value?.closeSubmenu?.(),
   element: elementRef,
 });
 </script>

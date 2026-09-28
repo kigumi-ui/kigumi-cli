@@ -12,6 +12,11 @@ Ambient declarations consumed only by `templates/<framework>/tsconfig.json`.
   `wa.d.ts` shipped to user projects, but reads from the Free package
   instead of `webawesome-pro` (templates target both tiers).
 
+- `tsconfig.vue-pro.json`: not a shim, but the Vue Templates type-checked
+  against the real Web Awesome Pro package (`pnpm typecheck:templates:pro`,
+  CI `freshness` job), since `wa-pro-paths.d.ts` declares no properties and
+  cannot vouch for a typed `elementRef` call (issue #136).
+
 When the user materializes a component, no shim is needed — Kigumi writes
 its own JSX-augmentation file into the consuming project.
 

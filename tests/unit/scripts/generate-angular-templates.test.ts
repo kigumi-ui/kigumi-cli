@@ -3,7 +3,11 @@ import {
   generateComponentTS,
   generateSpec,
 } from '../../../scripts/generate-angular-templates.js';
-import type { ComponentDefinition } from '../../../src/utils/registry.js';
+import {
+  getComponent,
+  type ComponentDefinition,
+} from '../../../src/utils/registry.js';
+import { lintAsConsumer } from '../_helpers/consumer-lint.js';
 import { readPropDeprecations } from '../_helpers/deprecation-readers.js';
 import {
   DEPRECATED_PROPS,
@@ -317,6 +321,25 @@ describe('generateComponentTS', () => {
     expect(() => generateComponentTS(fixture, 'intersection-observer')).toThrow(
       /prop "onset" starts with "on" but is not a boolean/
     );
+  });
+});
+
+describe('consumer lint baseline (issue #136)', () => {
+  it.each([
+    ['Button (props, events, methods)', BUTTON_FIXTURE, 'button'],
+    ['Rating (form value read on change)', RATING_FIXTURE, 'rating'],
+    [
+      'ColorPicker (a CEM parameter typed from its default)',
+      getComponent('color-picker')!,
+      'color-picker',
+    ],
+  ])('emits %s that a consumer lints clean', async (_label, component, key) => {
+    expect(
+      await lintAsConsumer(
+        generateComponentTS(component, key),
+        `src/components/ui/${component.name}/${key}.component.ts`
+      )
+    ).toEqual([]);
   });
 });
 

@@ -11,8 +11,6 @@ function ensureLoaded() {
 /**
  * Represents an individual slide within a carousel component
  */
-const props = defineProps({});
-
 defineOptions({ inheritAttrs: false });
 
 // Forward props and fallthrough attributes to the web component yourself,
@@ -35,14 +33,8 @@ function hostAttributes() {
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
   }
-  for (const [key, value] of Object.entries(props)) {
-    if (value === undefined || value === false) continue;
-    result[key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)] = value;
-  }
   return result;
 }
-
-const emit = defineEmits([]);
 
 const elementRef = ref(null);
 

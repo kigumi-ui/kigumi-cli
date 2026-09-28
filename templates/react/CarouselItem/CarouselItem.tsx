@@ -29,10 +29,7 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface CarouselItemProps extends Omit<
-  HTMLAttributes<HTMLElement>,
-  'dir'
-> {}
+export type CarouselItemProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
 
 export interface CarouselItemRef {
   /** Reference to the underlying HTML element */

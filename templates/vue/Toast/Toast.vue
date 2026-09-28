@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import './Toast.css';
 
@@ -53,11 +54,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaToast | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -65,7 +62,7 @@ onMounted(() => {
 
 defineExpose({
   create: (message: string, options: ToastCreateOptions) =>
-    (elementRef.value as any)?.create?.(message, options),
+    elementRef.value?.create?.(message, options),
   element: elementRef,
 });
 </script>

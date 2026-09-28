@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaAnimation from '@awesome.me/webawesome/dist/components/animation/animation.js';
 import './Animation.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -62,7 +63,7 @@ const emit = defineEmits<{
   'wa-start': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaAnimation | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -91,8 +92,8 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  cancel: () => (elementRef.value as any)?.cancel?.(),
-  finish: () => (elementRef.value as any)?.finish?.(),
+  cancel: () => elementRef.value?.cancel?.(),
+  finish: () => elementRef.value?.finish?.(),
   element: elementRef,
 });
 </script>

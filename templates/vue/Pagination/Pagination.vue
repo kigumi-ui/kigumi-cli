@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaPagination from '@awesome.me/webawesome/dist/components/pagination/pagination.js';
 import './Pagination.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -64,7 +65,7 @@ const emit = defineEmits<{
   'wa-page-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaPagination | null>(null);
 
 onMounted(() => {
   ensureLoaded();

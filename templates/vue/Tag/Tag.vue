@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaTag from '@awesome.me/webawesome/dist/components/tag/tag.js';
 import './Tag.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -54,7 +55,7 @@ const emit = defineEmits<{
   'wa-remove': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaTag | null>(null);
 
 onMounted(() => {
   ensureLoaded();

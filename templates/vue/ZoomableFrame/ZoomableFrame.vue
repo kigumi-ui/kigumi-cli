@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaZoomableFrame from '@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js';
 import './ZoomableFrame.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -60,7 +61,7 @@ const emit = defineEmits<{
   error: [event: Event];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaZoomableFrame | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -86,8 +87,8 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  zoomIn: () => (elementRef.value as any)?.zoomIn?.(),
-  zoomOut: () => (elementRef.value as any)?.zoomOut?.(),
+  zoomIn: () => elementRef.value?.zoomIn?.(),
+  zoomOut: () => elementRef.value?.zoomOut?.(),
   element: elementRef,
 });
 </script>

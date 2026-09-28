@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaPolarAreaChart from '@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js';
 import './PolarAreaChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -51,11 +52,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaPolarAreaChart | null>(null);
 
 onMounted(() => {
   ensureLoaded();

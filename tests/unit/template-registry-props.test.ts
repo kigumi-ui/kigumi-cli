@@ -30,7 +30,11 @@ const REPO_ROOT = path.resolve(
   '../..'
 );
 
-/** The member names of `interface <name>` in a TypeScript module. */
+/**
+ * The member names of `interface <name>` in a TypeScript module. A
+ * `type <name> = ...` alias declares no members of its own: the generator
+ * writes one for a wrapper with no props and no events (issue #136).
+ */
 function interfaceMembers(source: string, name: string): Set<string> | null {
   const file = ts.createSourceFile(
     'template.tsx',
@@ -52,6 +56,9 @@ function interfaceMembers(source: string, name: string): Set<string> | null {
         }
       }
       return members;
+    }
+    if (ts.isTypeAliasDeclaration(statement) && statement.name.text === name) {
+      return new Set();
     }
   }
   return null;

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaToastItem from '@awesome.me/webawesome/dist/components/toast-item/toast-item.js';
 import './ToastItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -55,7 +56,7 @@ const emit = defineEmits<{
   'wa-after-hide': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaToastItem | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -87,7 +88,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  hide: () => (elementRef.value as any)?.hide?.(),
+  hide: () => elementRef.value?.hide?.(),
   element: elementRef,
 });
 </script>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaRating from '@awesome.me/webawesome/dist/components/rating/rating.js';
 import './Rating.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -62,10 +63,10 @@ const emit = defineEmits<{
 
 const model = defineModel<number>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaRating | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { value: unknown }) | null;
   if (el && el.value !== val) el.value = val ?? '';
 });
 
@@ -74,7 +75,7 @@ onMounted(() => {
 });
 
 const handleChange = (e: Event) => {
-  model.value = (e.target as any).value;
+  model.value = (e.target as HTMLElement & { value: number }).value;
   emit('change', e as Event);
 };
 const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
@@ -100,12 +101,12 @@ onBeforeUnmount(() => {
 
 defineExpose({
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
+    elementRef.value?.setCustomValidity?.(message),
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
-  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  ) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

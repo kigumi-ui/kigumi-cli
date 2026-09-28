@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaVideoPlaylist from '@awesome.me/webawesome/dist/components/video-playlist/video-playlist.js';
 import './VideoPlaylist.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -51,7 +52,7 @@ const emit = defineEmits<{
   'wa-video-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaVideoPlaylist | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -75,9 +76,9 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  next: () => (elementRef.value as any)?.next?.(),
-  previous: () => (elementRef.value as any)?.previous?.(),
-  goTo: (index: number) => (elementRef.value as any)?.goTo?.(index),
+  next: () => elementRef.value?.next?.(),
+  previous: () => elementRef.value?.previous?.(),
+  goTo: (index: number) => elementRef.value?.goTo?.(index),
   element: elementRef,
 });
 </script>

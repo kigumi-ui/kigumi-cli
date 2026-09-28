@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaProgressRing from '@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js';
 import './ProgressRing.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -47,11 +48,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaProgressRing | null>(null);
 
 onMounted(() => {
   ensureLoaded();

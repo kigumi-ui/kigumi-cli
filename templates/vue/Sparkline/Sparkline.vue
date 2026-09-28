@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaSparkline from '@awesome.me/webawesome/dist/components/sparkline/sparkline.js';
 import './Sparkline.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,11 +51,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaSparkline | null>(null);
 
 onMounted(() => {
   ensureLoaded();

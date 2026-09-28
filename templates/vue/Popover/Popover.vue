@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaPopover from '@awesome.me/webawesome/dist/components/popover/popover.js';
 import './Popover.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -74,10 +75,10 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>('open', { default: false });
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaPopover | null>(null);
 
 watch(open, (newOpen) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { open: boolean }) | null;
   if (el && el.open !== newOpen) el.open = newOpen;
 });
 
@@ -117,8 +118,8 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  show: () => (elementRef.value as any)?.show?.(),
-  hide: () => (elementRef.value as any)?.hide?.(),
+  show: () => elementRef.value?.show?.(),
+  hide: () => elementRef.value?.hide?.(),
   element: elementRef,
 });
 </script>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaTabPanel from '@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js';
 import './TabPanel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -47,11 +48,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaTabPanel | null>(null);
 
 onMounted(() => {
   ensureLoaded();
