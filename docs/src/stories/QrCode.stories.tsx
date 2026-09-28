@@ -43,7 +43,7 @@ const meta = {
         'URL or data URI of an image, such as a logo, drawn in the centre of the code',
     },
     'image-background': {
-      control: 'color',
+      control: 'text',
       description:
         'Colour filled behind the centre image, so the code does not show through a transparent one',
     },

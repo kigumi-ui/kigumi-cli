@@ -69,10 +69,10 @@ export interface SliderProps extends Omit<
   /** Converts to a range slider with two thumbs */
   range?: boolean;
 
-  /** Lower value of a range slider; used only with `range` */
+  /** Lower thumb of a `range` slider; a form reset returns it here, or to `min` when unset */
   'min-value'?: number;
 
-  /** Upper value of a range slider; used only with `range` */
+  /** Upper thumb of a `range` slider; a form reset returns it here, or to `max` when unset */
   'max-value'?: number;
 
   /** Value the filled part of the track starts from; `min` when unset */

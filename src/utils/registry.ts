@@ -3428,14 +3428,14 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'min-value',
         type: 'number',
-        default: '0',
-        description: 'Lower value of a range slider; used only with `range`',
+        description:
+          'Lower thumb of a `range` slider; a form reset returns it here, or to `min` when unset',
       },
       {
         name: 'max-value',
         type: 'number',
-        default: '50',
-        description: 'Upper value of a range slider; used only with `range`',
+        description:
+          'Upper thumb of a `range` slider; a form reset returns it here, or to `max` when unset',
       },
       {
         name: 'indicator-offset',

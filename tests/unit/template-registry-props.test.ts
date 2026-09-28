@@ -81,6 +81,38 @@ function jsdocTypedefProps(source: string, name: string): Set<string> | null {
 }
 
 /**
+ * The prop names a `.jsx` documents as `@param {...} [props.<name>]` (or
+ * `[props['<name>']]`, or unbracketed for a required prop) under an
+ * `@param {Object} props`, or `null` when it has no such list.
+ */
+function jsdocParamProps(source: string): Set<string> | null {
+  if (!source.includes('@param {Object} props')) return null;
+  return new Set(
+    [
+      ...source.matchAll(
+        /@param \{[^}]*\} \[?props(?:\.(\w+)|\['([\w-]+)'\])/g
+      ),
+    ].map((match) => match[1] ?? match[2])
+  );
+}
+
+/**
+ * The `.jsx` Templates that document their props as an `@param props.*`
+ * list instead of a typedef (issue #102: TimeInput's list lacked the props
+ * #101 and #102 added, and nothing read it). Pinned as committed data for
+ * the same reason as `JSX_PROPS_TYPEDEFS` below.
+ */
+const JSX_PROPS_PARAMS: ReadonlySet<string> = new Set([
+  'Accordion',
+  'AccordionItem',
+  'Card',
+  'Dialog',
+  'Drawer',
+  'KnownDate',
+  'TimeInput',
+]);
+
+/**
  * The `.jsx` Templates that document their props in a `<Name>Props` JSDoc
  * typedef. Pinned as committed data rather than read from the files: a
  * derived list would drop a component whose typedef was deleted, and the
@@ -133,7 +165,9 @@ describe('registry props are typed in every React and Vue Template', () => {
       Object.values(LOCAL_REGISTRY).map((component) => component.name)
     );
     expect(
-      [...JSX_PROPS_TYPEDEFS].filter((name) => !components.has(name))
+      [...JSX_PROPS_TYPEDEFS, ...JSX_PROPS_PARAMS].filter(
+        (name) => !components.has(name)
+      )
     ).toEqual([]);
   });
 
@@ -172,6 +206,27 @@ describe('registry props are typed in every React and Vue Template', () => {
         `${component.name}.jsx has a ${component.name}Props typedef exactly when JSX_PROPS_TYPEDEFS lists it`
       ).toBe(JSX_PROPS_TYPEDEFS.has(component.name));
       // Reached only where the pin says there is no typedef to check.
+      if (!documented) return;
+      const missing = propNames.filter((name) => !documented.has(name));
+      expect(missing).toEqual([]);
+    });
+
+    it(`${component.name}.jsx documents each registry prop where it pins an @param props list`, async () => {
+      const source = await fs.readFile(
+        path.join(
+          REPO_ROOT,
+          'templates/react',
+          component.name,
+          `${component.name}.jsx`
+        ),
+        'utf-8'
+      );
+      const documented = jsdocParamProps(source);
+      expect(
+        documented !== null,
+        `${component.name}.jsx has an @param {Object} props list exactly when JSX_PROPS_PARAMS lists it`
+      ).toBe(JSX_PROPS_PARAMS.has(component.name));
+      // Reached only where the pin says there is no @param list to check.
       if (!documented) return;
       const missing = propNames.filter((name) => !documented.has(name));
       expect(missing).toEqual([]);

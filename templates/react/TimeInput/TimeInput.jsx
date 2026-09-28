@@ -44,6 +44,9 @@ function ensureLoaded() {
  * @param {'auto' | '12' | '24'} [props['hour-format']] - Whether to display a 12- or 24-hour clock
  * @param {boolean} [props.open] - Whether the time picker dropdown is open
  * @param {'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end'} [props.placement] - The preferred placement of the dropdown
+ * @param {number} [props.distance] - Gap in pixels between the input and the dropdown
+ * @param {string} [props.autocomplete] - Hint for browser autofill
+ * @param {string} [props['custom-error']] - Custom validation message; the control is invalid while it is set
  * @param {function} [props.onInput] - Emitted as the user types into a segment or interacts with the popup columns.
  * @param {function} [props.onChange] - Emitted when the committed value changes.
  * @param {function} [props.onFocus] - Emitted when the control receives focus.

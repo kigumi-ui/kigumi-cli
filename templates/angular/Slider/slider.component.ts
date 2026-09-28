@@ -95,9 +95,9 @@ export class SliderComponent
   @Input() readonly?: boolean;
   /** Converts to a range slider with two thumbs */
   @Input() range?: boolean;
-  /** Lower value of a range slider; used only with `range` */
+  /** Lower thumb of a `range` slider; a form reset returns it here, or to `min` when unset */
   @Input() minValue?: number;
-  /** Upper value of a range slider; used only with `range` */
+  /** Upper thumb of a `range` slider; a form reset returns it here, or to `max` when unset */
   @Input() maxValue?: number;
   /** Value the filled part of the track starts from; `min` when unset */
   @Input() indicatorOffset?: number;

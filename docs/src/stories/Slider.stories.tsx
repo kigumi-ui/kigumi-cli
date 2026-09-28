@@ -55,13 +55,13 @@ const meta = {
     },
     'min-value': {
       control: 'number',
-      description: 'Lower value of a range slider; used only with `range`',
-      table: { defaultValue: { summary: '0' } },
+      description:
+        'Lower thumb of a `range` slider; a form reset returns it here, or to `min` when unset',
     },
     'max-value': {
       control: 'number',
-      description: 'Upper value of a range slider; used only with `range`',
-      table: { defaultValue: { summary: '50' } },
+      description:
+        'Upper thumb of a `range` slider; a form reset returns it here, or to `max` when unset',
     },
     'indicator-offset': {
       control: 'number',

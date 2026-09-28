@@ -498,7 +498,7 @@ wa-skeleton -> <Skeleton> (selector: k-skeleton)
 Form Controls | free | Sliders allow the user to select a value within a range
 wa-slider -> <Slider> (selector: k-slider)
 
-**Props:** name(string=''), value(number=0), label(string=''), hint(string=''), min(number=0), max(number=100), step(number=1), orientation(horizontal|vertical=horizontal), disabled(boolean=false), readonly(boolean=false), range(boolean=false), min-value(number=0), max-value(number=50), indicator-offset(number), with-markers(boolean=false), with-tooltip(boolean=true), tooltip-distance(number=8), tooltip-placement(top|right|bottom|left=top), size(small|medium|large|xs|s|m|l|xl=medium), autofocus(boolean=false), custom-error(string)
+**Props:** name(string=''), value(number=0), label(string=''), hint(string=''), min(number=0), max(number=100), step(number=1), orientation(horizontal|vertical=horizontal), disabled(boolean=false), readonly(boolean=false), range(boolean=false), min-value(number), max-value(number), indicator-offset(number), with-markers(boolean=false), with-tooltip(boolean=true), tooltip-distance(number=8), tooltip-placement(top|right|bottom|left=top), size(small|medium|large|xs|s|m|l|xl=medium), autofocus(boolean=false), custom-error(string)
 **Outputs:** (blurEvent), (focusEvent), (inputEvent), (invalid), (change)
 **Slots:** label, hint, reference
 **Methods:** focus(), blur(), stepDown(), stepUp()
