@@ -72,6 +72,7 @@
     "validate:fixture-exclusions": "tsx scripts/validate-fixture-exclusions.ts",
     "validate:gha-permissions": "tsx scripts/validate-gha-permissions.ts",
     "validate:attribution": "tsx scripts/check-commit-attribution.ts --pr",
+    "validate:pr-body": "tsx scripts/validate-pr-body.ts",
     "validate:no-secrets": "tsx scripts/validate-no-secrets.ts",
     "validate:doc-links": "tsx scripts/validate-doc-links.ts",
     "validate:flush-code": "tsx scripts/validate-flush-code.ts",

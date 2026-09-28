@@ -134,26 +134,14 @@ describe('findPullRequestAttribution', () => {
   };
 
   it('passes a clean PR', () => {
-    expect(
-      findPullRequestAttribution({ body: 'Adds x.', commits: [clean] })
-    ).toEqual([]);
+    expect(findPullRequestAttribution({ commits: [clean] })).toEqual([]);
   });
 
   it('names the commit that carries a trailer', () => {
     const findings = findPullRequestAttribution({
-      body: 'Adds x.',
       commits: [clean, dirty],
     });
     expect(findings).toHaveLength(1);
     expect(findings[0].source).toBe('commit bbbbbbb2');
-  });
-
-  it('flags a PR body footer', () => {
-    const findings = findPullRequestAttribution({
-      body: 'Adds x.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)',
-      commits: [clean],
-    });
-    expect(findings).toHaveLength(1);
-    expect(findings[0].source).toBe('PR body');
   });
 });

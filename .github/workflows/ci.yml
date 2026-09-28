@@ -254,10 +254,12 @@ jobs:
 
   attribution:
     name: No AI attribution
-    # A squash merge copies the PR body or every branch commit message into the
-    # new commit on main. GitHub writes that commit server-side, so the local
-    # commit-msg hook never sees it; two Cursor Agent trailers reached main
-    # that way (issue #97). This checks both sources before the merge.
+    # A squash merge copies every branch commit message into the new commit on
+    # main. GitHub writes that commit server-side, so the local commit-msg hook
+    # never sees it; two Cursor Agent trailers reached main that way (issue
+    # #97). This checks the commits. The PR body, which the squash copies too,
+    # is checked by pr-body.yml: it runs on `edited`, and this workflow does
+    # not, so a body changed after the last push was never seen here (#150).
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
@@ -282,9 +284,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check PR body and commits
+      - name: Check commits
         env:
-          PR_BODY: ${{ github.event.pull_request.body }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: pnpm run validate:attribution

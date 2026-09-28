@@ -1,0 +1,93 @@
+name: PR body
+
+# The repo squashes with `squash_merge_commit_message: PR_BODY`, so a PR body
+# becomes the commit message on main. This keeps it short and true (issue
+# #150, docs/adr/0006). A workflow of its own because it must run on
+# `edited`: adding that to ci.yml would cancel and restart the full CI on
+# every body edit, through ci.yml's shared concurrency group.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review, converted_to_draft]
+
+permissions:
+  contents: read
+
+jobs:
+  body:
+    name: PR body
+    # Bots (dependabot) and the changesets release PR write their own bodies.
+    # A skipped job satisfies a required check. isExempt() in
+    # scripts/pr-body-rules.ts states the same rule for pr-log.yml, which
+    # needs it in code (a commit status has no skipped state): change both.
+    if: github.event.pull_request.user.type != 'Bot' && github.event.pull_request.head.ref != 'changeset-release/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pr-body-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check the PR body
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: pnpm run validate:pr-body --event "$GITHUB_EVENT_PATH"
+
+  trail:
+    name: PR body edit trail
+    # Posts the old-to-new diff of every body edit as a comment, written by
+    # the workflow from the event payload, so the record of what changed
+    # cannot be made up or forgotten. No concurrency group: a queued run
+    # would replace a pending one and lose that edit's trail.
+    if: >-
+      github.event.action == 'edited' && github.event.changes.body != null &&
+      github.event.pull_request.user.type != 'Bot' && github.event.pull_request.head.ref != 'changeset-release/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Post the edit trail
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: pnpm run validate:pr-body --event "$GITHUB_EVENT_PATH" --trail
