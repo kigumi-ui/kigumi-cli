@@ -47,8 +47,9 @@ A **round** is one push session. Each round gets exactly one new log comment.
 3. Number the round: one more than the log comments already on the PR,
    `gh api "repos/{owner}/{repo}/issues/<pr>/comments" --paginate --jq '.[] | select(.body | startswith("**Round ")) | .id' | wc -l`.
 4. Write the comment. Its first line is exactly
-   `**Round N** · Covers: <from>..<to>`. Below it, only the parts that have
-   content:
+   `**Round N** · Covers: <from>..<to>`, a range read as `git log` reads it:
+   `<from>` itself is not covered, which is why it is the old head. Below it,
+   only the parts that have content:
    - **Changed**: what this round did, and why.
    - **Body edits**: each sentence you changed in the body, and why.
    - **Evidence**: bug-injection tables, gate output, anything a reviewer

@@ -16,9 +16,10 @@ log (issue #150):
   once, from the diff and the issue rather than from session memory, and
   afterwards only corrected where it became wrong.
 - **The log** is one new PR comment per push, headed
-  `**Round N** · Covers: a..b`, never edited afterwards. Review rounds, fixes
-  and evidence live there, including tables, checklists and `<details>`,
-  which break or turn into noise in `git log`.
+  `**Round N** · Covers: a..b`, never edited afterwards. The range reads as
+  `git log a..b` does: the commits after `a`, up to and including `b`.
+  Review rounds, fixes and evidence live there, including tables, checklists
+  and `<details>`, which break or turn into noise in `git log`.
 
 Reviewers read both, and the diff decides a contradiction. This is the
 procedure human review already had: a description, then a conversation.
