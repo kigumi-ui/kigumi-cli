@@ -42,12 +42,14 @@ interface PullRequestEvent {
   action: string;
   sender: { login: string };
   changes?: { body?: { from?: string | null } };
+  repository: { full_name: string };
   pull_request: {
     number: number;
     body: string | null;
     draft: boolean;
     user: { type: string };
-    head: { ref: string; sha: string };
+    // `repo` is null once a fork's repository is deleted.
+    head: { ref: string; sha: string; repo: { full_name: string } | null };
     base: { sha: string };
   };
 }
@@ -55,6 +57,8 @@ interface PullRequestEvent {
 interface Input {
   body: string;
   draft: boolean;
+  /** Why the PR is exempt (`isExempt()`); its body gets the attribution check only. */
+  exempt: string | null;
   base: string;
   head: string;
   pr?: number;
@@ -69,19 +73,24 @@ function flag(name: string): string | undefined {
 
 /** Gathers the facts the claim rules need. Drafts skip claims, so they skip this. */
 function gatherContext(input: Input): { ctx: BodyContext; evidence: string } {
-  if (input.draft) {
+  if (input.exempt || input.draft) {
     const ctx: BodyContext = {
-      draft: true,
+      exempt: input.exempt,
+      draft: input.draft,
       changesetBump: 'none',
       existingIssues: new Set(),
       knownPaths: new Set(),
       commentIds: new Set(),
     };
-    return { ctx, evidence: 'claims not checked: draft' };
+    const evidence = input.exempt
+      ? `exempt (${input.exempt}): only the attribution rule checked`
+      : 'claims not checked: draft';
+    return { ctx, evidence };
   }
   const cwd = process.cwd();
   const mentioned = mentionedIssues(input.body);
   const ctx: BodyContext = {
+    exempt: null,
     draft: false,
     changesetBump: changesetBump(cwd, input.base, input.head),
     existingIssues: new Set(mentioned.filter((issue) => issueExists(issue))),
@@ -100,7 +109,7 @@ function validate(input: Input): number {
   const { ctx, evidence } = gatherContext(input);
   const findings: BodyFinding[] = [
     ...checkBody(input.body, ctx),
-    ...(input.edit
+    ...(input.edit && !input.exempt
       ? checkRewrite(input.edit.before, input.body, {
           draft: input.draft,
           actor: input.edit.actor,
@@ -132,19 +141,20 @@ function validate(input: Input): number {
   return 1;
 }
 
-function fromEvent(eventPath: string): Input | null {
+function fromEvent(eventPath: string): Input {
   const event = fs.readJSONSync(eventPath) as PullRequestEvent;
   const pr = event.pull_request;
-  const exempt = isExempt({ authorType: pr.user.type, headRef: pr.head.ref });
-  if (exempt) {
-    console.log(pc.yellow(`PR body not checked: exempt (${exempt}).`));
-    return null;
-  }
+  const exempt = isExempt({
+    authorType: pr.user.type,
+    headRef: pr.head.ref,
+    sameRepo: pr.head.repo?.full_name === event.repository.full_name,
+  });
   const bodyChanged =
     event.action === 'edited' && event.changes?.body !== undefined;
   return {
     body: pr.body ?? '',
     draft: pr.draft,
+    exempt,
     base: pr.base.sha,
     head: pr.head.sha,
     pr: pr.number,
@@ -180,10 +190,7 @@ function main(): number {
   const eventPath = flag('--event');
   if (eventPath && process.argv.includes('--trail'))
     return postTrail(eventPath);
-  if (eventPath) {
-    const input = fromEvent(eventPath);
-    return input ? validate(input) : 0;
-  }
+  if (eventPath) return validate(fromEvent(eventPath));
 
   const bodyFile = flag('--body-file');
   if (!bodyFile) {
@@ -198,6 +205,7 @@ function main(): number {
   return validate({
     body: fs.readFileSync(bodyFile, 'utf8'),
     draft: process.argv.includes('--draft'),
+    exempt: null,
     base: flag('--base') ?? 'origin/main',
     head: 'HEAD',
     pr: pr ? Number(pr) : undefined,

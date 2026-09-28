@@ -23,6 +23,7 @@ import {
 
 function context(overrides: Partial<BodyContext> = {}): BodyContext {
   return {
+    exempt: null,
     draft: false,
     changesetBump: 'none',
     existingIssues: new Set([6, 150]),
@@ -498,6 +499,15 @@ describe('checkBody: AI attribution', () => {
     const body = `${VALID}\n\n## Review focus\nThe Claude stop hook no longer runs this check.`;
     expect(checkBody(body, context())).toEqual([]);
   });
+
+  it('checks an exempt PR for attribution only, since the squash writes its body too', () => {
+    // A generated body: a table and no Impact are fine, attribution is not.
+    const body =
+      '# Releases\n\n| a | b |\n| - | - |\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)';
+    expect(rules(checkBody(body, context({ exempt: 'release PR' })))).toEqual([
+      'attribution',
+    ]);
+  });
 });
 
 describe('bodyEdit: how much of the body an edit changed', () => {
@@ -623,13 +633,35 @@ describe('logCoverage: every pushed commit sits in a Covers range', () => {
 describe('isExempt', () => {
   it('exempts bot authors and the changesets release branch, nothing else', () => {
     expect(
-      isExempt({ authorType: 'Bot', headRef: 'dependabot/npm_and_yarn/x' })
+      isExempt({
+        authorType: 'Bot',
+        headRef: 'dependabot/npm_and_yarn/x',
+        sameRepo: true,
+      })
     ).toBe('bot author');
     expect(
-      isExempt({ authorType: 'User', headRef: 'changeset-release/main' })
+      isExempt({
+        authorType: 'User',
+        headRef: 'changeset-release/main',
+        sameRepo: true,
+      })
     ).toBe('release PR');
     expect(
-      isExempt({ authorType: 'User', headRef: 'issue-150-pr-body-log' })
+      isExempt({
+        authorType: 'User',
+        headRef: 'issue-150-pr-body-log',
+        sameRepo: true,
+      })
+    ).toBeNull();
+  });
+
+  it("does not exempt a fork's branch that happens to be named changeset-release/main", () => {
+    expect(
+      isExempt({
+        authorType: 'User',
+        headRef: 'changeset-release/main',
+        sameRepo: false,
+      })
     ).toBeNull();
   });
 });

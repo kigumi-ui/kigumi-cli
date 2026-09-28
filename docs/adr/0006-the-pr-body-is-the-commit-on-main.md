@@ -64,12 +64,15 @@ two guards hold them:
   comment-triggered job is attached to main rather than the PR, so it reports
   the `pr-log` commit status instead of a job result.
 
-Bots and the changesets release PR are exempt: their bodies are generated.
-The body job skips them through its `if:`, and a skipped job satisfies a
-required check. A commit status has no skipped state, so `pr-log` passes an
-exempt PR with the description `Not checked: exempt (...)` and keeps a draft
-`pending`. That is ADR 0003 applied within what the status API allows: the
-outcome never claims a check ran.
+Bots and this repository's changesets release PR (not a fork's branch of
+the same name) are exempt from the structure and claim rules and from the
+log: their bodies are generated. The attribution rule still applies, since
+the squash writes their body to main like any other, and the release body
+is built from changesets that agents write. A commit status has no skipped
+state, so `pr-log` passes an exempt PR with the description
+`Not checked: exempt (...)` and keeps a draft `pending`. That is ADR 0003
+applied within what the status API allows: the outcome never claims a
+check ran.
 
 ## Consequences
 

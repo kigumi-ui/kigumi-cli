@@ -15,11 +15,10 @@ permissions:
 jobs:
   body:
     name: PR body
-    # Bots (dependabot) and the changesets release PR write their own bodies.
-    # A skipped job satisfies a required check. isExempt() in
-    # scripts/pr-body-rules.ts states the same rule for pr-log.yml, which
-    # needs it in code (a commit status has no skipped state): change both.
-    if: github.event.pull_request.user.type != 'Bot' && github.event.pull_request.head.ref != 'changeset-release/main'
+    # Runs on every PR. Bots (dependabot) and this repo's changesets release
+    # PR generate their bodies, so for them isExempt() in
+    # scripts/pr-body-rules.ts leaves only the attribution rule: the squash
+    # writes their body to main like any other (issue #97).
     runs-on: ubuntu-latest
     concurrency:
       group: pr-body-${{ github.event.pull_request.number }}

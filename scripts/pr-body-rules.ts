@@ -19,6 +19,12 @@ export type Bump = 'none' | 'patch' | 'minor' | 'major';
 
 /** Facts about the pull request that a body is checked against. */
 export interface BodyContext {
+  /**
+   * Why the PR is exempt (`isExempt()`), or null. An exempt body is checked
+   * for attribution only: it is generated, but the squash still writes it
+   * to main.
+   */
+  exempt: string | null;
   /** Draft PRs are only checked for structure, not for required headings or claims. */
   draft: boolean;
   /** Highest bump across the changesets the diff adds or changes. */
@@ -425,6 +431,7 @@ function checkVerification(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
  */
 export function checkBody(rawBody: string, ctx: BodyContext): BodyFinding[] {
   const body = rawBody.replace(/\r\n?/g, '\n');
+  if (ctx.exempt) return checkAttribution(body);
   const lines = readLines(body);
   const findings = [
     ...checkHeadings(lines),
@@ -603,13 +610,21 @@ export function logCoverage(
   return result;
 }
 
-/** Why a PR is not checked, or null when it is. Bots and the release PR write their own bodies. */
+/**
+ * Why a PR is exempt from the structure, claim and log rules, or null when
+ * it is not: bots and this repo's changesets release PR generate their
+ * bodies. A fork's branch of the same name is not the release PR.
+ */
 export function isExempt(pr: {
   authorType: string;
   headRef: string;
+  /** The head branch lives in this repository, not in a fork. */
+  sameRepo: boolean;
 }): string | null {
   if (pr.authorType === 'Bot') return 'bot author';
-  if (pr.headRef === 'changeset-release/main') return 'release PR';
+  if (pr.sameRepo && pr.headRef === 'changeset-release/main') {
+    return 'release PR';
+  }
   return null;
 }
 

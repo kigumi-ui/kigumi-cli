@@ -86,6 +86,8 @@ export interface PullRequestInfo {
   authorType: string;
   headRef: string;
   headSha: string;
+  /** The head branch lives in this repository, not in a fork. */
+  sameRepo: boolean;
   baseRef: string;
   /** Seconds since the epoch. */
   createdAt: number;
@@ -97,8 +99,9 @@ export function pullRequest(pr: number): PullRequestInfo {
     draft: boolean;
     created_at: string;
     user: { type: string };
-    head: { ref: string; sha: string };
-    base: { ref: string };
+    // `repo` is null once a fork's repository is deleted.
+    head: { ref: string; sha: string; repo: { full_name: string } | null };
+    base: { ref: string; repo: { full_name: string } };
   };
   return {
     number: raw.number,
@@ -106,6 +109,7 @@ export function pullRequest(pr: number): PullRequestInfo {
     authorType: raw.user.type,
     headRef: raw.head.ref,
     headSha: raw.head.sha,
+    sameRepo: raw.head.repo?.full_name === raw.base.repo.full_name,
     baseRef: raw.base.ref,
     createdAt: Math.floor(Date.parse(raw.created_at) / 1000),
   };
