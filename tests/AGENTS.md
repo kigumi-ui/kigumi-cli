@@ -86,7 +86,7 @@ tests/
 │   ├── slider-range-values.test.ts  # Slider `min-value` / `max-value` stay off the host until set, in every React and Vue variant: `wa-slider` resets a range to them by presence (#102)
 │   ├── snapshot.test.ts             # Snapshot CRUD and community install snapshots
 │   ├── status-json.test.ts          # Status --json output
-│   ├── storybook-generator.test.ts  # Storybook story generation; `argTypeDefaultSummary` / `sameDefault`, which `validate:stories` uses to hold argType default summaries to the registry (#152)
+│   ├── storybook-generator.test.ts  # Storybook story generation; `parseStory` / `argTypeDefaultSummary` / `sameDefault`, which `validate:stories` uses to hold argType default summaries to the registry, including comments with quotes and every unreadable shape (#152)
 │   ├── surgical-rewrite-layers-css.test.ts # Surgical @import rewrite for layers.css
 │   ├── template.test.ts             # Template materialization + tier swap
 │   ├── enumerated-boolean-attributes.test.ts # The enumerated-boolean pin against the real Free runtime (every Free element's Lit `elementProperties`, both directions, keywords read back) and the registry `keywords` against the pin (issue #101)

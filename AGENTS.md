@@ -94,7 +94,7 @@ node dist/index.js add button --force
 | `scripts/storybook/overrides.ts` | Storybook story overrides |
 | `scripts/storybook/patch-stories.ts` | Patch generated Storybook stories |
 | `scripts/storybook/story-data.ts` | Storybook story data helpers |
-| `scripts/storybook/validate-stories.ts` | Validate Storybook story structure: an argType per registry prop, and each argType's `defaultValue.summary` equal to the registry default (issue #152) |
+| `scripts/storybook/validate-stories.ts` | Validate Storybook story structure: an argType per registry prop, and each argType's `defaultValue.summary` equal to the registry default, read from the parsed story file; an argType whose summary it cannot read statically is an `unreadable-argtypes` error, never a skip (issue #152, `docs/adr/0003`) |
 | `scripts/release-readiness.ts` | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness` |
 | `scripts/upstream-holds.json` | Majors already evaluated and deliberately held: toolchain (`typescript`, `vitest`) and the `@angular/cli` scaffold pin (Angular 22, until #156); `check-upstream-versions.ts` reads it so the weekly report stops re-flagging a decision already made, and only surfaces a genuinely new major |
 

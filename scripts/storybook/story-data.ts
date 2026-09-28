@@ -7,6 +7,7 @@
  * Usage: Import buildAllStoryData() or buildStoryData() in other storybook scripts.
  */
 
+import ts from 'typescript';
 import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
 import { COMPONENT_METADATA } from '../../src/utils/component-metadata.js';
 import type { ComponentProp } from '../../src/utils/registry/types.js';
@@ -233,66 +234,176 @@ export function buildAllStoryData(): Map<string, StoryData> {
 // ─── Story default summaries ─────────────────────────────────────────────────
 
 /**
- * The index of the brace that closes the one at `open`, skipping braces
- * inside string literals, or -1 when it never closes.
+ * What a story file's `meta.argTypes` states about one argType's default.
+ * `unreadable` is a state of its own, never folded into `missing` or
+ * `no-summary`: an argType whose summary cannot be read statically has not
+ * been checked (docs/adr/0003).
  */
-function closingBrace(source: string, open: number): number {
-  let depth = 0;
-  let quote: string | null = null;
-  for (let i = open; i < source.length; i++) {
-    const char = source[i];
-    if (quote) {
-      if (char === '\\') i++;
-      else if (char === quote) quote = null;
-      continue;
-    }
-    if (char === "'" || char === '"' || char === '`') quote = char;
-    else if (char === '{') depth++;
-    else if (char === '}' && --depth === 0) return i;
-  }
-  return -1;
+export type ArgTypeDefault =
+  | { kind: 'summary'; summary: string }
+  | { kind: 'no-summary' }
+  | { kind: 'missing' }
+  | { kind: 'unreadable'; reason: string };
+
+/** Parse a story file once, for any number of `argTypeDefaultSummary` reads. */
+export function parseStory(source: string): ts.SourceFile {
+  return ts.createSourceFile(
+    'story.tsx',
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  );
 }
 
-const ARG_TYPE_KEY = /(?:'([^']+)'|"([^"]+)"|([A-Za-z_$][\w$]*))\s*:\s*\{/y;
+/** `x satisfies T`, `x as T` and `(x)`, looked through to `x`. */
+function unwrap(node: ts.Expression): ts.Expression {
+  let value = node;
+  while (
+    ts.isSatisfiesExpression(value) ||
+    ts.isAsExpression(value) ||
+    ts.isParenthesizedExpression(value)
+  ) {
+    value = value.expression;
+  }
+  return value;
+}
 
-/**
- * The `defaultValue.summary` a story file's `argTypes` gives `argName`, as the
- * text inside its quotes. `null` when the argType states no summary,
- * `undefined` when the file has no such argType. Only the `argTypes` block's
- * own keys are read, so a same-named key in `args` or inside another argType
- * is never taken for it (issue #152).
- */
-export function argTypeDefaultSummary(
-  source: string,
-  argName: string
-): string | null | undefined {
-  const section = /argTypes\s*:\s*\{/.exec(source);
-  if (!section) return undefined;
-  const open = section.index + section[0].length - 1;
-  const close = closingBrace(source, open);
-  if (close === -1) return undefined;
+/** `where` extended by `key`, as a reader would write the member access. */
+function member(where: string, key: string): string {
+  return /^[A-Za-z_$][\w$]*$/.test(key)
+    ? `${where}.${key}`
+    : `${where}[${JSON.stringify(key)}]`;
+}
 
-  let i = open + 1;
-  while (i < close) {
-    ARG_TYPE_KEY.lastIndex = i;
-    const key = ARG_TYPE_KEY.exec(source);
-    if (!key) {
-      i++;
-      continue;
-    }
-    const blockOpen = ARG_TYPE_KEY.lastIndex - 1;
-    const blockClose = closingBrace(source, blockOpen);
-    if (blockClose === -1) return undefined;
-    if ((key[1] ?? key[2] ?? key[3]) === argName) {
-      const summary =
-        /defaultValue\s*:\s*\{\s*summary\s*:\s*(['"`])((?:(?!\1)[^\\]|\\.)*)\1/.exec(
-          source.slice(blockOpen, blockClose + 1)
-        );
-      return summary ? summary[2] : null;
-    }
-    i = blockClose + 1;
+/** A property's name when it is fixed in the source, else `undefined`. */
+function staticName(name: ts.PropertyName): string | undefined {
+  if (
+    ts.isIdentifier(name) ||
+    ts.isStringLiteralLike(name) ||
+    ts.isNumericLiteral(name)
+  ) {
+    return name.text;
+  }
+  if (
+    ts.isComputedPropertyName(name) &&
+    ts.isStringLiteralLike(name.expression)
+  ) {
+    return name.expression.text;
   }
   return undefined;
+}
+
+/**
+ * The value `object` gives `key`, decided like the runtime does, by the last
+ * property that can set it: `undefined` when none does, and the reason as a
+ * string when a spread, a computed key, a shorthand or an accessor may set
+ * it, since its value is then not in the literal.
+ */
+function propertyValue(
+  object: ts.ObjectLiteralExpression,
+  key: string,
+  where: string
+): ts.Expression | string | undefined {
+  let value: ts.Expression | string | undefined;
+  for (const property of object.properties) {
+    if (ts.isSpreadAssignment(property)) {
+      value = `\`${where}\` spreads another object`;
+      continue;
+    }
+    const name = staticName(property.name);
+    if (name === undefined) {
+      value = `\`${where}\` has a computed key`;
+    } else if (name === key) {
+      value = ts.isPropertyAssignment(property)
+        ? unwrap(property.initializer)
+        : `\`${member(where, key)}\` is a shorthand, method or accessor`;
+    }
+  }
+  return value;
+}
+
+/**
+ * Follow `path` from `object` through nested object literals to the value at
+ * its end: `undefined` when a key on the way is absent, and the reason as a
+ * string when the way cannot be followed in the source.
+ */
+function follow(
+  object: ts.ObjectLiteralExpression,
+  path: string[],
+  where: string
+): ts.Expression | string | undefined {
+  let current = object;
+  let at = where;
+  for (const [index, key] of path.entries()) {
+    const value = propertyValue(current, key, at);
+    at = member(at, key);
+    if (value === undefined || typeof value === 'string') return value;
+    if (index === path.length - 1) return value;
+    if (!ts.isObjectLiteralExpression(value)) {
+      return `\`${at}\` is not an object literal`;
+    }
+    current = value;
+  }
+  return current;
+}
+
+/** The object literal assigned to `const meta`, or why there is none. */
+function metaObject(story: ts.SourceFile): ts.ObjectLiteralExpression | string {
+  for (const statement of story.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (
+        ts.isIdentifier(declaration.name) &&
+        declaration.name.text === 'meta' &&
+        declaration.initializer
+      ) {
+        const value = unwrap(declaration.initializer);
+        return ts.isObjectLiteralExpression(value)
+          ? value
+          : '`meta` is not an object literal';
+      }
+    }
+  }
+  return 'the file declares no `const meta`';
+}
+
+/**
+ * The `table.defaultValue.summary` a story's `meta.argTypes` gives `argName`
+ * (issue #152). It reads the parsed file, so a quote or brace in a comment
+ * never shifts what is read, and a same-named key in `args` or inside another
+ * argType is never taken for it. What it cannot follow in the source, such
+ * as a spread, a shared constant or a computed summary, is `unreadable` with
+ * the reason, never `missing` or `no-summary`.
+ */
+export function argTypeDefaultSummary(
+  story: ts.SourceFile,
+  argName: string
+): ArgTypeDefault {
+  const unreadable = (reason: string): ArgTypeDefault => ({
+    kind: 'unreadable',
+    reason,
+  });
+
+  const meta = metaObject(story);
+  if (typeof meta === 'string') return unreadable(meta);
+
+  const argType = follow(meta, ['argTypes', argName], 'meta');
+  if (argType === undefined) return { kind: 'missing' };
+  if (typeof argType === 'string') return unreadable(argType);
+  const at = member('meta.argTypes', argName);
+  if (!ts.isObjectLiteralExpression(argType)) {
+    return unreadable(`\`${at}\` is not an object literal`);
+  }
+
+  const summary = follow(argType, ['table', 'defaultValue', 'summary'], at);
+  if (summary === undefined) return { kind: 'no-summary' };
+  if (typeof summary === 'string') return unreadable(summary);
+  return ts.isStringLiteralLike(summary)
+    ? { kind: 'summary', summary: summary.text }
+    : unreadable(
+        `\`${at}.table.defaultValue.summary\` is not a string literal`
+      );
 }
 
 /**
