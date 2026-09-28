@@ -316,6 +316,54 @@ describe('template utilities', () => {
       );
       expect(pro).not.toMatch(/@awesome\.me\/webawesome\/dist/);
     });
+
+    it.each(['react', 'vue', 'angular'] as const)(
+      'rewrites the dist/events type imports to the Pro package (%s)',
+      async (framework) => {
+        // Handler types import Web Awesome's event classes from dist/events
+        // (docs/adr/0005); a Pro project must get them from the Pro package.
+        const dialog = getComponent('dialog');
+        expect(dialog).toBeDefined();
+        if (!dialog) return;
+
+        const config: KigumiConfig = {
+          framework,
+          typescript: true,
+          componentsDir: 'src/components',
+          utilsDir: 'src/lib',
+          stylesDir: 'src/styles',
+          theme: {
+            selected: 'awesome',
+            palette: 'sky',
+            brandColor: '#0ea5e9',
+          },
+        };
+
+        const free = await generateComponent(
+          dialog,
+          config,
+          true,
+          testDir,
+          'free'
+        );
+        const pro = await generateComponent(
+          dialog,
+          config,
+          true,
+          testDir,
+          'pro'
+        );
+
+        // Premise: the committed Template really imports an event class.
+        expect(free).toContain(
+          "import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';"
+        );
+        expect(pro).toContain(
+          "import type { WaHideEvent } from '@awesome.me/webawesome-pro/dist/events/hide.js';"
+        );
+        expect(pro).not.toMatch(/@awesome\.me\/webawesome\/dist\/events/);
+      }
+    );
   });
 
   describe('generateComponentCSS', () => {

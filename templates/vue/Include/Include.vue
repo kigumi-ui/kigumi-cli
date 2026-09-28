@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaInclude from '@awesome.me/webawesome/dist/components/include/include.js';
+import type { WaIncludeErrorEvent } from '@awesome.me/webawesome/dist/events/include-error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome/dist/events/load.js';
 import './Include.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,8 +52,8 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-load': [event: CustomEvent];
-  'wa-include-error': [event: CustomEvent];
+  'wa-load': [event: WaLoadEvent];
+  'wa-include-error': [event: WaIncludeErrorEvent];
 }>();
 
 const elementRef = ref<WaInclude | null>(null);
@@ -60,9 +62,9 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
+const handleWaLoad = (e: Event) => emit('wa-load', e as WaLoadEvent);
 const handleWaIncludeError = (e: Event) =>
-  emit('wa-include-error', e as CustomEvent);
+  emit('wa-include-error', e as WaIncludeErrorEvent);
 
 onMounted(() => {
   const el = elementRef.value;

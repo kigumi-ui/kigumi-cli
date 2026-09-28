@@ -56,8 +56,18 @@ An event a Web Awesome component fires that the DOM already defines, such as
 never Kigumi's to invent.
 
 **Custom event**:
-An event Web Awesome defines itself, always prefixed `wa-`. Carries a payload
-in `detail` and is typed `CustomEvent` in generated Templates.
+An event Web Awesome defines itself, always prefixed `wa-`. Dispatched as a
+Web Awesome event class (`WaHideEvent`, extending `Event`, not `CustomEvent`)
+that may carry a typed payload in `detail`. Generated Templates type the
+handler with that class.
+
+**Event class**:
+The class Web Awesome declares for a custom event under its package's
+`dist/events/`, registered for one event name in `GlobalEventHandlersEventMap`.
+A component that dispatches a second class under a shared name (the accordion's
+`WaAccordionExpandEvent` as `wa-expand`) is pinned in `EVENT_CLASS_OVERRIDES`.
+_Avoid_: event name (that is the DOM name, `wa-hide`), `eventName` (the
+manifest's pascal-cased label, which is not a type)
 
 **Event name transformation**:
 Turning an event's DOM name into the identifier a framework uses for its

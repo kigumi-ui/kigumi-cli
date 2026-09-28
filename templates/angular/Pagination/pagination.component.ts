@@ -11,6 +11,8 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/pagination/pagination.js';
+import type { WaBeforePageChangeEvent } from '@awesome.me/webawesome/dist/events/before-page-change.js';
+import type { WaPageChangeEvent } from '@awesome.me/webawesome/dist/events/page-change.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -83,8 +85,8 @@ export class PaginationComponent implements AfterViewInit, OnDestroy {
   /** Disables the pagination */
   @Input() disabled?: boolean;
 
-  @Output() beforePageChange = new EventEmitter<CustomEvent>();
-  @Output() pageChange = new EventEmitter<CustomEvent>();
+  @Output() beforePageChange = new EventEmitter<WaBeforePageChangeEvent>();
+  @Output() pageChange = new EventEmitter<WaPageChangeEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -105,13 +107,13 @@ export class PaginationComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleBeforePageChange = (e: Event) =>
-      this.beforePageChange.emit(e as CustomEvent);
+      this.beforePageChange.emit(e as WaBeforePageChangeEvent);
     el.addEventListener('wa-before-page-change', handleBeforePageChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-before-page-change', handleBeforePageChange)
     );
     const handlePageChange = (e: Event) =>
-      this.pageChange.emit(e as CustomEvent);
+      this.pageChange.emit(e as WaPageChangeEvent);
     el.addEventListener('wa-page-change', handlePageChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-page-change', handlePageChange)

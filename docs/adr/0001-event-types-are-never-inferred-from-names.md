@@ -23,3 +23,9 @@ This deliberately ignores the type Web Awesome declares in the manifest for some
 events, which we currently discard for 34 of 140 events. Adopting those is
 tracked separately and would change generated output again, notably for the 15
 events whose declared type is an object shape.
+
+Superseded in part by ADR 0005. Custom events are no longer `CustomEvent`: they
+take the Web Awesome class the component dispatches. The native-event table
+moved to `scripts/event-types.ts` and is now consulted only when the manifest
+declares no scalar type. The rule that no type is read off a name-shaped string
+stands.

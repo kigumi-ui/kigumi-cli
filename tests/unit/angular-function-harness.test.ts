@@ -35,7 +35,11 @@ import type {
   FormValueProperty,
 } from './angular-function-harness.js';
 
-const SHOW = { name: 'wa-after-show', eventType: 'CustomEvent' };
+const SHOW = {
+  name: 'wa-after-show',
+  eventType: 'WaAfterShowEvent',
+  eventTypeModule: 'after-show',
+};
 
 interface InlineOptions {
   selector?: string;
@@ -362,7 +366,13 @@ describe('proveAngularTemplate', () => {
         metadata: {
           tagName: 'wa-probe',
           attributes: [],
-          events: [{ name: 'wa-invalid', eventType: 'CustomEvent' }],
+          events: [
+            {
+              name: 'wa-invalid',
+              eventType: 'WaInvalidEvent',
+              eventTypeModule: 'invalid',
+            },
+          ],
           methods: [],
         },
       }

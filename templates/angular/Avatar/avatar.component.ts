@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/avatar/avatar.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -56,7 +57,7 @@ export class AvatarComponent implements AfterViewInit, OnDestroy {
   /** The shape of the avatar */
   @Input() shape?: 'circle' | 'square' | 'rounded';
 
-  @Output() error = new EventEmitter<CustomEvent>();
+  @Output() error = new EventEmitter<WaErrorEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -76,7 +77,7 @@ export class AvatarComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleError = (e: Event) => this.error.emit(e as CustomEvent);
+    const handleError = (e: Event) => this.error.emit(e as WaErrorEvent);
     el.addEventListener('wa-error', handleError);
     this.cleanups.push(() => el.removeEventListener('wa-error', handleError));
   }

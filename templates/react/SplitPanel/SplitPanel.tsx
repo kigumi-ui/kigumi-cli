@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaSplitPanel from '@awesome.me/webawesome/dist/components/split-panel/split-panel.js';
+import type { WaRepositionEvent } from '@awesome.me/webawesome/dist/events/reposition.js';
 import './SplitPanel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -56,7 +57,7 @@ export interface SplitPanelProps extends Omit<
   'snap-threshold'?: number;
 
   /** Emitted when the divider's position changes. */
-  onReposition?: (event: CustomEvent) => void;
+  onReposition?: (event: WaRepositionEvent) => void;
 }
 
 export interface SplitPanelRef {
@@ -87,7 +88,7 @@ export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
       if (!el) return;
 
       const handleWaReposition = (e: Event) => {
-        if (onReposition) onReposition(e as CustomEvent);
+        if (onReposition) onReposition(e as WaRepositionEvent);
       };
 
       el.addEventListener('wa-reposition', handleWaReposition);

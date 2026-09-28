@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaPopup from '@awesome.me/webawesome/dist/components/popup/popup.js';
+import type { WaRepositionEvent } from '@awesome.me/webawesome/dist/events/reposition.js';
 import './Popup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -105,7 +106,7 @@ export interface PopupProps extends Omit<
   'auto-size-padding'?: number;
 
   /** Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it. */
-  onReposition?: (event: CustomEvent) => void;
+  onReposition?: (event: WaRepositionEvent) => void;
 }
 
 export interface PopupRef {
@@ -146,7 +147,7 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       if (!el) return;
 
       const handleWaReposition = (e: Event) => {
-        if (onReposition) onReposition(e as CustomEvent);
+        if (onReposition) onReposition(e as WaRepositionEvent);
       };
 
       el.addEventListener('wa-reposition', handleWaReposition);

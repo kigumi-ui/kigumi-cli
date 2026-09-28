@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaIntersectionObserver from '@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js';
+import type { WaIntersectEvent } from '@awesome.me/webawesome/dist/events/intersect.js';
 import './IntersectionObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,7 +51,7 @@ export interface IntersectionObserverProps extends Omit<
   'intersect-class'?: string;
 
   /** Fired when a tracked element begins or ceases intersecting. */
-  onIntersect?: (event: CustomEvent) => void;
+  onIntersect?: (event: WaIntersectEvent) => void;
 }
 
 export interface IntersectionObserverRef {
@@ -86,7 +87,7 @@ export const IntersectionObserver = forwardRef<
     if (!el) return;
 
     const handleWaIntersect = (e: Event) => {
-      if (onIntersect) onIntersect(e as CustomEvent);
+      if (onIntersect) onIntersect(e as WaIntersectEvent);
     };
 
     el.addEventListener('wa-intersect', handleWaIntersect);

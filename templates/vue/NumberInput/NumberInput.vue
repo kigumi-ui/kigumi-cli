@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaNumberInput from '@awesome.me/webawesome/dist/components/number-input/number-input.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './NumberInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -72,7 +73,7 @@ const emit = defineEmits<{
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
   beforeinput: [event: InputEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<number>();
@@ -92,11 +93,11 @@ const handleInput = (e: Event) => {
   model.value = (e.target as HTMLElement & { value: number }).value;
   emit('input', e as InputEvent);
 };
-const handleChange = (e: Event) => emit('change', e as Event);
+const handleChange = (e: Event) => emit('change', e);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleBeforeinput = (e: Event) => emit('beforeinput', e as InputEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

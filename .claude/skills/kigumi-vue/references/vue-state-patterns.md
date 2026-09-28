@@ -57,23 +57,25 @@ async function handleSubmit(e: Event) {
     <Input
       label="Name"
       required
-      @input="(e: Event) => form.name = (e.target as HTMLInputElement).value"
+      @input="(e: Event) => (form.name = (e.target as HTMLInputElement).value)"
     />
     <Input
       label="Email"
       type="email"
       required
-      @input="(e: Event) => form.email = (e.target as HTMLInputElement).value"
+      @input="(e: Event) => (form.email = (e.target as HTMLInputElement).value)"
     />
     <Select
       label="Role"
-      @input="(e: Event) => form.role = (e.target as HTMLSelectElement).value"
+      @input="(e: Event) => (form.role = (e.target as HTMLSelectElement).value)"
     >
       <Option value="dev">Developer</Option>
       <Option value="design">Designer</Option>
     </Select>
     <Checkbox
-      @change="(e: Event) => form.agree = (e.target as HTMLInputElement).checked"
+      @change="
+        (e: Event) => (form.agree = (e.target as HTMLInputElement).checked)
+      "
     >
       I agree to the terms
     </Checkbox>
@@ -100,9 +102,7 @@ function closeDialog() {
 </script>
 
 <template>
-  <Dialog ref="dialogEl" :open="open" label="Title">
-    Content
-  </Dialog>
+  <Dialog ref="dialogEl" :open="open" label="Title"> Content </Dialog>
 </template>
 ```
 
@@ -111,10 +111,11 @@ function closeDialog() {
 ```vue
 <script setup lang="ts">
 import { Dropdown, DropdownItem, Button } from '@/components/ui';
+import type { WaSelectEvent } from '@awesome.me/webawesome/dist/events/select.js';
+// Pro projects: '@awesome.me/webawesome-pro/dist/events/select.js'
 
-function handleSelect(e: CustomEvent) {
-  const item = e.detail.item as HTMLElement;
-  const value = item.getAttribute('value');
+function handleSelect(e: WaSelectEvent) {
+  const value = e.detail.item.getAttribute('value');
   console.log('Selected:', value);
 }
 </script>
@@ -134,11 +135,13 @@ function handleSelect(e: CustomEvent) {
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Tab, TabGroup, TabPanel } from '@/components/ui';
+import type { WaTabShowEvent } from '@awesome.me/webawesome/dist/events/tab-show.js';
+// Pro projects: '@awesome.me/webawesome-pro/dist/events/tab-show.js'
 
 const activeTab = ref('general');
 
-function handleTabShow(e: CustomEvent) {
-  activeTab.value = (e.detail.name as string);
+function handleTabShow(e: WaTabShowEvent) {
+  activeTab.value = e.detail.name;
 }
 </script>
 
@@ -163,8 +166,12 @@ import { Dialog } from '@/components/ui';
 
 const open = ref(false);
 
-function show() { open.value = true; }
-function hide() { open.value = false; }
+function show() {
+  open.value = true;
+}
+function hide() {
+  open.value = false;
+}
 
 defineExpose({ show, hide });
 </script>
@@ -178,11 +185,11 @@ defineExpose({ show, hide });
 
 ## Event Pattern Summary
 
-| Need | Vue Syntax |
-|------|-----------|
-| Text input value | `@input="(e: Event) => val = (e.target as HTMLInputElement).value"` |
-| Checkbox checked | `@change="(e: Event) => val = (e.target as HTMLInputElement).checked"` |
-| Select value | `@input="(e: Event) => val = (e.target as HTMLSelectElement).value"` |
-| Dialog open/close | `:open="open" @wa-hide="open = false"` |
-| Dropdown selection | `@wa-select="(e: CustomEvent) => handle(e.detail.item)"` |
-| Tab change | `@wa-tab-show="(e: CustomEvent) => tab = e.detail.name"` |
+| Need               | Vue Syntax                                                             |
+| ------------------ | ---------------------------------------------------------------------- |
+| Text input value   | `@input="(e: Event) => val = (e.target as HTMLInputElement).value"`    |
+| Checkbox checked   | `@change="(e: Event) => val = (e.target as HTMLInputElement).checked"` |
+| Select value       | `@input="(e: Event) => val = (e.target as HTMLSelectElement).value"`   |
+| Dialog open/close  | `:open="open" @wa-hide="open = false"`                                 |
+| Dropdown selection | `@wa-select="(e) => handle(e.detail.item)"`                            |
+| Tab change         | `@wa-tab-show="(e) => tab = e.detail.name"`                            |

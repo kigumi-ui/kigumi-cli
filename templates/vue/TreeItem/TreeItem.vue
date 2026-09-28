@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaTreeItem from '@awesome.me/webawesome/dist/components/tree-item/tree-item.js';
+import type { WaAfterCollapseEvent } from '@awesome.me/webawesome/dist/events/after-collapse.js';
+import type { WaAfterExpandEvent } from '@awesome.me/webawesome/dist/events/after-expand.js';
+import type { WaCollapseEvent } from '@awesome.me/webawesome/dist/events/collapse.js';
+import type { WaExpandEvent } from '@awesome.me/webawesome/dist/events/expand.js';
+import type { WaLazyChangeEvent } from '@awesome.me/webawesome/dist/events/lazy-change.js';
+import type { WaLazyLoadEvent } from '@awesome.me/webawesome/dist/events/lazy-load.js';
 import './TreeItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -51,12 +57,12 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-expand': [event: CustomEvent];
-  'wa-after-expand': [event: CustomEvent];
-  'wa-collapse': [event: CustomEvent];
-  'wa-after-collapse': [event: CustomEvent];
-  'wa-lazy-change': [event: CustomEvent];
-  'wa-lazy-load': [event: CustomEvent];
+  'wa-expand': [event: WaExpandEvent];
+  'wa-after-expand': [event: WaAfterExpandEvent];
+  'wa-collapse': [event: WaCollapseEvent];
+  'wa-after-collapse': [event: WaAfterCollapseEvent];
+  'wa-lazy-change': [event: WaLazyChangeEvent];
+  'wa-lazy-load': [event: WaLazyLoadEvent];
 }>();
 
 const elementRef = ref<WaTreeItem | null>(null);
@@ -65,15 +71,17 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaExpand = (e: Event) => emit('wa-expand', e as CustomEvent);
+const handleWaExpand = (e: Event) => emit('wa-expand', e as WaExpandEvent);
 const handleWaAfterExpand = (e: Event) =>
-  emit('wa-after-expand', e as CustomEvent);
-const handleWaCollapse = (e: Event) => emit('wa-collapse', e as CustomEvent);
+  emit('wa-after-expand', e as WaAfterExpandEvent);
+const handleWaCollapse = (e: Event) =>
+  emit('wa-collapse', e as WaCollapseEvent);
 const handleWaAfterCollapse = (e: Event) =>
-  emit('wa-after-collapse', e as CustomEvent);
+  emit('wa-after-collapse', e as WaAfterCollapseEvent);
 const handleWaLazyChange = (e: Event) =>
-  emit('wa-lazy-change', e as CustomEvent);
-const handleWaLazyLoad = (e: Event) => emit('wa-lazy-load', e as CustomEvent);
+  emit('wa-lazy-change', e as WaLazyChangeEvent);
+const handleWaLazyLoad = (e: Event) =>
+  emit('wa-lazy-load', e as WaLazyLoadEvent);
 
 onMounted(() => {
   const el = elementRef.value;

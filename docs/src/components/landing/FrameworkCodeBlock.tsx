@@ -32,7 +32,7 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
       <TabGroup
         activation="auto"
         active={framework}
-        onTabShow={(e: CustomEvent) => {
+        onTabShow={(e) => {
           const name = e.detail.name;
           if (
             name === 'react' ||

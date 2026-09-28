@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaTooltip from '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 import './Tooltip.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -68,10 +72,10 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-show': [event: CustomEvent];
-  'wa-after-show': [event: CustomEvent];
-  'wa-hide': [event: CustomEvent];
-  'wa-after-hide': [event: CustomEvent];
+  'wa-show': [event: WaShowEvent];
+  'wa-after-show': [event: WaAfterShowEvent];
+  'wa-hide': [event: WaHideEvent];
+  'wa-after-hide': [event: WaAfterHideEvent];
 }>();
 
 const open = defineModel<boolean>('open', { default: false });
@@ -89,14 +93,16 @@ onMounted(() => {
 
 const handleWaShow = (e: Event) => {
   open.value = true;
-  emit('wa-show', e as CustomEvent);
+  emit('wa-show', e as WaShowEvent);
 };
-const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
+const handleWaAfterShow = (e: Event) =>
+  emit('wa-after-show', e as WaAfterShowEvent);
 const handleWaHide = (e: Event) => {
   open.value = false;
-  emit('wa-hide', e as CustomEvent);
+  emit('wa-hide', e as WaHideEvent);
 };
-const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
+const handleWaAfterHide = (e: Event) =>
+  emit('wa-after-hide', e as WaAfterHideEvent);
 
 onMounted(() => {
   const el = elementRef.value;

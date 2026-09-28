@@ -55,7 +55,7 @@ How users interact with the feature. This section varies by feature type.
 
 | Event    | Detail Type   | Description                               |
 | -------- | ------------- | ----------------------------------------- |
-| `onShow` | `CustomEvent` | Emitted when the component begins to show |
+| `onShow` | `WaShowEvent` | Emitted when the component begins to show |
 
 Map Web Awesome events to framework-idiomatic names:
 

@@ -61,7 +61,7 @@ export class ComparisonComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
   }

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaCopyButton from '@awesome.me/webawesome/dist/components/copy-button/copy-button.js';
+import type { WaCopyEvent } from '@awesome.me/webawesome/dist/events/copy.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
 import './CopyButton.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -55,8 +57,8 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-copy': [event: CustomEvent];
-  'wa-error': [event: CustomEvent];
+  'wa-copy': [event: WaCopyEvent];
+  'wa-error': [event: WaErrorEvent];
 }>();
 
 const elementRef = ref<WaCopyButton | null>(null);
@@ -65,8 +67,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaCopy = (e: Event) => emit('wa-copy', e as CustomEvent);
-const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
+const handleWaCopy = (e: Event) => emit('wa-copy', e as WaCopyEvent);
+const handleWaError = (e: Event) => emit('wa-error', e as WaErrorEvent);
 
 onMounted(() => {
   const el = elementRef.value;

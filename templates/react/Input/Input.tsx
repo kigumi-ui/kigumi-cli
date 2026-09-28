@@ -8,6 +8,8 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
+import type { WaClearEvent } from '@awesome.me/webawesome/dist/events/clear.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Input.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -182,10 +184,10 @@ export interface InputProps extends Omit<
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the clear button is activated. */
-  onClear?: (event: CustomEvent) => void;
+  onClear?: (event: WaClearEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface InputRef {
@@ -383,7 +385,7 @@ export const Input = forwardRef<InputRef, InputProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {
@@ -395,11 +397,11 @@ export const Input = forwardRef<InputRef, InputProps>(
       };
 
       const handleWaClear = (e: Event) => {
-        if (onClear) onClear(e as CustomEvent);
+        if (onClear) onClear(e as WaClearEvent);
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

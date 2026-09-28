@@ -65,7 +65,7 @@ Pro-only components: Page, Chart, BarChart, LineChart, BubbleChart, DoughnutChar
 1. Use `class` (not `className`) on web components and Kigumi wrapper components. `className` does not propagate through Shadow DOM.
 2. Use `className` on standard HTML elements (`<div>`, `<form>`, `<section>`).
 3. Form controls emit native DOM events (input, change, blur, focus). Read values via `e.target.value`. NOT CustomEvent.
-4. Overlay components (Dialog, Drawer, Dropdown) emit custom `wa-*` events (wa-show, wa-hide). These ARE CustomEvent.
+4. Overlay components (Dialog, Drawer, Dropdown) emit custom `wa-*` events (wa-show, wa-hide). Handlers receive the Web Awesome event class (`WaShowEvent`, `WaHideEvent`), which extends `Event`, not `CustomEvent`. Leave inline handler parameters unannotated; never annotate `CustomEvent`, which does not type-check.
 5. Use `requestClose()` not `hide()` on Dialog/Drawer refs. requestClose() triggers the wa-hide event lifecycle.
 6. Never use `!important` in CSS. Use CSS cascade layers (base < theme) for specificity.
 7. Always provide the `label` prop on Dialog, Drawer, Input, Select, Textarea for accessibility.
@@ -1736,12 +1736,12 @@ function notify(variant: string, message: string) {
 
 Web Awesome components use two distinct event systems. Getting this wrong is the most common source of bugs.
 
-| Category | Event Origin | Event Names | How to Read Value |
+| Category | Handler Type | Event Names | How to Read Value |
 |----------|-------------|-------------|-------------------|
-| Form controls (Input, Select, Checkbox, Textarea, Slider, Switch, Radio, Rating, ColorPicker, Combobox, NumberInput, FileInput) | Native DOM | input, change, blur, focus | `e.target.value` or `e.target.checked` |
-| Overlays (Dialog, Drawer, Dropdown, Tooltip, Popover, Details) | CustomEvent | wa-show, wa-hide, wa-after-show, wa-after-hide | `e.detail` (varies) |
-| Selection (Dropdown, Tree) | CustomEvent | wa-select, wa-selection-change | `e.detail.item` |
-| Validation | CustomEvent | wa-invalid | `e.detail` |
+| Form controls (Input, Select, Checkbox, Textarea, Slider, Switch, Radio, Rating, ColorPicker, Combobox, NumberInput, FileInput) | Native DOM (`Event`, `InputEvent`, `FocusEvent`) | input, change, blur, focus | `e.target.value` or `e.target.checked` |
+| Overlays (Dialog, Drawer, Dropdown, Tooltip, Popover, Details) | `WaShowEvent`, `WaHideEvent`, `WaAfterShowEvent`, `WaAfterHideEvent` | wa-show, wa-hide, wa-after-show, wa-after-hide | `wa-hide`: `e.detail?.source`; the others carry no detail |
+| Selection (Dropdown, Tree) | `WaSelectEvent`, `WaSelectionChangeEvent` | wa-select, wa-selection-change | `e.detail.item` (Dropdown), `e.detail.selection` (Tree) |
+| Validation | `WaInvalidEvent` | wa-invalid | no detail; read validity from `e.target` |
 
 ### Controlled Overlay Pattern
 

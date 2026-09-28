@@ -58,7 +58,7 @@ Closing:  wa-hide -> [animation] -> wa-after-hide
 <Dialog
   open={open}
   label="Edit"
-  onHide={(e: CustomEvent) => {
+  onHide={(e) => {
     if (hasUnsavedChanges) {
       e.preventDefault(); // Dialog stays open
       // Show "discard changes?" confirmation instead

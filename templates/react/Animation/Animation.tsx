@@ -8,6 +8,9 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaAnimation from '@awesome.me/webawesome/dist/components/animation/animation.js';
+import type { WaCancelEvent } from '@awesome.me/webawesome/dist/events/cancel.js';
+import type { WaFinishEvent } from '@awesome.me/webawesome/dist/events/finish.js';
+import type { WaStartEvent } from '@awesome.me/webawesome/dist/events/start.js';
 import './Animation.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -72,13 +75,13 @@ export interface AnimationProps extends Omit<
   'playback-rate'?: number;
 
   /** Emitted when the animation is canceled. */
-  onCancel?: (event: CustomEvent) => void;
+  onCancel?: (event: WaCancelEvent) => void;
 
   /** Emitted when the animation finishes. */
-  onFinish?: (event: CustomEvent) => void;
+  onFinish?: (event: WaFinishEvent) => void;
 
   /** Emitted when the animation starts or restarts. */
-  onStart?: (event: CustomEvent) => void;
+  onStart?: (event: WaStartEvent) => void;
 }
 
 export interface AnimationRef {
@@ -130,15 +133,15 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
       if (!el) return;
 
       const handleWaCancel = (e: Event) => {
-        if (onCancel) onCancel(e as CustomEvent);
+        if (onCancel) onCancel(e as WaCancelEvent);
       };
 
       const handleWaFinish = (e: Event) => {
-        if (onFinish) onFinish(e as CustomEvent);
+        if (onFinish) onFinish(e as WaFinishEvent);
       };
 
       const handleWaStart = (e: Event) => {
-        if (onStart) onStart(e as CustomEvent);
+        if (onStart) onStart(e as WaStartEvent);
       };
 
       el.addEventListener('wa-cancel', handleWaCancel);

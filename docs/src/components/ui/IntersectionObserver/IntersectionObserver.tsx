@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/intersection-observer/intersection-observer.js';
 import './IntersectionObserver.css';
+import type { WaIntersectEvent } from '@awesome.me/webawesome-pro/dist/events/intersect.js';
 
 /**
  * Observes changes in the intersection of a target element with an ancestor
@@ -44,7 +45,7 @@ export interface IntersectionObserverProps extends Omit<
   'intersect-class'?: string;
 
   /** Fired when a tracked element begins or ceases intersecting. */
-  onIntersect?: (event: CustomEvent) => void;
+  onIntersect?: (event: WaIntersectEvent) => void;
 }
 
 export interface IntersectionObserverRef {
@@ -80,7 +81,7 @@ export const IntersectionObserver = forwardRef<
     if (!el) return;
 
     const handleIntersect = (e: Event) => {
-      if (onIntersect) onIntersect(e as CustomEvent);
+      if (onIntersect) onIntersect(e as WaIntersectEvent);
     };
 
     el.addEventListener('wa-intersect', handleIntersect);

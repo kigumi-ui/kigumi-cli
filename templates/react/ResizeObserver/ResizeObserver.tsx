@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaResizeObserver from '@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js';
+import type { WaResizeEvent } from '@awesome.me/webawesome/dist/events/resize.js';
 import './ResizeObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -38,7 +39,7 @@ export interface ResizeObserverProps extends Omit<
   disabled?: boolean;
 
   /** Emitted when the element is resized. */
-  onResize?: (event: CustomEvent) => void;
+  onResize?: (event: WaResizeEvent) => void;
 }
 
 export interface ResizeObserverRef {
@@ -71,7 +72,7 @@ export const ResizeObserver = forwardRef<
     if (!el) return;
 
     const handleWaResize = (e: Event) => {
-      if (onResize) onResize(e as CustomEvent);
+      if (onResize) onResize(e as WaResizeEvent);
     };
 
     el.addEventListener('wa-resize', handleWaResize);

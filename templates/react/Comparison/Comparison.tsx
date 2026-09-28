@@ -69,7 +69,7 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       el.addEventListener('change', handleChange);

@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/radio-group/radio-group.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -87,7 +88,7 @@ export class RadioGroupComponent
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();
-  @Output() invalidEvent = new EventEmitter<CustomEvent>();
+  @Output() invalidEvent = new EventEmitter<WaInvalidEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
   private onTouchedCallback: () => void = () => {};
@@ -114,11 +115,11 @@ export class RadioGroupComponent
       this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleInvalidEvent = (e: Event) =>
-      this.invalidEvent.emit(e as CustomEvent);
+      this.invalidEvent.emit(e as WaInvalidEvent);
     el.addEventListener('wa-invalid', handleInvalidEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalidEvent)

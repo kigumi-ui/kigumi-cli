@@ -42,7 +42,7 @@ This is the #1 agent mistake with Kigumi forms.
 <Input onInput={(e) => setValue((e.target as HTMLInputElement).value)} />
 <Checkbox onChange={(e) => setChecked((e.target as HTMLInputElement).checked)} />
 
-// WRONG: CustomEvent -- this is for overlays, NOT forms
+// WRONG: form controls carry no e.detail, and CustomEvent does not type-check
 <Input onInput={(e: CustomEvent) => setValue(e.detail.value)} />
 ```
 

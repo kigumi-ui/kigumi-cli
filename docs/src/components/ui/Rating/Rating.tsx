@@ -9,6 +9,8 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/rating/rating.js';
 import './Rating.css';
+import type { WaHoverEvent } from '@awesome.me/webawesome-pro/dist/events/hover.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome-pro/dist/events/invalid.js';
 
 /**
  * Ratings give users a way to quickly view and provide feedback
@@ -63,13 +65,13 @@ export interface RatingProps extends Omit<
   'custom-error'?: string;
 
   /** Emitted when the rating's value changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value. */
-  onHover?: (event: CustomEvent) => void;
+  onHover?: (event: WaHoverEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface RatingRef {
@@ -126,15 +128,15 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleHover = (e: Event) => {
-        if (onHover) onHover(e as CustomEvent);
+        if (onHover) onHover(e as WaHoverEvent);
       };
 
       const handleInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('change', handleChange);

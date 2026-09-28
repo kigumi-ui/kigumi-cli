@@ -13,6 +13,8 @@ import {
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/rating/rating.js';
+import type { WaHoverEvent } from '@awesome.me/webawesome/dist/events/hover.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -83,8 +85,8 @@ export class RatingComponent
   @Input() customError?: string;
 
   @Output() change = new EventEmitter<Event>();
-  @Output() hover = new EventEmitter<CustomEvent>();
-  @Output() invalid = new EventEmitter<CustomEvent>();
+  @Output() hover = new EventEmitter<WaHoverEvent>();
+  @Output() invalid = new EventEmitter<WaInvalidEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
   private onTouchedCallback: () => void = () => {};
@@ -107,13 +109,13 @@ export class RatingComponent
       host.style.display = 'inline';
     }
 
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleHover = (e: Event) => this.hover.emit(e as CustomEvent);
+    const handleHover = (e: Event) => this.hover.emit(e as WaHoverEvent);
     el.addEventListener('wa-hover', handleHover);
     this.cleanups.push(() => el.removeEventListener('wa-hover', handleHover));
-    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)

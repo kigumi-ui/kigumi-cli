@@ -9,6 +9,8 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/include/include.js';
 import './Include.css';
+import type { WaIncludeErrorEvent } from '@awesome.me/webawesome-pro/dist/events/include-error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome-pro/dist/events/load.js';
 
 /**
  * Includes give you the power to embed external HTML files into the page
@@ -38,10 +40,10 @@ export interface IncludeProps extends Omit<
   'allow-scripts'?: boolean;
 
   /** Emitted when the included file is loaded. */
-  onLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: WaLoadEvent) => void;
 
   /** Emitted when the included file fails to load due to an error. */
-  onIncludeError?: (event: CustomEvent) => void;
+  onIncludeError?: (event: WaIncludeErrorEvent) => void;
 }
 
 export interface IncludeRef {
@@ -72,11 +74,11 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
       if (!el) return;
 
       const handleLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+        if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleIncludeError = (e: Event) => {
-        if (onIncludeError) onIncludeError(e as CustomEvent);
+        if (onIncludeError) onIncludeError(e as WaIncludeErrorEvent);
       };
 
       el.addEventListener('wa-load', handleLoad);

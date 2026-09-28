@@ -10,6 +10,7 @@ import clsx from 'clsx';
 import type WaCarouselItem from '@awesome.me/webawesome-pro/dist/components/carousel-item/carousel-item.js';
 import '@awesome.me/webawesome-pro/dist/components/carousel/carousel.js';
 import './Carousel.css';
+import type { WaSlideChangeEvent } from '@awesome.me/webawesome-pro/dist/events/slide-change.js';
 
 /**
  * Displays an arbitrary number of content slides along a horizontal or vertical axis
@@ -61,7 +62,7 @@ export interface CarouselProps extends Omit<
   'slides-per-page'?: number;
 
   /** Emitted when the active slide changes. */
-  onSlideChange?: (event: CustomEvent) => void;
+  onSlideChange?: (event: WaSlideChangeEvent) => void;
 }
 
 export interface CarouselRef {
@@ -154,7 +155,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (!el) return;
 
       const handleSlideChange = (e: Event) => {
-        if (onSlideChange) onSlideChange(e as CustomEvent);
+        if (onSlideChange) onSlideChange(e as WaSlideChangeEvent);
       };
 
       el.addEventListener('wa-slide-change', handleSlideChange);

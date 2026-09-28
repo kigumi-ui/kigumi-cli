@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaKnownDate from '@awesome.me/webawesome/dist/components/known-date/known-date.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './KnownDate.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -66,7 +67,7 @@ const emit = defineEmits<{
   change: [event: Event];
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const elementRef = ref<WaKnownDate | null>(null);
@@ -76,10 +77,10 @@ onMounted(() => {
 });
 
 const handleInput = (e: Event) => emit('input', e as InputEvent);
-const handleChange = (e: Event) => emit('change', e as Event);
+const handleChange = (e: Event) => emit('change', e);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

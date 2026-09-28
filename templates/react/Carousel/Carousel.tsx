@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import type WaCarousel from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
 import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
+import type { WaSlideChangeEvent } from '@awesome.me/webawesome/dist/events/slide-change.js';
 import './Carousel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -67,7 +68,7 @@ export interface CarouselProps extends Omit<
   'slides-per-page'?: number;
 
   /** Emitted when the active slide changes. */
-  onSlideChange?: (event: CustomEvent) => void;
+  onSlideChange?: (event: WaSlideChangeEvent) => void;
 }
 
 export interface CarouselRef {
@@ -152,7 +153,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (!el) return;
 
       const handleWaSlideChange = (e: Event) => {
-        if (onSlideChange) onSlideChange(e as CustomEvent);
+        if (onSlideChange) onSlideChange(e as WaSlideChangeEvent);
       };
 
       el.addEventListener('wa-slide-change', handleWaSlideChange);

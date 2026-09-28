@@ -86,6 +86,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit.',
         reactName: 'onLoad',
         eventType: 'WaLoadEvent',
+        eventTypeModule: 'load',
       },
       {
         name: 'wa-error',
@@ -93,6 +94,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit.',
         reactName: 'onError',
         eventType: 'WaErrorEvent',
+        eventTypeModule: 'error',
       },
     ],
     slots: [],
@@ -229,13 +231,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'change',
         description: 'Emitted when the checked state changes.',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'blur',
         description: 'Emitted when the checkbox loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -255,6 +257,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -386,6 +389,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the tree item expands.',
         reactName: 'onExpand',
         eventType: 'WaExpandEvent',
+        eventTypeModule: 'expand',
       },
       {
         name: 'wa-after-expand',
@@ -393,12 +397,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the tree item expands and all animations are complete.',
         reactName: 'onAfterExpand',
         eventType: 'WaAfterExpandEvent',
+        eventTypeModule: 'after-expand',
       },
       {
         name: 'wa-collapse',
         description: 'Emitted when the tree item collapses.',
         reactName: 'onCollapse',
         eventType: 'WaCollapseEvent',
+        eventTypeModule: 'collapse',
       },
       {
         name: 'wa-after-collapse',
@@ -406,12 +412,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the tree item collapses and all animations are complete.',
         reactName: 'onAfterCollapse',
         eventType: 'WaAfterCollapseEvent',
+        eventTypeModule: 'after-collapse',
       },
       {
         name: 'wa-lazy-change',
         description: "Emitted when the tree item's lazy state changes.",
         reactName: 'onLazyChange',
         eventType: 'WaLazyChangeEvent',
+        eventTypeModule: 'lazy-change',
       },
       {
         name: 'wa-lazy-load',
@@ -419,6 +427,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree.',
         reactName: 'onLazyLoad',
         eventType: 'WaLazyLoadEvent',
+        eventTypeModule: 'lazy-load',
       },
     ],
     slots: [
@@ -510,25 +519,29 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-expand',
         description: 'Emitted before an item expands. Cancelable.',
         reactName: 'onExpand',
-        eventType: 'WaExpandEvent',
+        eventType: 'WaAccordionExpandEvent',
+        eventTypeModule: 'accordion-expand',
       },
       {
         name: 'wa-after-expand',
         description: 'Emitted after an item finishes expanding.',
         reactName: 'onAfterExpand',
-        eventType: 'WaAfterExpandEvent',
+        eventType: 'WaAccordionAfterExpandEvent',
+        eventTypeModule: 'accordion-after-expand',
       },
       {
         name: 'wa-collapse',
         description: 'Emitted before an item collapses. Cancelable.',
         reactName: 'onCollapse',
-        eventType: 'WaCollapseEvent',
+        eventType: 'WaAccordionCollapseEvent',
+        eventTypeModule: 'accordion-collapse',
       },
       {
         name: 'wa-after-collapse',
         description: 'Emitted after an item finishes collapsing.',
         reactName: 'onAfterCollapse',
-        eventType: 'WaAfterCollapseEvent',
+        eventType: 'WaAccordionAfterCollapseEvent',
+        eventTypeModule: 'accordion-after-collapse',
       },
     ],
     slots: [
@@ -583,12 +596,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the image loads successfully.',
         reactName: 'onLoad',
         eventType: 'WaLoadEvent',
+        eventTypeModule: 'load',
       },
       {
         name: 'wa-error',
         description: 'Emitted when the image fails to load.',
         reactName: 'onError',
         eventType: 'WaErrorEvent',
+        eventTypeModule: 'error',
       },
     ],
     slots: [
@@ -671,18 +686,21 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the animation is canceled.',
         reactName: 'onCancel',
         eventType: 'WaCancelEvent',
+        eventTypeModule: 'cancel',
       },
       {
         name: 'wa-finish',
         description: 'Emitted when the animation finishes.',
         reactName: 'onFinish',
         eventType: 'WaFinishEvent',
+        eventTypeModule: 'finish',
       },
       {
         name: 'wa-start',
         description: 'Emitted when the animation starts or restarts.',
         reactName: 'onStart',
         eventType: 'WaStartEvent',
+        eventTypeModule: 'start',
       },
     ],
     slots: [
@@ -748,6 +766,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause.',
         reactName: 'onError',
         eventType: 'WaErrorEvent',
+        eventTypeModule: 'error',
       },
     ],
     slots: [
@@ -1263,7 +1282,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Emitted when the button loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -1277,6 +1296,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -1569,6 +1589,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the active slide changes.',
         reactName: 'onSlideChange',
         eventType: 'WaSlideChangeEvent',
+        eventTypeModule: 'slide-change',
       },
     ],
     slots: [
@@ -1869,13 +1890,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description:
           "Emitted when an alteration to the control's value is committed by the user.",
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -1888,6 +1909,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the clear button is activated.',
         reactName: 'onClear',
         eventType: 'WaClearEvent',
+        eventTypeModule: 'clear',
       },
       {
         name: 'wa-invalid',
@@ -1895,6 +1917,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -2152,6 +2175,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it.',
         reactName: 'onReposition',
         eventType: 'WaRepositionEvent',
+        eventTypeModule: 'reposition',
       },
     ],
     slots: [
@@ -2261,7 +2285,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'change',
         description: "Emitted when the color picker's value changes.",
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'input',
@@ -2274,30 +2298,34 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: '',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
         description: '',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         description: '',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
         description: '',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
       {
         name: 'blur',
         description: 'Emitted when the color picker loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -2311,6 +2339,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -2462,6 +2491,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the remove button is activated.',
         reactName: 'onRemove',
         eventType: 'WaRemoveEvent',
+        eventTypeModule: 'remove',
       },
     ],
     slots: [
@@ -2570,7 +2600,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'change',
         description: "Emitted when the control's value changes.",
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'focus',
@@ -2582,19 +2612,21 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'wa-clear',
         description: "Emitted when the control's value is cleared.",
         reactName: 'onClear',
         eventType: 'WaClearEvent',
+        eventTypeModule: 'clear',
       },
       {
         name: 'wa-show',
         description: "Emitted when the select's menu opens.",
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
@@ -2602,12 +2634,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted after the select's menu opens and all animations are complete.",
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         description: "Emitted when the select's menu closes.",
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
@@ -2615,6 +2649,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted after the select's menu closes and all animations are complete.",
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
       {
         name: 'wa-invalid',
@@ -2622,6 +2657,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -2890,7 +2926,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'change',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'focus',
@@ -2900,42 +2936,49 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'blur',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'wa-clear',
         reactName: 'onClear',
         eventType: 'WaClearEvent',
+        eventTypeModule: 'clear',
       },
       {
         name: 'wa-show',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
       {
         name: 'wa-create',
         reactName: 'onCreate',
         eventType: 'WaCreateEvent',
+        eventTypeModule: 'create',
       },
       {
         name: 'wa-invalid',
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -3032,7 +3075,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'change',
         description: 'Emitted when the position changes.',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
     ],
     slots: [
@@ -3113,6 +3156,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the tooltip begins to show.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
@@ -3120,12 +3164,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the tooltip has shown and all animations are complete.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         description: 'Emitted when the tooltip begins to hide.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
@@ -3133,6 +3179,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the tooltip has hidden and all animations are complete.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
     ],
     slots: [
@@ -3211,12 +3258,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the data has been copied.',
         reactName: 'onCopy',
         eventType: 'WaCopyEvent',
+        eventTypeModule: 'copy',
       },
       {
         name: 'wa-error',
         description: 'Emitted when the data could not be copied.',
         reactName: 'onError',
         eventType: 'WaErrorEvent',
+        eventTypeModule: 'error',
       },
     ],
     slots: [
@@ -3360,17 +3409,19 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'change',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'wa-focus-day',
         reactName: 'onFocusDay',
         eventType: 'WaFocusDayEvent',
+        eventTypeModule: 'focus-day',
       },
       {
         name: 'wa-view-change',
         reactName: 'onViewChange',
         eventType: 'WaViewChangeEvent',
+        eventTypeModule: 'view-change',
       },
     ],
     slots: [
@@ -3575,7 +3626,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'change',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'focus',
@@ -3585,37 +3636,43 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'blur',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'wa-clear',
         reactName: 'onClear',
         eventType: 'WaClearEvent',
+        eventTypeModule: 'clear',
       },
       {
         name: 'wa-show',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
       {
         name: 'wa-invalid',
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -3816,25 +3873,29 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'request',
         description: '',
         reactName: 'onRequest',
-        eventType: 'RequestEvent',
+        eventType: 'WaDataRequestEvent',
+        eventTypeModule: 'data-request',
       },
       {
         name: 'wa-sort-change',
         description: 'Emitted when the sort order changes.',
         reactName: 'onSortChange',
         eventType: 'WaSortChangeEvent',
+        eventTypeModule: 'sort-change',
       },
       {
         name: 'wa-row-select',
         description: 'Emitted when the row selection changes.',
         reactName: 'onRowSelect',
         eventType: 'WaRowSelectEvent',
+        eventTypeModule: 'row-select',
       },
       {
         name: 'wa-page-change',
         description: 'Emitted when the current page or page size changes.',
         reactName: 'onPageChange',
         eventType: 'WaPageChangeEvent',
+        eventTypeModule: 'page-change',
       },
       {
         name: 'wa-filter-change',
@@ -3842,6 +3903,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the global search or a column filter changes.',
         reactName: 'onFilterChange',
         eventType: 'WaFilterChangeEvent',
+        eventTypeModule: 'filter-change',
       },
       {
         name: 'wa-row-expand',
@@ -3849,6 +3911,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when a row expands (a detail panel or a tree row's children).",
         reactName: 'onRowExpand',
         eventType: 'WaRowExpandEvent',
+        eventTypeModule: 'row-expand',
       },
       {
         name: 'wa-row-collapse',
@@ -3856,6 +3919,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when a row collapses (a detail panel or a tree row's children).",
         reactName: 'onRowCollapse',
         eventType: 'WaRowCollapseEvent',
+        eventTypeModule: 'row-collapse',
       },
       {
         name: 'wa-data-request',
@@ -3863,6 +3927,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted in server mode when the grid needs data for the current sort, filters, and page.',
         reactName: 'onDataRequest',
         eventType: 'WaDataRequestEvent',
+        eventTypeModule: 'data-request',
       },
       {
         name: 'wa-data-error',
@@ -3870,6 +3935,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted in server mode when a `dataSource` request rejects.',
         reactName: 'onDataError',
         eventType: 'WaDataErrorEvent',
+        eventTypeModule: 'data-error',
       },
       {
         name: 'wa-column-move',
@@ -3877,6 +3943,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when a column is reordered (live during drag; check `detail.finished`).',
         reactName: 'onColumnMove',
         eventType: 'WaColumnMoveEvent',
+        eventTypeModule: 'column-move',
       },
       {
         name: 'wa-column-resize',
@@ -3884,6 +3951,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when a column is resized (live during drag; check `detail.finished`).',
         reactName: 'onColumnResize',
         eventType: 'WaColumnResizeEvent',
+        eventTypeModule: 'column-resize',
       },
       {
         name: 'wa-column-visibility-change',
@@ -3891,6 +3959,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the user shows or hides a column through the built-in menus. Programmatic `toggleColumn()` calls don't emit.",
         reactName: 'onColumnVisibilityChange',
         eventType: 'WaColumnVisibilityChangeEvent',
+        eventTypeModule: 'column-visibility-change',
       },
       {
         name: 'wa-column-pin',
@@ -3898,6 +3967,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the user pins or unpins a column through the built-in controls. Programmatic `pinColumn()` calls don't emit.",
         reactName: 'onColumnPin',
         eventType: 'WaColumnPinEvent',
+        eventTypeModule: 'column-pin',
       },
       {
         name: 'wa-cell-click',
@@ -3905,6 +3975,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when a data cell is clicked, or [[Enter]] is pressed on the active data cell.',
         reactName: 'onCellClick',
         eventType: 'WaCellClickEvent',
+        eventTypeModule: 'cell-click',
       },
       {
         name: 'wa-cell-contextmenu',
@@ -3912,6 +3983,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when a data cell is right-clicked (or Shift+F10 / the menu key is pressed on the active cell). Cancel it to suppress the native context menu.',
         reactName: 'onCellContextmenu',
         eventType: 'WaCellContextmenuEvent',
+        eventTypeModule: 'cell-context-menu',
       },
     ],
     slots: [
@@ -4195,6 +4267,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the details opens.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
@@ -4202,12 +4275,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the details opens and all animations are complete.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         description: 'Emitted when the details closes.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
@@ -4215,6 +4290,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the details closes and all animations are complete.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
     ],
     slots: [
@@ -4291,6 +4367,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the dialog opens.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
@@ -4298,6 +4375,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the dialog opens and all animations are complete.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
@@ -4305,6 +4383,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the dialog is requested to close. Calling `event.preventDefault()` will prevent the dialog from closing. You can inspect `event.detail.source` to see which element caused the dialog to close. If the source is the dialog element itself, the user has pressed [[Escape]] or the dialog has been closed programmatically. Avoid using this unless closing the dialog will result in destructive behavior such as data loss.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
@@ -4312,6 +4391,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the dialog closes and all animations are complete.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
     ],
     slots: [
@@ -4491,6 +4571,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the drawer opens.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
@@ -4498,6 +4579,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the drawer opens and all animations are complete.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
@@ -4505,6 +4587,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the drawer is requesting to close. Calling `event.preventDefault()` will prevent the drawer from closing. You can inspect `event.detail.source` to see which element caused the drawer to close. If the source is the drawer element itself, the user has pressed [[Escape]] or the drawer has been closed programmatically. Avoid using this unless closing the drawer will result in destructive behavior such as data loss.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
@@ -4512,6 +4595,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the drawer closes and all animations are complete.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
     ],
     slots: [
@@ -4598,7 +4682,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Emitted when the dropdown item loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -4680,30 +4764,35 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the dropdown is about to show.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
         description: 'Emitted after the dropdown has been shown.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         description: 'Emitted when the dropdown is about to hide.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
         description: 'Emitted after the dropdown has been hidden.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
       {
         name: 'wa-select',
         description: 'Emitted when an item in the dropdown is selected.',
         reactName: 'onSelect',
         eventType: 'WaSelectEvent',
+        eventTypeModule: 'select',
       },
     ],
     slots: [
@@ -4820,12 +4909,12 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'input',
         reactName: 'onInput',
-        eventType: 'InputEvent',
+        eventType: 'Event',
       },
       {
         name: 'change',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'focus',
@@ -4835,12 +4924,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'blur',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'wa-invalid',
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -5056,6 +5146,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the included file is loaded.',
         reactName: 'onLoad',
         eventType: 'WaLoadEvent',
+        eventTypeModule: 'load',
       },
       {
         name: 'wa-include-error',
@@ -5063,6 +5154,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the included file fails to load due to an error.',
         reactName: 'onIncludeError',
         eventType: 'WaIncludeErrorEvent',
+        eventTypeModule: 'include-error',
       },
     ],
     slots: [],
@@ -5115,6 +5207,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Fired when a tracked element begins or ceases intersecting.',
         reactName: 'onIntersect',
         eventType: 'WaIntersectEvent',
+        eventTypeModule: 'intersect',
       },
     ],
     slots: [
@@ -5222,13 +5315,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description:
           'Emitted when the committed value transitions to a new ISO date.',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -5242,6 +5335,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -5461,6 +5555,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when a mutation occurs.',
         reactName: 'onMutation',
         eventType: 'WaMutationEvent',
+        eventTypeModule: 'mutation',
       },
     ],
     slots: [
@@ -5588,12 +5683,12 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'change',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'blur',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -5603,12 +5698,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'beforeinput',
         reactName: 'onBeforeinput',
-        eventType: 'BeforeinputEvent',
+        eventType: 'InputEvent',
       },
       {
         name: 'wa-invalid',
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -5784,7 +5880,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description:
           'Emitted when the value changes and the field loses focus.',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'focus',
@@ -5796,7 +5892,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'wa-complete',
@@ -5804,12 +5900,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted once when all segments are filled. Cancelable — call `preventDefault()` to stop `autosubmit` from submitting the form for this completion.',
         reactName: 'onComplete',
         eventType: 'WaCompleteEvent',
+        eventTypeModule: 'complete',
       },
       {
         name: 'wa-clear',
         description: "Emitted when the control's value is cleared.",
         reactName: 'onClear',
         eventType: 'WaClearEvent',
+        eventTypeModule: 'clear',
       },
       {
         name: 'wa-invalid',
@@ -5817,6 +5915,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -6103,12 +6202,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the page is about to change but before it does. Canceling this event with `event.preventDefault()` prevents the page from changing.',
         reactName: 'onBeforePageChange',
         eventType: 'WaBeforePageChangeEvent',
+        eventTypeModule: 'before-page-change',
       },
       {
         name: 'wa-page-change',
         description: 'Emitted after the page changes.',
         reactName: 'onPageChange',
         eventType: 'WaPageChangeEvent',
+        eventTypeModule: 'page-change',
       },
     ],
     slots: [
@@ -6346,6 +6447,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the popover begins to show. Canceling this event will stop the popover from showing.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
@@ -6353,6 +6455,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the popover has shown and all animations are complete.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
@@ -6360,6 +6463,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted when the popover begins to hide. Canceling this event will stop the popover from hiding.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
@@ -6367,6 +6471,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted after the popover has hidden and all animations are complete.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
     ],
     slots: [
@@ -6650,7 +6755,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -6770,7 +6875,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'change',
         description: "Emitted when the radio group's selected value changes.",
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'wa-invalid',
@@ -6778,6 +6883,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -6883,6 +6989,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted whenever the displayed selection changes, including on first render, on `randomize()`, and on each autoplay tick.',
         reactName: 'onContentChange',
         eventType: 'WaContentChangeEvent',
+        eventTypeModule: 'random-content-change',
       },
     ],
     slots: [
@@ -6973,7 +7080,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'change',
         description: "Emitted when the rating's value changes.",
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'wa-hover',
@@ -6981,6 +7088,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value.",
         reactName: 'onHover',
         eventType: 'WaHoverEvent',
+        eventTypeModule: 'hover',
       },
       {
         name: 'wa-invalid',
@@ -6988,6 +7096,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [],
@@ -7087,6 +7196,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when the element is resized.',
         reactName: 'onResize',
         eventType: 'WaResizeEvent',
+        eventTypeModule: 'resize',
       },
     ],
     slots: [
@@ -7356,13 +7466,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description:
           "Emitted when an alteration to the control's value is committed by the user.",
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -7382,6 +7492,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -7543,6 +7654,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: "Emitted when the divider's position changes.",
         reactName: 'onReposition',
         eventType: 'WaRepositionEvent',
+        eventTypeModule: 'reposition',
       },
     ],
     slots: [
@@ -7623,7 +7735,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'change',
         description: "Emitted when the control's checked state changes.",
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'input',
@@ -7635,7 +7747,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -7649,6 +7761,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -7826,12 +7939,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when a tab is shown.',
         reactName: 'onTabShow',
         eventType: 'WaTabShowEvent',
+        eventTypeModule: 'tab-show',
       },
       {
         name: 'wa-tab-hide',
         description: 'Emitted when a tab is hidden.',
         reactName: 'onTabHide',
         eventType: 'WaTabHideEvent',
+        eventTypeModule: 'tab-hide',
       },
     ],
     slots: [
@@ -7977,13 +8092,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description:
           'Emitted when a tag is added, removed, or all tags are cleared by the user.',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'focus',
@@ -7997,12 +8112,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Emitted before typed text becomes a tag. Call `event.preventDefault()` to reject it. The event `detail` contains `{ inputValue: string }`, the text that would become the tag.',
         reactName: 'onCreate',
         eventType: 'WaCreateEvent',
+        eventTypeModule: 'create',
       },
       {
         name: 'wa-clear',
         description: 'Emitted when the clear button is activated.',
         reactName: 'onClear',
         eventType: 'WaClearEvent',
+        eventTypeModule: 'clear',
       },
       {
         name: 'wa-invalid',
@@ -8010,6 +8127,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -8211,14 +8329,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'change',
         description:
           "Emitted when an alteration to the control's value is committed by the user.",
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'focus',
@@ -8238,6 +8356,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -8475,7 +8594,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'change',
         description: 'Emitted when the committed value changes.',
         reactName: 'onChange',
-        eventType: 'ChangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'focus',
@@ -8487,37 +8606,42 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
-        eventType: 'BlurEvent',
+        eventType: 'FocusEvent',
       },
       {
         name: 'wa-clear',
         description: 'Emitted when the clear button is activated.',
         reactName: 'onClear',
         eventType: 'WaClearEvent',
+        eventTypeModule: 'clear',
       },
       {
         name: 'wa-show',
         description: 'Emitted when the popup is about to open. Cancelable.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
         description: 'Emitted after the popup opens and animations complete.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         description: 'Emitted when the popup is about to close. Cancelable.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
         description: 'Emitted after the popup closes and animations complete.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
       {
         name: 'wa-invalid',
@@ -8525,6 +8649,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
       },
     ],
     slots: [
@@ -8650,21 +8775,25 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-show',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
+        eventTypeModule: 'show',
       },
       {
         name: 'wa-after-show',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
+        eventTypeModule: 'after-show',
       },
       {
         name: 'wa-hide',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
+        eventTypeModule: 'hide',
       },
       {
         name: 'wa-after-hide',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+        eventTypeModule: 'after-hide',
       },
     ],
     slots: [
@@ -8757,6 +8886,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when a tree item is selected or deselected.',
         reactName: 'onSelectionChange',
         eventType: 'WaSelectionChangeEvent',
+        eventTypeModule: 'selection-change',
       },
     ],
     slots: [
@@ -8861,37 +8991,37 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'timeupdate',
         reactName: 'onTimeupdate',
-        eventType: 'TimeupdateEvent',
+        eventType: 'Event',
       },
       {
         name: 'play',
         reactName: 'onPlay',
-        eventType: 'PlayEvent',
+        eventType: 'Event',
       },
       {
         name: 'pause',
         reactName: 'onPause',
-        eventType: 'PauseEvent',
+        eventType: 'Event',
       },
       {
         name: 'volumechange',
         reactName: 'onVolumechange',
-        eventType: 'VolumechangeEvent',
+        eventType: 'Event',
       },
       {
         name: 'error',
         reactName: 'onError',
-        eventType: 'ErrorEvent',
+        eventType: 'Event',
       },
       {
         name: 'ended',
         reactName: 'onEnded',
-        eventType: 'EndedEvent',
+        eventType: 'Event',
       },
       {
         name: 'loadedmetadata',
         reactName: 'onLoadedmetadata',
-        eventType: 'LoadedmetadataEvent',
+        eventType: 'Event',
       },
     ],
     slots: [
@@ -9009,6 +9139,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-video-change',
         reactName: 'onVideoChange',
         eventType: 'WaVideoChangeEvent',
+        eventTypeModule: 'video-change',
       },
     ],
     slots: [
@@ -9100,13 +9231,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description:
           'Emitted when the internal iframe when it finishes loading.',
         reactName: 'onLoad',
-        eventType: 'LoadEvent',
+        eventType: 'Event',
       },
       {
         name: 'error',
         description: 'Emitted from the internal iframe when it fails to load.',
         reactName: 'onError',
-        eventType: 'ErrorEvent',
+        eventType: 'Event',
       },
     ],
     slots: [

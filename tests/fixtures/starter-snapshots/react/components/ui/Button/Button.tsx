@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaButton from '@awesome.me/webawesome/dist/components/button/button.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Button.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -108,7 +109,7 @@ export interface ButtonProps extends Omit<
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface ButtonRef {
@@ -221,7 +222,7 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('blur', handleBlur);

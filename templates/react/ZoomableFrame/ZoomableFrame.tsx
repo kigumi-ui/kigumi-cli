@@ -124,11 +124,11 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
       if (!el) return;
 
       const handleLoad = (e: Event) => {
-        if (onLoad) onLoad(e as Event);
+        if (onLoad) onLoad(e);
       };
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as Event);
+        if (onError) onError(e);
       };
 
       el.addEventListener('load', handleLoad);

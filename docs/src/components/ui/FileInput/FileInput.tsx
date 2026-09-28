@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/file-input/file-input.js';
 import './FileInput.css';
+import type { WaInvalidEvent } from '@awesome.me/webawesome-pro/dist/events/invalid.js';
 
 /**
  * File inputs allow users to select and upload files from their device
@@ -63,10 +64,10 @@ export interface FileInputProps extends Omit<
   'custom-error'?: string;
 
   /** Emitted when file selection changes. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: Event) => void;
 
   /** Emitted when files are added or removed. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the dropzone gains focus. */
   onFocus?: (event: FocusEvent) => void;
@@ -75,7 +76,7 @@ export interface FileInputProps extends Omit<
   onBlur?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface FileInputRef {
@@ -144,11 +145,11 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {
@@ -160,7 +161,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       };
 
       const handleInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

@@ -13,6 +13,8 @@ import {
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/input/input.js';
+import type { WaClearEvent } from '@awesome.me/webawesome/dist/events/clear.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -171,8 +173,8 @@ export class InputComponent
   @Output() change = new EventEmitter<Event>();
   @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
-  @Output() clear = new EventEmitter<CustomEvent>();
-  @Output() invalid = new EventEmitter<CustomEvent>();
+  @Output() clear = new EventEmitter<WaClearEvent>();
+  @Output() invalid = new EventEmitter<WaInvalidEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
   private onTouchedCallback: () => void = () => {};
@@ -199,7 +201,7 @@ export class InputComponent
       this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
@@ -209,10 +211,10 @@ export class InputComponent
       this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
-    const handleClear = (e: Event) => this.clear.emit(e as CustomEvent);
+    const handleClear = (e: Event) => this.clear.emit(e as WaClearEvent);
     el.addEventListener('wa-clear', handleClear);
     this.cleanups.push(() => el.removeEventListener('wa-clear', handleClear));
-    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)

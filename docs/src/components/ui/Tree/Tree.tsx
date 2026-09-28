@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/tree/tree.js';
 import './Tree.css';
+import type { WaSelectionChangeEvent } from '@awesome.me/webawesome-pro/dist/events/selection-change.js';
 
 /**
  * Trees allow you to display a hierarchical list of selectable tree items
@@ -32,7 +33,7 @@ export interface TreeProps extends Omit<
   selection?: 'single' | 'multiple' | 'leaf' | 'leaf-multiple';
 
   /** Emitted when a tree item is selected or deselected. */
-  onSelectionChange?: (event: CustomEvent) => void;
+  onSelectionChange?: (event: WaSelectionChangeEvent) => void;
 }
 
 export interface TreeRef {
@@ -63,7 +64,7 @@ export const Tree = forwardRef<TreeRef, TreeProps>(
       if (!el) return;
 
       const handleSelectionChange = (e: Event) => {
-        if (onSelectionChange) onSelectionChange(e as CustomEvent);
+        if (onSelectionChange) onSelectionChange(e as WaSelectionChangeEvent);
       };
 
       el.addEventListener('wa-selection-change', handleSelectionChange);

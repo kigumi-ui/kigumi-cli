@@ -168,7 +168,9 @@ async function proveWithListeners<ClassName extends string | null>(
   const firedOnce = new Set<string>();
   const delivered = new Set<string>();
   for (const event of probe.metadata.events) {
-    const dispatched = new CustomEvent(event.name);
+    // Web Awesome's event classes extend Event, not CustomEvent (ADR 0005),
+    // so the probe dispatches the base shape every handler type accepts.
+    const dispatched = new Event(event.name);
     host.dispatchEvent(dispatched);
     if ((calls.get(event.name) ?? 0) === 1) {
       firedOnce.add(event.name);
@@ -196,7 +198,7 @@ async function proveWithListeners<ClassName extends string | null>(
   for (const event of probe.metadata.events) {
     let leaked = stillRegistered.has(event.name);
     if (firedOnce.has(event.name)) {
-      host.dispatchEvent(new CustomEvent(event.name));
+      host.dispatchEvent(new Event(event.name));
       if ((calls.get(event.name) ?? 0) !== 1) leaked = true;
     }
     if (leaked) {

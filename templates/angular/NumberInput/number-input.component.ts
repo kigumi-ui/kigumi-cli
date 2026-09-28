@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/number-input/number-input.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -118,7 +119,7 @@ export class NumberInputComponent
   @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() beforeinput = new EventEmitter<InputEvent>();
-  @Output() invalid = new EventEmitter<CustomEvent>();
+  @Output() invalid = new EventEmitter<WaInvalidEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
   private onTouchedCallback: () => void = () => {};
@@ -145,7 +146,7 @@ export class NumberInputComponent
       this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
@@ -161,7 +162,7 @@ export class NumberInputComponent
     this.cleanups.push(() =>
       el.removeEventListener('beforeinput', handleBeforeinput)
     );
-    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)

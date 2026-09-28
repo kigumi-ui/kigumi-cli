@@ -2,6 +2,7 @@
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaCarousel from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
 import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
+import type { WaSlideChangeEvent } from '@awesome.me/webawesome/dist/events/slide-change.js';
 import './Carousel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -57,7 +58,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-slide-change': [event: CustomEvent];
+  'wa-slide-change': [event: WaSlideChangeEvent];
 }>();
 
 const elementRef = ref<WaCarousel | null>(null);
@@ -67,7 +68,7 @@ onMounted(() => {
 });
 
 const handleWaSlideChange = (e: Event) =>
-  emit('wa-slide-change', e as CustomEvent);
+  emit('wa-slide-change', e as WaSlideChangeEvent);
 
 onMounted(() => {
   const el = elementRef.value;

@@ -67,8 +67,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleLoad = (e: Event) => emit('load', e as Event);
-const handleError = (e: Event) => emit('error', e as Event);
+const handleLoad = (e: Event) => emit('load', e);
+const handleError = (e: Event) => emit('error', e);
 
 onMounted(() => {
   const el = elementRef.value;

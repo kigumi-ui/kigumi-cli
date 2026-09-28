@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/switch/switch.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -83,7 +84,7 @@ export class SwitchComponent
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
-  @Output() invalid = new EventEmitter<CustomEvent>();
+  @Output() invalid = new EventEmitter<WaInvalidEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
   private onTouchedCallback: () => void = () => {};
@@ -106,7 +107,7 @@ export class SwitchComponent
       host.style.display = 'inline';
     }
 
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleInputEvent = (e: Event) =>
@@ -120,7 +121,7 @@ export class SwitchComponent
       this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
-    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)

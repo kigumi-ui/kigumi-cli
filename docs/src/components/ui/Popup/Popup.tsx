@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/popup/popup.js';
 import './Popup.css';
+import type { WaRepositionEvent } from '@awesome.me/webawesome-pro/dist/events/reposition.js';
 
 /**
  * Popup is a utility component for positioning elements relative to an anchor
@@ -99,7 +100,7 @@ export interface PopupProps extends Omit<
   'auto-size-padding'?: number;
 
   /** Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it. */
-  onReposition?: (event: CustomEvent) => void;
+  onReposition?: (event: WaRepositionEvent) => void;
 }
 
 export interface PopupRef {
@@ -144,7 +145,7 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       if (!el) return;
 
       const handleReposition = (e: Event) => {
-        if (onReposition) onReposition(e as CustomEvent);
+        if (onReposition) onReposition(e as WaRepositionEvent);
       };
 
       el.addEventListener('wa-reposition', handleReposition);

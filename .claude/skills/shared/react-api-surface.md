@@ -14,7 +14,7 @@
 | `slot="header"` | `slot="header"` (preserved) |
 | Self-closing: `<wa-icon></wa-icon>` | `<Icon />` |
 | Native events (change, input) | `onChange`, `onInput` via `e.target` |
-| Custom events (wa-hide, wa-show) | `onHide`, `onShow` via CustomEvent |
+| Custom events (wa-hide, wa-show) | `onHide`, `onShow`; typed `WaHideEvent` etc., payload in `e.detail` |
 
 ---
 

@@ -30,7 +30,7 @@ function ensureLoaded() {
  * @property {boolean} [pagination] - Shows pagination dots
  * @property {number} [slides-per-move] - Slides to advance per scroll
  * @property {number} [slides-per-page] - Visible slides count
- * @property {(event: CustomEvent) => void} [onSlideChange] - Slide change handler
+ * @property {(event: import('@awesome.me/webawesome/dist/events/slide-change.js').WaSlideChangeEvent) => void} [onSlideChange] - Slide change handler
  */
 
 export const Carousel = React.forwardRef(

@@ -9,6 +9,11 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/dropdown/dropdown.js';
 import './Dropdown.css';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome-pro/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome-pro/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome-pro/dist/events/hide.js';
+import type { WaSelectEvent } from '@awesome.me/webawesome-pro/dist/events/select.js';
+import type { WaShowEvent } from '@awesome.me/webawesome-pro/dist/events/show.js';
 
 /**
  * Dropdowns expose additional content that pops up when the user interacts with a trigger
@@ -65,19 +70,19 @@ export interface DropdownProps extends Omit<
   hoist?: boolean;
 
   /** Emitted when the dropdown is about to show. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Emitted after the dropdown has been shown. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Emitted when the dropdown is about to hide. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Emitted after the dropdown has been hidden. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 
   /** Emitted when an item in the dropdown is selected. */
-  onSelect?: (event: CustomEvent) => void;
+  onSelect?: (event: WaSelectEvent) => void;
 }
 
 export interface DropdownRef {
@@ -120,23 +125,23 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
       if (!el) return;
 
       const handleShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
+        if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
+        if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
+        if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
+        if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
       const handleSelect = (e: Event) => {
-        if (onSelect) onSelect(e as CustomEvent);
+        if (onSelect) onSelect(e as WaSelectEvent);
       };
 
       el.addEventListener('wa-show', handleShow);

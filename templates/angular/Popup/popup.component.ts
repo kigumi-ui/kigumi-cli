@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/popup/popup.js';
+import type { WaRepositionEvent } from '@awesome.me/webawesome/dist/events/reposition.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -107,7 +108,7 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
   /** Auto-size boundary padding */
   @Input() autoSizePadding?: number;
 
-  @Output() repositionEvent = new EventEmitter<CustomEvent>();
+  @Output() repositionEvent = new EventEmitter<WaRepositionEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -128,7 +129,7 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleRepositionEvent = (e: Event) =>
-      this.repositionEvent.emit(e as CustomEvent);
+      this.repositionEvent.emit(e as WaRepositionEvent);
     el.addEventListener('wa-reposition', handleRepositionEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-reposition', handleRepositionEvent)

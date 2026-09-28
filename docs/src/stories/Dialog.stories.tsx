@@ -84,11 +84,11 @@ export const Default: Story = {
         <Dialog
           {...args}
           open={open}
-          onHide={() => {
+          onHide={(e) => {
             setOpen(false);
-            args.onHide?.({} as CustomEvent);
+            args.onHide?.(e);
           }}
-          onAfterHide={() => args.onAfterHide?.({} as CustomEvent)}
+          onAfterHide={(e) => args.onAfterHide?.(e)}
         >
           <p>This is the dialog body. You can place any content here.</p>
           <Button

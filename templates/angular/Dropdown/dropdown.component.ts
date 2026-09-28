@@ -11,6 +11,11 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/dropdown/dropdown.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaSelectEvent } from '@awesome.me/webawesome/dist/events/select.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -77,11 +82,11 @@ export class DropdownComponent implements AfterViewInit, OnDestroy {
   /** Dropdown size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
-  @Output() show = new EventEmitter<CustomEvent>();
-  @Output() afterShow = new EventEmitter<CustomEvent>();
-  @Output() hide = new EventEmitter<CustomEvent>();
-  @Output() afterHide = new EventEmitter<CustomEvent>();
-  @Output() select = new EventEmitter<CustomEvent>();
+  @Output() show = new EventEmitter<WaShowEvent>();
+  @Output() afterShow = new EventEmitter<WaAfterShowEvent>();
+  @Output() hide = new EventEmitter<WaHideEvent>();
+  @Output() afterHide = new EventEmitter<WaAfterHideEvent>();
+  @Output() select = new EventEmitter<WaSelectEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -101,23 +106,25 @@ export class DropdownComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleShow = (e: Event) => this.show.emit(e as CustomEvent);
+    const handleShow = (e: Event) => this.show.emit(e as WaShowEvent);
     el.addEventListener('wa-show', handleShow);
     this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
-    const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
+    const handleAfterShow = (e: Event) =>
+      this.afterShow.emit(e as WaAfterShowEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-show', handleAfterShow)
     );
-    const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
+    const handleHide = (e: Event) => this.hide.emit(e as WaHideEvent);
     el.addEventListener('wa-hide', handleHide);
     this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
-    const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
+    const handleAfterHide = (e: Event) =>
+      this.afterHide.emit(e as WaAfterHideEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-hide', handleAfterHide)
     );
-    const handleSelect = (e: Event) => this.select.emit(e as CustomEvent);
+    const handleSelect = (e: Event) => this.select.emit(e as WaSelectEvent);
     el.addEventListener('wa-select', handleSelect);
     this.cleanups.push(() => el.removeEventListener('wa-select', handleSelect));
   }

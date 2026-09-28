@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaTree from '@awesome.me/webawesome/dist/components/tree/tree.js';
+import type { WaSelectionChangeEvent } from '@awesome.me/webawesome/dist/events/selection-change.js';
 import './Tree.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -48,7 +49,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-selection-change': [event: CustomEvent];
+  'wa-selection-change': [event: WaSelectionChangeEvent];
 }>();
 
 const elementRef = ref<WaTree | null>(null);
@@ -58,7 +59,7 @@ onMounted(() => {
 });
 
 const handleWaSelectionChange = (e: Event) =>
-  emit('wa-selection-change', e as CustomEvent);
+  emit('wa-selection-change', e as WaSelectionChangeEvent);
 
 onMounted(() => {
   const el = elementRef.value;

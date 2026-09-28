@@ -25,7 +25,11 @@ import {
 } from './vue-function-harness.js';
 import type { VueTemplateProbe } from './vue-function-harness.js';
 
-const SHOW = { name: 'wa-after-show', eventType: 'CustomEvent' };
+const SHOW = {
+  name: 'wa-after-show',
+  eventType: 'WaAfterShowEvent',
+  eventTypeModule: 'after-show',
+};
 
 interface InlineTemplate {
   component: Component;

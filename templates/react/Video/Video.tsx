@@ -87,19 +87,19 @@ export interface VideoProps extends Omit<
   /** The icon library used for built-in control icons */
   'icon-library'?: string;
 
-  onTimeupdate?: (event: CustomEvent) => void;
+  onTimeupdate?: (event: Event) => void;
 
-  onPlay?: (event: CustomEvent) => void;
+  onPlay?: (event: Event) => void;
 
-  onPause?: (event: CustomEvent) => void;
+  onPause?: (event: Event) => void;
 
-  onVolumechange?: (event: CustomEvent) => void;
+  onVolumechange?: (event: Event) => void;
 
   onError?: (event: Event) => void;
 
-  onEnded?: (event: CustomEvent) => void;
+  onEnded?: (event: Event) => void;
 
-  onLoadedmetadata?: (event: CustomEvent) => void;
+  onLoadedmetadata?: (event: Event) => void;
 }
 
 export interface VideoRef {
@@ -247,31 +247,31 @@ export const Video = forwardRef<VideoRef, VideoProps>(
       if (!el) return;
 
       const handleTimeupdate = (e: Event) => {
-        if (onTimeupdate) onTimeupdate(e as CustomEvent);
+        if (onTimeupdate) onTimeupdate(e);
       };
 
       const handlePlay = (e: Event) => {
-        if (onPlay) onPlay(e as CustomEvent);
+        if (onPlay) onPlay(e);
       };
 
       const handlePause = (e: Event) => {
-        if (onPause) onPause(e as CustomEvent);
+        if (onPause) onPause(e);
       };
 
       const handleVolumechange = (e: Event) => {
-        if (onVolumechange) onVolumechange(e as CustomEvent);
+        if (onVolumechange) onVolumechange(e);
       };
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as Event);
+        if (onError) onError(e);
       };
 
       const handleEnded = (e: Event) => {
-        if (onEnded) onEnded(e as CustomEvent);
+        if (onEnded) onEnded(e);
       };
 
       const handleLoadedmetadata = (e: Event) => {
-        if (onLoadedmetadata) onLoadedmetadata(e as CustomEvent);
+        if (onLoadedmetadata) onLoadedmetadata(e);
       };
 
       el.addEventListener('timeupdate', handleTimeupdate);

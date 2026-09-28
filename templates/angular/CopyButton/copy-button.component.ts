@@ -11,6 +11,8 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/copy-button/copy-button.js';
+import type { WaCopyEvent } from '@awesome.me/webawesome/dist/events/copy.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -65,8 +67,8 @@ export class CopyButtonComponent implements AfterViewInit, OnDestroy {
   /** Tooltip position */
   @Input() tooltipPlacement?: 'top' | 'right' | 'bottom' | 'left';
 
-  @Output() copy = new EventEmitter<CustomEvent>();
-  @Output() error = new EventEmitter<CustomEvent>();
+  @Output() copy = new EventEmitter<WaCopyEvent>();
+  @Output() error = new EventEmitter<WaErrorEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -86,10 +88,10 @@ export class CopyButtonComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleCopy = (e: Event) => this.copy.emit(e as CustomEvent);
+    const handleCopy = (e: Event) => this.copy.emit(e as WaCopyEvent);
     el.addEventListener('wa-copy', handleCopy);
     this.cleanups.push(() => el.removeEventListener('wa-copy', handleCopy));
-    const handleError = (e: Event) => this.error.emit(e as CustomEvent);
+    const handleError = (e: Event) => this.error.emit(e as WaErrorEvent);
     el.addEventListener('wa-error', handleError);
     this.cleanups.push(() => el.removeEventListener('wa-error', handleError));
   }

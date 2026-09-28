@@ -8,6 +8,8 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaIcon from '@awesome.me/webawesome/dist/components/icon/icon.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome/dist/events/load.js';
 import './Icon.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -75,10 +77,10 @@ export interface IconProps extends Omit<
   animation?: string;
 
   /** Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit. */
-  onLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: WaLoadEvent) => void;
 
   /** Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: WaErrorEvent) => void;
 }
 
 export interface IconRef {
@@ -109,11 +111,11 @@ export const Icon = forwardRef<IconRef, IconProps>(
       if (!el) return;
 
       const handleWaLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+        if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleWaError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as WaErrorEvent);
       };
 
       el.addEventListener('wa-load', handleWaLoad);

@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaRandomContent from '@awesome.me/webawesome/dist/components/random-content/random-content.js';
+import type { WaContentChangeEvent } from '@awesome.me/webawesome/dist/events/random-content-change.js';
 import './RandomContent.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -55,7 +56,7 @@ export interface RandomContentProps extends Omit<
     'none' | 'fade' | 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right';
 
   /** Emitted whenever the displayed selection changes, including on first render, on `randomize()`, and on each autoplay tick. */
-  onContentChange?: (event: CustomEvent) => void;
+  onContentChange?: (event: WaContentChangeEvent) => void;
 }
 
 export interface RandomContentRef {
@@ -96,7 +97,7 @@ export const RandomContent = forwardRef<RandomContentRef, RandomContentProps>(
       if (!el) return;
 
       const handleWaContentChange = (e: Event) => {
-        if (onContentChange) onContentChange(e as CustomEvent);
+        if (onContentChange) onContentChange(e as WaContentChangeEvent);
       };
 
       el.addEventListener('wa-content-change', handleWaContentChange);

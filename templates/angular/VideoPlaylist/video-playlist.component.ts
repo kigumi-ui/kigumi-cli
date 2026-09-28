@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/video-playlist/video-playlist.js';
+import type { WaVideoChangeEvent } from '@awesome.me/webawesome/dist/events/video-change.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -47,7 +48,7 @@ export class VideoPlaylistComponent implements AfterViewInit, OnDestroy {
   /** The icon library used for placeholder icons */
   @Input() iconLibrary?: string;
 
-  @Output() videoChange = new EventEmitter<CustomEvent>();
+  @Output() videoChange = new EventEmitter<WaVideoChangeEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -68,7 +69,7 @@ export class VideoPlaylistComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleVideoChange = (e: Event) =>
-      this.videoChange.emit(e as CustomEvent);
+      this.videoChange.emit(e as WaVideoChangeEvent);
     el.addEventListener('wa-video-change', handleVideoChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-video-change', handleVideoChange)

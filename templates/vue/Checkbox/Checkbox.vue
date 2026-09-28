@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaCheckbox from '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Checkbox.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -60,7 +61,7 @@ const emit = defineEmits<{
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
   input: [event: InputEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<boolean>({ default: false });
@@ -78,12 +79,12 @@ onMounted(() => {
 
 const handleChange = (e: Event) => {
   model.value = (e.target as HTMLElement & { checked: boolean }).checked;
-  emit('change', e as Event);
+  emit('change', e);
 };
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleInput = (e: Event) => emit('input', e as InputEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

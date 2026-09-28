@@ -116,8 +116,8 @@ export const Default: Story = {
         <Animation
           {...args}
           play={play}
-          onFinish={() => {
-            args.onFinish?.(new CustomEvent('finish'));
+          onFinish={(e) => {
+            args.onFinish?.(e);
             setPlay(false);
           }}
         >

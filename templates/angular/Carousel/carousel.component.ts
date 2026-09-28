@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
 import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
+import type { WaSlideChangeEvent } from '@awesome.me/webawesome/dist/events/slide-change.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -69,7 +70,7 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
   /** Number of slides visible at once */
   @Input() slidesPerPage?: number;
 
-  @Output() slideChange = new EventEmitter<CustomEvent>();
+  @Output() slideChange = new EventEmitter<WaSlideChangeEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -90,7 +91,7 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleSlideChange = (e: Event) =>
-      this.slideChange.emit(e as CustomEvent);
+      this.slideChange.emit(e as WaSlideChangeEvent);
     el.addEventListener('wa-slide-change', handleSlideChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-slide-change', handleSlideChange)

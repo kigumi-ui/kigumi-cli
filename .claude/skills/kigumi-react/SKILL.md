@@ -141,9 +141,11 @@ See [shared/react-api-surface.md](../shared/react-api-surface.md) for complete e
 | `input`           | `onInput`     | Native `InputEvent` (form controls) |
 | `blur`            | `onBlur`      | Native `FocusEvent`                 |
 | `focus`           | `onFocus`     | Native `FocusEvent`                 |
-| `wa-show`         | `onShow`      | `CustomEvent` (overlays)            |
-| `wa-hide`         | `onHide`      | `CustomEvent` (overlays)            |
-| `wa-invalid`      | `onInvalid`   | `CustomEvent` (form validation)     |
+| `wa-show`         | `onShow`      | `WaShowEvent` (overlays)            |
+| `wa-hide`         | `onHide`      | `WaHideEvent` (overlays)            |
+| `wa-invalid`      | `onInvalid`   | `WaInvalidEvent` (form validation)  |
+
+`wa-` events are Web Awesome event classes, which extend `Event`, not `CustomEvent`. Any payload is typed on `e.detail` (Dropdown `wa-select`: `e.detail.item`). Leave inline handler parameters unannotated so the wrapper's prop type infers them. Annotating `(e: CustomEvent)` does not compile. For a standalone handler, import the class from the package the project installs: `import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js'` (Pro projects: `@awesome.me/webawesome-pro/dist/events/hide.js`).
 
 ## Output Format
 

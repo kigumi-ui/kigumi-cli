@@ -9,6 +9,8 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/date-picker/date-picker.js';
 import './DatePicker.css';
+import type { WaFocusDayEvent } from '@awesome.me/webawesome-pro/dist/events/focus-day.js';
+import type { WaViewChangeEvent } from '@awesome.me/webawesome-pro/dist/events/view-change.js';
 
 /**
  * An inline calendar for selecting a single date or a date range
@@ -94,16 +96,16 @@ export interface DatePickerProps extends Omit<
   locale?: string;
 
   /** Emitted when the value changes during interaction. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the user commits a new value. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the focused day changes. */
-  onFocusDay?: (event: CustomEvent) => void;
+  onFocusDay?: (event: WaFocusDayEvent) => void;
 
   /** Emitted when the calendar view changes. */
-  onViewChange?: (event: CustomEvent) => void;
+  onViewChange?: (event: WaViewChangeEvent) => void;
 }
 
 export interface DatePickerRef {
@@ -195,19 +197,19 @@ export const DatePicker = forwardRef<DatePickerRef, DatePickerProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleFocusDay = (e: Event) => {
-        if (onFocusDay) onFocusDay(e as CustomEvent);
+        if (onFocusDay) onFocusDay(e as WaFocusDayEvent);
       };
 
       const handleViewChange = (e: Event) => {
-        if (onViewChange) onViewChange(e as CustomEvent);
+        if (onViewChange) onViewChange(e as WaViewChangeEvent);
       };
 
       el.addEventListener('input', handleInput);

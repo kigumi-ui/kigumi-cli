@@ -10,6 +10,10 @@ import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/dialog/dialog.js';
 import './Dialog.css';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome-pro/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome-pro/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome-pro/dist/events/hide.js';
+import type { WaShowEvent } from '@awesome.me/webawesome-pro/dist/events/show.js';
 
 /**
  * Dialogs display important prompts and information
@@ -65,16 +69,16 @@ export interface DialogProps extends Omit<
   'light-dismiss'?: boolean;
 
   /** Emitted when the dialog opens. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Emitted after the dialog opens and all animations are complete. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Emitted when the dialog is requested to close. Calling `event.preventDefault()` will prevent the dialog from closing. You can inspect `event.detail.source` to see which element caused the dialog to close. If the source is the dialog element itself, the user has pressed [[Escape]] or the dialog has been closed programmatically. Avoid using this unless closing the dialog will result in destructive behavior such as data loss. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Emitted after the dialog closes and all animations are complete. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 }
 
 export interface DialogRef {
@@ -142,10 +146,12 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       const el = dialogRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleShow = (e: Event) => onShow?.(e as WaShowEvent);
+      const handleAfterShow = (e: Event) =>
+        onAfterShow?.(e as WaAfterShowEvent);
+      const handleHide = (e: Event) => onHide?.(e as WaHideEvent);
+      const handleAfterHide = (e: Event) =>
+        onAfterHide?.(e as WaAfterHideEvent);
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

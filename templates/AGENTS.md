@@ -39,7 +39,7 @@ templates/
 - **ControlValueAccessor:** Form controls (Input, Select, Checkbox, Switch, etc.) implement CVA for `ngModel` + Reactive Forms. A value control reads the form value on `input` where its CEM declares one and on `change` otherwise (`wa-rating` only dispatches `change`, issue #77); `checked` controls read on `change`
 - **`on*` attributes:** Since 21.2.13 (and recent 20.3 patches) Angular refuses any `[attr.on*]` binding as an event handler (NG5002), `[attr.once]` included, and the Template then fails to compile, JIT and AOT alike. The generator writes such a prop from `ngOnChanges` with `toggleAttribute` instead (IntersectionObserver's `once`), and refuses a non-boolean `on*` prop rather than emit a binding that cannot compile (issue #77)
 - **Host query:** `@ViewChild('element', { static: true })`. Reactive forms call `writeValue` / `setDisabledState` before the first view check, so a non-static query dropped a `FormControl`'s initial value and disabled state (issue #77). `#element` is never inside a structural directive, so resolving it at creation is always valid
-- **Event naming:** Strip `wa-` prefix, camelCase (`wa-after-hide` -> `afterHide`). Native event types (`FocusEvent`, `MouseEvent`, `KeyboardEvent`, `Event`) flow through to `EventEmitter<T>`; everything else (incl. WA-specific types like `BlurEvent`, `WaInvalidEvent`) currently falls back to `EventEmitter<CustomEvent>`. Tracked as F-141 — extend `mapEventType` in the generator to pass through WA-specific identifiers and emit the corresponding `import type` from the WA module.
+- **Event naming:** Strip `wa-` prefix, camelCase (`wa-after-hide` -> `afterHide`). The emitter type is the metadata's `eventType`, the same as React and Vue: a Web Awesome event class for a custom event (`EventEmitter<WaHideEvent>`, imported from `dist/events/`), a DOM interface for a native one (`EventEmitter<FocusEvent>`). See rule 3a.
 - **Method parameters:** Real types from the CEM flow through (`FocusOptions`, `string | File | FormData | null`, etc.) instead of `unknown`. Bare-identifier non-builtin types (currently only `ToastCreateOptions`) get a named `import type` next to the `import type WaElement` line via `collectNamedTypeImports()` in the generator.
 - **Public methods:** Only methods that the CEM marks as **non-private** are emitted. WA 3.5.0 marks `wa-dialog` / `wa-drawer` `show()`+`requestClose()` and `wa-markdown` `getMarked()`+`updateAll()` as `private` — those wrappers therefore expose **no** imperative methods. See Rule 5 below for the user-facing pattern (`[open]` attribute).
 - **Collision resolution:** If an `@Output()` name collides with a method, suffix with `Event` (e.g. `hideEvent`). Tooltip is the canonical example (public `show()`/`hide()` methods + `wa-show`/`wa-hide` events). Dialog used to be a collision case; since WA 3.5.0 marks Dialog's methods private, it no longer is.
@@ -98,6 +98,10 @@ Note: `wa-dialog` / `wa-drawer` `show()` and `requestClose()` are declared `priv
 import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 import './Dialog.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -108,10 +112,10 @@ function ensureLoaded() {
 export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
   open?: boolean;
   label: string;
-  onShow?: (event: CustomEvent) => void;
-  onAfterShow?: (event: CustomEvent) => void;
-  onHide?: (event: CustomEvent) => void;
-  onAfterHide?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 }
 
 export interface DialogRef {
@@ -141,10 +145,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       const el = dialogRef.current;
       if (!el) return;
 
-      const handleWaShow = (e: Event) => { if (onShow) onShow(e as CustomEvent); };
-      const handleWaAfterShow = (e: Event) => { if (onAfterShow) onAfterShow(e as CustomEvent); };
-      const handleWaHide = (e: Event) => { if (onHide) onHide(e as CustomEvent); };
-      const handleWaAfterHide = (e: Event) => { if (onAfterHide) onAfterHide(e as CustomEvent); };
+      const handleWaShow = (e: Event) => { if (onShow) onShow(e as WaShowEvent); };
+      const handleWaAfterShow = (e: Event) => { if (onAfterShow) onAfterShow(e as WaAfterShowEvent); };
+      const handleWaHide = (e: Event) => { if (onHide) onHide(e as WaHideEvent); };
+      const handleWaAfterHide = (e: Event) => { if (onAfterHide) onAfterHide(e as WaAfterHideEvent); };
 
       el.addEventListener('wa-show', handleWaShow);
       el.addEventListener('wa-after-show', handleWaAfterShow);
@@ -224,6 +228,20 @@ const { forwardRef, useRef, useEffect } = React;
 | `wa-after-hide`   | `onAfterHide` |
 | `wa-clear`        | `onClear`     |
 | `wa-invalid`      | `onInvalid`   |
+
+### 3a. Event Handler Types
+
+A handler is typed with the metadata's `eventType`, which `scripts/parse-custom-elements.ts` resolves through `scripts/event-types.ts`. No generator picks a type (ADR 0005):
+
+| Event                            | Handler type                                     | Import                                                     |
+| -------------------------------- | ------------------------------------------------ | ---------------------------------------------------------- |
+| Custom (`wa-hide`)               | The Web Awesome class dispatched (`WaHideEvent`) | `import type { WaHideEvent } from '…/dist/events/hide.js'` |
+| Native, manifest declares a type | That type (FileInput `input` is `Event`)         | none, DOM global                                           |
+| Native, no declared type         | `NATIVE_EVENT_TYPES` (`blur` is `FocusEvent`)    | none, DOM global                                           |
+
+Web Awesome's classes extend `Event`, not `CustomEvent`, so never type a handler `CustomEvent`. The accordion dispatches `WaAccordionExpandEvent` under `wa-expand`, a name registered to Details' `WaExpandEvent`; that case is pinned in `EVENT_CLASS_OVERRIDES`. An event neither rule types stops the parser instead of falling back.
+
+Every generated listener receives `e: Event` and passes on `handlerArgument(eventType)` from `scripts/generator-utils.ts`: `e` itself when the handler type is `Event`, `e as <Type>` otherwise, so no Template casts `Event` to `Event`. The two hand-maintained `.jsx` files that type a handler in their JSDoc (Carousel, Checkbox) use the same class through an `import('…/dist/events/….js')` type, and `event-type-parity.test.ts` holds them to the `.tsx`.
 
 ### 4. Always Cleanup Event Listeners
 
@@ -561,3 +579,5 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - rule 12: recorded why deprecation carries no runtime `console.warn` (compile-time-only signal, by design, not an oversight) — a second-opinion review on #129 flagged the gap against a JS/no-language-server consumer, issue #129
 - rule 12: QrCode `fill` / `background` are deprecated in every Template (Web Awesome deprecates them for CSS `color` / `background-color`), and their registry defaults are `''` as in the CEM, so the `.js.vue` no longer writes `fill="black"` over the CSS fallback, issue #133
 - rule 13: Templates pass `@eslint/js` + typescript-eslint `recommended` with default options, the baseline consumer configs build on: no `any` (a default-only CEM parameter is typed from its default; Vue types its element ref and casts a model sync to the one property it touches), no empty `interface` / `defineEmits<{}>()`, no unused `emit`; a prop-less Vue wrapper exports `type XProps = object`. `no-undef` is the one exception. The repo had turned `no-explicit-any` and `no-empty-object-type` off for `templates/**`, so a default create-vite project failed where `pnpm lint` passed. Typecheck Pipeline gained `typecheck:templates:pro`, which checks the Vue Templates against the real Pro package in CI, issue #136
+- rule 3a: handlers are typed with the Web Awesome event class the component dispatches (`WaHideEvent`, imported from `dist/events/`), or the DOM interface for a native event; never `CustomEvent`. The accordion override and the refuse-rather-than-fallback rule are documented there, issue #6
+- rule 3a: listeners pass `e` uncast when the handler type is `Event` (`handlerArgument()`), and the Carousel/Checkbox `.jsx` JSDoc handler types follow the `.tsx`, held there by event-type-parity.test.ts, review follow-up on issue #6

@@ -8,6 +8,8 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaCopyButton from '@awesome.me/webawesome/dist/components/copy-button/copy-button.js';
+import type { WaCopyEvent } from '@awesome.me/webawesome/dist/events/copy.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
 import './CopyButton.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -59,10 +61,10 @@ export interface CopyButtonProps extends Omit<
   'tooltip-placement'?: 'top' | 'right' | 'bottom' | 'left';
 
   /** Emitted when the data has been copied. */
-  onCopy?: (event: CustomEvent) => void;
+  onCopy?: (event: WaCopyEvent) => void;
 
   /** Emitted when the data could not be copied. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: WaErrorEvent) => void;
 }
 
 export interface CopyButtonRef {
@@ -93,11 +95,11 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
       if (!el) return;
 
       const handleWaCopy = (e: Event) => {
-        if (onCopy) onCopy(e as CustomEvent);
+        if (onCopy) onCopy(e as WaCopyEvent);
       };
 
       const handleWaError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as WaErrorEvent);
       };
 
       el.addEventListener('wa-copy', handleWaCopy);

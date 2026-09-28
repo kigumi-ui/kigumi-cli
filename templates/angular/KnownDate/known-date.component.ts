@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/known-date/known-date.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -90,7 +91,7 @@ export class KnownDateComponent implements AfterViewInit, OnDestroy {
   @Output() change = new EventEmitter<Event>();
   @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
-  @Output() invalid = new EventEmitter<CustomEvent>();
+  @Output() invalid = new EventEmitter<WaInvalidEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -114,7 +115,7 @@ export class KnownDateComponent implements AfterViewInit, OnDestroy {
       this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
@@ -124,7 +125,7 @@ export class KnownDateComponent implements AfterViewInit, OnDestroy {
       this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
-    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)

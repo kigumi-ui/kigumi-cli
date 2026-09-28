@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaRating from '@awesome.me/webawesome/dist/components/rating/rating.js';
+import type { WaHoverEvent } from '@awesome.me/webawesome/dist/events/hover.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Rating.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -57,8 +59,8 @@ function hostAttributes(): Record<string, unknown> {
 
 const emit = defineEmits<{
   change: [event: Event];
-  'wa-hover': [event: CustomEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-hover': [event: WaHoverEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<number>();
@@ -76,10 +78,10 @@ onMounted(() => {
 
 const handleChange = (e: Event) => {
   model.value = (e.target as HTMLElement & { value: number }).value;
-  emit('change', e as Event);
+  emit('change', e);
 };
-const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaHover = (e: Event) => emit('wa-hover', e as WaHoverEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

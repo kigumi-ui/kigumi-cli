@@ -11,6 +11,8 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
+import type { WaTabHideEvent } from '@awesome.me/webawesome/dist/events/tab-hide.js';
+import type { WaTabShowEvent } from '@awesome.me/webawesome/dist/events/tab-show.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -53,8 +55,8 @@ export class TabGroupComponent implements AfterViewInit, OnDestroy {
   /** The name of the active tab */
   @Input() active?: string;
 
-  @Output() tabShow = new EventEmitter<CustomEvent>();
-  @Output() tabHide = new EventEmitter<CustomEvent>();
+  @Output() tabShow = new EventEmitter<WaTabShowEvent>();
+  @Output() tabHide = new EventEmitter<WaTabHideEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -74,12 +76,12 @@ export class TabGroupComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleTabShow = (e: Event) => this.tabShow.emit(e as CustomEvent);
+    const handleTabShow = (e: Event) => this.tabShow.emit(e as WaTabShowEvent);
     el.addEventListener('wa-tab-show', handleTabShow);
     this.cleanups.push(() =>
       el.removeEventListener('wa-tab-show', handleTabShow)
     );
-    const handleTabHide = (e: Event) => this.tabHide.emit(e as CustomEvent);
+    const handleTabHide = (e: Event) => this.tabHide.emit(e as WaTabHideEvent);
     el.addEventListener('wa-tab-hide', handleTabHide);
     this.cleanups.push(() =>
       el.removeEventListener('wa-tab-hide', handleTabHide)

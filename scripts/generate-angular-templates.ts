@@ -23,7 +23,10 @@ import {
   getAllComponents,
   type ComponentDefinition,
 } from '../src/utils/registry.js';
-import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
+import {
+  COMPONENT_METADATA,
+  type ComponentMetadata,
+} from '../src/utils/component-metadata.js';
 import {
   toKebabCase,
   toPascalCase,
@@ -32,9 +35,10 @@ import {
 } from '../src/utils/naming.js';
 import {
   formatCustomTypeImports,
+  formatEventTypeImports,
   generateCssTemplate,
+  handlerArgument,
   keywordExpression,
-  mapEventType,
   writeFormatted,
   propJsdocLines,
 } from './generator-utils.js';
@@ -88,11 +92,8 @@ const REMOVED_IMPERATIVE_METHODS: Record<string, string> = {
     'Re-render programmatically by updating the projected source content (slotted children). The previous `getMarked()` / `updateAll()` methods are marked private in WA 3.5.0+ and are no longer exposed.',
 };
 
-interface EventInfo {
-  name: string;
-  outputName: string;
-  type: string;
-}
+/** A metadata event plus the @Output() name it gets in this class. */
+type EventInfo = ComponentMetadata['events'][number] & { outputName: string };
 
 interface MethodParameter {
   name: string;
@@ -116,9 +117,8 @@ function getEvents(
   if (!metadata?.events) return [];
 
   return metadata.events.map((e) => ({
-    name: e.name,
+    ...e,
     outputName: toAngularOutputName(e.name, taken),
-    type: mapEventType(e.name),
   }));
 }
 
@@ -203,7 +203,9 @@ export function generateComponentTS(
 
   lines.push(`import type WaElement from '${component.importPath}';`);
 
-  const typeImport = formatCustomTypeImports(methods, component.importPath);
+  const typeImport =
+    formatCustomTypeImports(methods, component.importPath) +
+    formatEventTypeImports(events);
   if (typeImport) {
     lines.push(typeImport.trimEnd());
   }
@@ -317,7 +319,7 @@ export function generateComponentTS(
   // @Output() for each event
   for (const event of events) {
     lines.push(
-      `  @Output() ${event.outputName} = new EventEmitter<${event.type}>();`
+      `  @Output() ${event.outputName} = new EventEmitter<${event.eventType}>();`
     );
   }
 
@@ -379,7 +381,7 @@ export function generateComponentTS(
     for (const event of events) {
       const handlerName = `handle${toPascalCase(event.outputName)}`;
       lines.push(
-        `    const ${handlerName} = (e: Event) => this.${event.outputName}.emit(e as ${event.type});`
+        `    const ${handlerName} = (e: Event) => this.${event.outputName}.emit(${handlerArgument(event.eventType)});`
       );
       lines.push(`    el.addEventListener('${event.name}', ${handlerName});`);
       lines.push(

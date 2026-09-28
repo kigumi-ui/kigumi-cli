@@ -9,6 +9,10 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/tooltip/tooltip.js';
 import './Tooltip.css';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome-pro/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome-pro/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome-pro/dist/events/hide.js';
+import type { WaShowEvent } from '@awesome.me/webawesome-pro/dist/events/show.js';
 
 /**
  * Tooltips display additional information based on a specific action
@@ -75,16 +79,16 @@ export interface TooltipProps extends Omit<
   'hide-delay'?: number;
 
   /** Emitted when the tooltip begins to show. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Emitted after the tooltip has shown and all animations are complete. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Emitted when the tooltip begins to hide. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Emitted after the tooltip has hidden and all animations are complete. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 }
 
 export interface TooltipRef {
@@ -144,19 +148,19 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
       if (!el) return;
 
       const handleShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
+        if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
+        if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
+        if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
+        if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
       el.addEventListener('wa-show', handleShow);

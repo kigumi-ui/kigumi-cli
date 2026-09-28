@@ -11,6 +11,10 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/accordion/accordion.js';
+import type { WaAccordionAfterCollapseEvent } from '@awesome.me/webawesome/dist/events/accordion-after-collapse.js';
+import type { WaAccordionAfterExpandEvent } from '@awesome.me/webawesome/dist/events/accordion-after-expand.js';
+import type { WaAccordionCollapseEvent } from '@awesome.me/webawesome/dist/events/accordion-collapse.js';
+import type { WaAccordionExpandEvent } from '@awesome.me/webawesome/dist/events/accordion-expand.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -53,10 +57,10 @@ export class AccordionComponent implements AfterViewInit, OnDestroy {
   /** The visual style of the accordion */
   @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined' | 'plain';
 
-  @Output() expand = new EventEmitter<CustomEvent>();
-  @Output() afterExpand = new EventEmitter<CustomEvent>();
-  @Output() collapse = new EventEmitter<CustomEvent>();
-  @Output() afterCollapse = new EventEmitter<CustomEvent>();
+  @Output() expand = new EventEmitter<WaAccordionExpandEvent>();
+  @Output() afterExpand = new EventEmitter<WaAccordionAfterExpandEvent>();
+  @Output() collapse = new EventEmitter<WaAccordionCollapseEvent>();
+  @Output() afterCollapse = new EventEmitter<WaAccordionAfterCollapseEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -76,22 +80,24 @@ export class AccordionComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleExpand = (e: Event) => this.expand.emit(e as CustomEvent);
+    const handleExpand = (e: Event) =>
+      this.expand.emit(e as WaAccordionExpandEvent);
     el.addEventListener('wa-expand', handleExpand);
     this.cleanups.push(() => el.removeEventListener('wa-expand', handleExpand));
     const handleAfterExpand = (e: Event) =>
-      this.afterExpand.emit(e as CustomEvent);
+      this.afterExpand.emit(e as WaAccordionAfterExpandEvent);
     el.addEventListener('wa-after-expand', handleAfterExpand);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-expand', handleAfterExpand)
     );
-    const handleCollapse = (e: Event) => this.collapse.emit(e as CustomEvent);
+    const handleCollapse = (e: Event) =>
+      this.collapse.emit(e as WaAccordionCollapseEvent);
     el.addEventListener('wa-collapse', handleCollapse);
     this.cleanups.push(() =>
       el.removeEventListener('wa-collapse', handleCollapse)
     );
     const handleAfterCollapse = (e: Event) =>
-      this.afterCollapse.emit(e as CustomEvent);
+      this.afterCollapse.emit(e as WaAccordionAfterCollapseEvent);
     el.addEventListener('wa-after-collapse', handleAfterCollapse);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-collapse', handleAfterCollapse)

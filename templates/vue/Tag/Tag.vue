@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaTag from '@awesome.me/webawesome/dist/components/tag/tag.js';
+import type { WaRemoveEvent } from '@awesome.me/webawesome/dist/events/remove.js';
 import './Tag.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -52,7 +53,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-remove': [event: CustomEvent];
+  'wa-remove': [event: WaRemoveEvent];
 }>();
 
 const elementRef = ref<WaTag | null>(null);
@@ -61,7 +62,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaRemove = (e: Event) => emit('wa-remove', e as CustomEvent);
+const handleWaRemove = (e: Event) => emit('wa-remove', e as WaRemoveEvent);
 
 onMounted(() => {
   const el = elementRef.value;

@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaKnownDate from '@awesome.me/webawesome/dist/components/known-date/known-date.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './KnownDate.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -96,7 +97,7 @@ export interface KnownDateProps extends Omit<
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface KnownDateRef {
@@ -200,7 +201,7 @@ export const KnownDate = forwardRef<KnownDateRef, KnownDateProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {
@@ -212,7 +213,7 @@ export const KnownDate = forwardRef<KnownDateRef, KnownDateProps>(
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

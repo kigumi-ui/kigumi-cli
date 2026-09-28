@@ -112,11 +112,11 @@ export const Default: Story = {
         <Drawer
           {...args}
           open={open}
-          onHide={() => {
+          onHide={(e) => {
             setOpen(false);
-            args.onHide?.({} as CustomEvent);
+            args.onHide?.(e);
           }}
-          onAfterHide={() => args.onAfterHide?.({} as CustomEvent)}
+          onAfterHide={(e) => args.onAfterHide?.(e)}
         >
           <p>
             This is a basic drawer. Use it to display supplementary content that

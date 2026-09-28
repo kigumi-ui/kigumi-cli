@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaFileInput from '@awesome.me/webawesome/dist/components/file-input/file-input.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './FileInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -68,7 +69,7 @@ export interface FileInputProps extends Omit<
   /** Custom validation message; the control is invalid while it is set */
   'custom-error'?: string;
 
-  onInput?: (event: InputEvent) => void;
+  onInput?: (event: Event) => void;
 
   onChange?: (event: Event) => void;
 
@@ -76,7 +77,7 @@ export interface FileInputProps extends Omit<
 
   onBlur?: (event: FocusEvent) => void;
 
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface FileInputRef {
@@ -174,11 +175,11 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as InputEvent);
+        if (onInput) onInput(e);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {
@@ -190,7 +191,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

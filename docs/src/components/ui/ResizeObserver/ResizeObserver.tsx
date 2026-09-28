@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/resize-observer/resize-observer.js';
 import './ResizeObserver.css';
+import type { WaResizeEvent } from '@awesome.me/webawesome-pro/dist/events/resize.js';
 
 /**
  * Reports changes to the dimensions of an element
@@ -32,7 +33,7 @@ export interface ResizeObserverProps extends Omit<
   disabled?: boolean;
 
   /** Emitted when the element is resized. */
-  onResize?: (event: CustomEvent) => void;
+  onResize?: (event: WaResizeEvent) => void;
 }
 
 export interface ResizeObserverRef {
@@ -68,7 +69,7 @@ export const ResizeObserver = forwardRef<
     if (!el) return;
 
     const handleResize = (e: Event) => {
-      if (onResize) onResize(e as CustomEvent);
+      if (onResize) onResize(e as WaResizeEvent);
     };
 
     el.addEventListener('wa-resize', handleResize);

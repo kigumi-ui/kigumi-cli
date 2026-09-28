@@ -205,6 +205,8 @@ import { DividerComponent } from '@/components/ui/Divider/divider.component';
 import { DropdownComponent } from '@/components/ui/Dropdown/dropdown.component';
 import { DropdownItemComponent } from '@/components/ui/DropdownItem/dropdown-item.component';
 import { IconComponent } from '@/components/ui/Icon/icon.component';
+import type { WaSelectEvent } from '@awesome.me/webawesome/dist/events/select.js';
+// Pro projects: '@awesome.me/webawesome-pro/dist/events/select.js'
 
 @Component({
   selector: 'app-actions-menu',
@@ -239,10 +241,8 @@ import { IconComponent } from '@/components/ui/Icon/icon.component';
 export class ActionsMenuComponent {
   @Output() action = new EventEmitter<string>();
 
-  handleSelect(e: Event) {
-    const ce = e as CustomEvent;
-    const value = (ce.detail.item as HTMLElement).getAttribute('value') || '';
-    this.action.emit(value);
+  handleSelect(e: WaSelectEvent) {
+    this.action.emit(e.detail.item.getAttribute('value') || '');
   }
 }
 ```

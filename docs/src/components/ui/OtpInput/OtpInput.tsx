@@ -10,6 +10,9 @@ import clsx from 'clsx';
 import type WaOtpInput from '@awesome.me/webawesome-pro/dist/components/otp-input/otp-input.js';
 import '@awesome.me/webawesome-pro/dist/components/otp-input/otp-input.js';
 import './OtpInput.css';
+import type { WaClearEvent } from '@awesome.me/webawesome-pro/dist/events/clear.js';
+import type { WaCompleteEvent } from '@awesome.me/webawesome-pro/dist/events/complete.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome-pro/dist/events/invalid.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -116,13 +119,13 @@ export interface OtpInputProps extends Omit<
   onBlur?: (event: FocusEvent) => void;
 
   /** Emitted once when all segments are filled. Cancelable — call `preventDefault()` to stop `autosubmit` from submitting the form for this completion. */
-  onComplete?: (event: CustomEvent) => void;
+  onComplete?: (event: WaCompleteEvent) => void;
 
   /** Emitted when the control's value is cleared. */
-  onClear?: (event: CustomEvent) => void;
+  onClear?: (event: WaClearEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface OtpInputRef {
@@ -268,15 +271,15 @@ export const OtpInput = forwardRef<OtpInputRef, OtpInputProps>(
       };
 
       const handleWaComplete = (e: Event) => {
-        if (onComplete) onComplete(e as CustomEvent);
+        if (onComplete) onComplete(e as WaCompleteEvent);
       };
 
       const handleWaClear = (e: Event) => {
-        if (onClear) onClear(e as CustomEvent);
+        if (onClear) onClear(e as WaClearEvent);
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

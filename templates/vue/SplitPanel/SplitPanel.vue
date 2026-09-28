@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaSplitPanel from '@awesome.me/webawesome/dist/components/split-panel/split-panel.js';
+import type { WaRepositionEvent } from '@awesome.me/webawesome/dist/events/reposition.js';
 import './SplitPanel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -54,7 +55,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-reposition': [event: CustomEvent];
+  'wa-reposition': [event: WaRepositionEvent];
 }>();
 
 const elementRef = ref<WaSplitPanel | null>(null);
@@ -64,7 +65,7 @@ onMounted(() => {
 });
 
 const handleWaReposition = (e: Event) =>
-  emit('wa-reposition', e as CustomEvent);
+  emit('wa-reposition', e as WaRepositionEvent);
 
 onMounted(() => {
   const el = elementRef.value;

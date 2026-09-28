@@ -8,6 +8,11 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaDropdown from '@awesome.me/webawesome/dist/components/dropdown/dropdown.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaSelectEvent } from '@awesome.me/webawesome/dist/events/select.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 import './Dropdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -71,19 +76,19 @@ export interface DropdownProps extends Omit<
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Emitted when the dropdown is about to show. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Emitted after the dropdown has been shown. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Emitted when the dropdown is about to hide. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Emitted after the dropdown has been hidden. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 
   /** Emitted when an item in the dropdown is selected. */
-  onSelect?: (event: CustomEvent) => void;
+  onSelect?: (event: WaSelectEvent) => void;
 }
 
 export interface DropdownRef {
@@ -126,23 +131,23 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
       if (!el) return;
 
       const handleWaShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
+        if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleWaAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
+        if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleWaHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
+        if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleWaAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
+        if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
       const handleWaSelect = (e: Event) => {
-        if (onSelect) onSelect(e as CustomEvent);
+        if (onSelect) onSelect(e as WaSelectEvent);
       };
 
       el.addEventListener('wa-show', handleWaShow);

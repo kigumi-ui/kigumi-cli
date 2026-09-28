@@ -11,6 +11,8 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/include/include.js';
+import type { WaIncludeErrorEvent } from '@awesome.me/webawesome/dist/events/include-error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome/dist/events/load.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -50,8 +52,8 @@ export class IncludeComponent implements AfterViewInit, OnDestroy {
   /** Allows included scripts to be executed */
   @Input() allowScripts?: boolean;
 
-  @Output() load = new EventEmitter<CustomEvent>();
-  @Output() includeError = new EventEmitter<CustomEvent>();
+  @Output() load = new EventEmitter<WaLoadEvent>();
+  @Output() includeError = new EventEmitter<WaIncludeErrorEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -71,11 +73,11 @@ export class IncludeComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleLoad = (e: Event) => this.load.emit(e as CustomEvent);
+    const handleLoad = (e: Event) => this.load.emit(e as WaLoadEvent);
     el.addEventListener('wa-load', handleLoad);
     this.cleanups.push(() => el.removeEventListener('wa-load', handleLoad));
     const handleIncludeError = (e: Event) =>
-      this.includeError.emit(e as CustomEvent);
+      this.includeError.emit(e as WaIncludeErrorEvent);
     el.addEventListener('wa-include-error', handleIncludeError);
     this.cleanups.push(() =>
       el.removeEventListener('wa-include-error', handleIncludeError)

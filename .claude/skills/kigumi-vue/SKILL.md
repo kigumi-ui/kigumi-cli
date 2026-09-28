@@ -128,7 +128,9 @@ WA docs/examples use variant names that differ from Kigumi's prop values:
 | blur   | `@blur="handler"`   | -                                                    |
 | focus  | `@focus="handler"`  | -                                                    |
 
-**Overlays -- CustomEvent:**
+**Overlays -- Web Awesome event classes:**
+
+Handlers receive the class Web Awesome dispatches (`WaHideEvent`, `WaSelectEvent`), which extends `Event`, not `CustomEvent`, with any payload on `e.detail`. Inline handlers (`@wa-select="(e) => pick(e.detail.item)"`) infer it from the wrapper's emits. A standalone function imports it from the installed package: `import type { WaSelectEvent } from '@awesome.me/webawesome/dist/events/select.js'` (Pro: `@awesome.me/webawesome-pro/...`). Never annotate `CustomEvent`, which does not type-check against the wrapper.
 
 | WA Event      | Vue                        |
 | ------------- | -------------------------- |

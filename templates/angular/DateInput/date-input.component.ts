@@ -11,6 +11,12 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/date-input/date-input.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaClearEvent } from '@awesome.me/webawesome/dist/events/clear.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -143,12 +149,12 @@ export class DateInputComponent implements AfterViewInit, OnDestroy {
   @Output() change = new EventEmitter<Event>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() blurEvent = new EventEmitter<FocusEvent>();
-  @Output() clearEvent = new EventEmitter<CustomEvent>();
-  @Output() showEvent = new EventEmitter<CustomEvent>();
-  @Output() afterShow = new EventEmitter<CustomEvent>();
-  @Output() hideEvent = new EventEmitter<CustomEvent>();
-  @Output() afterHide = new EventEmitter<CustomEvent>();
-  @Output() invalid = new EventEmitter<CustomEvent>();
+  @Output() clearEvent = new EventEmitter<WaClearEvent>();
+  @Output() showEvent = new EventEmitter<WaShowEvent>();
+  @Output() afterShow = new EventEmitter<WaAfterShowEvent>();
+  @Output() hideEvent = new EventEmitter<WaHideEvent>();
+  @Output() afterHide = new EventEmitter<WaAfterHideEvent>();
+  @Output() invalid = new EventEmitter<WaInvalidEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -172,7 +178,7 @@ export class DateInputComponent implements AfterViewInit, OnDestroy {
       this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleFocusEvent = (e: Event) =>
@@ -183,32 +189,34 @@ export class DateInputComponent implements AfterViewInit, OnDestroy {
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
     const handleClearEvent = (e: Event) =>
-      this.clearEvent.emit(e as CustomEvent);
+      this.clearEvent.emit(e as WaClearEvent);
     el.addEventListener('wa-clear', handleClearEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-clear', handleClearEvent)
     );
-    const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
+    const handleShowEvent = (e: Event) => this.showEvent.emit(e as WaShowEvent);
     el.addEventListener('wa-show', handleShowEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-show', handleShowEvent)
     );
-    const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
+    const handleAfterShow = (e: Event) =>
+      this.afterShow.emit(e as WaAfterShowEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-show', handleAfterShow)
     );
-    const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
+    const handleHideEvent = (e: Event) => this.hideEvent.emit(e as WaHideEvent);
     el.addEventListener('wa-hide', handleHideEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-hide', handleHideEvent)
     );
-    const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
+    const handleAfterHide = (e: Event) =>
+      this.afterHide.emit(e as WaAfterHideEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-hide', handleAfterHide)
     );
-    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaTabGroup from '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
+import type { WaTabHideEvent } from '@awesome.me/webawesome/dist/events/tab-hide.js';
+import type { WaTabShowEvent } from '@awesome.me/webawesome/dist/events/tab-show.js';
 import './TabGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -51,8 +53,8 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-tab-show': [event: CustomEvent];
-  'wa-tab-hide': [event: CustomEvent];
+  'wa-tab-show': [event: WaTabShowEvent];
+  'wa-tab-hide': [event: WaTabHideEvent];
 }>();
 
 const elementRef = ref<WaTabGroup | null>(null);
@@ -61,8 +63,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaTabShow = (e: Event) => emit('wa-tab-show', e as CustomEvent);
-const handleWaTabHide = (e: Event) => emit('wa-tab-hide', e as CustomEvent);
+const handleWaTabShow = (e: Event) => emit('wa-tab-show', e as WaTabShowEvent);
+const handleWaTabHide = (e: Event) => emit('wa-tab-hide', e as WaTabHideEvent);
 
 onMounted(() => {
   const el = elementRef.value;

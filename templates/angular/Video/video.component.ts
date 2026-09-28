@@ -83,13 +83,13 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
   /** The icon library used for built-in control icons */
   @Input() iconLibrary?: string;
 
-  @Output() timeupdate = new EventEmitter<CustomEvent>();
-  @Output() playEvent = new EventEmitter<CustomEvent>();
-  @Output() pauseEvent = new EventEmitter<CustomEvent>();
-  @Output() volumechange = new EventEmitter<CustomEvent>();
+  @Output() timeupdate = new EventEmitter<Event>();
+  @Output() playEvent = new EventEmitter<Event>();
+  @Output() pauseEvent = new EventEmitter<Event>();
+  @Output() volumechange = new EventEmitter<Event>();
   @Output() error = new EventEmitter<Event>();
-  @Output() ended = new EventEmitter<CustomEvent>();
-  @Output() loadedmetadata = new EventEmitter<CustomEvent>();
+  @Output() ended = new EventEmitter<Event>();
+  @Output() loadedmetadata = new EventEmitter<Event>();
 
   private cleanups: (() => void)[] = [];
 
@@ -109,33 +109,29 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleTimeupdate = (e: Event) =>
-      this.timeupdate.emit(e as CustomEvent);
+    const handleTimeupdate = (e: Event) => this.timeupdate.emit(e);
     el.addEventListener('timeupdate', handleTimeupdate);
     this.cleanups.push(() =>
       el.removeEventListener('timeupdate', handleTimeupdate)
     );
-    const handlePlayEvent = (e: Event) => this.playEvent.emit(e as CustomEvent);
+    const handlePlayEvent = (e: Event) => this.playEvent.emit(e);
     el.addEventListener('play', handlePlayEvent);
     this.cleanups.push(() => el.removeEventListener('play', handlePlayEvent));
-    const handlePauseEvent = (e: Event) =>
-      this.pauseEvent.emit(e as CustomEvent);
+    const handlePauseEvent = (e: Event) => this.pauseEvent.emit(e);
     el.addEventListener('pause', handlePauseEvent);
     this.cleanups.push(() => el.removeEventListener('pause', handlePauseEvent));
-    const handleVolumechange = (e: Event) =>
-      this.volumechange.emit(e as CustomEvent);
+    const handleVolumechange = (e: Event) => this.volumechange.emit(e);
     el.addEventListener('volumechange', handleVolumechange);
     this.cleanups.push(() =>
       el.removeEventListener('volumechange', handleVolumechange)
     );
-    const handleError = (e: Event) => this.error.emit(e as Event);
+    const handleError = (e: Event) => this.error.emit(e);
     el.addEventListener('error', handleError);
     this.cleanups.push(() => el.removeEventListener('error', handleError));
-    const handleEnded = (e: Event) => this.ended.emit(e as CustomEvent);
+    const handleEnded = (e: Event) => this.ended.emit(e);
     el.addEventListener('ended', handleEnded);
     this.cleanups.push(() => el.removeEventListener('ended', handleEnded));
-    const handleLoadedmetadata = (e: Event) =>
-      this.loadedmetadata.emit(e as CustomEvent);
+    const handleLoadedmetadata = (e: Event) => this.loadedmetadata.emit(e);
     el.addEventListener('loadedmetadata', handleLoadedmetadata);
     this.cleanups.push(() =>
       el.removeEventListener('loadedmetadata', handleLoadedmetadata)

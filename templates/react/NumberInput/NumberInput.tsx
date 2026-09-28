@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaNumberInput from '@awesome.me/webawesome/dist/components/number-input/number-input.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './NumberInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -115,7 +116,7 @@ export interface NumberInputProps extends Omit<
 
   onBeforeinput?: (event: InputEvent) => void;
 
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface NumberInputRef {
@@ -249,7 +250,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {
@@ -265,7 +266,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

@@ -156,43 +156,47 @@ export async function writeFormatted(
 }
 
 /**
- * Native DOM events that Web Awesome components fire, mapped to the interface
- * the DOM actually defines for them.
+ * The `import type` lines a Template needs for its events' handler types.
  *
- * Keyed on the event's real `name` (`blur`), never on Web Awesome's
- * `eventName` (`BlurEvent`). The latter is a pascal-cased naming convention
- * from the manifest, and for native events it names no real type: there is no
- * `BlurEvent` interface, blur events are `FocusEvent`. Deriving a type by
- * pattern-matching that string is what let the three generators drift apart.
+ * The type itself is already resolved in the metadata (`eventType`), by
+ * `scripts/event-types.ts`, so all three generators read one answer and none
+ * of them decides a type. Framework-specific naming (`onBlur`, `blurEvent`)
+ * is a separate concern and stays in each generator.
  *
- * See docs/adr/0001-event-types-are-never-inferred-from-names.md.
+ * Native events carry no `eventTypeModule`: their types (`FocusEvent`,
+ * `Event`) are DOM globals. Each Web Awesome class is imported from its own
+ * file, because the `dist/events/events.js` barrel omits some of them (the
+ * accordion's). Paths name the free package; the CLI swaps them for Pro.
+ *
+ * See docs/adr/0005-event-types-come-from-web-awesome-event-classes.md.
  */
-const NATIVE_EVENT_TYPES: Record<string, string> = {
-  blur: 'FocusEvent',
-  focus: 'FocusEvent',
-  change: 'Event',
-  input: 'InputEvent',
-  beforeinput: 'InputEvent',
-  load: 'Event',
-  error: 'Event',
-};
+export function formatEventTypeImports(
+  events: ReadonlyArray<{ eventType: string; eventTypeModule?: string }>
+): string {
+  const byModule = new Map<string, Set<string>>();
+  for (const event of events) {
+    if (!event.eventTypeModule) continue;
+    const types = byModule.get(event.eventTypeModule) ?? new Set<string>();
+    types.add(event.eventType);
+    byModule.set(event.eventTypeModule, types);
+  }
+  return [...byModule]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(
+      ([module, types]) =>
+        `import type { ${[...types].sort().join(', ')} } from '@awesome.me/webawesome/dist/events/${module}.js';\n`
+    )
+    .join('');
+}
 
 /**
- * The TypeScript type a handler receives for a given event.
- *
- * Two rules, and every event falls under exactly one:
- *   - A native DOM event takes its own DOM interface.
- *   - A Web Awesome custom event (always `wa-`-prefixed) is a `CustomEvent`.
- *
- * The result depends only on the event, never on the framework, so all three
- * generators call this. Framework-specific naming (`onBlur`, `blurEvent`) is a
- * separate concern and stays in each generator.
- *
- * @param eventName The event's DOM name, e.g. `blur` or `wa-show`.
+ * The expression a generated listener passes on to the consumer's handler.
+ * Every listener receives `e: Event`, so a handler typed `Event` gets `e`
+ * as-is and any narrower type gets `e as <Type>`: a cast to `Event` would
+ * assert nothing, and the ESLint setup is not type-aware enough to flag it.
  */
-export function mapEventType(eventName: string): string {
-  if (eventName.startsWith('wa-')) return 'CustomEvent';
-  return NATIVE_EVENT_TYPES[eventName] ?? 'CustomEvent';
+export function handlerArgument(eventType: string): string {
+  return eventType === 'Event' ? 'e' : `e as ${eventType}`;
 }
 
 /**

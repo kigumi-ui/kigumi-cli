@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaPagination from '@awesome.me/webawesome/dist/components/pagination/pagination.js';
+import type { WaBeforePageChangeEvent } from '@awesome.me/webawesome/dist/events/before-page-change.js';
+import type { WaPageChangeEvent } from '@awesome.me/webawesome/dist/events/page-change.js';
 import './Pagination.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -61,8 +63,8 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-before-page-change': [event: CustomEvent];
-  'wa-page-change': [event: CustomEvent];
+  'wa-before-page-change': [event: WaBeforePageChangeEvent];
+  'wa-page-change': [event: WaPageChangeEvent];
 }>();
 
 const elementRef = ref<WaPagination | null>(null);
@@ -72,9 +74,9 @@ onMounted(() => {
 });
 
 const handleWaBeforePageChange = (e: Event) =>
-  emit('wa-before-page-change', e as CustomEvent);
+  emit('wa-before-page-change', e as WaBeforePageChangeEvent);
 const handleWaPageChange = (e: Event) =>
-  emit('wa-page-change', e as CustomEvent);
+  emit('wa-page-change', e as WaPageChangeEvent);
 
 onMounted(() => {
   const el = elementRef.value;

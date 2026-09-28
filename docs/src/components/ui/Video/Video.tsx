@@ -72,25 +72,25 @@ export interface VideoProps extends Omit<
   'icon-library'?: string;
 
   /** Emitted when the time changes. */
-  onTimeupdate?: (event: CustomEvent) => void;
+  onTimeupdate?: (event: Event) => void;
 
   /** Emitted when playback begins. */
-  onPlay?: (event: CustomEvent) => void;
+  onPlay?: (event: Event) => void;
 
   /** Emitted when playback stops. */
-  onPause?: (event: CustomEvent) => void;
+  onPause?: (event: Event) => void;
 
   /** Emitted when the volume changes. */
-  onVolumechange?: (event: CustomEvent) => void;
+  onVolumechange?: (event: Event) => void;
 
   /** Emitted when an error occurs while loading/playing. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: Event) => void;
 
   /** Emitted when playback ends. */
-  onEnded?: (event: CustomEvent) => void;
+  onEnded?: (event: Event) => void;
 
   /** Emitted when metadata has been loaded. */
-  onLoadedmetadata?: (event: CustomEvent) => void;
+  onLoadedmetadata?: (event: Event) => void;
 }
 
 export interface VideoRef {
@@ -263,31 +263,31 @@ export const Video = forwardRef<VideoRef, VideoProps>(
       if (!el) return;
 
       const handleTimeupdate = (e: Event) => {
-        if (onTimeupdate) onTimeupdate(e as CustomEvent);
+        if (onTimeupdate) onTimeupdate(e);
       };
 
       const handlePlay = (e: Event) => {
-        if (onPlay) onPlay(e as CustomEvent);
+        if (onPlay) onPlay(e);
       };
 
       const handlePause = (e: Event) => {
-        if (onPause) onPause(e as CustomEvent);
+        if (onPause) onPause(e);
       };
 
       const handleVolumechange = (e: Event) => {
-        if (onVolumechange) onVolumechange(e as CustomEvent);
+        if (onVolumechange) onVolumechange(e);
       };
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e);
       };
 
       const handleEnded = (e: Event) => {
-        if (onEnded) onEnded(e as CustomEvent);
+        if (onEnded) onEnded(e);
       };
 
       const handleLoadedmetadata = (e: Event) => {
-        if (onLoadedmetadata) onLoadedmetadata(e as CustomEvent);
+        if (onLoadedmetadata) onLoadedmetadata(e);
       };
 
       el.addEventListener('timeupdate', handleTimeupdate);

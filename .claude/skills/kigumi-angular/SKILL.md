@@ -162,6 +162,8 @@ Angular Kigumi wrappers use `@Output()` EventEmitters. The wrapper strips the `w
 ></k-dialog>
 ```
 
+`$event` is typed by the output's `EventEmitter<T>`. A native event is its DOM interface (`(change)` gives `Event`). A `wa-` event is the Web Awesome class dispatched (`(select)` gives `WaSelectEvent`, payload on `e.detail`). Those classes extend `Event`, not `CustomEvent`, so type the handler parameter with the class: `import type { WaSelectEvent } from '@awesome.me/webawesome/dist/events/select.js'` (Pro: `@awesome.me/webawesome-pro/...`). A `CustomEvent` parameter fails strict template type-checking.
+
 ## Form Controls (ControlValueAccessor)
 
 Kigumi Angular wrappers for form components implement `ControlValueAccessor`. They work natively with Angular's forms system.

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaAccordion from '@awesome.me/webawesome/dist/components/accordion/accordion.js';
+import type { WaAccordionAfterCollapseEvent } from '@awesome.me/webawesome/dist/events/accordion-after-collapse.js';
+import type { WaAccordionAfterExpandEvent } from '@awesome.me/webawesome/dist/events/accordion-after-expand.js';
+import type { WaAccordionCollapseEvent } from '@awesome.me/webawesome/dist/events/accordion-collapse.js';
+import type { WaAccordionExpandEvent } from '@awesome.me/webawesome/dist/events/accordion-expand.js';
 import './Accordion.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -51,10 +55,10 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-expand': [event: CustomEvent];
-  'wa-after-expand': [event: CustomEvent];
-  'wa-collapse': [event: CustomEvent];
-  'wa-after-collapse': [event: CustomEvent];
+  'wa-expand': [event: WaAccordionExpandEvent];
+  'wa-after-expand': [event: WaAccordionAfterExpandEvent];
+  'wa-collapse': [event: WaAccordionCollapseEvent];
+  'wa-after-collapse': [event: WaAccordionAfterCollapseEvent];
 }>();
 
 const elementRef = ref<WaAccordion | null>(null);
@@ -63,12 +67,14 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaExpand = (e: Event) => emit('wa-expand', e as CustomEvent);
+const handleWaExpand = (e: Event) =>
+  emit('wa-expand', e as WaAccordionExpandEvent);
 const handleWaAfterExpand = (e: Event) =>
-  emit('wa-after-expand', e as CustomEvent);
-const handleWaCollapse = (e: Event) => emit('wa-collapse', e as CustomEvent);
+  emit('wa-after-expand', e as WaAccordionAfterExpandEvent);
+const handleWaCollapse = (e: Event) =>
+  emit('wa-collapse', e as WaAccordionCollapseEvent);
 const handleWaAfterCollapse = (e: Event) =>
-  emit('wa-after-collapse', e as CustomEvent);
+  emit('wa-after-collapse', e as WaAccordionAfterCollapseEvent);
 
 onMounted(() => {
   const el = elementRef.value;

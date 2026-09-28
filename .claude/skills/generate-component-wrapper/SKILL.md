@@ -256,16 +256,21 @@ variant?: 'neutral' | 'brand';
 ### Event Handler Generation (Complex)
 
 ```typescript
-// From event: { name: 'wa-show', description: 'Emitted when opens' }
+// From event: { name: 'wa-show', eventType: 'WaShowEvent', eventTypeModule: 'show' }
+// The type is resolved by scripts/event-types.ts into the metadata. Never
+// type a handler CustomEvent: Web Awesome's classes extend Event.
+
+// Imports:
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 
 // Props interface:
-onShow?: (event: CustomEvent) => void;
+onShow?: (event: WaShowEvent) => void;
 
 // Component body (with cleanup):
 useEffect(() => {
   const el = elementRef.current;
   if (!el) return;
-  const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+  const handleShow = (e: Event) => onShow?.(e as WaShowEvent);
   el.addEventListener('wa-show', handleShow);
   return () => el.removeEventListener('wa-show', handleShow);
 }, [onShow]);

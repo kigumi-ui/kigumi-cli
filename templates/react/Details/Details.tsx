@@ -8,6 +8,10 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaDetails from '@awesome.me/webawesome/dist/components/details/details.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 import './Details.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -57,16 +61,16 @@ export interface DetailsProps extends Omit<
   name?: string;
 
   /** Emitted when the details opens. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Emitted after the details opens and all animations are complete. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Emitted when the details closes. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Emitted after the details closes and all animations are complete. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 }
 
 export interface DetailsRef {
@@ -121,19 +125,19 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
       if (!el) return;
 
       const handleWaShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
+        if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleWaAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
+        if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleWaHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
+        if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleWaAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
+        if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
       el.addEventListener('wa-show', handleWaShow);
