@@ -46,8 +46,10 @@ async function unsetHostAttributes(
 }
 
 describe('Vue JS Templates leave unset props to the element', () => {
+  // `$name:` and not `$name.js.vue`: Vitest reads `$name.js.vue` as the
+  // property path `name.js.vue`, and every title came out as "undefined".
   it.each(Object.values(LOCAL_REGISTRY))(
-    '$name.js.vue writes the same host attributes as $name.vue when no prop is set',
+    '$name: .js.vue writes the same host attributes as .vue when no prop is set',
     async ({ name, tagName }) => {
       const typed = await unsetHostAttributes(name, tagName, 'vue');
       const javascript = await unsetHostAttributes(name, tagName, 'js.vue');
