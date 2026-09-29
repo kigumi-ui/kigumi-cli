@@ -146,7 +146,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # All 15 validators already run in CI, but only when a pull request
+      # Every validator already runs in CI, but only when a pull request
       # touches a file. This is the same suite on a clock, so drift caused by
       # the outside world moving is visible without anyone editing anything.
       #
@@ -201,8 +201,13 @@ jobs:
           FORCE_COLOR: '0'
         run: pnpm --silent check:external-links | tee link-report.txt
 
+      # The check above also runs on pull requests that touch package.json or
+      # the lockfile, but only the scheduled or manual run reports. A PR run
+      # would post the same report again on every push to every such PR: #108
+      # collected 40 identical comments that way (#147). The same gate sits on
+      # every report step below; validate:gha-issue-writes enforces it.
       - name: Report dead links
-        if: steps.links.outputs.failures != '0' && steps.links.outputs.failures != ''
+        if: github.event_name != 'pull_request' && steps.links.outputs.failures != '0' && steps.links.outputs.failures != ''
         # Reporting must never turn the repo red. Without this, a transient
         # GitHub API failure in the step below would fail the job for the very
         # outage it exists to report.
@@ -261,7 +266,8 @@ jobs:
         run: pnpm --silent check:upstream-versions | tee version-report.txt
 
       - name: Report version drift
-        if: steps.versions.outputs.drift == '1'
+        # Scheduled or manual runs only, see "Report dead links".
+        if: github.event_name != 'pull_request' && steps.versions.outputs.drift == '1'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -315,7 +321,8 @@ jobs:
         run: pnpm --silent check:wa-upgrade | tee wa-report.txt
 
       - name: Report the upgrade
-        if: steps.wa.outputs.upgrade == '1'
+        # Scheduled or manual runs only, see "Report dead links".
+        if: github.event_name != 'pull_request' && steps.wa.outputs.upgrade == '1'
         # Reporting must never turn the repo red; a GitHub API hiccup here is
         # not a reason to fail the run that exists to report on upstream.
         continue-on-error: true

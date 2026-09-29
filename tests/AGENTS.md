@@ -127,6 +127,7 @@ tests/
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
 │   ├── validate-agents.test.ts      # Pure matchers for templates/AGENTS.md count claims and for history (date stamp, changelog heading) in agent context files; checkNoHistory() on a temp git repo
 │   ├── validate-gha-permissions.test.ts # Pure matcher for GHA job-level permissions vs actions/checkout (cluster V)
+│   ├── validate-gha-issue-writes.test.ts # Pure matchers for `gh issue` writes in PR-triggered workflows: trigger forms, read vs write subcommands, which `if:` shapes gate off pull_request (issue #147)
 │   ├── pre-tool-guardrails.test.ts  # Drives the PreToolUse hook end-to-end against real throwaway git repos: default-branch guard, worktree exemption, escape hatch (cluster T)
 │   ├── validate-story-lanes.test.ts # Matchers for the interaction-lane story list vs the `interaction` tags on disk (cluster O)
 │   ├── validate-fixture-exclusions.test.ts # Matchers for the three ignore lists that must all skip tests/fixtures/starter-snapshots (cluster X)
