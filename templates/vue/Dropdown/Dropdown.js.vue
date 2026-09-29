@@ -12,13 +12,13 @@ function ensureLoaded() {
  * Dropdowns expose additional content that pops up when the user interacts with a trigger
  */
 const props = defineProps({
-  placement: { type: String, required: false, default: 'bottom-start' },
-  disabled: { type: Boolean, required: false, default: false },
-  'stay-open-on-select': { type: Boolean, required: false, default: false },
-  distance: { type: Number, required: false, default: 0 },
-  skidding: { type: Number, required: false, default: 0 },
-  hoist: { type: Boolean, required: false, default: false },
-  size: { type: String, required: false, default: 'medium' },
+  placement: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
+  'stay-open-on-select': { type: Boolean, required: false },
+  distance: { type: Number, required: false },
+  skidding: { type: Number, required: false },
+  hoist: { type: Boolean, required: false },
+  size: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

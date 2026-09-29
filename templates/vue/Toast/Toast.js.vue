@@ -12,7 +12,7 @@ function ensureLoaded() {
  * Container that manages and stacks lightweight notification banners at a chosen screen edge
  */
 const props = defineProps({
-  placement: { type: String, required: false, default: 'top-end' },
+  placement: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

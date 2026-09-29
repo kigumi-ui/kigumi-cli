@@ -12,11 +12,11 @@ function ensureLoaded() {
  * Avatars are used to represent a person or object
  */
 const props = defineProps({
-  image: { type: String, required: false, default: '' },
-  label: { type: String, required: true, default: '' },
-  initials: { type: String, required: false, default: '' },
-  loading: { type: String, required: false, default: 'eager' },
-  shape: { type: String, required: false, default: 'circle' },
+  image: { type: String, required: false },
+  label: { type: String, required: true },
+  initials: { type: String, required: false },
+  loading: { type: String, required: false },
+  shape: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

@@ -12,15 +12,15 @@ function ensureLoaded() {
  * Displays an arbitrary number of content slides along a horizontal or vertical axis
  */
 const props = defineProps({
-  autoplay: { type: Boolean, required: false, default: false },
-  'autoplay-interval': { type: Number, required: false, default: 3000 },
-  loop: { type: Boolean, required: false, default: false },
-  'mouse-dragging': { type: Boolean, required: false, default: false },
-  navigation: { type: Boolean, required: false, default: false },
-  orientation: { type: String, required: false, default: 'horizontal' },
-  pagination: { type: Boolean, required: false, default: false },
-  'slides-per-move': { type: Number, required: false, default: 1 },
-  'slides-per-page': { type: Number, required: false, default: 1 },
+  autoplay: { type: Boolean, required: false },
+  'autoplay-interval': { type: Number, required: false },
+  loop: { type: Boolean, required: false },
+  'mouse-dragging': { type: Boolean, required: false },
+  navigation: { type: Boolean, required: false },
+  orientation: { type: String, required: false },
+  pagination: { type: Boolean, required: false },
+  'slides-per-move': { type: Number, required: false },
+  'slides-per-page': { type: Number, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

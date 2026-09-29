@@ -12,20 +12,20 @@ function ensureLoaded() {
  * Displays a video player with customizable controls, captions, and thumbnails
  */
 const props = defineProps({
-  controls: { type: String, required: false, default: 'standard' },
+  controls: { type: String, required: false },
   src: { type: String, required: false },
   poster: { type: String, required: false },
   title: { type: String, required: false },
   thumbnails: { type: String, required: false },
-  playing: { type: Boolean, required: false, default: false },
-  muted: { type: Boolean, required: false, default: false },
-  volume: { type: Number, required: false, default: 1 },
-  autoplay: { type: Boolean, required: false, default: false },
-  loop: { type: Boolean, required: false, default: false },
-  'autoplay-muted': { type: Boolean, required: false, default: false },
-  'autoplay-on-visible': { type: Boolean, required: false, default: false },
-  preload: { type: String, required: false, default: 'metadata' },
-  'icon-library': { type: String, required: false, default: 'system' },
+  playing: { type: Boolean, required: false },
+  muted: { type: Boolean, required: false },
+  volume: { type: Number, required: false },
+  autoplay: { type: Boolean, required: false },
+  loop: { type: Boolean, required: false },
+  'autoplay-muted': { type: Boolean, required: false },
+  'autoplay-on-visible': { type: Boolean, required: false },
+  preload: { type: String, required: false },
+  'icon-library': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

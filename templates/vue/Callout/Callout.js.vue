@@ -12,9 +12,9 @@ function ensureLoaded() {
  * Callouts are used to display important messages inline
  */
 const props = defineProps({
-  appearance: { type: String, required: false, default: 'filled-outlined' },
-  size: { type: String, required: false, default: 'medium' },
-  variant: { type: String, required: false, default: 'brand' },
+  appearance: { type: String, required: false },
+  size: { type: String, required: false },
+  variant: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

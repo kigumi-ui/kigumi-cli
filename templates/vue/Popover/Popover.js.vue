@@ -12,13 +12,13 @@ function ensureLoaded() {
  * Popovers display additional content when users interact with a trigger element
  */
 const props = defineProps({
-  disabled: { type: Boolean, required: false, default: false },
-  placement: { type: String, required: false, default: 'top' },
-  trigger: { type: String, required: false, default: 'click' },
-  distance: { type: Number, required: false, default: 8 },
-  skidding: { type: Number, required: false, default: 0 },
-  'with-arrow': { type: Boolean, required: false, default: false },
-  'without-arrow': { type: Boolean, required: false, default: false },
+  disabled: { type: Boolean, required: false },
+  placement: { type: String, required: false },
+  trigger: { type: String, required: false },
+  distance: { type: Number, required: false },
+  skidding: { type: Number, required: false },
+  'with-arrow': { type: Boolean, required: false },
+  'without-arrow': { type: Boolean, required: false },
   for: { type: String, required: false },
 });
 

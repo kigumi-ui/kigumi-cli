@@ -12,15 +12,15 @@ function ensureLoaded() {
  * Copies text data to the clipboard when clicked
  */
 const props = defineProps({
-  value: { type: String, required: false, default: '' },
-  from: { type: String, required: false, default: '' },
-  disabled: { type: Boolean, required: false, default: false },
-  'copy-label': { type: String, required: false, default: '' },
-  'success-label': { type: String, required: false, default: '' },
-  'error-label': { type: String, required: false, default: '' },
-  'feedback-duration': { type: Number, required: false, default: 1000 },
-  tooltip: { type: String, required: false, default: 'full' },
-  'tooltip-placement': { type: String, required: false, default: 'top' },
+  value: { type: String, required: false },
+  from: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
+  'copy-label': { type: String, required: false },
+  'success-label': { type: String, required: false },
+  'error-label': { type: String, required: false },
+  'feedback-duration': { type: Number, required: false },
+  tooltip: { type: String, required: false },
+  'tooltip-placement': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

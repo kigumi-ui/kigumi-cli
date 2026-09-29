@@ -12,13 +12,13 @@ function ensureLoaded() {
  * Split panels display two adjacent panels with a divider for resizing
  */
 const props = defineProps({
-  position: { type: Number, required: false, default: 50 },
+  position: { type: Number, required: false },
   'position-in-pixels': { type: Number, required: false },
-  orientation: { type: String, required: false, default: 'horizontal' },
-  primary: { type: String, required: false, default: 'start' },
-  disabled: { type: Boolean, required: false, default: false },
+  orientation: { type: String, required: false },
+  primary: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
   snap: { type: String, required: false },
-  'snap-threshold': { type: Number, required: false, default: 12 },
+  'snap-threshold': { type: Number, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

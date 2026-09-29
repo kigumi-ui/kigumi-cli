@@ -12,15 +12,11 @@ function ensureLoaded() {
  * Pages offer an easy way to scaffold entire page layouts using minimal markup
  */
 const props = defineProps({
-  'disable-navigation-toggle': {
-    type: Boolean,
-    required: false,
-    default: false,
-  },
-  'mobile-breakpoint': { type: String, required: false, default: '768px' },
-  'navigation-placement': { type: String, required: false, default: 'start' },
-  'nav-open': { type: Boolean, required: false, default: false },
-  view: { type: String, required: false, default: 'desktop' },
+  'disable-navigation-toggle': { type: Boolean, required: false },
+  'mobile-breakpoint': { type: String, required: false },
+  'navigation-placement': { type: String, required: false },
+  'nav-open': { type: Boolean, required: false },
+  view: { type: String, required: false },
   nonce: { type: String, required: false },
 });
 

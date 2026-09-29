@@ -11,13 +11,12 @@ const meta = {
       control: 'select',
       options: ['accent', 'filled', 'outlined', 'plain', 'filled-outlined'],
       description: "The callout's visual appearance",
-      table: { defaultValue: { summary: 'filled-outlined' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: "The callout's size",
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     variant: {
       control: 'select',

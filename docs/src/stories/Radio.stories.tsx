@@ -19,7 +19,6 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Radio size',
-      table: { defaultValue: { summary: 'medium' } },
     },
     appearance: {
       control: 'select',

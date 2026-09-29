@@ -12,8 +12,8 @@ function ensureLoaded() {
  * Groups related buttons into organized sections, supporting both horizontal and vertical layouts
  */
 const props = defineProps({
-  label: { type: String, required: false, default: '' },
-  orientation: { type: String, required: false, default: 'horizontal' },
+  label: { type: String, required: false },
+  orientation: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

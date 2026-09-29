@@ -12,7 +12,7 @@ function ensureLoaded() {
  * Trees allow you to display a hierarchical list of selectable tree items
  */
 const props = defineProps({
-  selection: { type: String, required: false, default: 'single' },
+  selection: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

@@ -12,13 +12,13 @@ function ensureLoaded() {
  * Steps are the individual stages of a stepper, each with a label and a status
  */
 const props = defineProps({
-  name: { type: String, required: false, default: '' },
-  completed: { type: Boolean, required: false, default: false },
-  loading: { type: Boolean, required: false, default: false },
-  disabled: { type: Boolean, required: false, default: false },
-  variant: { type: String, required: false, default: 'brand' },
-  attention: { type: String, required: false, default: 'none' },
-  active: { type: Boolean, required: false, default: false },
+  name: { type: String, required: false },
+  completed: { type: Boolean, required: false },
+  loading: { type: Boolean, required: false },
+  disabled: { type: Boolean, required: false },
+  variant: { type: String, required: false },
+  attention: { type: String, required: false },
+  active: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

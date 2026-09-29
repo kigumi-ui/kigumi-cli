@@ -12,11 +12,11 @@ function ensureLoaded() {
  * Randomly selects and displays one or more of its child elements
  */
 const props = defineProps({
-  items: { type: Number, required: false, default: 1 },
-  mode: { type: String, required: false, default: 'unique' },
-  autoplay: { type: Boolean, required: false, default: false },
-  'autoplay-interval': { type: Number, required: false, default: 3000 },
-  animation: { type: String, required: false, default: 'none' },
+  items: { type: Number, required: false },
+  mode: { type: String, required: false },
+  autoplay: { type: Boolean, required: false },
+  'autoplay-interval': { type: Number, required: false },
+  animation: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

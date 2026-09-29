@@ -10,6 +10,9 @@ import {
   eventNameToAction,
   buildStoryData,
   buildAllStoryData,
+  argTypeDefaultSummary,
+  parseStory,
+  sameDefault,
 } from '../../scripts/storybook/story-data.js';
 
 describe('storybook story-data pipeline', () => {
@@ -161,5 +164,146 @@ describe('storybook story-data pipeline', () => {
         }
       }
     });
+  });
+});
+
+describe('story argType default summaries (issue #152)', () => {
+  const story = parseStory(`
+const meta = {
+  args: { size: 'large' },
+  argTypes: {
+    appearance: {
+      control: 'select',
+      options: ['accent', 'filled'],
+      table: { defaultValue: { summary: 'accent' } },
+    },
+    'with-tooltip': {
+      control: 'boolean',
+      table: {
+        category: 'Behaviour',
+        defaultValue: { summary: "false" },
+      },
+    },
+    fill: {
+      control: 'text',
+      table: { category: 'Deprecated', defaultValue: { summary: "''" } },
+    },
+    label: { control: 'text', description: 'Has { braces } in prose' },
+    size: {
+      control: 'select',
+    },
+  },
+} satisfies Meta<typeof Widget>;
+`);
+
+  it('reads the summary of each argType, however it is quoted and nested', () => {
+    expect(argTypeDefaultSummary(story, 'appearance')).toEqual({
+      kind: 'summary',
+      summary: 'accent',
+    });
+    expect(argTypeDefaultSummary(story, 'with-tooltip')).toEqual({
+      kind: 'summary',
+      summary: 'false',
+    });
+    expect(argTypeDefaultSummary(story, 'fill')).toEqual({
+      kind: 'summary',
+      summary: "''",
+    });
+  });
+
+  it('tells an argType without a summary from a missing one', () => {
+    expect(argTypeDefaultSummary(story, 'label')).toEqual({
+      kind: 'no-summary',
+    });
+    expect(argTypeDefaultSummary(story, 'size')).toEqual({
+      kind: 'no-summary',
+    });
+    expect(argTypeDefaultSummary(story, 'variant')).toEqual({
+      kind: 'missing',
+    });
+  });
+
+  it('reads the argTypes block, not a same-named key in args', () => {
+    // `args.size` comes first in the file; its value is not a summary.
+    expect(argTypeDefaultSummary(story, 'size')).toEqual({
+      kind: 'no-summary',
+    });
+  });
+
+  it('reads past quotes and braces in comments', () => {
+    // A hand-rolled brace scanner read the apostrophe as an opening quote,
+    // lost its place, and reported every argType of the file as missing.
+    const commented = parseStory(`
+const meta = {
+  argTypes: {
+    // the element's own default applies when unset
+    appearance: {
+      /* it's { here */
+      table: { defaultValue: { summary: 'accent' } }, // Kigumi's
+    },
+    size: { table: { defaultValue: { summary: \`m\` } } },
+  },
+} satisfies Meta<typeof Widget>;
+`);
+
+    expect(argTypeDefaultSummary(commented, 'appearance')).toEqual({
+      kind: 'summary',
+      summary: 'accent',
+    });
+    expect(argTypeDefaultSummary(commented, 'size')).toEqual({
+      kind: 'summary',
+      summary: 'm',
+    });
+  });
+
+  it.each([
+    ['no meta', `const config = { argTypes: {} };`, /declares no `const meta`/],
+    [
+      'argTypes held in a constant',
+      `const meta = { argTypes: shared };`,
+      /`meta\.argTypes` is not an object literal/,
+    ],
+    [
+      'a spread that may set the argType',
+      `const meta = { argTypes: { ...shared, label: {} } };`,
+      /`meta\.argTypes` spreads another object/,
+    ],
+    [
+      'an argType held in a constant',
+      `const meta = { argTypes: { size: sizeArgType } };`,
+      /`meta\.argTypes\.size` is not an object literal/,
+    ],
+    [
+      'a computed summary',
+      `const meta = { argTypes: { size: { table: { defaultValue: { summary: String(m) } } } } };`,
+      /`meta\.argTypes\.size\.table\.defaultValue\.summary` is not a string literal/,
+    ],
+  ])('reads %s as unreadable, never as missing', (_case, source, reason) => {
+    const found = argTypeDefaultSummary(parseStory(source), 'size');
+
+    expect(found.kind).toBe('unreadable');
+    expect(found.kind === 'unreadable' ? found.reason : '').toMatch(reason);
+  });
+
+  it('reads a key the literal sets after a spread, as the runtime does', () => {
+    const overridden = parseStory(
+      `const meta = { argTypes: { ...shared, size: { table: { defaultValue: { summary: 'm' } } } } };`
+    );
+
+    expect(argTypeDefaultSummary(overridden, 'size')).toEqual({
+      kind: 'summary',
+      summary: 'm',
+    });
+  });
+
+  it('compares a summary to a registry default by the value both name', () => {
+    expect(sameDefault('accent', 'accent')).toBe(true);
+    expect(sameDefault("'accent'", 'accent')).toBe(true);
+    expect(sameDefault("''", "''")).toBe(true);
+    expect(sameDefault(null, undefined)).toBe(true);
+    expect(sameDefault(null, "''")).toBe(true);
+    expect(sameDefault('filled', 'accent')).toBe(false);
+    expect(sameDefault('medium', undefined)).toBe(false);
+    expect(sameDefault(null, 'm')).toBe(false);
   });
 });

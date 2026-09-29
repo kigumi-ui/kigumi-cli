@@ -13,12 +13,12 @@ function ensureLoaded() {
  */
 const props = defineProps({
   attr: { type: String, required: false },
-  'attr-old-value': { type: Boolean, required: false, default: false },
-  'char-data': { type: Boolean, required: false, default: false },
-  'char-data-old-value': { type: Boolean, required: false, default: false },
-  'child-list': { type: Boolean, required: false, default: false },
-  disabled: { type: Boolean, required: false, default: false },
-  subtree: { type: Boolean, required: false, default: false },
+  'attr-old-value': { type: Boolean, required: false },
+  'char-data': { type: Boolean, required: false },
+  'char-data-old-value': { type: Boolean, required: false },
+  'child-list': { type: Boolean, required: false },
+  disabled: { type: Boolean, required: false },
+  subtree: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

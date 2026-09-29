@@ -10,14 +10,25 @@
 
 import fs from 'fs';
 import path from 'path';
-import { buildAllStoryData } from './story-data.js';
+import {
+  argTypeDefaultSummary,
+  buildAllStoryData,
+  parseStory,
+  sameDefault,
+} from './story-data.js';
+import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
 
 const STORIES_DIR = path.resolve(import.meta.dirname, '../../docs/src/stories');
 
 interface ValidationError {
   component: string;
   file: string;
-  type: 'missing-story' | 'missing-argtypes' | 'wa-event-ref' | 'wrong-default';
+  type:
+    | 'missing-story'
+    | 'missing-argtypes'
+    | 'wa-event-ref'
+    | 'wrong-default'
+    | 'unreadable-argtypes';
   message: string;
 }
 
@@ -86,6 +97,44 @@ function validateStories(): ValidationError[] {
           message: `Missing argType "${argName}" (expected from ${argType.table?.category || 'registry'})`,
         });
       }
+    }
+
+    // 4. Check that each registry prop's default summary matches the registry
+    // default, which validate:cem-sync holds to the element's own (issue #152).
+    // A missing argType is left to check 3. One whose summary cannot be read
+    // from the source is an error, never a skip: it was not checked
+    // (docs/adr/0003).
+    const story = parseStory(content);
+    const unreadable = new Map<string, string[]>();
+    for (const prop of LOCAL_REGISTRY[key]?.props ?? []) {
+      const found = argTypeDefaultSummary(story, prop.name);
+      if (found.kind === 'missing') continue;
+      if (found.kind === 'unreadable') {
+        unreadable.set(found.reason, [
+          ...(unreadable.get(found.reason) ?? []),
+          prop.name,
+        ]);
+        continue;
+      }
+      const summary = found.kind === 'summary' ? found.summary : null;
+      if (sameDefault(summary, prop.default)) continue;
+      errors.push({
+        component: key,
+        file: storyFile,
+        type: 'wrong-default',
+        message:
+          prop.default === undefined
+            ? `argType "${prop.name}" shows default ${summary}, but the registry states none; remove its defaultValue`
+            : `argType "${prop.name}" shows default ${summary ?? '(none)'}, but the registry default is ${prop.default}`,
+      });
+    }
+    for (const [reason, names] of unreadable) {
+      errors.push({
+        component: key,
+        file: storyFile,
+        type: 'unreadable-argtypes',
+        message: `Cannot read the default summary of ${names.map((name) => `"${name}"`).join(', ')}: ${reason}`,
+      });
     }
   }
 

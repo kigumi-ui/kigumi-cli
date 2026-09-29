@@ -12,12 +12,12 @@ function ensureLoaded() {
  * Checkboxes allow the user to toggle an option on or off
  */
 const props = defineProps({
-  disabled: { type: Boolean, required: false, default: false },
-  hint: { type: String, required: false, default: '' },
-  indeterminate: { type: Boolean, required: false, default: false },
-  name: { type: String, required: false, default: '' },
-  required: { type: Boolean, required: false, default: false },
-  size: { type: String, required: false, default: 'medium' },
+  disabled: { type: Boolean, required: false },
+  hint: { type: String, required: false },
+  indeterminate: { type: Boolean, required: false },
+  name: { type: String, required: false },
+  required: { type: Boolean, required: false },
+  size: { type: String, required: false },
   value: { type: String, required: false },
   title: { type: String, required: false },
   'custom-error': { type: String, required: false },

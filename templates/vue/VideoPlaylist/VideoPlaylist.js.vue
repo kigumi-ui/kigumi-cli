@@ -12,8 +12,8 @@ function ensureLoaded() {
  * Groups multiple videos into a playlist with next/previous navigation
  */
 const props = defineProps({
-  controls: { type: String, required: false, default: 'full' },
-  'icon-library': { type: String, required: false, default: 'system' },
+  controls: { type: String, required: false },
+  'icon-library': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

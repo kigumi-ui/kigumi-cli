@@ -14,10 +14,10 @@ function ensureLoaded() {
 const props = defineProps({
   label: { type: String, required: false },
   description: { type: String, required: false },
-  'legend-position': { type: String, required: false, default: 'top' },
-  'without-animation': { type: Boolean, required: false, default: false },
-  'without-legend': { type: Boolean, required: false, default: false },
-  'without-tooltip': { type: Boolean, required: false, default: false },
+  'legend-position': { type: String, required: false },
+  'without-animation': { type: Boolean, required: false },
+  'without-legend': { type: Boolean, required: false },
+  'without-tooltip': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

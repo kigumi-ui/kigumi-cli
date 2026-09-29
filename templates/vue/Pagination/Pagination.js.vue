@@ -12,20 +12,20 @@ function ensureLoaded() {
  * Pagination splits long lists of content into pages, letting users navigate between them
  */
 const props = defineProps({
-  total: { type: Number, required: false, default: 0 },
-  'page-size': { type: Number, required: false, default: 10 },
-  page: { type: Number, required: false, default: 1 },
-  'sibling-count': { type: Number, required: false, default: 2 },
-  'boundary-count': { type: Number, required: false, default: 1 },
-  'without-nav': { type: Boolean, required: false, default: false },
-  'with-edges': { type: Boolean, required: false, default: false },
-  'with-summary': { type: Boolean, required: false, default: false },
-  format: { type: String, required: false, default: 'standard' },
-  'href-template': { type: String, required: false, default: '' },
-  'hide-single-page': { type: Boolean, required: false, default: false },
-  label: { type: String, required: false, default: '' },
-  appearance: { type: String, required: false, default: 'outlined' },
-  disabled: { type: Boolean, required: false, default: false },
+  total: { type: Number, required: false },
+  'page-size': { type: Number, required: false },
+  page: { type: Number, required: false },
+  'sibling-count': { type: Number, required: false },
+  'boundary-count': { type: Number, required: false },
+  'without-nav': { type: Boolean, required: false },
+  'with-edges': { type: Boolean, required: false },
+  'with-summary': { type: Boolean, required: false },
+  format: { type: String, required: false },
+  'href-template': { type: String, required: false },
+  'hide-single-page': { type: Boolean, required: false },
+  label: { type: String, required: false },
+  appearance: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

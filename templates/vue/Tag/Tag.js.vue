@@ -12,11 +12,11 @@ function ensureLoaded() {
  * Tags are used as labels to organize things or indicate selections
  */
 const props = defineProps({
-  appearance: { type: String, required: false, default: 'filled-outlined' },
-  pill: { type: Boolean, required: false, default: false },
-  size: { type: String, required: false, default: 'medium' },
-  variant: { type: String, required: false, default: 'neutral' },
-  'with-remove': { type: Boolean, required: false, default: false },
+  appearance: { type: String, required: false },
+  pill: { type: Boolean, required: false },
+  size: { type: String, required: false },
+  variant: { type: String, required: false },
+  'with-remove': { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

@@ -12,20 +12,20 @@ function ensureLoaded() {
  * Color pickers allow the user to select a color
  */
 const props = defineProps({
-  format: { type: String, required: false, default: 'hex' },
-  opacity: { type: Boolean, required: false, default: false },
-  disabled: { type: Boolean, required: false, default: false },
-  required: { type: Boolean, required: false, default: false },
-  size: { type: String, required: false, default: 'medium' },
-  label: { type: String, required: false, default: '' },
-  hint: { type: String, required: false, default: '' },
+  format: { type: String, required: false },
+  opacity: { type: Boolean, required: false },
+  disabled: { type: Boolean, required: false },
+  required: { type: Boolean, required: false },
+  size: { type: String, required: false },
+  label: { type: String, required: false },
+  hint: { type: String, required: false },
   name: { type: String, required: false },
-  open: { type: Boolean, required: false, default: false },
-  placement: { type: String, required: false, default: 'bottom-start' },
-  swatches: { type: String, required: false, default: '' },
-  uppercase: { type: Boolean, required: false, default: false },
-  'without-format-toggle': { type: Boolean, required: false, default: false },
-  inline: { type: Boolean, required: false, default: false },
+  open: { type: Boolean, required: false },
+  placement: { type: String, required: false },
+  swatches: { type: String, required: false },
+  uppercase: { type: Boolean, required: false },
+  'without-format-toggle': { type: Boolean, required: false },
+  inline: { type: Boolean, required: false },
   'custom-error': { type: String, required: false },
 });
 

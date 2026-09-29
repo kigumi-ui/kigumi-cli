@@ -12,11 +12,11 @@ function ensureLoaded() {
  * Observes changes in the intersection of a target element with an ancestor
  */
 const props = defineProps({
-  disabled: { type: Boolean, required: false, default: false },
-  once: { type: Boolean, required: false, default: false },
-  threshold: { type: String, required: false, default: '0' },
+  disabled: { type: Boolean, required: false },
+  once: { type: Boolean, required: false },
+  threshold: { type: String, required: false },
   root: { type: String, required: false },
-  'root-margin': { type: String, required: false, default: '0px' },
+  'root-margin': { type: String, required: false },
   'intersect-class': { type: String, required: false },
 });
 

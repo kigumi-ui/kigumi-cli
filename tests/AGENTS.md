@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (119 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (120 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -86,7 +86,7 @@ tests/
 │   ├── slider-range-values.test.ts  # Slider `min-value` / `max-value` stay off the host until set, in every React and Vue variant: `wa-slider` resets a range to them by presence (#102)
 │   ├── snapshot.test.ts             # Snapshot CRUD and community install snapshots
 │   ├── status-json.test.ts          # Status --json output
-│   ├── storybook-generator.test.ts  # Storybook story generation
+│   ├── storybook-generator.test.ts  # Storybook story generation; `parseStory` / `argTypeDefaultSummary` / `sameDefault`, which `validate:stories` uses to hold argType default summaries to the registry, including comments with quotes and every unreadable shape (#152)
 │   ├── surgical-rewrite-layers-css.test.ts # Surgical @import rewrite for layers.css
 │   ├── template.test.ts             # Template materialization + tier swap
 │   ├── enumerated-boolean-attributes.test.ts # The enumerated-boolean pin against the real Free runtime (every Free element's Lit `elementProperties`, both directions, keywords read back) and the registry `keywords` against the pin (issue #101)
@@ -135,6 +135,7 @@ tests/
 │   ├── vue-function-harness.ts      # proveVueTemplate: the Vue adapter (`onWaAfterHide`, defineExpose, declared emits) over template-function-harness.ts (not a test file)
 │   ├── vue-function-harness.test.ts # The Vue adapter alone, on inline components: callback naming, undeclared emits, a leak Vue's post-unmount emit would hide (issue #76)
 │   ├── vue-function-harness-registry.test.ts # Loops proveVueTemplate over every LOCAL_REGISTRY component's `.vue` Template (issue #76); pins the v-model Templates and the attribute each model carries
+│   ├── vue-js-host-defaults.test.ts # Every `.js.vue` mounted with no props writes the same host attributes as its `.vue`: no registry default reaches the host (#152)
 │   ├── vue-templates.test.ts        # Every .vue and .js.vue Template forwards through hostAttributes() and cleans up in onBeforeUnmount
 │   ├── scripts/
 │   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset, Check A's two-way Template tree diff, issue #80), plus Check C's Vue arm (issue #122): the SFC surface reader (including its plain-`<script>` reader) on literal snippets and, for the `<script setup>` half, against the Vue compiler on every committed Template; the variant comparer; and the templates/vue and templates/react walks (one pair per registry component)

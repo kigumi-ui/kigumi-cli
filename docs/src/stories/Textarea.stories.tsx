@@ -21,7 +21,7 @@ const meta = {
       control: 'select',
       options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Textarea size',
-      table: { defaultValue: { summary: 'medium' } },
+      table: { defaultValue: { summary: 'm' } },
     },
     label: { control: 'text', description: 'Label text' },
     hint: { control: 'text', description: 'Hint text' },

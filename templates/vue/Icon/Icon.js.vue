@@ -13,15 +13,15 @@ function ensureLoaded() {
  */
 const props = defineProps({
   name: { type: String, required: false },
-  library: { type: String, required: false, default: 'default' },
+  library: { type: String, required: false },
   src: { type: String, required: false },
-  label: { type: String, required: false, default: '' },
+  label: { type: String, required: false },
   family: { type: String, required: false },
   variant: { type: String, required: false },
   canvas: { type: String, required: false },
   /** @deprecated Set canvas="auto" instead. */
-  'auto-width': { type: Boolean, required: false, default: false },
-  'swap-opacity': { type: Boolean, required: false, default: false },
+  'auto-width': { type: Boolean, required: false },
+  'swap-opacity': { type: Boolean, required: false },
   rotate: { type: Number, required: false },
   flip: { type: String, required: false },
   animation: { type: String, required: false },

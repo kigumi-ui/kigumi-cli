@@ -12,16 +12,16 @@ function ensureLoaded() {
  * Formats a number using the Intl.NumberFormat API
  */
 const props = defineProps({
-  value: { type: Number, required: false, default: 0 },
-  type: { type: String, required: false, default: 'decimal' },
-  currency: { type: String, required: false, default: 'USD' },
-  'currency-display': { type: String, required: false, default: 'symbol' },
+  value: { type: Number, required: false },
+  type: { type: String, required: false },
+  currency: { type: String, required: false },
+  'currency-display': { type: String, required: false },
   'minimum-integer-digits': { type: Number, required: false },
   'minimum-fraction-digits': { type: Number, required: false },
   'maximum-fraction-digits': { type: Number, required: false },
   'minimum-significant-digits': { type: Number, required: false },
   'maximum-significant-digits': { type: Number, required: false },
-  'without-grouping': { type: Boolean, required: false, default: false },
+  'without-grouping': { type: Boolean, required: false },
   lang: { type: String, required: false },
 });
 

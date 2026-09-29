@@ -12,10 +12,10 @@ function ensureLoaded() {
  * Badges are used to draw attention and display statuses or counts
  */
 const props = defineProps({
-  variant: { type: String, required: false, default: 'brand' },
-  appearance: { type: String, required: false, default: 'accent' },
-  pill: { type: Boolean, required: false, default: false },
-  attention: { type: String, required: false, default: 'none' },
+  variant: { type: String, required: false },
+  appearance: { type: String, required: false },
+  pill: { type: Boolean, required: false },
+  attention: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

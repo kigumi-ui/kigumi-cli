@@ -14,10 +14,10 @@ function ensureLoaded() {
  * Badges are used to draw attention and display statuses or counts
  */
 const props = defineProps({
-    variant: { type: String, required: false, default: 'brand' },
-    appearance: { type: String, required: false, default: 'accent' },
-    pill: { type: Boolean, required: false, default: false },
-    attention: { type: String, required: false, default: 'none' }
+    variant: { type: String, required: false },
+    appearance: { type: String, required: false },
+    pill: { type: Boolean, required: false },
+    attention: { type: String, required: false }
 });
 
 defineOptions({ inheritAttrs: false });
@@ -86,24 +86,24 @@ function ensureLoaded() {
  * Buttons represent actions that are available to the user
  */
 const props = defineProps({
-    variant: { type: String, required: false, default: 'neutral' },
-    appearance: { type: String, required: false, default: 'filled' },
-    size: { type: String, required: false, default: 'medium' },
-    pill: { type: Boolean, required: false, default: false },
-    disabled: { type: Boolean, required: false, default: false },
-    loading: { type: Boolean, required: false, default: false },
-    'with-caret': { type: Boolean, required: false, default: false },
+    variant: { type: String, required: false },
+    appearance: { type: String, required: false },
+    size: { type: String, required: false },
+    pill: { type: Boolean, required: false },
+    disabled: { type: Boolean, required: false },
+    loading: { type: Boolean, required: false },
+    'with-caret': { type: Boolean, required: false },
     href: { type: String, required: false },
     target: { type: String, required: false },
     download: { type: String, required: false },
     rel: { type: String, required: false },
-    type: { type: String, required: false, default: 'button' },
+    type: { type: String, required: false },
     name: { type: String, required: false },
     value: { type: String, required: false },
     formaction: { type: String, required: false },
     formenctype: { type: String, required: false },
     formmethod: { type: String, required: false },
-    formnovalidate: { type: Boolean, required: false, default: false },
+    formnovalidate: { type: Boolean, required: false },
     formtarget: { type: String, required: false }
 });
 
@@ -206,7 +206,7 @@ function ensureLoaded() {
  */
 const props = defineProps({
     label: { type: String, required: false },
-    'without-header': { type: Boolean, required: false, default: false }
+    'without-header': { type: Boolean, required: false }
 });
 
 defineOptions({ inheritAttrs: false });
@@ -311,8 +311,8 @@ function ensureLoaded() {
  */
 const props = defineProps({
     label: { type: String, required: false },
-    disabled: { type: Boolean, required: false, default: false },
-    'with-clear': { type: Boolean, required: false, default: false }
+    disabled: { type: Boolean, required: false },
+    'with-clear': { type: Boolean, required: false }
 });
 
 defineOptions({ inheritAttrs: false });
@@ -435,7 +435,7 @@ function ensureLoaded() {
  * @remarks Re-render programmatically by updating the projected source content (slotted children). The previous \`getMarked()\` / \`updateAll()\` methods are marked private in WA 3.5.0+ and are no longer exposed; \`renderMarkdown()\` remains available.
  */
 const props = defineProps({
-    'tab-size': { type: Number, required: false, default: 4 }
+    'tab-size': { type: Number, required: false }
 });
 
 defineOptions({ inheritAttrs: false });
@@ -505,7 +505,7 @@ function ensureLoaded() {
  * Number inputs collect numeric data from the user
  */
 const props = defineProps({
-    disabled: { type: Boolean, required: false, default: false }
+    disabled: { type: Boolean, required: false }
 });
 
 defineOptions({ inheritAttrs: false });
@@ -625,10 +625,10 @@ function ensureLoaded() {
 const props = defineProps({
     name: { type: String, required: false },
     value: { type: String, required: false },
-    size: { type: String, required: false, default: 'medium' },
-    disabled: { type: Boolean, required: false, default: false },
-    required: { type: Boolean, required: false, default: false },
-    hint: { type: String, required: false, default: '' }
+    size: { type: String, required: false },
+    disabled: { type: Boolean, required: false },
+    required: { type: Boolean, required: false },
+    hint: { type: String, required: false }
 });
 
 defineOptions({ inheritAttrs: false });
@@ -741,7 +741,7 @@ function ensureLoaded() {
  * Toasts are used to display brief notifications
  */
 const props = defineProps({
-    variant: { type: String, required: false, default: 'brand' }
+    variant: { type: String, required: false }
 });
 
 defineOptions({ inheritAttrs: false });

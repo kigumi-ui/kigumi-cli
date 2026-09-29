@@ -12,10 +12,10 @@ function ensureLoaded() {
  * Tree items are used inside trees to represent hierarchical items
  */
 const props = defineProps({
-  expanded: { type: Boolean, required: false, default: false },
-  selected: { type: Boolean, required: false, default: false },
-  disabled: { type: Boolean, required: false, default: false },
-  lazy: { type: Boolean, required: false, default: false },
+  expanded: { type: Boolean, required: false },
+  selected: { type: Boolean, required: false },
+  disabled: { type: Boolean, required: false },
+  lazy: { type: Boolean, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

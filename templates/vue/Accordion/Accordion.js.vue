@@ -12,10 +12,10 @@ function ensureLoaded() {
  * Accordions group related disclosure panels and control how many can be open at once
  */
 const props = defineProps({
-  mode: { type: String, required: false, default: 'multiple' },
-  'icon-placement': { type: String, required: false, default: 'end' },
-  'heading-level': { type: String, required: false, default: '3' },
-  appearance: { type: String, required: false, default: 'outlined' },
+  mode: { type: String, required: false },
+  'icon-placement': { type: String, required: false },
+  'heading-level': { type: String, required: false },
+  appearance: { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

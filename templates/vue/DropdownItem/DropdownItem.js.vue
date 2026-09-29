@@ -12,12 +12,12 @@ function ensureLoaded() {
  * Dropdown items are used inside dropdowns to represent individual menu items
  */
 const props = defineProps({
-  type: { type: String, required: false, default: 'normal' },
-  checked: { type: Boolean, required: false, default: false },
-  value: { type: String, required: false, default: '' },
-  disabled: { type: Boolean, required: false, default: false },
-  loading: { type: Boolean, required: false, default: false },
-  variant: { type: String, required: false, default: 'default' },
+  type: { type: String, required: false },
+  checked: { type: Boolean, required: false },
+  value: { type: String, required: false },
+  disabled: { type: Boolean, required: false },
+  loading: { type: Boolean, required: false },
+  variant: { type: String, required: false },
   href: { type: String, required: false },
   target: { type: String, required: false },
   rel: { type: String, required: false },

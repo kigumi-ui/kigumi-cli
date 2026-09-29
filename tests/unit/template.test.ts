@@ -238,7 +238,7 @@ describe('template utilities', () => {
       expect(component.length).toBeGreaterThan(0);
     });
 
-    it('quotes string prop defaults in Vue JS Options API output', async () => {
+    it('writes no registry default into Vue JS Options API output (issue #152)', async () => {
       const button = getComponent('button');
       expect(button).toBeDefined();
       if (!button) return;
@@ -264,19 +264,17 @@ describe('template utilities', () => {
         'free'
       );
 
-      // String defaults must be quoted — otherwise they emit as bare identifiers
-      // and crash at module load ("neutral is not defined").
-      expect(component).toContain("default: 'neutral'");
-      expect(component).toContain("default: 'filled'");
-      expect(component).toContain("default: 'medium'");
-
-      // Boolean defaults must stay unquoted.
-      expect(component).toContain('default: false');
-      expect(component).not.toContain("default: 'false'");
-
-      // No bare-identifier form should survive for the known string enums.
-      expect(component).not.toMatch(/default:\s+neutral\b/);
-      expect(component).not.toMatch(/default:\s+filled\b/);
+      // The props are declared (the premise), but carry no default: the
+      // Template forwards any value that is set, so a default would land on
+      // the host where every other variant leaves the element's own.
+      expect(component).toContain(
+        'appearance: { type: String, required: false }'
+      );
+      expect(component).toContain('size: { type: String, required: false }');
+      expect(component).toContain(
+        'disabled: { type: Boolean, required: false }'
+      );
+      expect(component).not.toMatch(/\bdefault:/);
     });
 
     it('rewrites the import path to the Pro package on Pro tier', async () => {
