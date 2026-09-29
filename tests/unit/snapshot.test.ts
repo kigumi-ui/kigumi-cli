@@ -65,6 +65,20 @@ describe('snapshot', () => {
       expect(loaded?.['Button.tsx']).toBe('v2');
     });
 
+    // A snapshot is the merge base for exactly the files the CLI manages. A
+    // test file saved before issue #80 must not outlive the next save.
+    it('keeps only the files of the latest save', async () => {
+      await saveSnapshot(tempDir, 'Button', {
+        'Button.tsx': 'v1',
+        'Button.test.tsx': 'old test',
+      });
+      await saveSnapshot(tempDir, 'Button', { 'Button.tsx': 'v2' });
+
+      expect(await loadSnapshot(tempDir, 'Button')).toEqual({
+        'Button.tsx': 'v2',
+      });
+    });
+
     it('should store multiple components independently', async () => {
       await saveSnapshot(tempDir, 'Button', { 'Button.tsx': 'btn code' });
       await saveSnapshot(tempDir, 'Dialog', { 'Dialog.tsx': 'dlg code' });

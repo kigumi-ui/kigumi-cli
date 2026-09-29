@@ -33,6 +33,17 @@ describe('findTemplateDirIssues', () => {
     ]);
   });
 
+  // Finder and editors leave these next to any file. They are local
+  // metadata, never a Template file, so they are not a stray one either.
+  it('ignores dotfiles such as .DS_Store and editor swap files', () => {
+    const files = [
+      ...getTemplateFileNames('react', 'ButtonGroup'),
+      '.DS_Store',
+      '.ButtonGroup.tsx.swp',
+    ];
+    expect(findTemplateDirIssues('react', 'ButtonGroup', files)).toEqual([]);
+  });
+
   it('reports each missing Template file', () => {
     expect(
       findTemplateDirIssues('vue', 'ButtonGroup', ['ButtonGroup.vue'])

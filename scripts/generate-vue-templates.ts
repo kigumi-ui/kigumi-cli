@@ -5,7 +5,7 @@
  *
  * Generates Vue SFC templates for all components in the registry.
  * Creates TypeScript and JavaScript variants, plus CSS. No test file: the
- * function harness proves Templates (issue #80).
+ * function harnesses prove the TypeScript Templates (issue #80).
  *
  * Key design decisions:
  * - No named slot bridging: users apply slot="name" directly on children (WA-idiomatic)

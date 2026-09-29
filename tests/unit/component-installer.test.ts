@@ -279,6 +279,32 @@ describe('ComponentInstaller', () => {
     }
   });
 
+  it('drops a test file from an older snapshot when it overwrites', async () => {
+    // Projects installed before issue #80 have a test file in the snapshot;
+    // the CLI no longer manages one, so the snapshot stops carrying it.
+    const componentDir = path.join(testDir, 'src/components/Button');
+    const snapshotDir = path.join(testDir, '.kigumi/snapshots/Button');
+    await fs.outputFile(path.join(componentDir, 'Button.tsx'), '// edited');
+    await fs.outputFile(path.join(componentDir, 'Button.css'), '/* css */');
+    await fs.outputFile(path.join(snapshotDir, 'Button.tsx'), '// old');
+    await fs.outputFile(path.join(snapshotDir, 'Button.test.tsx'), '// old');
+
+    const { installer } = await createInstaller(testDir);
+    await installer.installComponents(
+      ['Button'],
+      createTestAddOptions({ force: true, yes: true })
+    );
+
+    // Premise: the force run overwrote the Template.
+    expect(
+      await fs.readFile(path.join(componentDir, 'Button.tsx'), 'utf-8')
+    ).toBe('// generated component');
+    expect((await fs.readdir(snapshotDir)).sort()).toEqual([
+      'Button.css',
+      'Button.tsx',
+    ]);
+  });
+
   // ── Test 4: User declines prompt -> file unchanged, snapshot unchanged ──
 
   it('preserves original file and shows diff when user declines prompt', async () => {

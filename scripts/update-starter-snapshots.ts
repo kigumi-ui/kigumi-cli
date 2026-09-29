@@ -140,6 +140,33 @@ async function copyStarter(src: string, dest: string): Promise<void> {
   });
 }
 
+/**
+ * Run `regenerate` against an empty fixture directory for `framework`. The
+ * previous fixtures wait in `asideDir` and come back if it fails, so a failed
+ * run never leaves the committed fixtures deleted.
+ */
+async function withEmptyFixtureDir(
+  framework: string,
+  asideDir: string,
+  regenerate: () => Promise<void>
+): Promise<void> {
+  const fixtureDir = path.join(
+    ROOT_DIR,
+    'tests/fixtures/starter-snapshots',
+    framework
+  );
+  const hadFixtures = await fs.pathExists(fixtureDir);
+  if (hadFixtures) await fs.move(fixtureDir, asideDir);
+  try {
+    await regenerate();
+  } catch (err) {
+    await fs.remove(fixtureDir);
+    if (hadFixtures) await fs.move(asideDir, fixtureDir);
+    throw err;
+  }
+  await fs.remove(asideDir);
+}
+
 async function processStarter(
   starter: Starter,
   args: Args
@@ -169,31 +196,33 @@ async function processStarter(
 
     // `--update` writes every file snapshot but deletes none, and the harness
     // fails on a fixture with no emitted file, so regenerate from empty.
-    await fs.remove(
-      path.join(ROOT_DIR, 'tests/fixtures/starter-snapshots', starter.framework)
-    );
-
-    console.log(pc.dim('  running snapshot harness in --update mode'));
-    await execa(
-      'pnpm',
-      [
-        'exec',
-        'vitest',
-        'run',
-        'tests/e2e/starter-snapshots.test.ts',
-        '--config',
-        'vitest.e2e.config.ts',
-        '--testTimeout=600000',
-        '--update',
-      ],
-      {
-        cwd: ROOT_DIR,
-        stdio: 'inherit',
-        env: {
-          ...process.env,
-          KIGUMI_STARTER: starter.framework,
-          KIGUMI_STARTER_DIR: tmpRoot,
-        },
+    await withEmptyFixtureDir(
+      starter.framework,
+      `${tmpRoot}-fixtures`,
+      async () => {
+        console.log(pc.dim('  running snapshot harness in --update mode'));
+        await execa(
+          'pnpm',
+          [
+            'exec',
+            'vitest',
+            'run',
+            'tests/e2e/starter-snapshots.test.ts',
+            '--config',
+            'vitest.e2e.config.ts',
+            '--testTimeout=600000',
+            '--update',
+          ],
+          {
+            cwd: ROOT_DIR,
+            stdio: 'inherit',
+            env: {
+              ...process.env,
+              KIGUMI_STARTER: starter.framework,
+              KIGUMI_STARTER_DIR: tmpRoot,
+            },
+          }
+        );
       }
     );
 

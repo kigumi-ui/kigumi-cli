@@ -57,7 +57,9 @@ interface ValidationResult {
 
 /**
  * Compare the entries of one Template directory with the files it must hold:
- * each missing Template file, then each entry outside the set.
+ * each missing Template file, then each entry outside the set. Dotfiles are
+ * skipped: Finder's `.DS_Store` and editor swap files are local metadata, and
+ * no Template file name starts with a dot.
  */
 export function findTemplateDirIssues(
   framework: SupportedFramework,
@@ -71,7 +73,7 @@ export function findTemplateDirIssues(
       .filter((file) => !entries.includes(file))
       .map((file) => `Missing file: ${dir}/${file}`),
     ...entries
-      .filter((entry) => !expected.includes(entry))
+      .filter((entry) => !entry.startsWith('.') && !expected.includes(entry))
       .map((entry) => `Unexpected file: ${dir}/${entry}`),
   ];
 }

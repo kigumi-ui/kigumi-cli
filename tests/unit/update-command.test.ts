@@ -458,6 +458,10 @@ describe('updateCommand', () => {
       await fs.readFile(path.join(componentDir, 'Button.test.tsx'), 'utf-8')
     ).toBe("// the user's own test");
     expect(infoMessages().filter((m) => m.includes('.test.'))).toEqual([]);
+    // The snapshot is the merge base for managed files only.
+    expect(
+      (await fs.readdir(path.join(testDir, '.kigumi/snapshots/Button'))).sort()
+    ).toEqual(['Button.css', 'Button.tsx']);
   });
 
   // ── Test 11: Specific component names filter ──

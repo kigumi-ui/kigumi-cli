@@ -16,20 +16,14 @@ import { isGeneratedTemplateFile } from '../../../scripts/check-generated-fresh.
 import { generateComponentTemplates as generateAngular } from '../../../scripts/generate-angular-templates.js';
 import { generateComponentTemplates as generateReact } from '../../../scripts/generate-react-templates.js';
 import { generateComponentTemplates as generateVue } from '../../../scripts/generate-vue-templates.js';
-import {
-  getComponent,
-  type ComponentDefinition,
-} from '../../../src/utils/registry.js';
+import { getComponent } from '../../../src/utils/registry.js';
 import { getTemplateFileNames } from '../../../src/utils/template.js';
 
-const GENERATORS: {
-  framework: 'react' | 'vue' | 'angular';
-  generate: (component: ComponentDefinition, key: string) => Promise<void>;
-}[] = [
-  { framework: 'react', generate: (component) => generateReact(component) },
-  { framework: 'vue', generate: (component) => generateVue(component) },
+const GENERATORS = [
+  { framework: 'react', generate: generateReact },
+  { framework: 'vue', generate: generateVue },
   { framework: 'angular', generate: generateAngular },
-];
+] as const;
 
 function writtenPaths(): string[] {
   return vi.mocked(writeFormatted).mock.calls.map((c) => c[0]);
@@ -46,7 +40,7 @@ describe('Template generators: output files', () => {
   it.each(GENERATORS)(
     '$framework writes the Template files it owns, and no test file',
     async ({ framework, generate }) => {
-      await generate(getComponent('button-group')!, 'button-group');
+      await generate(getComponent('button-group')!);
 
       const paths = writtenPaths();
       expect(

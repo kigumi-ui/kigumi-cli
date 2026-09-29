@@ -363,10 +363,16 @@ async function processComponent(
 
     // Save updated snapshot
     if (hasWrites || Object.keys(snapshotUpdates).length > 0) {
-      // Merge with existing snapshot
+      // Merge with the existing snapshot, keeping only the files this
+      // command manages: a file it no longer writes has no merge base to keep.
       const existingSnapshot = (await loadSnapshot(cwd, componentName)) ?? {};
+      const managedSnapshot = Object.fromEntries(
+        Object.entries(existingSnapshot).filter(([fileName]) =>
+          fileSpecs.some((spec) => spec.fileName === fileName)
+        )
+      );
       await saveSnapshot(cwd, componentName, {
-        ...existingSnapshot,
+        ...managedSnapshot,
         ...snapshotUpdates,
       });
     }

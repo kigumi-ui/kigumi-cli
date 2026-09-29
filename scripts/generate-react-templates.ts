@@ -384,7 +384,7 @@ export function generateCSSTemplate(componentName: string): string {
  * **hand-maintained** in `templates/react/<Name>/`; it was never produced by
  * this script (the pre-Handlebars-removal version also only emitted
  * `.tsx.hbs`). If you need to update it, edit the `.jsx` file directly. No
- * test file: the function harness proves Templates (issue #80).
+ * test file: the function harnesses prove the TypeScript Templates (issue #80).
  */
 export async function generateComponentTemplates(
   component: ComponentDefinition

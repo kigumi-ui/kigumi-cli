@@ -6,7 +6,7 @@
  * Generates Angular standalone component templates for all components in the registry.
  * TypeScript only (Angular is always TypeScript). Creates .component.ts and
  * .component.css files (real framework source files; no templating layer). No
- * spec file: the function harness proves Templates (issue #80).
+ * spec file: the function harnesses prove the TypeScript Templates (issue #80).
  *
  * Key design decisions:
  * - Standalone components (Angular 17+ default, no NgModule)
@@ -510,12 +510,13 @@ export function generateCSS(
 }
 
 /**
- * Write one component's Angular Template: the component and its CSS.
+ * Write one component's Angular Template: the component and its CSS. The
+ * metadata key is the tag without `wa-`, as in the React and Vue generators.
  */
 export async function generateComponentTemplates(
-  component: ComponentDefinition,
-  componentKey: string
+  component: ComponentDefinition
 ): Promise<void> {
+  const componentKey = component.tagName.replace('wa-', '');
   const kebabName = toKebabCase(component.name);
   const componentDir = path.join(TEMPLATES_DIR, component.name);
 
@@ -540,8 +541,8 @@ async function main() {
   const components = getAllComponents();
   let count = 0;
 
-  for (const [key, component] of Object.entries(components)) {
-    await generateComponentTemplates(component, key);
+  for (const component of Object.values(components)) {
+    await generateComponentTemplates(component);
     count++;
     console.log(`  ${component.name} -> templates/angular/${component.name}/`);
   }

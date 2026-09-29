@@ -10,8 +10,10 @@
  *
  * CHECKS:
  * - Generated files carry no manual-edit markers
- * - Template TS/JS variant parity (e.g. .tsx + .jsx pair)
  * - Anti-patterns (see ANTI_PATTERNS)
+ *
+ * Template file completeness (the .tsx + .jsx pair among them) is
+ * validate:templates' job, checked against getTemplateFileNames().
  *
  * USAGE:
  *   pnpm validate:changes
@@ -23,7 +25,6 @@ import path from 'path';
 import { glob } from 'tinyglobby';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
-import { getAllComponents } from '../src/utils/registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -132,48 +133,6 @@ async function checkGeneratedFiles(): Promise<void> {
 // consumer's installed components.
 
 /**
- * Check template parity (TS/JS variants must exist for both React and Vue)
- * WHY: Ensures feature parity across all supported configurations
- */
-async function checkTemplateParity(): Promise<void> {
-  const components = getAllComponents();
-
-  for (const [_key, component] of Object.entries(components)) {
-    const frameworks = ['react', 'vue'] as const;
-
-    for (const framework of frameworks) {
-      const templateDir = path.join(
-        PROJECT_ROOT,
-        'templates',
-        framework,
-        component.name
-      );
-
-      if (!(await fs.pathExists(templateDir))) {
-        continue; // Already caught by validate-templates.ts
-      }
-
-      // Check for TS/JS parity
-      const requiredVariants =
-        framework === 'react'
-          ? [`${component.name}.tsx`, `${component.name}.jsx`]
-          : [`${component.name}.vue`, `${component.name}.js.vue`];
-
-      for (const variant of requiredVariants) {
-        const variantPath = path.join(templateDir, variant);
-        if (!(await fs.pathExists(variantPath))) {
-          issues.push({
-            file: `templates/${framework}/${component.name}/${variant}`,
-            message: 'Missing template variant (TS/JS parity required)',
-            severity: 'error',
-          });
-        }
-      }
-    }
-  }
-}
-
-/**
  * Anti-patterns scanned by {@link scanAntiPatterns}.
  *
  * NOTE: 'declare module "react"' check removed.
@@ -256,7 +215,6 @@ export async function validateChanges(): Promise<ValidationResult> {
 
   // Run all checks
   await checkGeneratedFiles();
-  await checkTemplateParity();
   await checkAntiPatterns();
 
   // Categorize issues

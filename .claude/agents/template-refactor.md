@@ -22,17 +22,17 @@ Use this agent when you need to:
 
 ## Context
 
-The template directory contains **3 files per component per framework**:
+A React or Vue Template directory holds **3 files per component** (Angular: 2, `.component.ts` and `.component.css`), exactly what `getTemplateFileNames()` names; `pnpm validate:templates` fails on anything else:
 
 ```
 templates/react/{Component}/
-  {Component}.tsx.hbs      # TypeScript
-  {Component}.jsx.hbs      # JavaScript
-  {Component}.css          # Static CSS, no Handlebars
+  {Component}.tsx          # TypeScript
+  {Component}.jsx          # JavaScript
+  {Component}.css          # Static CSS
 
 templates/vue/{Component}/
-  {Component}.vue.hbs      # TypeScript
-  {Component}.js.vue.hbs   # JavaScript
+  {Component}.vue          # TypeScript
+  {Component}.js.vue       # JavaScript
   {Component}.css          # Identical to React CSS
 ```
 

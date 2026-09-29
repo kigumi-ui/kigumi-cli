@@ -9,7 +9,7 @@
  *
  * EXPORTS:
  * - getSnapshotDir() - Get snapshot directory path for a component
- * - saveSnapshot() - Save generated file contents as snapshot
+ * - saveSnapshot() - Replace a component's snapshot with the given files
  * - loadSnapshot() - Load snapshot files for a component
  * - hasSnapshot() - Check if snapshot exists
  * - deleteSnapshot() - Remove snapshot for a component
@@ -28,7 +28,10 @@ export function getSnapshotDir(cwd: string, componentName: string): string {
 }
 
 /**
- * Save a snapshot of generated template output.
+ * Save a snapshot of generated template output. The snapshot then holds
+ * exactly `files`: a file an earlier save stored and this one omits is
+ * removed, so a file the CLI no longer manages (a per-component test before
+ * issue #80) does not live on as a merge base nothing reads.
  *
  * @param cwd - Project root directory
  * @param componentName - PascalCase component name (e.g. "Button")
@@ -41,6 +44,9 @@ export async function saveSnapshot(
 ): Promise<void> {
   const dir = getSnapshotDir(cwd, componentName);
   await fs.ensureDir(dir);
+
+  const stale = (await fs.readdir(dir)).filter((name) => !(name in files));
+  await Promise.all(stale.map((name) => fs.remove(path.join(dir, name))));
 
   await Promise.all(
     Object.entries(files).map(([fileName, content]) =>

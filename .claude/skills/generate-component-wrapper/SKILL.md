@@ -205,7 +205,7 @@ Same structure but with `import React from 'react'`, `React.forwardRef`, and JSD
 
 ### 5c. No Test File
 
-Do not write a per-Template test: `pnpm validate:templates` rejects any file outside the Template set. The React, Vue and Angular function harnesses in `tests/unit/` prove every registry component from its metadata, so a new component is covered once its registry entry and metadata exist.
+Do not write a per-Template test: `pnpm validate:templates` rejects any file outside the Template set. The React, Vue and Angular function harnesses in `tests/unit/` prove every registry component's TypeScript Template from its metadata, and `validate:generated-fresh` Check C holds the `.jsx` / `.js.vue` to it, so a new component is covered once its registry entry and metadata exist.
 
 ### 5d. CSS File (.css)
 

@@ -3,7 +3,8 @@
  *
  * PURPOSE: Handles installation of Web Awesome components.
  * Generates component files and CSS, and updates imports. No per-component
- * test file: the function harness in this repo proves Templates (issue #80).
+ * test file: the function harnesses in this repo prove the TypeScript
+ * Templates (issue #80).
  * Detects local modifications before overwriting and prompts the user.
  *
  * EXPORTS:
