@@ -12,9 +12,9 @@
  * afterwards to observe which Templates landed; they never pick components.
  *
  * A failing command reports its own stdout and stderr. The suites do not
- * parse them into a summary. ANSI colour is stripped because `ngc` colours
- * its diagnostics even when piped and ignores `--pretty false`, which would
- * split `error TS2345` with escape codes.
+ * parse them into a summary. `commandText()` strips ANSI colour: `ngc`
+ * colours its diagnostics even when piped, and passing `--pretty false` does
+ * not stop it, so the codes would split `error TS2345` in the assertions.
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';

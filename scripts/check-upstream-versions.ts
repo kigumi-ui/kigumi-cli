@@ -11,9 +11,10 @@
  *
  * REPORTS (never fails the build):
  * - The pinned scaffolder versions (`SCAFFOLD_PINS`: create-vite, issue #98,
- *   and @angular/cli, issue #78) against the latest published release. Not
- *   in package.json — invoked via `pnpm create` / `pnpm dlx`, not installed —
- *   so Dependabot cannot see them. A held major is suppressed here too.
+ *   and @angular/cli, issue #78) against the latest published release. They
+ *   are invoked via `pnpm create` / `pnpm dlx` rather than installed, so they
+ *   are not in package.json and Dependabot cannot see them. A held major is
+ *   suppressed here too.
  * - The declared range for tracked toolchain packages against the latest
  *   published major, which is where the breaking changes live, EXCLUDING
  *   majors already recorded in `scripts/upstream-holds.json` — a major that

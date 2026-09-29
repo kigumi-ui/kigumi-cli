@@ -36,11 +36,12 @@ const NEXT_TSCONFIG = 'tsconfig.next.json';
 const VITE_ONLY_FILE = 'planted-vite-only.ts';
 
 /**
- * Stand-in for the one declaration Next's own ambient types
- * (`next/types/global.d.ts`) give these files. TypeScript 6 checks
- * side-effect imports, so without it every Template's `import './X.css'` is
- * TS2882, which no Next project reports. Copied rather than installing
- * `next`: this pass is scoped to the declaration Kigumi writes, not to Next.
+ * The one declaration Next's own ambient types give these files, copied
+ * verbatim from `next/types/global.d.ts` (Next 16.2.4), where it is declared
+ * for `noUncheckedSideEffectImports`. TypeScript 6 checks side-effect
+ * imports, so without it every Template's `import './X.css'` is TS2882,
+ * which no Next project reports. Copied rather than installing `next`: this
+ * pass is scoped to the declaration Kigumi writes, not to Next.
  */
 const NEXT_CSS_DECLARATION = "declare module '*.css' {}\n";
 

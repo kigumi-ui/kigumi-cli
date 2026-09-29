@@ -188,7 +188,8 @@ tests/
 │   ├── free-consumer-tsc-react.test.ts   # Vite-React init + add --all + strict `tsc -b` (issue #73), then the same add-output under the Next ambient declaration (issue #78)
 │   ├── free-consumer-tsc-vue.test.ts     # create-vite vue-ts init + add --all + `vue-tsc -b` (issue #78)
 │   ├── free-consumer-tsc-angular.test.ts # `ng new` init + add --all + `ngc` with strictTemplates (issue #78)
-│   ├── _helpers/free-consumer.ts         # describeFreeConsumer(): the four checks every Free consumer suite shares
+│   ├── _helpers/
+│   │   └── free-consumer.ts              # describeFreeConsumer(): the four checks every Free consumer suite shares
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
@@ -745,7 +746,7 @@ helper's logic in isolation. Current cases:
 
 - `parsePinned`, `majorOf`, `isMajorBump`, `readScaffoldPin`,
   `SCAFFOLD_PINS`, `classifyScaffold`, `readHolds` and `isHeld` in
-  `scripts/check-upstream-versions.ts` — the version and hold matchers,
+  `scripts/check-upstream-versions.ts`: the version and hold matchers,
   asserted directly by `tests/unit/scripts/check-upstream-versions.test.ts`.
   Exported so the major-boundary rule (including the downgrade and
   unparseable cases), the hold-suppression rule (a hold covers its major,

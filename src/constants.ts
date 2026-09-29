@@ -152,8 +152,8 @@ export const DEFAULT_WEBAWESOME_VERSION = '3.14.0';
  * `strict` left unset in react-ts). An unpinned scaffold takes the newest
  * create-vite on every run, so a template restructuring upstream could turn
  * this e2e lane red with no change in this repo. Not covered by Dependabot
- * (invoked via `pnpm create`, not a `package.json` dependency) — tracked
- * instead by the weekly upstream report (see
+ * (invoked via `pnpm create`, not a `package.json` dependency), so the
+ * weekly upstream report tracks it instead (see
  * `scripts/check-upstream-versions.ts`, issue #18).
  */
 export const CREATE_VITE_VERSION = '9.2.1';
