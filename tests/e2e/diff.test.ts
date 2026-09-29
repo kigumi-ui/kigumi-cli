@@ -15,6 +15,14 @@ import path from 'path';
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-diff');
 const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
 
+// Same isolation as smoke.test.ts: keep a global Pro token (a developer's, or
+// the one CI's e2e job writes for the Pro consumer) from switching this
+// project onto the Pro package.
+const FREE_TIER_ENV = {
+  WEBAWESOME_NPM_TOKEN: '',
+  KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
+};
+
 describe('E2E Diff Test - Snapshots and Diffs', () => {
   beforeAll(async () => {
     // Cleanup any previous test run
@@ -37,6 +45,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
       cwd: TEST_DIR,
       env: {
         ...process.env,
+        ...FREE_TIER_ENV,
         CI: 'true',
         NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
       },
@@ -51,6 +60,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
       cwd: TEST_DIR,
       env: {
         ...process.env,
+        ...FREE_TIER_ENV,
         CI: 'true',
         NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
       },
@@ -80,6 +90,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
         cwd: TEST_DIR,
         env: {
           ...process.env,
+          ...FREE_TIER_ENV,
           CI: 'true',
           NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
         },
@@ -97,6 +108,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
       cwd: TEST_DIR,
       env: {
         ...process.env,
+        ...FREE_TIER_ENV,
         CI: 'true',
         NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
       },

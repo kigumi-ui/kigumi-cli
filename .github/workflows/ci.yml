@@ -479,7 +479,38 @@ jobs:
       - name: Build CLI
         run: pnpm run build
 
+      # The Pro consumer tsc suites (consumer-tsc-*.test.ts) install the Pro
+      # package, which needs a Web Awesome Pro token. Fork and Dependabot pull
+      # requests receive no secrets: the Free consumers still run there, and
+      # the Pro ones report did not run (docs/adr/0003), never a pass.
+      - name: Check Pro registry access
+        id: pro
+        env:
+          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+        run: |
+          if [ -n "$WA_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Pro consumer tsc NOT verified: no Web Awesome Pro token (expected for pull requests from forks)."
+          fi
+
+      # The global auth line a Pro user sets with `npm config set`: `init`
+      # detects the token there and the package manager installs with it.
+      # WEBAWESOME_NPM_TOKEN alone selects Pro but cannot install it (#160).
+      # Every other e2e suite blanks both token sources, so stays Free.
+      - name: Configure Pro registry auth
+        if: steps.pro.outputs.available == 'true'
+        env:
+          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+        run: printf '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n' "$WA_TOKEN" >> ~/.npmrc
+
+      # A tokenless run may skip the Pro consumers only where the token is
+      # legitimately absent. With the token present, ALLOW_SKIP stays unset,
+      # so a Pro consumer that cannot run fails the job.
       - name: E2E tests
+        env:
+          KIGUMI_FRESHNESS_ALLOW_SKIP: ${{ steps.pro.outputs.available != 'true' && '1' || '' }}
         run: pnpm run test:e2e
 
   pack-test:

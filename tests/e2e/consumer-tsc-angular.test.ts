@@ -1,5 +1,5 @@
 /**
- * Free consumer tsc, Angular (issue #78).
+ * Consumer tsc, Angular: Free (issue #78) and Pro (issue #79).
  *
  * An ephemeral `ng new` workspace created with the real CLI (`init`, then
  * `add --all`), typechecked with `ngc -p tsconfig.app.json --noEmit`.
@@ -20,11 +20,10 @@ import { execa } from 'execa';
 import path from 'path';
 import { ANGULAR_CLI_VERSION } from '../../src/constants.js';
 import { toKebabCase } from '../../src/utils/naming.js';
-import { describeFreeConsumer } from './_helpers/free-consumer.js';
+import { describeConsumers } from './_helpers/consumer.js';
 
-describeFreeConsumer({
-  title: 'Free consumer tsc: Angular',
-  dir: path.resolve(__dirname, '../.tmp-e2e-free-consumer-tsc-angular'),
+describeConsumers({
+  framework: 'Angular',
   scaffold: async (dir) => {
     // `ng new` creates the directory itself.
     await execa(

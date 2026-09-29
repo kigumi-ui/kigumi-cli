@@ -22,8 +22,9 @@ const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
 // `@awesome.me/webawesome` (Free) or `@awesome.me/webawesome-pro`. A developer
 // running locally with a Pro token configured globally would otherwise see the
 // Free-tier smoke test resolve to the Pro package and the
-// `dependencies['@awesome.me/webawesome']` assertion fail. CI runners have
-// neither the token nor a global npmrc, so this was a local-only failure.
+// `dependencies['@awesome.me/webawesome']` assertion fail. CI's e2e job
+// writes a global npmrc token for the Pro consumer (consumer-tsc-*.test.ts),
+// so the same holds there.
 const FREE_TIER_ENV = {
   WEBAWESOME_NPM_TOKEN: '',
   KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
