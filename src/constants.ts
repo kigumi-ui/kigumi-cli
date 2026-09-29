@@ -144,18 +144,30 @@ export const DEFAULT_WEBAWESOME_VERSION = '3.14.0';
 // =============================================================================
 
 /**
- * Exact `create-vite` version used to scaffold the ephemeral consumer project
- * in `tests/e2e/free-consumer-tsc.test.ts`.
+ * Exact `create-vite` version used to scaffold the ephemeral React and Vue
+ * consumer projects in `tests/e2e/free-consumer-tsc-{react,vue}.test.ts`.
  *
- * Pinned (no floating `pnpm create vite` with no version): the test asserts
- * on what the react-ts template produces (a `tsconfig.app.json`, `strict`
- * left unset). An unpinned scaffold takes the newest create-vite on every
- * run, so a template restructuring upstream could turn this e2e lane red
- * with no change in this repo. Not covered by Dependabot (invoked via `pnpm
- * create`, not a `package.json` dependency) — tracked instead by the weekly
- * upstream report (see `scripts/check-upstream-versions.ts`, issue #18).
+ * Pinned (no floating `pnpm create vite` with no version): the tests assert
+ * on what the react-ts and vue-ts templates produce (a `tsconfig.app.json`,
+ * `strict` left unset in react-ts). An unpinned scaffold takes the newest
+ * create-vite on every run, so a template restructuring upstream could turn
+ * this e2e lane red with no change in this repo. Not covered by Dependabot
+ * (invoked via `pnpm create`, not a `package.json` dependency) — tracked
+ * instead by the weekly upstream report (see
+ * `scripts/check-upstream-versions.ts`, issue #18).
  */
 export const CREATE_VITE_VERSION = '9.2.1';
+
+/**
+ * Exact `@angular/cli` version whose `ng new` scaffolds the ephemeral Angular
+ * consumer in `tests/e2e/free-consumer-tsc-angular.test.ts` (issue #78).
+ *
+ * Same reasoning as `CREATE_VITE_VERSION`: invoked via `pnpm dlx`, so
+ * Dependabot cannot see it, and the weekly upstream report tracks it instead.
+ * The major matches the `@angular/*` devDependencies the Angular function
+ * harness runs on, so both Angular proofs cover the same major.
+ */
+export const ANGULAR_CLI_VERSION = '21.2.24';
 
 // =============================================================================
 // Community Registry

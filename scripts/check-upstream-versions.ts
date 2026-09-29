@@ -10,9 +10,10 @@
  * this repo changing, and no change-triggered check could have seen it coming.
  *
  * REPORTS (never fails the build):
- * - The pinned create-vite version (test scaffold fixture, issue #98)
- *   against the latest published release. Not in package.json — invoked
- *   via `pnpm create`, not installed — so Dependabot cannot see it.
+ * - The pinned scaffolder versions (`SCAFFOLD_PINS`: create-vite, issue #98,
+ *   and @angular/cli, issue #78) against the latest published release. Not
+ *   in package.json — invoked via `pnpm create` / `pnpm dlx`, not installed —
+ *   so Dependabot cannot see them. A held major is suppressed here too.
  * - The declared range for tracked toolchain packages against the latest
  *   published major, which is where the breaking changes live, EXCLUDING
  *   majors already recorded in `scripts/upstream-holds.json` — a major that
@@ -164,46 +165,95 @@ async function latestVersion(name: string): Promise<string | null> {
 }
 
 /**
- * Read the create-vite pin out of the constant that owns it (issue #98).
- * Not in package.json — `create-vite` is invoked via `pnpm create`, not
- * installed as a dependency — so Dependabot cannot see it; this weekly
- * report is the only drift signal for it.
+ * Scaffolders the e2e consumer suites run at an exact version rather than
+ * install (`pnpm create`, `pnpm dlx`), each pinned by a constant in
+ * `src/constants.ts`. They are not in package.json, so Dependabot cannot see
+ * them; this weekly report is their only drift signal.
  */
-export function readCreateVitePin(source: string): string | null {
-  const match = /CREATE_VITE_VERSION\s*=\s*'([^']+)'/.exec(source);
+export const SCAFFOLD_PINS: readonly { name: string; constant: string }[] = [
+  { name: 'create-vite', constant: 'CREATE_VITE_VERSION' }, // issue #98
+  { name: '@angular/cli', constant: 'ANGULAR_CLI_VERSION' }, // issue #78
+];
+
+/**
+ * Read a scaffold pin out of the constant that owns it. Null when the
+ * constant is absent, so a rename reads as "cannot read", never as a
+ * comparison against the wrong value.
+ */
+export function readScaffoldPin(
+  source: string,
+  constant: string
+): string | null {
+  const match = new RegExp(`\\b${constant}\\s*=\\s*'([^']+)'`).exec(source);
   return match ? match[1]! : null;
 }
 
+export type ScaffoldResult =
+  { kind: 'current' } | { kind: 'drift' | 'held'; drift: VersionDrift };
+
+/**
+ * Where one scaffold pin lands in the report. Any difference from latest is
+ * drift, since the pin is exact. A hold only suppresses a major bump: it
+ * records a decision about a major, so a newer patch of the pinned major
+ * still reports.
+ */
+export function classifyScaffold(
+  name: string,
+  current: string,
+  latest: string,
+  hold: UpstreamHold | undefined
+): ScaffoldResult {
+  if (latest === current) {
+    return { kind: 'current' };
+  }
+  const majorBump = isMajorBump(current, latest);
+  const drift: VersionDrift = { name, current, latest, majorBump };
+  return {
+    kind: majorBump && isHeld(latest, hold) ? 'held' : 'drift',
+    drift,
+  };
+}
+
 export interface DriftReport {
-  createVite: VersionDrift | null;
+  /** Scaffold pins behind the latest release, by any distance. */
+  scaffolds: VersionDrift[];
   toolchain: VersionDrift[];
-  /** Toolchain majors that exist upstream but are suppressed by a hold. */
+  /** Majors that exist upstream but are suppressed by a hold. */
   held: VersionDrift[];
   unreachable: string[];
+  /** Scaffold pin constants missing from `src/constants.ts`. */
+  unreadable: string[];
 }
 
 export async function checkUpstreamVersions(
   holds: UpstreamHolds = readHolds()
 ): Promise<DriftReport> {
   const unreachable: string[] = [];
+  const unreadable: string[] = [];
+  const held: VersionDrift[] = [];
 
   const constantsPath = path.join(PROJECT_ROOT, 'src', 'constants.ts');
-  const pinnedCreateVite = fs.existsSync(constantsPath)
-    ? readCreateVitePin(fs.readFileSync(constantsPath, 'utf8'))
-    : null;
+  const constants = fs.existsSync(constantsPath)
+    ? fs.readFileSync(constantsPath, 'utf8')
+    : '';
 
-  let createVite: VersionDrift | null = null;
-  if (pinnedCreateVite) {
-    const latest = await latestVersion('create-vite');
+  const scaffolds: VersionDrift[] = [];
+  for (const { name, constant } of SCAFFOLD_PINS) {
+    const current = readScaffoldPin(constants, constant);
+    if (current === null) {
+      unreadable.push(constant);
+      continue;
+    }
+    const latest = await latestVersion(name);
     if (latest === null) {
-      unreachable.push('create-vite');
-    } else if (latest !== pinnedCreateVite) {
-      createVite = {
-        name: 'create-vite',
-        current: pinnedCreateVite,
-        latest,
-        majorBump: isMajorBump(pinnedCreateVite, latest),
-      };
+      unreachable.push(name);
+      continue;
+    }
+    const result = classifyScaffold(name, current, latest, holds[name]);
+    if (result.kind === 'held') {
+      held.push(result.drift);
+    } else if (result.kind === 'drift') {
+      scaffolds.push(result.drift);
     }
   }
 
@@ -214,7 +264,6 @@ export async function checkUpstreamVersions(
   const declared = { ...pkg.dependencies, ...pkg.devDependencies };
 
   const toolchain: VersionDrift[] = [];
-  const held: VersionDrift[] = [];
   for (const name of TRACKED_PACKAGES) {
     const range = declared[name];
     if (!range) {
@@ -237,20 +286,30 @@ export async function checkUpstreamVersions(
     }
   }
 
-  return { createVite, toolchain, held, unreachable };
+  return { scaffolds, toolchain, held, unreachable, unreadable };
 }
 
 function printReport(report: DriftReport): void {
   console.log(pc.cyan('\nComparing pinned versions against the registry...\n'));
 
-  if (report.createVite) {
-    const { current, latest, majorBump } = report.createVite;
-    const label = majorBump ? pc.yellow('major') : pc.dim('minor/patch');
+  if (report.scaffolds.length > 0) {
+    console.log(pc.yellow('  Scaffolders behind the latest release:'));
+    for (const { name, current, latest, majorBump } of report.scaffolds) {
+      const label = majorBump ? pc.yellow('major') : pc.dim('minor/patch');
+      console.log(`    ${name}: ${current} -> ${latest}  (${label})`);
+    }
+  } else if (report.unreadable.length === 0) {
     console.log(
-      `  ${pc.yellow('create-vite')}  ${current} -> ${latest}  (${label})`
+      pc.green('  Scaffolders are on the latest published versions.')
     );
-  } else {
-    console.log(pc.green('  create-vite is on the latest published version.'));
+  }
+
+  if (report.unreadable.length > 0) {
+    console.log(
+      pc.yellow(
+        `  Could not read these pins from src/constants.ts: ${report.unreadable.join(', ')}`
+      )
+    );
   }
 
   if (report.toolchain.length > 0) {
@@ -290,7 +349,10 @@ async function main(): Promise<void> {
     printReport(report);
 
     if (process.env.GITHUB_OUTPUT) {
-      const driftCount = (report.createVite ? 1 : 0) + report.toolchain.length;
+      const driftCount =
+        report.scaffolds.length +
+        report.toolchain.length +
+        report.unreadable.length;
       fs.appendFileSync(
         process.env.GITHUB_OUTPUT,
         `drift=${driftCount > 0 ? '1' : '0'}\n`

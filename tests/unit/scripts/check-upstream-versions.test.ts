@@ -1,20 +1,28 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'fs-extra';
+import path from 'path';
 import {
+  SCAFFOLD_PINS,
+  classifyScaffold,
   isHeld,
   isMajorBump,
   majorOf,
   parsePinned,
-  readCreateVitePin,
   readHolds,
+  readScaffoldPin,
   type UpstreamHold,
 } from '../../../scripts/check-upstream-versions.js';
+import {
+  ANGULAR_CLI_VERSION,
+  CREATE_VITE_VERSION,
+} from '../../../src/constants.js';
 
 /**
  * Internals exported for test coverage: `parsePinned`, `majorOf`,
- * `isMajorBump`, `readCreateVitePin`, `readHolds` and `isHeld` are the
- * version matchers, pulled out of the reporter so the major-boundary and
- * hold rules can be asserted without reaching the npm registry. Registered
- * in tests/AGENTS.md.
+ * `isMajorBump`, `readScaffoldPin`, `SCAFFOLD_PINS`, `classifyScaffold`,
+ * `readHolds` and `isHeld` are the version matchers, pulled out of the reporter so the
+ * major-boundary and hold rules can be asserted without reaching the npm
+ * registry. Registered in tests/AGENTS.md.
  */
 describe('check-upstream-versions matchers (test-only seams)', () => {
   describe('parsePinned', () => {
@@ -81,23 +89,59 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
     });
   });
 
-  describe('readCreateVitePin', () => {
+  describe('readScaffoldPin', () => {
     it('reads the version out of the constant that owns it', () => {
       const source = "export const CREATE_VITE_VERSION = '9.2.1';";
-      expect(readCreateVitePin(source)).toBe('9.2.1');
+      expect(readScaffoldPin(source, 'CREATE_VITE_VERSION')).toBe('9.2.1');
     });
 
     it('tolerates whitespace around the assignment', () => {
       const source = "export const CREATE_VITE_VERSION   =   '9.2.1';";
-      expect(readCreateVitePin(source)).toBe('9.2.1');
+      expect(readScaffoldPin(source, 'CREATE_VITE_VERSION')).toBe('9.2.1');
+    });
+
+    it('reads each pin from a file that holds several', () => {
+      const source = [
+        "export const CREATE_VITE_VERSION = '9.2.1';",
+        "export const ANGULAR_CLI_VERSION = '21.2.24';",
+      ].join('\n');
+      expect(readScaffoldPin(source, 'CREATE_VITE_VERSION')).toBe('9.2.1');
+      expect(readScaffoldPin(source, 'ANGULAR_CLI_VERSION')).toBe('21.2.24');
+    });
+
+    it('does not read a longer constant that ends in the same name', () => {
+      const source = "export const OLD_ANGULAR_CLI_VERSION = '17.0.0';";
+      expect(readScaffoldPin(source, 'ANGULAR_CLI_VERSION')).toBeNull();
     });
 
     it('returns null when the constant is absent', () => {
       // Renaming the constant must surface as "cannot read", never as a
       // silent comparison against the wrong value.
-      expect(readCreateVitePin('export const SOMETHING_ELSE = "9.2.1";')).toBe(
-        null
+      expect(
+        readScaffoldPin(
+          'export const SOMETHING_ELSE = "9.2.1";',
+          'CREATE_VITE_VERSION'
+        )
+      ).toBeNull();
+    });
+
+    it('reads every tracked pin from src/constants.ts', () => {
+      // Wiring: a renamed constant would drop its scaffolder from the
+      // weekly report without anyone noticing.
+      const source = fs.readFileSync(
+        path.resolve(__dirname, '../../../src/constants.ts'),
+        'utf8'
       );
+      const pinned = Object.fromEntries(
+        SCAFFOLD_PINS.map(({ constant }) => [
+          constant,
+          readScaffoldPin(source, constant),
+        ])
+      );
+      expect(pinned).toEqual({
+        CREATE_VITE_VERSION,
+        ANGULAR_CLI_VERSION,
+      });
     });
   });
 
@@ -140,6 +184,60 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
     it('stays quiet when either side is unparseable', () => {
       expect(isHeld('latest', held)).toBe(false);
       expect(isHeld('7.0.2', { upTo: 'next', reason: 'n/a' })).toBe(false);
+    });
+  });
+
+  describe('classifyScaffold', () => {
+    const angular22: UpstreamHold = {
+      upTo: '22.2.0',
+      reason: 'init output fails ngc on TypeScript 6',
+    };
+
+    it('is current when the pin is the latest release', () => {
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '21.2.24', undefined)
+      ).toEqual({ kind: 'current' });
+    });
+
+    it('reports a minor or patch release, since the pin is exact', () => {
+      expect(
+        classifyScaffold('create-vite', '9.2.1', '9.3.0', undefined)
+      ).toEqual({
+        kind: 'drift',
+        drift: {
+          name: 'create-vite',
+          current: '9.2.1',
+          latest: '9.3.0',
+          majorBump: false,
+        },
+      });
+    });
+
+    it('reports a major nobody has held', () => {
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '22.2.0', undefined)
+      ).toMatchObject({ kind: 'drift', drift: { majorBump: true } });
+    });
+
+    it('holds a major the holds file covers', () => {
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '22.3.1', angular22)
+      ).toMatchObject({ kind: 'held', drift: { latest: '22.3.1' } });
+    });
+
+    it('reports a major newer than the held one', () => {
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '23.0.0', angular22)
+      ).toMatchObject({ kind: 'drift', drift: { majorBump: true } });
+    });
+
+    it('never holds a release inside the pinned major', () => {
+      // A hold records a decision about a major. A newer patch of the
+      // pinned major is not that decision and still reports.
+      const held21: UpstreamHold = { upTo: '21.0.0', reason: 'n/a' };
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '21.2.25', held21)
+      ).toMatchObject({ kind: 'drift', drift: { majorBump: false } });
     });
   });
 });

@@ -185,7 +185,10 @@ tests/
 ├── e2e/                     # Full CLI integration
 │   ├── smoke.test.ts            # End-to-end workflows
 │   ├── init-source-layout.test.ts # `init` across all 4 framework/layout combos (issue #48)
-│   ├── free-consumer-tsc.test.ts # Vite-React init + add --all + strict consumer tsc (issue #73)
+│   ├── free-consumer-tsc-react.test.ts   # Vite-React init + add --all + strict `tsc -b` (issue #73), then the same add-output under the Next ambient declaration (issue #78)
+│   ├── free-consumer-tsc-vue.test.ts     # create-vite vue-ts init + add --all + `vue-tsc -b` (issue #78)
+│   ├── free-consumer-tsc-angular.test.ts # `ng new` init + add --all + `ngc` with strictTemplates (issue #78)
+│   ├── _helpers/free-consumer.ts         # describeFreeConsumer(): the four checks every Free consumer suite shares
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
@@ -627,6 +630,42 @@ describe('smoke test', () => {
 });
 ```
 
+#### Free consumer tsc (`free-consumer-tsc-*.test.ts`)
+
+The types seam of `docs/adr/0004`: each suite scaffolds a project with the
+framework's own tool, runs the real CLI (`init`, then `add --all`), and
+typechecks it with that project's own compiler. `describeFreeConsumer()` in
+`tests/e2e/_helpers/free-consumer.ts` registers the same four checks for every
+framework: Free package only, the Free Templates and no Pro-only ones, a clean
+typecheck, and a planted strict-only error (`take(null)`, TS2345) reported as
+the compiler's own output. A new consumer (the Pro one of issue #79, say)
+supplies a `FreeConsumerSpec` rather than copying the checks.
+
+| Framework | Scaffold                                    | Typecheck                           |
+| --------- | ------------------------------------------- | ----------------------------------- |
+| React     | `pnpm create vite@CREATE_VITE_VERSION`      | `tsc -b`, `strict` turned on first  |
+| Vue       | `pnpm create vite@CREATE_VITE_VERSION`      | `vue-tsc -b`                        |
+| Angular   | `pnpm dlx @angular/cli@ANGULAR_CLI_VERSION` | `ngc -p tsconfig.app.json --noEmit` |
+
+- **Angular runs `ngc`, not `tsc`.** A Template's markup is a string only the
+  Angular compiler reads: plain `tsc` passed a Template carrying
+  `[attr.once]` (NG5002), and it passes the planted error too, which sits in a
+  component template for that reason. `ngc` colours its output even when
+  piped and ignores `--pretty false`, so `commandText()` strips ANSI codes.
+- **The Next pass** typechecks the React add-output a second time with
+  `web-awesome.d.ts` (written by `generateNextEnvDts`, the function `init`
+  calls for Next) in place of `vite-env.d.ts`, and `types: []`, so no
+  `vite/client`. Only the components directory is included: the Vite
+  scaffold's own `App.tsx` imports an SVG. One line stands in for Next's own
+  `declare module '*.css' {}`, which TypeScript 6 needs for every Template's
+  side-effect CSS import. A planted `import.meta.env` passes the Vite pass and
+  fails the Next one, which is what shows `vite/client` is out of scope. No
+  Next install, no Next build, no Pages Router CSS strip.
+- Both scaffolders are exact pins in `src/constants.ts`, tracked by the weekly
+  upstream report (`SCAFFOLD_PINS` in `scripts/check-upstream-versions.ts`).
+  Angular 22 is held there until #156: `init` writes an `@/` import for Angular
+  without the alias, which TypeScript 6 rejects.
+
 ---
 
 ## Test Guidelines
@@ -704,12 +743,14 @@ helper's logic in isolation. Current cases:
   takes its `request` function as an argument so issue #37 (HEAD 404, GET 200)
   cannot regress without a live page.
 
-- `parsePinned`, `majorOf`, `isMajorBump`, `readCreateVitePin`, `readHolds`
-  and `isHeld` in `scripts/check-upstream-versions.ts` — the version and hold
-  matchers, asserted directly by
-  `tests/unit/scripts/check-upstream-versions.test.ts`. Exported so the
-  major-boundary rule (including the downgrade and unparseable cases) and the
-  hold-suppression rule (a hold covers its major, never a newer one) can be
+- `parsePinned`, `majorOf`, `isMajorBump`, `readScaffoldPin`,
+  `SCAFFOLD_PINS`, `classifyScaffold`, `readHolds` and `isHeld` in
+  `scripts/check-upstream-versions.ts` — the version and hold matchers,
+  asserted directly by `tests/unit/scripts/check-upstream-versions.test.ts`.
+  Exported so the major-boundary rule (including the downgrade and
+  unparseable cases), the hold-suppression rule (a hold covers its major,
+  never a newer one, and never a release inside the pinned major) and the
+  wiring of every scaffold pin to its constant in `src/constants.ts` can be
   asserted without reaching the npm registry. Web Awesome is not read by this
   script at all — `wa-upgrade` (`scripts/check-wa-upgrade.ts`) owns that
   report — so `readWebAwesomePin` was removed rather than kept unused.
@@ -768,13 +809,15 @@ callers — these are test-only seams.
 
 E2E tests create temporary projects in `tests/.tmp-*`:
 
-| Directory                     | Used by                      | Purpose                                                             |
-| ----------------------------- | ---------------------------- | ------------------------------------------------------------------- |
-| `.tmp-e2e-smoke/`             | `smoke.test.ts`              | Real Vite project driven through the full CLI workflow              |
-| `.tmp-e2e-idempotent/`        | `smoke.test.ts`              | Second project, for the run-`init`-twice idempotency block          |
-| `.tmp-e2e-diff/`              | `diff.test.ts`               | Component comparison against a modified working copy                |
-| `.tmp-e2e-source-layout/`     | `init-source-layout.test.ts` | One scaffold per framework/layout combination (issue #48)           |
-| `.tmp-e2e-free-consumer-tsc/` | `free-consumer-tsc.test.ts`  | Vite-React `init` + `add --all` + strict consumer `tsc` (issue #73) |
+| Directory                             | Used by                             | Purpose                                                                          |
+| ------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------- |
+| `.tmp-e2e-smoke/`                     | `smoke.test.ts`                     | Real Vite project driven through the full CLI workflow                           |
+| `.tmp-e2e-idempotent/`                | `smoke.test.ts`                     | Second project, for the run-`init`-twice idempotency block                       |
+| `.tmp-e2e-diff/`                      | `diff.test.ts`                      | Component comparison against a modified working copy                             |
+| `.tmp-e2e-source-layout/`             | `init-source-layout.test.ts`        | One scaffold per framework/layout combination (issue #48)                        |
+| `.tmp-e2e-free-consumer-tsc-react/`   | `free-consumer-tsc-react.test.ts`   | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next pass (#73, #78) |
+| `.tmp-e2e-free-consumer-tsc-vue/`     | `free-consumer-tsc-vue.test.ts`     | create-vite vue-ts `init` + `add --all` + `vue-tsc -b` (issue #78)               |
+| `.tmp-e2e-free-consumer-tsc-angular/` | `free-consumer-tsc-angular.test.ts` | `ng new` `init` + `add --all` + `ngc` (issue #78)                                |
 
 These are gitignored and recreated on each run.
 
@@ -869,7 +912,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-28
+**Last Updated:** 2026-09-29
 
 - added tests/unit/parse-custom-elements-attributes.test.ts covering extractAttributes (boolean-vs-string classification, untyped attributes kept) and regression-pinning COMPONENT_METADATA.dialog's did-ssr plus otp-input/pagination/tag-input attribute coverage, issue #105
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
@@ -951,3 +994,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - WA 3.14.0 bump: event-types.test.ts now refuses a non-`wa-` event typed with an event class (replacing the case that accepted `wa-data-grid` `request`) and covers `resolveEvents()` / `staleEntries()`; its real-manifest test expects exactly the listed artifacts of the described components dropped and no stale entry for the resolved manifest's coverage. event-type-parity.test.ts checks every `COMPONENT_METADATA` entry, not only registry ones, for a non-`wa-` event carrying a Web Awesome class. Bug-injected: the old metadata (Combobox `request`) fails the parity test, and dropping the `wa-stepper` entry stops `generate:metadata`. `step` joined the eventless and methodless pins, and `angular-omitted-inputs.ts` gained the 3.14 `with-*` hints and `step.role`, issue #108
 - review follow-up on #108: parse-custom-elements-events.test.ts drives the extracted `buildMetadata()` with a free-like manifest (a pinned entry's component absent parses; `complete` refuses it); ignoring coverage in `staleEntries()` turns two tests red, and the real free-only `generate:metadata` exited 1 on the old code and parses 73 components on the new. method-parameter-parity.test.ts and the methodParameters cases pin optionality across frameworks; Angular's old all-optional signatures fail 54 cases. init-config-preservation.test.ts now expects `DEFAULT_WEBAWESOME_VERSION` rather than deriving its oracle from the version map it tests, issue #108
 - issue #102: `_helpers/angular-omitted-inputs.ts` pins 98 component-specific omissions, down from 113 after Web Awesome 3.14.0: the 15 attributes #102 surfaced left it. template-registry-props.test.ts also reads the `@param {Object} props` lists seven `.jsx` files use instead of a typedef (`JSX_PROPS_PARAMS`); it went red on TimeInput (`distance`, and #101's `autocomplete` / `custom-error`) and KnownDate (#101's two), and dropping TimeInput's `distance` or Dialog's required `props.label` turns it red again. Added slider-range-values.test.ts: the `.js.vue` generator wrote Slider's `min-value` / `max-value` registry defaults on every mount, which moved where a range slider resets; red on `.js.vue` before the registry defaults were dropped
+- issue #78: the Free consumer tsc covers Vue (`vue-tsc -b`) and Angular (`ngc`), and typechecks the React add-output again under the Next ambient declaration without `vite/client`. free-consumer-tsc.test.ts became free-consumer-tsc-react.test.ts, and the shared checks moved to `tests/e2e/_helpers/free-consumer.ts`. Bug-injected: a type error in a Vue Template, `[attr.once]` back in the Angular IntersectionObserver, `import.meta.env` in a React Template (Vite pass green, Next pass red), a broken import in `generateNextEnvDts`, `vite/client` left in the Next pass, `tsc` in place of `ngc`, and `strict: false` in the Vue and Angular consumers each go red with a message that names what broke. check-upstream-versions.test.ts covers `readScaffoldPin`, `classifyScaffold` and the pin wiring
