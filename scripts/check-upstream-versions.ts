@@ -15,6 +15,8 @@
  *   are invoked via `pnpm create` / `pnpm dlx` rather than installed, so they
  *   are not in package.json and Dependabot cannot see them. A held major is
  *   suppressed here too.
+ * - A group whose registry lookup failed reads as not checked, never as
+ *   current (docs/adr/0003).
  * - The declared range for tracked toolchain packages against the latest
  *   published major, which is where the breaking changes live, EXCLUDING
  *   majors already recorded in `scripts/upstream-holds.json` — a major that
@@ -53,6 +55,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
+import { ANGULAR_CLI_VERSION, CREATE_VITE_VERSION } from '../src/constants.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const PROJECT_ROOT = path.dirname(path.dirname(__filename));
@@ -167,28 +170,21 @@ async function latestVersion(name: string): Promise<string | null> {
 
 /**
  * Scaffolders the e2e consumer suites run at an exact version rather than
- * install (`pnpm create`, `pnpm dlx`), each pinned by a constant in
- * `src/constants.ts`. They are not in package.json, so Dependabot cannot see
- * them; this weekly report is their only drift signal.
+ * install (`pnpm create`, `pnpm dlx`). They are not in package.json, so
+ * Dependabot cannot see them; this weekly report is their only drift signal.
+ * The versions are imported, so renaming a pin is a type error, not a
+ * scaffolder that silently drops out of the report.
  */
-export const SCAFFOLD_PINS: readonly { name: string; constant: string }[] = [
-  { name: 'create-vite', constant: 'CREATE_VITE_VERSION' }, // issue #98
-  { name: '@angular/cli', constant: 'ANGULAR_CLI_VERSION' }, // issue #78
+export const SCAFFOLD_PINS: readonly { name: string; current: string }[] = [
+  { name: 'create-vite', current: CREATE_VITE_VERSION }, // issue #98
+  { name: '@angular/cli', current: ANGULAR_CLI_VERSION }, // issue #78
 ];
 
 /**
- * Read a scaffold pin out of the constant that owns it. Null when the
- * constant is absent, so a rename reads as "cannot read", never as a
- * comparison against the wrong value.
+ * `current`: the pin is the latest release. `drift`: it is behind, and the
+ * report says so. `held`: a major bump a hold already covers, listed but not
+ * reported.
  */
-export function readScaffoldPin(
-  source: string,
-  constant: string
-): string | null {
-  const match = new RegExp(`\\b${constant}\\s*=\\s*'([^']+)'`).exec(source);
-  return match ? match[1]! : null;
-}
-
 export type ScaffoldResult =
   { kind: 'current' } | { kind: 'drift' | 'held'; drift: VersionDrift };
 
@@ -222,29 +218,37 @@ export interface DriftReport {
   /** Majors that exist upstream but are suppressed by a hold. */
   held: VersionDrift[];
   unreachable: string[];
-  /** Scaffold pin constants missing from `src/constants.ts`. */
-  unreadable: string[];
+}
+
+export type GroupStatus = 'drift' | 'current' | 'unchecked';
+
+/**
+ * How one group of the report reads. `current` needs every package in the
+ * group compared: one whose registry lookup failed makes the group
+ * `unchecked`, never current, since a check that did not run may not read
+ * as a pass (docs/adr/0003). Drift found in the rest still reports.
+ */
+export function groupStatus(
+  drift: readonly VersionDrift[],
+  names: readonly string[],
+  unreachable: readonly string[]
+): GroupStatus {
+  if (drift.length > 0) {
+    return 'drift';
+  }
+  return names.some((name) => unreachable.includes(name))
+    ? 'unchecked'
+    : 'current';
 }
 
 export async function checkUpstreamVersions(
   holds: UpstreamHolds = readHolds()
 ): Promise<DriftReport> {
   const unreachable: string[] = [];
-  const unreadable: string[] = [];
   const held: VersionDrift[] = [];
 
-  const constantsPath = path.join(PROJECT_ROOT, 'src', 'constants.ts');
-  const constants = fs.existsSync(constantsPath)
-    ? fs.readFileSync(constantsPath, 'utf8')
-    : '';
-
   const scaffolds: VersionDrift[] = [];
-  for (const { name, constant } of SCAFFOLD_PINS) {
-    const current = readScaffoldPin(constants, constant);
-    if (current === null) {
-      unreadable.push(constant);
-      continue;
-    }
+  for (const { name, current } of SCAFFOLD_PINS) {
     const latest = await latestVersion(name);
     if (latest === null) {
       unreachable.push(name);
@@ -287,39 +291,45 @@ export async function checkUpstreamVersions(
     }
   }
 
-  return { scaffolds, toolchain, held, unreachable, unreadable };
+  return { scaffolds, toolchain, held, unreachable };
 }
 
 function printReport(report: DriftReport): void {
   console.log(pc.cyan('\nComparing pinned versions against the registry...\n'));
 
-  if (report.scaffolds.length > 0) {
+  const scaffolds = groupStatus(
+    report.scaffolds,
+    SCAFFOLD_PINS.map((pin) => pin.name),
+    report.unreachable
+  );
+  if (scaffolds === 'drift') {
     console.log(pc.yellow('  Scaffolders behind the latest release:'));
     for (const { name, current, latest, majorBump } of report.scaffolds) {
       const label = majorBump ? pc.yellow('major') : pc.dim('minor/patch');
       console.log(`    ${name}: ${current} -> ${latest}  (${label})`);
     }
-  } else if (report.unreadable.length === 0) {
+  } else if (scaffolds === 'current') {
     console.log(
       pc.green('  Scaffolders are on the latest published versions.')
     );
+  } else {
+    console.log(pc.yellow('  Scaffolders not checked: registry unreachable.'));
   }
 
-  if (report.unreadable.length > 0) {
-    console.log(
-      pc.yellow(
-        `  Could not read these pins from src/constants.ts: ${report.unreadable.join(', ')}`
-      )
-    );
-  }
-
-  if (report.toolchain.length > 0) {
+  const toolchain = groupStatus(
+    report.toolchain,
+    TRACKED_PACKAGES,
+    report.unreachable
+  );
+  if (toolchain === 'drift') {
     console.log(pc.yellow('\n  Toolchain majors available:'));
     for (const drift of report.toolchain) {
       console.log(`    ${drift.name}: ${drift.current} -> ${drift.latest}`);
     }
-  } else {
+  } else if (toolchain === 'current') {
     console.log(pc.green('  No new toolchain major bumps pending.'));
+  } else {
+    console.log(pc.yellow('  Toolchain not checked: registry unreachable.'));
   }
 
   if (report.held.length > 0) {
@@ -350,10 +360,7 @@ async function main(): Promise<void> {
     printReport(report);
 
     if (process.env.GITHUB_OUTPUT) {
-      const driftCount =
-        report.scaffolds.length +
-        report.toolchain.length +
-        report.unreadable.length;
+      const driftCount = report.scaffolds.length + report.toolchain.length;
       fs.appendFileSync(
         process.env.GITHUB_OUTPUT,
         `drift=${driftCount > 0 ? '1' : '0'}\n`

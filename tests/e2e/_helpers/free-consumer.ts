@@ -11,6 +11,10 @@
  * `add --all` is the only install filter. The suites read the registry
  * afterwards to observe which Templates landed; they never pick components.
  *
+ * Planted errors go into the components directory, next to the Templates.
+ * A planted file the compiler rejects there shows that directory is in the
+ * compiled program, not only that the compiler is strict.
+ *
  * A failing command reports its own stdout and stderr. The suites do not
  * parse them into a summary. `commandText()` strips ANSI colour: `ngc`
  * colours its diagnostics even when piped, and passing `--pretty false` does
@@ -23,6 +27,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { stripVTControlCharacters } from 'node:util';
 import { getAllComponents } from '../../../src/utils/registry.js';
+import { DEFAULT_WEBAWESOME_VERSION } from '../../../src/constants.js';
 
 export const CLI_PATH = path.resolve(__dirname, '../../../dist/index.js');
 
@@ -38,17 +43,6 @@ const FREE_TIER_ENV = {
 
 export const SCAFFOLD_TIMEOUT_MS = 600_000;
 export const TSC_TIMEOUT_MS = 180_000;
-
-/**
- * Legal when strictNullChecks is off, an error when it is on. A
- * string-assigned-to-number error would fail either way and would not show
- * that the consumer's typecheck is strict.
- */
-export const STRICT_ONLY_ERROR = {
-  code: 'error TS2345',
-  message:
-    "Argument of type 'null' is not assignable to parameter of type 'string'.",
-};
 
 export interface CommandOutput {
   exitCode: number;
@@ -76,6 +70,32 @@ export function commandText(result: CommandOutput): string {
   );
 }
 
+/** A file written into the consumer's components directory for one check. */
+export interface PlantedFile {
+  /** File name inside the components directory. */
+  file: string;
+  source: string;
+}
+
+/** A planted file the consumer's typecheck must reject, and how. */
+export interface PlantedError extends PlantedFile {
+  /** Text the compiler output must contain besides the file's path. */
+  diagnostics: readonly string[];
+  /** Why it must fail, named in the message when the compiler exits 0. */
+  failsBecause: string;
+}
+
+/**
+ * What every framework's strict-only plant must produce: `take(null)` against
+ * a `string` parameter. Legal when strictNullChecks is off, an error when it
+ * is on. A string-assigned-to-number error would fail either way and would
+ * not show that the typecheck is strict.
+ */
+const STRICT_ONLY_DIAGNOSTICS = [
+  'error TS2345',
+  "Argument of type 'null' is not assignable to parameter of type 'string'.",
+] as const;
+
 export interface FreeConsumerSpec {
   /** Name of the describe block. */
   title: string;
@@ -91,8 +111,8 @@ export interface FreeConsumerSpec {
   typecheck: string[];
   /** A Template's main file, relative to its component directory. */
   templateFile: (componentName: string) => string;
-  /** A file that fails only under a strict typecheck, relative to `dir`. */
-  planted: { file: string; source: string };
+  /** A file calling `take(null)`, which only a strict typecheck rejects. */
+  strictOnlyError: PlantedFile;
 }
 
 /** Handle the framework file uses to add checks on the same project. */
@@ -102,7 +122,20 @@ export interface FreeConsumer {
   exec: (args: string[]) => Promise<CommandOutput>;
   typecheck: () => Promise<CommandOutput>;
   /** `componentsDir` from the consumer's kigumi.config.json. */
-  componentsDir: () => Promise<string>;
+  componentsDir: () => string;
+  /** This framework's strict-only plant, with what it must produce. */
+  strictOnlyError: PlantedError;
+  /** Write `planted` into the components directory while `run` runs. */
+  withPlanted: <T>(planted: PlantedFile, run: () => Promise<T>) => Promise<T>;
+  /**
+   * Assert `result` is `command` rejecting `planted`: a non-zero exit, the
+   * planted file's path and each diagnostic in the compiler's own output.
+   */
+  expectRejected: (
+    result: CommandOutput,
+    command: string,
+    planted: PlantedError
+  ) => void;
 }
 
 interface ConsumerConfig {
@@ -136,7 +169,8 @@ export function describeFreeConsumer(
   spec: FreeConsumerSpec,
   more?: (consumer: FreeConsumer) => void
 ): void {
-  const plantedPath = path.join(spec.dir, spec.planted.file);
+  const typecheckCommand = spec.typecheck.join(' ');
+  let config: ConsumerConfig | undefined;
 
   async function exec(args: string[]): Promise<CommandOutput> {
     return toCommandOutput(
@@ -160,17 +194,51 @@ export function describeFreeConsumer(
     );
   }
 
-  async function readConfig(): Promise<ConsumerConfig> {
-    return (await fs.readJSON(
-      path.join(spec.dir, 'kigumi.config.json')
-    )) as ConsumerConfig;
+  function readConfig(): ConsumerConfig {
+    if (!config) {
+      throw new Error('kigumi.config.json is read after `add --all`');
+    }
+    return config;
   }
 
   const consumer: FreeConsumer = {
     dir: spec.dir,
     exec,
     typecheck: () => exec(spec.typecheck),
-    componentsDir: async () => (await readConfig()).componentsDir,
+    componentsDir: () => readConfig().componentsDir,
+    strictOnlyError: {
+      ...spec.strictOnlyError,
+      diagnostics: STRICT_ONLY_DIAGNOSTICS,
+      failsBecause:
+        'planted beside the Templates, where a strict typecheck must reject it',
+    },
+    async withPlanted(planted, run) {
+      const plantedPath = path.join(
+        spec.dir,
+        consumer.componentsDir(),
+        planted.file
+      );
+      await fs.writeFile(plantedPath, planted.source);
+      try {
+        return await run();
+      } finally {
+        await fs.remove(plantedPath);
+      }
+    },
+    expectRejected(result, command, planted) {
+      const output = commandText(result);
+      // An exit 0 prints nothing, so name what should have failed.
+      expect(
+        result.exitCode,
+        `\`${command}\` exited 0 on ${planted.file}, ${planted.failsBecause}\n${output}`
+      ).not.toBe(0);
+      expect(output).toContain(
+        path.posix.join(consumer.componentsDir(), planted.file)
+      );
+      for (const diagnostic of planted.diagnostics) {
+        expect(output).toContain(diagnostic);
+      }
+    },
   };
 
   describe(spec.title, () => {
@@ -184,6 +252,10 @@ export function describeFreeConsumer(
       const add = await runCli(['add', '--all', '--yes']);
       expect(add.exitCode, commandText(add)).toBe(0);
 
+      config = (await fs.readJSON(
+        path.join(spec.dir, 'kigumi.config.json')
+      )) as ConsumerConfig;
+
       await spec.prepare?.(spec.dir);
     }, SCAFFOLD_TIMEOUT_MS);
 
@@ -191,7 +263,7 @@ export function describeFreeConsumer(
       await fs.remove(spec.dir);
     });
 
-    it('installs the Free Web Awesome package only', async () => {
+    it('installs the pinned Free Web Awesome package only', async () => {
       const packageJson = (await fs.readJSON(
         path.join(spec.dir, 'package.json')
       )) as {
@@ -199,14 +271,23 @@ export function describeFreeConsumer(
         devDependencies?: Record<string, string>;
       };
 
-      expect(packageJson.dependencies?.[FREE_PACKAGE]).toBeDefined();
+      // Types are proven against the version the CLI ships (#71, story 45),
+      // which `init` writes as an exact pin.
+      expect(packageJson.dependencies?.[FREE_PACKAGE]).toBe(
+        DEFAULT_WEBAWESOME_VERSION
+      );
       expect(packageJson.dependencies?.[PRO_PACKAGE]).toBeUndefined();
       expect(packageJson.devDependencies?.[PRO_PACKAGE]).toBeUndefined();
-      expect(
-        await fs.pathExists(
-          path.join(spec.dir, 'node_modules', ...FREE_PACKAGE.split('/'))
+
+      const installed = (await fs.readJSON(
+        path.join(
+          spec.dir,
+          'node_modules',
+          ...FREE_PACKAGE.split('/'),
+          'package.json'
         )
-      ).toBe(true);
+      )) as { version?: string };
+      expect(installed.version).toBe(DEFAULT_WEBAWESOME_VERSION);
     });
 
     it('installs Free Templates and drops Pro-only ones', async () => {
@@ -214,14 +295,16 @@ export function describeFreeConsumer(
       expect(free.length).toBeGreaterThan(0);
       expect(pro.length).toBeGreaterThan(0);
 
-      const config = await readConfig();
-      const installed = Object.keys(config.installedComponents ?? {}).sort(
-        (a, b) => a.localeCompare(b)
+      const { componentsDir, installedComponents } = readConfig();
+      const installed = Object.keys(installedComponents ?? {}).sort((a, b) =>
+        a.localeCompare(b)
       );
       expect(installed).toEqual(free);
 
-      const componentsDir = path.join(spec.dir, config.componentsDir);
-      const entries = await fs.readdir(componentsDir, { withFileTypes: true });
+      const componentsPath = path.join(spec.dir, componentsDir);
+      const entries = await fs.readdir(componentsPath, {
+        withFileTypes: true,
+      });
       const onDisk = entries
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name)
@@ -231,7 +314,7 @@ export function describeFreeConsumer(
       for (const name of free) {
         expect(
           await fs.pathExists(
-            path.join(componentsDir, name, spec.templateFile(name))
+            path.join(componentsPath, name, spec.templateFile(name))
           ),
           name
         ).toBe(true);
@@ -248,25 +331,15 @@ export function describeFreeConsumer(
     );
 
     it(
-      'reports a type error as the consumer compiler output',
+      'rejects a strict-only error beside the Templates, in its own output',
       async () => {
-        await fs.writeFile(plantedPath, spec.planted.source);
-        try {
-          const result = await consumer.typecheck();
-          const output = commandText(result);
-
-          // An exit 0 prints nothing, so name what should have failed.
-          expect(
-            result.exitCode,
-            `\`${spec.typecheck.join(' ')}\` exited 0 on ${spec.planted.file}, ` +
-              `which is planted to fail a strict typecheck\n${output}`
-          ).not.toBe(0);
-          expect(output).toContain(path.basename(spec.planted.file));
-          expect(output).toContain(STRICT_ONLY_ERROR.code);
-          expect(output).toContain(STRICT_ONLY_ERROR.message);
-        } finally {
-          await fs.remove(plantedPath);
-        }
+        await consumer.withPlanted(consumer.strictOnlyError, async () => {
+          consumer.expectRejected(
+            await consumer.typecheck(),
+            typecheckCommand,
+            consumer.strictOnlyError
+          );
+        });
       },
       TSC_TIMEOUT_MS
     );

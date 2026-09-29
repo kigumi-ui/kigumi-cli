@@ -31,8 +31,8 @@ describeFreeConsumer({
   initArgs: ['--framework=vue', '--theme=awesome', '--typescript', '--yes'],
   typecheck: ['vue-tsc', '-b'],
   templateFile: (name) => `${name}.vue`,
-  planted: {
-    file: 'src/PlantedConsumerError.vue',
+  strictOnlyError: {
+    file: 'PlantedConsumerError.vue',
     source: [
       '<script setup lang="ts">',
       'function take(value: string): string {',

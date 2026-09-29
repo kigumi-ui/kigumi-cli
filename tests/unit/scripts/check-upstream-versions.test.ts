@@ -1,28 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import fs from 'fs-extra';
-import path from 'path';
 import {
-  SCAFFOLD_PINS,
   classifyScaffold,
+  groupStatus,
   isHeld,
   isMajorBump,
   majorOf,
   parsePinned,
   readHolds,
-  readScaffoldPin,
   type UpstreamHold,
+  type VersionDrift,
 } from '../../../scripts/check-upstream-versions.js';
-import {
-  ANGULAR_CLI_VERSION,
-  CREATE_VITE_VERSION,
-} from '../../../src/constants.js';
 
 /**
  * Internals exported for test coverage: `parsePinned`, `majorOf`,
- * `isMajorBump`, `readScaffoldPin`, `SCAFFOLD_PINS`, `classifyScaffold`,
- * `readHolds` and `isHeld` are the version matchers, pulled out of the reporter so the
- * major-boundary and hold rules can be asserted without reaching the npm
- * registry. Registered in tests/AGENTS.md.
+ * `isMajorBump`, `classifyScaffold`, `groupStatus`, `readHolds` and `isHeld`
+ * are the version matchers, pulled out of the reporter so the
+ * major-boundary, hold and did-not-run rules can be asserted without
+ * reaching the npm registry. Registered in tests/AGENTS.md.
  */
 describe('check-upstream-versions matchers (test-only seams)', () => {
   describe('parsePinned', () => {
@@ -86,62 +80,6 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
       // Reporting on garbage is worse than reporting nothing.
       expect(isMajorBump('latest', '7.0.0')).toBe(false);
       expect(isMajorBump('6.0.3', 'next')).toBe(false);
-    });
-  });
-
-  describe('readScaffoldPin', () => {
-    it('reads the version out of the constant that owns it', () => {
-      const source = "export const CREATE_VITE_VERSION = '9.2.1';";
-      expect(readScaffoldPin(source, 'CREATE_VITE_VERSION')).toBe('9.2.1');
-    });
-
-    it('tolerates whitespace around the assignment', () => {
-      const source = "export const CREATE_VITE_VERSION   =   '9.2.1';";
-      expect(readScaffoldPin(source, 'CREATE_VITE_VERSION')).toBe('9.2.1');
-    });
-
-    it('reads each pin from a file that holds several', () => {
-      const source = [
-        "export const CREATE_VITE_VERSION = '9.2.1';",
-        "export const ANGULAR_CLI_VERSION = '21.2.24';",
-      ].join('\n');
-      expect(readScaffoldPin(source, 'CREATE_VITE_VERSION')).toBe('9.2.1');
-      expect(readScaffoldPin(source, 'ANGULAR_CLI_VERSION')).toBe('21.2.24');
-    });
-
-    it('does not read a longer constant that ends in the same name', () => {
-      const source = "export const OLD_ANGULAR_CLI_VERSION = '17.0.0';";
-      expect(readScaffoldPin(source, 'ANGULAR_CLI_VERSION')).toBeNull();
-    });
-
-    it('returns null when the constant is absent', () => {
-      // Renaming the constant must surface as "cannot read", never as a
-      // silent comparison against the wrong value.
-      expect(
-        readScaffoldPin(
-          'export const SOMETHING_ELSE = "9.2.1";',
-          'CREATE_VITE_VERSION'
-        )
-      ).toBeNull();
-    });
-
-    it('reads every tracked pin from src/constants.ts', () => {
-      // Wiring: a renamed constant would drop its scaffolder from the
-      // weekly report without anyone noticing.
-      const source = fs.readFileSync(
-        path.resolve(__dirname, '../../../src/constants.ts'),
-        'utf8'
-      );
-      const pinned = Object.fromEntries(
-        SCAFFOLD_PINS.map(({ constant }) => [
-          constant,
-          readScaffoldPin(source, constant),
-        ])
-      );
-      expect(pinned).toEqual({
-        CREATE_VITE_VERSION,
-        ANGULAR_CLI_VERSION,
-      });
     });
   });
 
@@ -238,6 +176,33 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
       expect(
         classifyScaffold('@angular/cli', '21.2.24', '21.2.25', held21)
       ).toMatchObject({ kind: 'drift', drift: { majorBump: false } });
+    });
+  });
+
+  describe('groupStatus', () => {
+    const scaffolds = ['create-vite', '@angular/cli'];
+    const drift: VersionDrift = {
+      name: 'create-vite',
+      current: '9.2.1',
+      latest: '9.3.0',
+      majorBump: false,
+    };
+
+    it('is current when every package was compared and none drifted', () => {
+      expect(groupStatus([], scaffolds, [])).toBe('current');
+    });
+
+    it('is unchecked, never current, when a lookup failed', () => {
+      // docs/adr/0003: a check that did not run may not read as a pass.
+      expect(groupStatus([], scaffolds, ['@angular/cli'])).toBe('unchecked');
+    });
+
+    it('ignores a failed lookup from another group', () => {
+      expect(groupStatus([], scaffolds, ['typescript'])).toBe('current');
+    });
+
+    it('reports drift found in the packages that were reached', () => {
+      expect(groupStatus([drift], scaffolds, ['@angular/cli'])).toBe('drift');
     });
   });
 });

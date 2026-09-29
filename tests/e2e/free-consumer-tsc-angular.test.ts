@@ -53,8 +53,8 @@ describeFreeConsumer({
   initArgs: ['--framework=angular', '--theme=awesome', '--yes'],
   typecheck: ['ngc', '-p', 'tsconfig.app.json', '--noEmit'],
   templateFile: (name) => `${toKebabCase(name)}.component.ts`,
-  planted: {
-    file: 'src/app/planted-consumer-error.ts',
+  strictOnlyError: {
+    file: 'planted-consumer-error.ts',
     source: [
       "import { Component } from '@angular/core';",
       '',

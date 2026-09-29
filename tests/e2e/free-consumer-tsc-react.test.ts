@@ -27,13 +27,25 @@ import {
   TSC_TIMEOUT_MS,
   commandText,
   describeFreeConsumer,
+  type PlantedError,
 } from './_helpers/free-consumer.js';
 
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-free-consumer-tsc-react');
 
 const NEXT_AMBIENT_DIR = 'next-ambient';
 const NEXT_TSCONFIG = 'tsconfig.next.json';
-const VITE_ONLY_FILE = 'planted-vite-only.ts';
+const NEXT_TSC = ['tsc', '-b', NEXT_TSCONFIG];
+
+/** Valid where `vite/client` is loaded, an error anywhere else. */
+const VITE_ONLY_ERROR: PlantedError = {
+  file: 'planted-vite-only.ts',
+  source: 'export const dev: boolean = import.meta.env.DEV;\n',
+  diagnostics: [
+    'error TS2339',
+    "Property 'env' does not exist on type 'ImportMeta'.",
+  ],
+  failsBecause: 'so vite/client is still in scope',
+};
 
 /**
  * The one declaration Next's own ambient types give these files, copied
@@ -81,8 +93,8 @@ describeFreeConsumer(
     },
     typecheck: ['tsc', '-b'],
     templateFile: (name) => `${name}.tsx`,
-    planted: {
-      file: 'src/planted-consumer-error.tsx',
+    strictOnlyError: {
+      file: 'planted-consumer-error.tsx',
       source: [
         'export function take(value: string): string {',
         '  return value;',
@@ -99,13 +111,9 @@ describeFreeConsumer(
         NEXT_AMBIENT_DIR,
         'web-awesome.d.ts'
       );
-      let componentsDir = '';
-
-      const nextTsc = () => consumer.exec(['tsc', '-b', NEXT_TSCONFIG]);
+      const nextTsc = () => consumer.exec(NEXT_TSC);
 
       beforeAll(async () => {
-        componentsDir = await consumer.componentsDir();
-
         // The function `init` calls for a Next project. A Vite project never
         // reaches that branch, so this is the highest seam that writes it.
         await generateNextEnvDts(consumer.dir, NEXT_AMBIENT_DIR, FREE_PACKAGE);
@@ -126,7 +134,7 @@ describeFreeConsumer(
               tsBuildInfoFile: './node_modules/.tmp/tsconfig.next.tsbuildinfo',
               types: [],
             },
-            include: [componentsDir, NEXT_AMBIENT_DIR],
+            include: [consumer.componentsDir(), NEXT_AMBIENT_DIR],
           },
           { spaces: 2 }
         );
@@ -150,38 +158,35 @@ describeFreeConsumer(
       );
 
       it(
+        'is strict: rejects the strict-only error beside the Templates',
+        async () => {
+          // Strictness is inherited from tsconfig.app.json, so show it holds.
+          await consumer.withPlanted(consumer.strictOnlyError, async () => {
+            consumer.expectRejected(
+              await nextTsc(),
+              NEXT_TSC.join(' '),
+              consumer.strictOnlyError
+            );
+          });
+        },
+        TSC_TIMEOUT_MS
+      );
+
+      it(
         'rejects a vite/client-only API that the Vite pass accepts',
         async () => {
-          const plantedPath = path.join(
-            consumer.dir,
-            componentsDir,
-            VITE_ONLY_FILE
-          );
-          await fs.writeFile(
-            plantedPath,
-            'export const dev: boolean = import.meta.env.DEV;\n'
-          );
-          try {
-            // The planted file is valid where vite/client is loaded, so the
-            // Next failure below comes from its absence and nothing else.
+          await consumer.withPlanted(VITE_ONLY_ERROR, async () => {
+            // The plant is valid where vite/client is loaded, so the Next
+            // failure below comes from its absence and nothing else.
             const vite = await consumer.typecheck();
             expect(vite.exitCode, commandText(vite)).toBe(0);
 
-            const next = await nextTsc();
-            const output = commandText(next);
-            expect(
-              next.exitCode,
-              `the Next pass accepted import.meta.env in ${VITE_ONLY_FILE}, ` +
-                `so vite/client is still in scope\n${output}`
-            ).not.toBe(0);
-            expect(output).toContain(VITE_ONLY_FILE);
-            expect(output).toContain('error TS2339');
-            expect(output).toContain(
-              "Property 'env' does not exist on type 'ImportMeta'."
+            consumer.expectRejected(
+              await nextTsc(),
+              NEXT_TSC.join(' '),
+              VITE_ONLY_ERROR
             );
-          } finally {
-            await fs.remove(plantedPath);
-          }
+          });
         },
         TSC_TIMEOUT_MS * 2
       );

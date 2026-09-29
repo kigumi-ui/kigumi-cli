@@ -637,10 +637,17 @@ The types seam of `docs/adr/0004`: each suite scaffolds a project with the
 framework's own tool, runs the real CLI (`init`, then `add --all`), and
 typechecks it with that project's own compiler. `describeFreeConsumer()` in
 `tests/e2e/_helpers/free-consumer.ts` registers the same four checks for every
-framework: Free package only, the Free Templates and no Pro-only ones, a clean
-typecheck, and a planted strict-only error (`take(null)`, TS2345) reported as
-the compiler's own output. A new consumer (the Pro one of issue #79, say)
-supplies a `FreeConsumerSpec` rather than copying the checks.
+framework: the Free package at `DEFAULT_WEBAWESOME_VERSION` and no Pro package,
+the Free Templates and no Pro-only ones, a clean typecheck, and a planted
+strict-only error (`take(null)`, TS2345) reported as the compiler's own
+output. Every plant goes into the components directory beside the Templates
+(`withPlanted()`), so a rejected plant also shows that directory is in the
+compiled program; a clean typecheck alone would pass with the Templates
+excluded. `expectRejected()` is the one assertion for a plant: non-zero exit,
+the plant's path and each diagnostic in the output, and a message naming the
+command and the file when the compiler exits 0. A new consumer (the Pro one
+of issue #79, say) supplies a `FreeConsumerSpec` rather than copying the
+checks.
 
 | Framework | Scaffold                                    | Typecheck                           |
 | --------- | ------------------------------------------- | ----------------------------------- |
@@ -660,10 +667,13 @@ supplies a `FreeConsumerSpec` rather than copying the checks.
   scaffold's own `App.tsx` imports an SVG. One line stands in for Next's own
   `declare module '*.css' {}`, which TypeScript 6 needs for every Template's
   side-effect CSS import. A planted `import.meta.env` passes the Vite pass and
-  fails the Next one, which is what shows `vite/client` is out of scope. No
-  Next install, no Next build, no Pages Router CSS strip.
+  fails the Next one, which is what shows `vite/client` is out of scope, and
+  the strict-only plant fails it too, since the Next pass inherits `strict`
+  rather than setting it. No Next install, no Next build, no Pages Router CSS
+  strip.
 - Both scaffolders are exact pins in `src/constants.ts`, tracked by the weekly
-  upstream report (`SCAFFOLD_PINS` in `scripts/check-upstream-versions.ts`).
+  upstream report (`SCAFFOLD_PINS` in `scripts/check-upstream-versions.ts`
+  imports them).
   Angular 22 is held there until #156: `init` writes an `@/` import for Angular
   without the alias, which TypeScript 6 rejects.
 
@@ -744,15 +754,16 @@ helper's logic in isolation. Current cases:
   takes its `request` function as an argument so issue #37 (HEAD 404, GET 200)
   cannot regress without a live page.
 
-- `parsePinned`, `majorOf`, `isMajorBump`, `readScaffoldPin`,
-  `SCAFFOLD_PINS`, `classifyScaffold`, `readHolds` and `isHeld` in
+- `parsePinned`, `majorOf`, `isMajorBump`, `classifyScaffold`,
+  `groupStatus`, `readHolds` and `isHeld` in
   `scripts/check-upstream-versions.ts`: the version and hold matchers,
   asserted directly by `tests/unit/scripts/check-upstream-versions.test.ts`.
   Exported so the major-boundary rule (including the downgrade and
   unparseable cases), the hold-suppression rule (a hold covers its major,
   never a newer one, and never a release inside the pinned major) and the
-  wiring of every scaffold pin to its constant in `src/constants.ts` can be
-  asserted without reaching the npm registry. Web Awesome is not read by this
+  did-not-run rule (a group with a failed registry lookup is `unchecked`,
+  never `current`, per docs/adr/0003) can be asserted without reaching the
+  npm registry. Web Awesome is not read by this
   script at all — `wa-upgrade` (`scripts/check-wa-upgrade.ts`) owns that
   report — so `readWebAwesomePin` was removed rather than kept unused.
 
@@ -996,3 +1007,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - review follow-up on #108: parse-custom-elements-events.test.ts drives the extracted `buildMetadata()` with a free-like manifest (a pinned entry's component absent parses; `complete` refuses it); ignoring coverage in `staleEntries()` turns two tests red, and the real free-only `generate:metadata` exited 1 on the old code and parses 73 components on the new. method-parameter-parity.test.ts and the methodParameters cases pin optionality across frameworks; Angular's old all-optional signatures fail 54 cases. init-config-preservation.test.ts now expects `DEFAULT_WEBAWESOME_VERSION` rather than deriving its oracle from the version map it tests, issue #108
 - issue #102: `_helpers/angular-omitted-inputs.ts` pins 98 component-specific omissions, down from 113 after Web Awesome 3.14.0: the 15 attributes #102 surfaced left it. template-registry-props.test.ts also reads the `@param {Object} props` lists seven `.jsx` files use instead of a typedef (`JSX_PROPS_PARAMS`); it went red on TimeInput (`distance`, and #101's `autocomplete` / `custom-error`) and KnownDate (#101's two), and dropping TimeInput's `distance` or Dialog's required `props.label` turns it red again. Added slider-range-values.test.ts: the `.js.vue` generator wrote Slider's `min-value` / `max-value` registry defaults on every mount, which moved where a range slider resets; red on `.js.vue` before the registry defaults were dropped
 - issue #78: the Free consumer tsc covers Vue (`vue-tsc -b`) and Angular (`ngc`), and typechecks the React add-output again under the Next ambient declaration without `vite/client`. free-consumer-tsc.test.ts became free-consumer-tsc-react.test.ts, and the shared checks moved to `tests/e2e/_helpers/free-consumer.ts`. Bug-injected: a type error in a Vue Template, `[attr.once]` back in the Angular IntersectionObserver, `import.meta.env` in a React Template (Vite pass green, Next pass red), a broken import in `generateNextEnvDts`, `vite/client` left in the Next pass, `tsc` in place of `ngc`, and `strict: false` in the Vue and Angular consumers each go red with a message that names what broke. check-upstream-versions.test.ts covers `readScaffoldPin`, `classifyScaffold` and the pin wiring
+- review follow-up on #78: every plant goes into the components directory through `withPlanted()`, and `expectRejected()` is the one plant assertion (the Next pass's `import.meta.env` plant uses it too). The shared checks now also require `DEFAULT_WEBAWESOME_VERSION` installed, and the Next pass gets the strict-only plant. check-upstream-versions.test.ts drops the `readScaffoldPin` cases (the pins are imported now) and covers `groupStatus`. Bug-injected: `src/components/**` excluded from each consumer's tsconfig (the clean typecheck stays green, the plant goes red in all three), `strict: false` in the Next tsconfig, `init` pinning 3.13.0, and `groupStatus` ignoring failed lookups each go red
