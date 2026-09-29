@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (120 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (119 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -93,7 +93,6 @@ tests/
 │   ├── enumerated-boolean-templates.test.ts # `spellcheck`/`autocorrect` through every React and Vue variant incl. `.jsx`/`.js.vue` and the docs-site wrappers, moved true -> false -> unset on one mount: keyword, keyword, removed (issue #101)
 │   ├── template-registry-props.test.ts # Every registry prop is a member of the React `<Name>Props` interface, a declared prop of the `.vue` Template (`modelValue` in place of the `v-model` attribute), and, where a hand-maintained `.jsx` documents its props, an entry there: a `@property` of its `<Name>Props` JSDoc typedef (pinned both ways as `JSX_PROPS_TYPEDEFS`) or an `@param` of its `@param {Object} props` list (`JSX_PROPS_PARAMS`, #102); the Angular half is the Angular registry harness (issue #101)
 │   ├── template-function-harness.ts # proveTemplate: the framework-neutral CEM function contract all three adapters share, incl. the host add/removeEventListener log; `className: null` skips the class check for an adapter with no class seam yet (Angular, #125) (not a test file)
-│   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
 │   ├── theme-install-local-source.test.ts  # `theme install --from` with a local registry
@@ -138,17 +137,19 @@ tests/
 │   ├── vue-function-harness-registry.test.ts # Loops proveVueTemplate over every LOCAL_REGISTRY component's `.vue` Template (issue #76); pins the v-model Templates and the attribute each model carries
 │   ├── vue-templates.test.ts        # Every .vue and .js.vue Template forwards through hostAttributes() and cleans up in onBeforeUnmount
 │   ├── scripts/
-│   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset), plus Check C's Vue arm (issue #122): the SFC surface reader (including its plain-`<script>` reader) on literal snippets and, for the `<script setup>` half, against the Vue compiler on every committed Template; the variant comparer; and the templates/vue and templates/react walks (one pair per registry component)
+│   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset, Check A's two-way Template tree diff, issue #80), plus Check C's Vue arm (issue #122): the SFC surface reader (including its plain-`<script>` reader) on literal snippets and, for the `<script setup>` half, against the Vue compiler on every committed Template; the variant comparer; and the templates/vue and templates/react walks (one pair per registry component)
 │   │   ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
 │   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge); output linted as a consumer (issue #136)
 │   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge); output linted as a consumer (issue #136)
 │   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch); both dialects linted as a consumer (issue #136)
+│   │   ├── generate-templates-output.test.ts   # Each of the three generators writes exactly its part of getTemplateFileNames(), no per-Template test (issue #80), with filenames taken verbatim from component.name
 │   │   ├── generate-skill-references.test.ts   # formatCompactProps: the compact prop list the skill API surfaces print, including the `deprecated` label (issue #129)
 │   │   ├── method-parameter-parity.test.ts     # Every registry method's parameter optionality is the metadata's in React (ref interface + handle), Vue (defineExpose) and Angular (method + cast); the React JSDoc ref example calls a method with no required argument
 │   │   ├── generator-utils.test.ts             # formatParameters / callableWithoutArguments; custom method-param type imports (sibling Wa* vs named self); event-class imports from dist/events (formatEventTypeImports); the enumerated-boolean emitters (narrowing, named pair literal, keyword expression)
 │   │   ├── event-types.test.ts                 # Event-class resolution (scripts/event-types.ts): dist/events d.ts parsing, override > registered class > declared type > NATIVE_EVENT_TYPES, every refusal (including a non-`wa-` event typed with an event class), stale overrides, `MANIFEST_EVENT_ARTIFACTS` entries (recognised, refused when wrong, reported when stale), and every event of the installed manifest
 │   │   ├── event-type-parity.test.ts           # Metadata eventType invariants (wa- events are Wa*Event classes with a module, natives are DOM interfaces, never CustomEvent, and no manifest artifact for any component, wrapped or not) and React/Vue/Angular each typing + importing it for every registry event. The React prop is found through the listener that subscribes to the event, never derived with the generator's helper; React names are pinned on hard-coded cases; hand-maintained `.jsx` JSDoc handler types must match the `.tsx`
-│   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
+│   │   ├── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
+│   │   └── validate-templates.test.ts          # A Template directory holds exactly getTemplateFileNames(): a missing file and any other file (a per-Template test in particular) both fail, dotfiles skipped (issue #80)
 │   ├── eslint-rules/
 │   │   ├── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
 │   │   └── templates-consumer-rules.test.ts    # Resolves eslint.config.js for every Template file and fails when a consumer-baseline rule is off or has other options there, `no-undef` excepted, and when that exception no longer excuses anything (issue #136)
@@ -190,7 +191,7 @@ tests/
 │   ├── free-consumer-tsc-angular.test.ts # `ng new` init + add --all + `ngc` with strictTemplates (issue #78)
 │   ├── _helpers/
 │   │   └── free-consumer.ts              # describeFreeConsumer(): the four checks every Free consumer suite shares
-│   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures (env-gated; see Cluster R)
+│   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures, and no fixture without an emitted file (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
 │   └── starter-snapshots/{react,vue,angular,next}/  # Per-starter `kigumi add` output (regen via `pnpm update:starter-snapshots`)

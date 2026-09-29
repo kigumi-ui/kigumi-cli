@@ -22,21 +22,17 @@ Use this agent when you need to:
 
 ## Context
 
-The template directory contains **5 files per component per framework**:
+A React or Vue Template directory holds **3 files per component** (Angular: 2, `.component.ts` and `.component.css`), exactly what `getTemplateFileNames()` names; `pnpm validate:templates` fails on anything else:
 
 ```
 templates/react/{Component}/
-  {Component}.tsx.hbs      # TypeScript
-  {Component}.jsx.hbs      # JavaScript
-  {Component}.test.tsx.hbs
-  {Component}.test.jsx.hbs
-  {Component}.css          # Static CSS, no Handlebars
+  {Component}.tsx          # TypeScript
+  {Component}.jsx          # JavaScript
+  {Component}.css          # Static CSS
 
 templates/vue/{Component}/
-  {Component}.vue.hbs      # TypeScript
-  {Component}.js.vue.hbs   # JavaScript
-  {Component}.test.ts.hbs
-  {Component}.test.js.hbs
+  {Component}.vue          # TypeScript
+  {Component}.js.vue       # JavaScript
   {Component}.css          # Identical to React CSS
 ```
 
@@ -70,7 +66,7 @@ Not all components have the same structure. Before applying changes, classify ea
 
 Read the user's description of the pattern change. Clarify:
 
-- Which file types are affected? (`.tsx.hbs`, `.jsx.hbs`, `.vue.hbs`, `.js.vue.hbs`, test files, CSS files)
+- Which file types are affected? (`.tsx.hbs`, `.jsx.hbs`, `.vue.hbs`, `.js.vue.hbs`, CSS files)
 - Does the change differ between simple and complex components?
 - Does it affect React only, Vue only, or both?
 

@@ -29,8 +29,8 @@ Use this skill when the user:
 2. [ ] Extract component metadata (props, events, methods, slots)
 3. [ ] Detect component complexity (simple vs complex)
 4. [ ] Generate registry entry
-5. [ ] Create React template files (.tsx, .jsx, .test.tsx, .test.jsx, .css)
-6. [ ] Create Vue template files (.vue, .js.vue, .test.ts, .test.js, .css)
+5. [ ] Create React template files (.tsx, .jsx, .css)
+6. [ ] Create Vue template files (.vue, .js.vue, .css)
 7. [ ] Validate templates
 ```
 
@@ -203,9 +203,9 @@ Badge.displayName = 'Badge';
 
 Same structure but with `import React from 'react'`, `React.forwardRef`, and JSDoc instead of TypeScript types.
 
-### 5c. Test Files (.test.tsx, .test.jsx)
+### 5c. No Test File
 
-Generate basic render tests using vitest + @testing-library/react.
+Do not write a per-Template test: `pnpm validate:templates` rejects any file outside the Template set. The React, Vue and Angular function harnesses in `tests/unit/` prove every registry component's TypeScript Template from its metadata, and `validate:generated-fresh` Check C holds the `.jsx` / `.js.vue` to it, so a new component is covered once its registry entry and metadata exist.
 
 ### 5d. CSS File (.css)
 
@@ -221,7 +221,6 @@ Vue templates follow a similar pattern. Reference the Vue template generator at 
 
 - **TypeScript SFC** (`.vue`): `<script setup lang="ts">` with typed props via `defineProps`
 - **JavaScript SFC** (`.js.vue`): `<script setup>` with runtime props
-- **Test files** (`.test.ts`, `.test.js`): vitest + @vue/test-utils
 - **CSS file** (`.css`): Same as React
 
 ### Current Vue Limitations
@@ -328,15 +327,11 @@ When complete, show:
 ✓ Created React templates:
   - templates/react/ComponentName/ComponentName.tsx
   - templates/react/ComponentName/ComponentName.jsx
-  - templates/react/ComponentName/ComponentName.test.tsx
-  - templates/react/ComponentName/ComponentName.test.jsx
   - templates/react/ComponentName/ComponentName.css
 
 ✓ Created Vue templates:
   - templates/vue/ComponentName/ComponentName.vue
   - templates/vue/ComponentName/ComponentName.js.vue
-  - templates/vue/ComponentName/ComponentName.test.ts
-  - templates/vue/ComponentName/ComponentName.test.js
   - templates/vue/ComponentName/ComponentName.css
 
 Next steps:

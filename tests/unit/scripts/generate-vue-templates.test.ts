@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  generateTestJavascriptTemplate,
-  generateTestTypescriptTemplate,
   generateVueJavascriptTemplate,
   generateVueTypescriptTemplate,
 } from '../../../scripts/generate-vue-templates.js';
@@ -571,22 +569,6 @@ describe('generateVueJavascriptTemplate', () => {
 
   it('emits the Toast JS wrapper (no type import, bare method params)', () => {
     expect(generateVueJavascriptTemplate(TOAST_FIXTURE)).toMatchSnapshot();
-  });
-});
-
-describe('generateTestTypescriptTemplate', () => {
-  it('emits the Button TS test stub', () => {
-    expect(
-      generateTestTypescriptTemplate('Button', 'wa-button')
-    ).toMatchSnapshot();
-  });
-});
-
-describe('generateTestJavascriptTemplate', () => {
-  it('emits the Button JS test stub', () => {
-    expect(
-      generateTestJavascriptTemplate('Button', 'wa-button')
-    ).toMatchSnapshot();
   });
 });
 

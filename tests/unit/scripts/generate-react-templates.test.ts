@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  generateReactTypescriptTemplate,
-  generateTestTypescriptTemplate,
-} from '../../../scripts/generate-react-templates.js';
+import { generateReactTypescriptTemplate } from '../../../scripts/generate-react-templates.js';
 import {
   getComponent,
   type ComponentDefinition,
@@ -269,18 +266,6 @@ describe('consumer lint baseline (issue #136)', () => {
         `src/components/ui/${name}/${name}.tsx`
       )
     ).toEqual([]);
-  });
-});
-
-describe('generateTestTypescriptTemplate', () => {
-  it('emits the Button test template', () => {
-    expect(
-      generateTestTypescriptTemplate(
-        'Button',
-        'wa-button',
-        BUTTON_FIXTURE.props
-      )
-    ).toMatchSnapshot();
   });
 });
 

@@ -4,7 +4,8 @@
  * Vue Template Generator
  *
  * Generates Vue SFC templates for all components in the registry.
- * Creates TypeScript and JavaScript variants, plus CSS and test files.
+ * Creates TypeScript and JavaScript variants, plus CSS. No test file: the
+ * function harnesses prove the TypeScript Templates (issue #80).
  *
  * Key design decisions:
  * - No named slot bridging: users apply slot="name" directly on children (WA-idiomatic)
@@ -717,7 +718,7 @@ export function generateVueJavascriptTemplate(
 }
 
 // =============================================================================
-// CSS, Test, and File Generation (unchanged logic)
+// CSS and File Generation
 // =============================================================================
 
 export function generateCSSTemplate(componentName: string): string {
@@ -727,41 +728,7 @@ export function generateCSSTemplate(componentName: string): string {
   });
 }
 
-export function generateTestTypescriptTemplate(
-  componentName: string,
-  tagName: string
-): string {
-  return `import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/vue';
-import ${componentName} from './${componentName}.vue';
-
-describe('${componentName}', () => {
-  it('renders without crashing', () => {
-    const { container } = render(${componentName});
-    expect(container.querySelector('${tagName}')).toBeTruthy();
-  });
-});
-`;
-}
-
-export function generateTestJavascriptTemplate(
-  componentName: string,
-  tagName: string
-): string {
-  return `import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/vue';
-import ${componentName} from './${componentName}.vue';
-
-describe('${componentName}', () => {
-  it('renders without crashing', () => {
-    const { container } = render(${componentName});
-    expect(container.querySelector('${tagName}')).toBeTruthy();
-  });
-});
-`;
-}
-
-async function generateComponentTemplates(
+export async function generateComponentTemplates(
   component: ComponentDefinition
 ): Promise<void> {
   const componentDir = path.join(TEMPLATES_DIR, component.name);
@@ -778,24 +745,6 @@ async function generateComponentTemplates(
 
   const css = generateCSSTemplate(component.name);
   await writeFormatted(path.join(componentDir, `${component.name}.css`), css);
-
-  const testTs = generateTestTypescriptTemplate(
-    component.name,
-    component.tagName
-  );
-  await writeFormatted(
-    path.join(componentDir, `${component.name}.test.ts`),
-    testTs
-  );
-
-  const testJs = generateTestJavascriptTemplate(
-    component.name,
-    component.tagName
-  );
-  await writeFormatted(
-    path.join(componentDir, `${component.name}.test.js`),
-    testJs
-  );
 
   console.log(`  ✓ Generated templates for ${component.name}`);
 }

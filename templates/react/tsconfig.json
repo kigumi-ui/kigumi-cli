@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "isolatedModules": true,
-    "types": ["vitest/globals"]
+    "types": []
   },
   // The "**/*.ts" glob picks up any future ambient .d.ts files added under
   // templates/react/. Existing typecheck-shims live outside templates/ and

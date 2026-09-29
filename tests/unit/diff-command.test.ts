@@ -113,17 +113,14 @@ describe('diffCommand', () => {
     // Spies for the residual seams (template / registry / diff-renderer).
     // Modules dynamically imported AFTER vi.resetModules() so the spy wraps
     // the same instance the SUT will see on its own dynamic import. The
-    // non-stubbed template helpers (getComponentExtension / getTestExtension
-    // / getFileBaseName) keep their real behavior.
+    // non-stubbed template helpers (getComponentExtension / getFileBaseName)
+    // keep their real behavior.
     const template = await import('../../src/utils/template.js');
     vi.spyOn(template, 'generateComponent').mockResolvedValue(
       '// generated component'
     );
     vi.spyOn(template, 'generateComponentCSSContent').mockResolvedValue(
       '/* generated css */'
-    );
-    vi.spyOn(template, 'generateComponentTestContent').mockResolvedValue(
-      '// generated test'
     );
 
     const registry = await import('../../src/utils/registry.js');
@@ -235,7 +232,6 @@ describe('diffCommand', () => {
     await installComponent('Button', {
       'Button.tsx': '// generated component',
       'Button.css': '/* generated css */',
-      'Button.test.tsx': '// generated test',
     });
 
     const { diffCommand } = await import('../../src/commands/diff.js');
@@ -245,9 +241,35 @@ describe('diffCommand', () => {
     const unchangedLines = infoMessages().filter((m) =>
       m.includes('unchanged')
     );
-    expect(unchangedLines.length).toBeGreaterThanOrEqual(3);
+    expect(unchangedLines.length).toBeGreaterThanOrEqual(2);
 
     // Summary should say all up to date
+    expect(output.calls).toContainEqual({
+      method: 'success',
+      args: [expect.stringContaining('up to date')],
+    });
+  });
+
+  // `kigumi add` writes no test file (issue #80), so diff neither asks for one
+  // nor reads one the user wrote.
+  it.each<{ label: string; extra: Record<string, string> }>([
+    { label: 'no test file', extra: {} },
+    {
+      label: "the user's own test file",
+      extra: { 'Button.test.tsx': "// the user's own test" },
+    },
+  ])('reports up to date beside $label', async ({ extra }) => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// generated component',
+      'Button.css': '/* generated css */',
+      ...extra,
+    });
+
+    const { diffCommand } = await import('../../src/commands/diff.js');
+    await diffCommand([], { cwd: testDir });
+
+    expect(infoMessages().filter((m) => m.includes('.test.'))).toEqual([]);
     expect(output.calls).toContainEqual({
       method: 'success',
       args: [expect.stringContaining('up to date')],
@@ -261,7 +283,6 @@ describe('diffCommand', () => {
     await installComponent('Button', {
       'Button.tsx': '// my custom component code',
       'Button.css': '/* my custom css */',
-      'Button.test.tsx': '// my custom test',
     });
 
     const { diffCommand } = await import('../../src/commands/diff.js');
@@ -270,7 +291,7 @@ describe('diffCommand', () => {
     const changedLines = infoMessages().filter((m) =>
       m.includes('template changed')
     );
-    expect(changedLines.length).toBeGreaterThanOrEqual(3);
+    expect(changedLines.length).toBeGreaterThanOrEqual(2);
   });
 
   // ── Test 5: Missing files → reports missing ──
@@ -284,7 +305,7 @@ describe('diffCommand', () => {
     await diffCommand([], { cwd: testDir });
 
     const missingLines = infoMessages().filter((m) => m.includes('not found'));
-    expect(missingLines.length).toBeGreaterThanOrEqual(3);
+    expect(missingLines.length).toBeGreaterThanOrEqual(2);
   });
 
   // ── Test 6: Summary counts are correct ──
@@ -296,14 +317,12 @@ describe('diffCommand', () => {
     await installComponent('Button', {
       'Button.tsx': '// generated component',
       'Button.css': '/* generated css */',
-      'Button.test.tsx': '// generated test',
     });
 
     // Dialog: changed (different content)
     await installComponent('Dialog', {
       'Dialog.tsx': '// custom dialog code',
       'Dialog.css': '/* custom dialog css */',
-      'Dialog.test.tsx': '// custom dialog test',
     });
 
     const { diffCommand } = await import('../../src/commands/diff.js');
@@ -316,12 +335,12 @@ describe('diffCommand', () => {
     expect(componentCountLine).toBeDefined();
     expect(componentCountLine).toContain('2');
 
-    // Should report template updates available (3 files from Dialog)
+    // Should report template updates available (2 files from Dialog)
     const templateChangedLine = infoMessages().find((m) =>
       m.includes('template updates available')
     );
     expect(templateChangedLine).toBeDefined();
-    expect(templateChangedLine).toContain('3');
+    expect(templateChangedLine).toContain('2');
   });
 
   // ── Test 7: PascalCase normalization ──
@@ -331,7 +350,6 @@ describe('diffCommand', () => {
     await installComponent('Button', {
       'Button.tsx': '// generated component',
       'Button.css': '/* generated css */',
-      'Button.test.tsx': '// generated test',
     });
 
     const { diffCommand } = await import('../../src/commands/diff.js');
@@ -354,12 +372,10 @@ describe('diffCommand', () => {
     await installComponent('Button', {
       'Button.tsx': '// generated component',
       'Button.css': '/* generated css */',
-      'Button.test.tsx': '// generated test',
     });
     await installComponent('Dialog', {
       'Dialog.tsx': '// custom dialog',
       'Dialog.css': '/* custom dialog css */',
-      'Dialog.test.tsx': '// custom dialog test',
     });
 
     const { diffCommand } = await import('../../src/commands/diff.js');
@@ -385,7 +401,6 @@ describe('diffCommand', () => {
     await installComponent('Button', {
       'Button.tsx': '// generated component',
       'Button.css': '/* generated css */',
-      'Button.test.tsx': '// generated test',
     });
 
     // Also create a directory for a custom (non-registry) component
@@ -442,12 +457,10 @@ describe('diffCommand', () => {
     await installComponent('Button', {
       'Button.tsx': '// my installed component',
       'Button.css': '/* generated css */',
-      'Button.test.tsx': '// generated test',
     });
     await createSnapshot('Button', {
       'Button.tsx': '// my installed component',
       'Button.css': '/* generated css */',
-      'Button.test.tsx': '// generated test',
     });
 
     const { diffCommand } = await import('../../src/commands/diff.js');
@@ -467,7 +480,6 @@ describe('diffCommand', () => {
     await installComponent('Button', {
       'Button.tsx': '// generated component',
       'Button.css': '/* generated css */',
-      'Button.test.tsx': '// generated test',
     });
 
     const { diffCommand } = await import('../../src/commands/diff.js');

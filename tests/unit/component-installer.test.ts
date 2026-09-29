@@ -129,8 +129,8 @@ describe('ComponentInstaller', () => {
     // Spies for the residual seams. Modules dynamically imported AFTER
     // vi.resetModules() so the spy wraps the same instance the SUT will
     // see on its own dynamic import. The real getComponentExtension /
-    // getTestExtension / getFileBaseName implementations match what the
-    // prior factory stub returned for the React framework.
+    // getFileBaseName implementations match what the prior factory stub
+    // returned for the React framework.
     const template = await import('../../src/utils/template.js');
     vi.spyOn(template, 'generateComponent').mockResolvedValue(
       '// generated component'
@@ -138,16 +138,9 @@ describe('ComponentInstaller', () => {
     vi.spyOn(template, 'generateComponentCSSContent').mockResolvedValue(
       '/* generated css */'
     );
-    vi.spyOn(template, 'generateComponentTestContent').mockResolvedValue(
-      '// generated test'
-    );
     vi.spyOn(template, 'getComponentCSSPath').mockImplementation(
       (comp, config, cwd) =>
         path.join(cwd, config.componentsDir, comp.name, `${comp.name}.css`)
-    );
-    vi.spyOn(template, 'getComponentTestPath').mockImplementation(
-      (comp, config, cwd) =>
-        path.join(cwd, config.componentsDir, comp.name, `${comp.name}.test.tsx`)
     );
     vi.spyOn(template, 'updateComponentIndex').mockResolvedValue(undefined);
 
@@ -275,8 +268,7 @@ describe('ComponentInstaller', () => {
     const installedDir = path.join(testDir, 'src/components/Button');
     const snapshotDir = path.join(testDir, '.kigumi/snapshots/Button');
     const installed = (await fs.readdir(installedDir)).sort();
-    // Premise: both files were written (this project has no test runner,
-    // so no test file is generated).
+    // Premise: both files were written.
     expect(installed).toEqual(['Button.css', 'Button.tsx']);
     expect((await fs.readdir(snapshotDir)).sort()).toEqual(installed);
     for (const file of installed) {
@@ -285,6 +277,32 @@ describe('ComponentInstaller', () => {
         file
       ).toBe(await fs.readFile(path.join(installedDir, file), 'utf-8'));
     }
+  });
+
+  it('drops a test file from an older snapshot when it overwrites', async () => {
+    // Projects installed before issue #80 have a test file in the snapshot;
+    // the CLI no longer manages one, so the snapshot stops carrying it.
+    const componentDir = path.join(testDir, 'src/components/Button');
+    const snapshotDir = path.join(testDir, '.kigumi/snapshots/Button');
+    await fs.outputFile(path.join(componentDir, 'Button.tsx'), '// edited');
+    await fs.outputFile(path.join(componentDir, 'Button.css'), '/* css */');
+    await fs.outputFile(path.join(snapshotDir, 'Button.tsx'), '// old');
+    await fs.outputFile(path.join(snapshotDir, 'Button.test.tsx'), '// old');
+
+    const { installer } = await createInstaller(testDir);
+    await installer.installComponents(
+      ['Button'],
+      createTestAddOptions({ force: true, yes: true })
+    );
+
+    // Premise: the force run overwrote the Template.
+    expect(
+      await fs.readFile(path.join(componentDir, 'Button.tsx'), 'utf-8')
+    ).toBe('// generated component');
+    expect((await fs.readdir(snapshotDir)).sort()).toEqual([
+      'Button.css',
+      'Button.tsx',
+    ]);
   });
 
   // ── Test 4: User declines prompt -> file unchanged, snapshot unchanged ──

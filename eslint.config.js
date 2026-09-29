@@ -79,7 +79,7 @@ export default tseslint.config(
   {
     files: ['templates/**/*.{ts,tsx,js,jsx}'],
     rules: {
-      // Which globals exist (DOM, vitest) is each consumer's own setup, which
+      // Which globals exist (the DOM) is each consumer's own setup, which
       // this repo does not mirror. typescript-eslint already turns it off for
       // .ts/.tsx, so this only differs from a consumer for .js/.jsx.
       'no-undef': 'off',

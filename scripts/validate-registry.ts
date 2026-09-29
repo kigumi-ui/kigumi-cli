@@ -25,6 +25,7 @@ import {
   type ComponentDefinition,
 } from '../src/utils/registry.js';
 import { toKebabCase } from '../src/utils/naming.js';
+import { getTemplateFileNames } from '../src/utils/template.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -172,40 +173,7 @@ async function validateTemplateFiles(
     return errors;
   }
 
-  // Check for required template files
-  const extensions: Record<string, string[]> = {
-    react: ['tsx', 'jsx'],
-    vue: ['vue', 'js.vue'],
-    angular: ['component.ts'],
-  };
-
-  const testExtensions: Record<string, string[]> = {
-    react: ['test.tsx', 'test.jsx'],
-    vue: ['test.ts', 'test.js'],
-    angular: ['component.spec.ts'],
-  };
-
-  const requiredFiles: string[] = [];
-
-  // Angular uses kebab-case file names
-  const fileName =
-    framework === 'angular' ? toKebabCase(component.name) : component.name;
-
-  // Component files
-  for (const ext of extensions[framework]) {
-    requiredFiles.push(`${fileName}.${ext}`);
-  }
-
-  // Test files
-  for (const ext of testExtensions[framework]) {
-    requiredFiles.push(`${fileName}.${ext}`);
-  }
-
-  const cssName =
-    framework === 'angular'
-      ? `${fileName}.component.css`
-      : `${component.name}.css`;
-  requiredFiles.push(cssName);
+  const requiredFiles = getTemplateFileNames(framework, component.name);
 
   for (const file of requiredFiles) {
     const filePath = path.join(componentDir, file);

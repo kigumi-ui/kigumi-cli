@@ -32,5 +32,11 @@ Template does not regenerate them and does not edit the Starter component
 list. Generated-fresh Check D (Starter fixture CSS vs Template CSS) remains a
 CSS drift guard, not function or type proof.
 
+"As they are" means the component set, not the bytes. A fixture records what
+`kigumi add` writes into the starter, so it follows a change to that output
+like any other: when `add` stopped writing per-Template tests (issue #80), the
+six spec fixtures only `add` had written went with it. That keeps the record
+true; it neither grows nor shrinks the contract.
+
 A later change that "fixes" missing catalogue coverage by adding every
 Template to the starters is reversing this decision.

@@ -60,7 +60,6 @@ export async function addCommand(components: string[], options?: AddOptions) {
     const validatedOptions = validators.add({
       force: options?.force ?? false,
       all: options?.all ?? false,
-      tests: options?.tests ?? true,
       typescript: options?.typescript,
       yes: options?.yes,
       cwd: options?.cwd,

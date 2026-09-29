@@ -7,15 +7,14 @@
  * `@awesome.me/webawesome-pro`.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import {
   generateComponent,
   generateComponentCSS,
-  generateComponentTest,
-  generateComponentTestContent,
+  getTemplateFileNames,
   getTemplatePath,
   materializeTemplate,
   updateComponentIndex,
@@ -25,7 +24,6 @@ import {
   WEB_AWESOME_PRO_PACKAGE,
 } from '../../src/constants.js';
 import { getComponent } from '../../src/utils/registry.js';
-import type { ComponentDefinition } from '../../src/utils/registry.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
 
 describe('template utilities', () => {
@@ -451,248 +449,19 @@ describe('template utilities', () => {
     });
   });
 
-  describe('generateComponentTest', () => {
-    it('should generate React test file', async () => {
-      const button = getComponent('button');
-      expect(button).toBeDefined();
-
-      if (!button) return;
-
-      const config: KigumiConfig = {
-        framework: 'react',
-        typescript: true,
-        componentsDir: 'src/components',
-        utilsDir: 'src/lib',
-        stylesDir: 'src/styles',
-        theme: {
-          selected: 'awesome',
-          palette: 'sky',
-          brandColor: '#0ea5e9',
-        },
-      };
-
-      await generateComponentTest(button, config, testDir);
-
-      const testPath = path.join(
-        testDir,
-        'src/components/Button/Button.test.tsx'
-      );
-      expect(await fs.pathExists(testPath)).toBe(true);
-
-      const content = await fs.readFile(testPath, 'utf-8');
-      expect(content).toContain('describe');
-      expect(content).toContain('Button');
-    });
-
-    it('should generate Vue test file', async () => {
-      const button = getComponent('button');
-      expect(button).toBeDefined();
-
-      if (!button) return;
-
-      const config: KigumiConfig = {
-        framework: 'vue',
-        typescript: true,
-        componentsDir: 'src/components',
-        utilsDir: 'src/lib',
-        stylesDir: 'src/styles',
-        theme: {
-          selected: 'awesome',
-          palette: 'sky',
-          brandColor: '#0ea5e9',
-        },
-      };
-
-      await generateComponentTest(button, config, testDir);
-
-      const testPath = path.join(
-        testDir,
-        'src/components/Button/Button.test.ts'
-      );
-      expect(await fs.pathExists(testPath)).toBe(true);
-
-      const content = await fs.readFile(testPath, 'utf-8');
-      expect(content).toContain('describe');
-      expect(content).toContain('Button');
-    });
-
-    it('should handle TypeScript vs JavaScript', async () => {
-      const input = getComponent('input');
-      expect(input).toBeDefined();
-
-      if (!input) return;
-
-      // TypeScript test
-      const tsConfig: KigumiConfig = {
-        framework: 'react',
-        typescript: true,
-        componentsDir: 'src/components',
-        utilsDir: 'src/lib',
-        stylesDir: 'src/styles',
-        theme: {
-          selected: 'awesome',
-          palette: 'sky',
-          brandColor: '#0ea5e9',
-        },
-      };
-
-      await generateComponentTest(input, tsConfig, path.join(testDir, 'ts'));
-
-      const tsTestPath = path.join(
-        testDir,
-        'ts/src/components/Input/Input.test.tsx'
-      );
-      expect(await fs.pathExists(tsTestPath)).toBe(true);
-
-      // JavaScript test
-      const jsConfig: KigumiConfig = {
-        framework: 'react',
-        typescript: false,
-        componentsDir: 'src/components',
-        utilsDir: 'src/lib',
-        stylesDir: 'src/styles',
-        theme: {
-          selected: 'awesome',
-          palette: 'sky',
-          brandColor: '#0ea5e9',
-        },
-      };
-
-      await generateComponentTest(input, jsConfig, path.join(testDir, 'js'));
-
-      const jsTestPath = path.join(
-        testDir,
-        'js/src/components/Input/Input.test.jsx'
-      );
-      expect(await fs.pathExists(jsTestPath)).toBe(true);
-    });
-  });
-
-  describe('generateComponentTestContent - Angular kebab-case template lookup', () => {
-    // Regression guard against a bug where the Angular test-template lookup
-    // used PascalCase filenames (ButtonGroup.component.spec.ts) while the
-    // actual template files use kebab-case (button-group.component.spec.ts).
-    // On case-insensitive macOS the lookup coincidentally succeeded; on
-    // case-sensitive Linux CI it fell through to the inline fallback generator,
-    // producing different output per OS.
-    it('probes the kebab-case filename for multi-word Angular components', async () => {
-      const buttonGroup = getComponent('button-group');
-      expect(buttonGroup).not.toBeNull();
-
-      const angularConfig: KigumiConfig = {
-        framework: 'angular',
-        typescript: true,
-        componentsDir: 'src/components',
-        utilsDir: 'src/lib',
-        stylesDir: 'src/styles',
-        theme: {
-          selected: 'awesome',
-          palette: 'sky',
-          brandColor: '#0ea5e9',
-        },
-      };
-
-      const pathExistsSpy = vi.spyOn(fs, 'pathExists');
-      try {
-        await generateComponentTestContent(
-          buttonGroup as ComponentDefinition,
-          angularConfig
-        );
-
-        const checkedPaths = pathExistsSpy.mock.calls.map(
-          (call) => call[0] as string
-        );
-        const testTemplatePaths = checkedPaths.filter((p) =>
-          p.endsWith('.component.spec.ts')
-        );
-
-        expect(testTemplatePaths.length).toBeGreaterThan(0);
-        expect(testTemplatePaths.every((p) => p.includes('button-group'))).toBe(
-          true
-        );
-        expect(
-          testTemplatePaths.some((p) => /ButtonGroup\.component\.spec/.test(p))
-        ).toBe(false);
-      } finally {
-        pathExistsSpy.mockRestore();
+  // The files a committed Template directory holds, and so the only files
+  // `kigumi add` can copy: no per-Template test (issue #80).
+  describe('getTemplateFileNames', () => {
+    it.each([
+      ['react', ['ButtonGroup.tsx', 'ButtonGroup.jsx', 'ButtonGroup.css']],
+      ['vue', ['ButtonGroup.vue', 'ButtonGroup.js.vue', 'ButtonGroup.css']],
+      ['angular', ['button-group.component.ts', 'button-group.component.css']],
+    ] as const)(
+      'names the %s files of a multi-word component',
+      (framework, files) => {
+        expect(getTemplateFileNames(framework, 'ButtonGroup')).toEqual(files);
       }
-    });
-
-    it('keeps non-Angular frameworks on the PascalCase filename', async () => {
-      const buttonGroup = getComponent('button-group');
-      expect(buttonGroup).not.toBeNull();
-
-      const reactConfig: KigumiConfig = {
-        framework: 'react',
-        typescript: true,
-        componentsDir: 'src/components',
-        utilsDir: 'src/lib',
-        stylesDir: 'src/styles',
-        theme: {
-          selected: 'awesome',
-          palette: 'sky',
-          brandColor: '#0ea5e9',
-        },
-      };
-
-      const pathExistsSpy = vi.spyOn(fs, 'pathExists');
-      try {
-        await generateComponentTestContent(
-          buttonGroup as ComponentDefinition,
-          reactConfig
-        );
-
-        const checkedPaths = pathExistsSpy.mock.calls.map(
-          (call) => call[0] as string
-        );
-        const testTemplatePaths = checkedPaths.filter(
-          (p) => p.endsWith('.test.tsx') || p.endsWith('.test.ts')
-        );
-
-        expect(testTemplatePaths.length).toBeGreaterThan(0);
-        expect(
-          testTemplatePaths.every((p) => p.includes('ButtonGroup.test'))
-        ).toBe(true);
-      } finally {
-        pathExistsSpy.mockRestore();
-      }
-    });
-  });
-
-  describe('generateComponentTestContent - React fallback', () => {
-    it('queries the wa-* element by tag name and asserts className', async () => {
-      const fake: ComponentDefinition = {
-        name: 'NonexistentComponent',
-        tagName: 'wa-nonexistent',
-        category: 'test',
-        description: 'synthetic fixture for fallback test',
-        dependencies: [],
-        files: { react: [] },
-        props: [],
-        importPath:
-          '@awesome.me/webawesome/dist/components/nonexistent/nonexistent.js',
-        tier: 'free',
-      };
-
-      const config: KigumiConfig = {
-        framework: 'react',
-        typescript: true,
-        componentsDir: 'src/components',
-        utilsDir: 'src/lib',
-        stylesDir: 'src/styles',
-        theme: {
-          selected: 'awesome',
-          palette: 'sky',
-          brandColor: '#0ea5e9',
-        },
-      };
-
-      const content = await generateComponentTestContent(fake, config);
-
-      expect(content).toContain("container.querySelector('wa-nonexistent')");
-      expect(content).not.toContain("container.querySelector('.custom-class')");
-      expect(content).toMatch(/\.className.*toContain\(['"]custom-class['"]\)/);
-    });
+    );
   });
 
   describe('framework-specific generation', () => {

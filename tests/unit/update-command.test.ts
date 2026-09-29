@@ -122,9 +122,6 @@ describe('updateCommand', () => {
     vi.spyOn(template, 'generateComponentCSSContent').mockResolvedValue(
       '/* generated css */'
     );
-    vi.spyOn(template, 'generateComponentTestContent').mockResolvedValue(
-      '// generated test'
-    );
 
     const registry = await import('../../src/utils/registry.js');
     vi.spyOn(registry, 'getComponent').mockImplementation(
@@ -432,6 +429,39 @@ describe('updateCommand', () => {
       'utf-8'
     );
     expect(content).toBe('// generated component');
+  });
+
+  // A project installed before issue #80 still has a test file and its
+  // snapshot. The CLI no longer ships one, so the file is the user's.
+  it('leaves a test file alone in force mode, even with a snapshot of it', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// user customized content',
+      'Button.css': '/* custom css */',
+      'Button.test.tsx': "// the user's own test",
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// original base',
+      'Button.css': '/* original css */',
+      'Button.test.tsx': '// test the CLI used to ship',
+    });
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir, force: true });
+
+    const componentDir = path.join(testDir, 'src/components/Button');
+    // Premise: the force run did overwrite the Template.
+    expect(
+      await fs.readFile(path.join(componentDir, 'Button.tsx'), 'utf-8')
+    ).toBe('// generated component');
+    expect(
+      await fs.readFile(path.join(componentDir, 'Button.test.tsx'), 'utf-8')
+    ).toBe("// the user's own test");
+    expect(infoMessages().filter((m) => m.includes('.test.'))).toEqual([]);
+    // The snapshot is the merge base for managed files only.
+    expect(
+      (await fs.readdir(path.join(testDir, '.kigumi/snapshots/Button'))).sort()
+    ).toEqual(['Button.css', 'Button.tsx']);
   });
 
   // ── Test 11: Specific component names filter ──

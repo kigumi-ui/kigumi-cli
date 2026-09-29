@@ -64,7 +64,7 @@ node dist/index.js add button --force
 | `scripts/guard-outcome.ts` | Shared reporting vocabulary for CEM-dependent guards: `summarizeGuard()` keeps "did it pass" and "did it actually run" as separate facts; `skipPermitted()` decides where an absent manifest may be tolerated. Consumed by `check-generated-fresh.ts` and `validate-cem-sync.ts`. See `docs/adr/0003` |
 | `scripts/is-entry-point.ts` | `isEntryPoint(import.meta.url)`: true only when the script is the process entry point. Compares real paths, so an absolute invocation through a symlinked directory still runs `main()` instead of exiting 0 silently. Used by the parser, the React/Angular generators (issue #106) and the skill-reference generator (issue #129) |
 | `scripts/check-commit-attribution.ts` | `commit-msg` hook: rejects AI attribution trailers (`Co-Authored-By: Claude`/`Cursor`, `Generated/Made/Created with ...`). Prose mentioning Claude is deliberately allowed. `--pr` mode (`validate:attribution`, CI `attribution` job) checks the PR body and every branch commit, since squash merges copy them onto main server-side (issue #97) |
-| `scripts/check-generated-fresh.ts` | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx`/`.js.vue` stay within `.tsx`/`.vue`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs/Pro typecheck shim in a tmp copy + diff) requires a CEM covering every registry component; a partial one is refused and an unverified run is never reported as a pass (issue #43). Runs in CI's own `freshness` job |
+| `scripts/check-generated-fresh.ts` | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx`/`.js.vue` stay within `.tsx`/`.vue`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs/Pro typecheck shim in a tmp copy + diff; the copy's generator output is cleared first and the Template trees are compared both ways, so a committed Template no generator writes is drift as much as one that differs, issue #80) requires a CEM covering every registry component; a partial one is refused and an unverified run is never reported as a pass (issue #43). Runs in CI's own `freshness` job |
 | `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
 | `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
 | `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
@@ -80,14 +80,14 @@ node dist/index.js add button --force
 | `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
 | `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (7 checks: version, component counts, pro list, template dirs, test files, prose count claims in `templates/AGENTS.md`, and no "Last Updated" stamp or changelog in any tracked AGENTS.md/CLAUDE.md) |
 | `scripts/validate-cem-sync.ts` | `validate:cem-sync`. Two halves, reported separately: component presence (committed `COMPONENT_METADATA` vs registry, always runs) and the manifest half (needs a complete CEM): prop-value drift (registry enums vs CEM attribute types), attribute-name drift (`checkAttributeDrift()`, issue #100) and deprecation drift (`checkDeprecationDrift()`, `KIGUMI_DEPRECATIONS` for Kigumi-side deprecations, issue #133). Only a run where both halves were verified prints a pass (issue #43, `docs/adr/0003`). The manifest half runs in CI's `freshness` job |
-| `scripts/validate-changes.ts` | Validate changeset entries |
+| `scripts/validate-changes.ts` | No manual-edit markers in generated files, no known anti-patterns. Template file completeness is `validate:templates`' job |
 | `scripts/validate-gha-permissions.ts` | Fail when a job running `actions/checkout` declares a job-level `permissions:` block without a readable `contents:`. Job-level blocks replace the workflow-level one rather than merging (the PR #173 regression) |
 | `scripts/validate-no-secrets.ts` | `validate:no-secrets`, CI: fail on a tracked file holding a provider-prefixed credential (Chromatic `chpt_`, npm, GitHub, Slack, AWS, OpenAI, Anthropic, Stripe live keys), a tracked `.env` (`.env.example` is fine), or an absolute home-directory path. Prefix matching, not entropy; obvious placeholders pass. The Chromatic token lives in the `CHROMATIC_PROJECT_TOKEN` secret, never in `docs/package.json` |
 | `scripts/validate-parity.ts` | Validate React/Vue/Angular template parity |
 | `scripts/validate-registry.ts` | Validate registry definitions are complete |
 | `scripts/validate-story-lanes.ts` | Check the shared interaction-lane story list against the stories actually tagged `interaction`, in both directions |
 | `scripts/validate-fixture-exclusions.ts` | Check that `.prettierignore`, `eslint.config.js` and `tsconfig.tests.json` all exclude `tests/fixtures/starter-snapshots` (recorded CLI output that must not be reformatted) |
-| `scripts/validate-templates.ts` | Validate template rendering for all components |
+| `scripts/validate-templates.ts` | Every registry component's Template directory holds exactly `getTemplateFileNames()`, no per-Template test (issue #80); dotfiles such as `.DS_Store` are skipped. No Template holds a stray `{{...}}` token |
 | `scripts/validate-wa-pins.ts` | Validate the six Web Awesome version pins agree, are exact, and that the newest VERSION_MAP entry matches `DEFAULT_WEBAWESOME_VERSION` |
 | `scripts/check-starter-wa-version.ts` | Starter job step: fail when the starter's installed Web Awesome is older than `DEFAULT_WEBAWESOME_VERSION`; a starter without Web Awesome installed fails too (issue #138) |
 | `scripts/verify-test-app.ts` | Verify test app output after build |
@@ -138,7 +138,7 @@ End-user skills are published to `kigumi.style/.well-known/skills/` via Vercel. 
 
 **NEVER edit generated code. ALWAYS update the templates under `templates/`.**
 
-Templates are real framework source files (`.tsx`, `.jsx`, `.vue`, `.component.ts`, `.test.*`). They are validated by `tsc` and `eslint` like any other source file. The CLI substitutes only one thing at runtime — the Free→Pro tier swap on the `@awesome.me/webawesome` import path; everything else is read verbatim.
+Templates are real framework source files (`.tsx`, `.jsx`, `.vue`, `.component.ts`, `.css`). They are validated by `tsc` and `eslint` like any other source file. The function harnesses in `tests/unit/` prove the TypeScript Templates against the CEM, and Check C holds each JavaScript variant to its TypeScript sibling; there is no per-Template test (issue #80). The CLI substitutes only one thing at runtime — the Free→Pro tier swap on the `@awesome.me/webawesome` import path; everything else is read verbatim.
 
 ```
 Edit template → pnpm build → node dist/index.js add {component} --force → Test
@@ -464,9 +464,9 @@ flowchart TD
     end
 
     subgraph Templates["templates/"]
-        tpl_react["react/ — 89 components\n.tsx, .jsx\n.test.tsx, .test.jsx, .css"]
-        tpl_vue["vue/ — 89 components\n.vue, .js.vue\n.test.ts, .test.js, .css"]
-        tpl_angular["angular/ — 89 components\n.component.ts, .component.spec.ts, .component.css"]
+        tpl_react["react/ — 89 components\n.tsx, .jsx, .css"]
+        tpl_vue["vue/ — 89 components\n.vue, .js.vue, .css"]
+        tpl_angular["angular/ — 89 components\n.component.ts, .component.css"]
     end
 
     CLI --> Commands
@@ -556,7 +556,7 @@ sequenceDiagram
     Tpl->>FS: read template file from templates/{framework}/{Component}/
     Tpl->>Tpl: replaceAll free-package → pro-package (if Pro tier)
     Tpl-->>CLI: GeneratedFile[]
-    CLI->>FS: write .tsx/.vue + .test + .css
+    CLI->>FS: write .tsx/.vue + .css
     CLI->>Tpl: updateComponentIndex (barrel export)
     CLI-->>User: Added 1 component(s)
 
@@ -596,7 +596,6 @@ flowchart LR
 
     subgraph Output
         COMP[".tsx / .jsx / .vue / .js.vue"]
-        TEST[".test.tsx / .test.jsx / .test.ts / .test.js"]
         CSS[".css (read verbatim — no substitution)"]
         INDEX["index.ts barrel export\nupdateComponentIndex"]
     end
@@ -605,7 +604,7 @@ flowchart LR
     CFG --> TierResolution
     DETECT --> PKG --> READ
     SRC --> READ
-    READ --> COMP & TEST
+    READ --> COMP
     CSS -.-> COMP
     COMP --> INDEX
 ```
@@ -746,7 +745,7 @@ START: Change affects tier detection or packages
 ### Checklist: Before Committing Template Changes
 
 - [ ] **Edited the framework template (not generated code)**
-  - Path: `templates/{framework}/{ComponentName}/*.{tsx,jsx,vue,js.vue,component.ts,test.*}`
+  - Path: `templates/{framework}/{ComponentName}/*.{tsx,jsx,vue,js.vue,component.ts,css}`
   - All frameworks: React AND Vue AND Angular
   - All variants: TypeScript AND JavaScript (Angular is TS-only)
 
@@ -765,7 +764,7 @@ START: Change affects tier detection or packages
   - JavaScript: Default import, JSDoc
 
 - [ ] **Updated tests**
-  - Unit: Template rendering test
+  - Function: the React, Vue and Angular function harnesses (`*-function-harness-registry.test.ts`) prove every TypeScript Template from its metadata, and `validate:generated-fresh` Check C holds the `.jsx` / `.js.vue` to it; there is no per-Template test to write
   - Integration: Compile-check test
   - Snapshot: Visual regression (if applicable)
 
@@ -789,17 +788,13 @@ START: Change affects tier detection or packages
 - [ ] **Templates created (all frameworks)**
   - `templates/react/{ComponentName}/{ComponentName}.tsx`
   - `templates/react/{ComponentName}/{ComponentName}.jsx`
-  - `templates/react/{ComponentName}/{ComponentName}.test.tsx`
-  - `templates/react/{ComponentName}/{ComponentName}.test.jsx`
   - `templates/react/{ComponentName}/{ComponentName}.css`
   - `templates/vue/{ComponentName}/{ComponentName}.vue`
   - `templates/vue/{ComponentName}/{ComponentName}.js.vue`
-  - `templates/vue/{ComponentName}/{ComponentName}.test.ts`
-  - `templates/vue/{ComponentName}/{ComponentName}.test.js`
   - `templates/vue/{ComponentName}/{ComponentName}.css`
   - `templates/angular/{ComponentName}/{kebab-name}.component.ts`
-  - `templates/angular/{ComponentName}/{kebab-name}.component.spec.ts`
   - `templates/angular/{ComponentName}/{kebab-name}.component.css`
+  - Nothing else: `pnpm validate:templates` fails on any other file, a per-Template test included (issue #80)
 
 - [ ] **Validation passed**
   - `pnpm validate:registry` → ✅

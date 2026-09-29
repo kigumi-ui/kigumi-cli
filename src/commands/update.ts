@@ -21,9 +21,7 @@ import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
   generateComponentCSSContent,
-  generateComponentTestContent,
   getComponentExtension,
-  getTestExtension,
   getFileBaseName,
 } from '../utils/template.js';
 import { loadSnapshot, saveSnapshot } from '../utils/snapshot.js';
@@ -254,17 +252,15 @@ async function processComponent(
 
   // Determine file extensions
   const ext = getComponentExtension(config.framework, config.typescript);
-  const testExt = getTestExtension(config.framework, config.typescript);
 
   const componentDir = path.join(cwd, config.componentsDir, component.name);
 
   // Build file list: { fileName, oursPath, generateTheirs }
-  const fileSpecs = await buildFileSpecs(
+  const fileSpecs = buildFileSpecs(
     component,
     config,
     componentDir,
     ext,
-    testExt,
     cwd,
     tier,
     isNext,
@@ -367,10 +363,16 @@ async function processComponent(
 
     // Save updated snapshot
     if (hasWrites || Object.keys(snapshotUpdates).length > 0) {
-      // Merge with existing snapshot
+      // Merge with the existing snapshot, keeping only the files this
+      // command manages: a file it no longer writes has no merge base to keep.
       const existingSnapshot = (await loadSnapshot(cwd, componentName)) ?? {};
+      const managedSnapshot = Object.fromEntries(
+        Object.entries(existingSnapshot).filter(([fileName]) =>
+          fileSpecs.some((spec) => spec.fileName === fileName)
+        )
+      );
       await saveSnapshot(cwd, componentName, {
-        ...existingSnapshot,
+        ...managedSnapshot,
         ...snapshotUpdates,
       });
     }
@@ -388,17 +390,16 @@ interface FileSpec {
 /**
  * Build the list of files to process for a component.
  */
-async function buildFileSpecs(
+function buildFileSpecs(
   component: ComponentDefinition,
   config: KigumiConfig,
   componentDir: string,
   ext: string,
-  testExt: string,
   cwd: string,
   tier: Tier,
   isNext: boolean,
   nextRouter: NextRouter | undefined
-): Promise<FileSpec[]> {
+): FileSpec[] {
   const specs: FileSpec[] = [];
   const fileBaseName = getFileBaseName(config.framework, component.name);
 
@@ -429,17 +430,6 @@ async function buildFileSpecs(
     oursPath: path.join(componentDir, cssFileName),
     generateTheirs: () => generateComponentCSSContent(component, config),
   });
-
-  // Test file
-  const testFileName = `${fileBaseName}.${testExt}`;
-  const testPath = path.join(componentDir, testFileName);
-  if (await fs.pathExists(testPath)) {
-    specs.push({
-      fileName: testFileName,
-      oursPath: testPath,
-      generateTheirs: () => generateComponentTestContent(component, config),
-    });
-  }
 
   return specs;
 }

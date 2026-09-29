@@ -22,9 +22,7 @@ import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
   generateComponentCSSContent,
-  generateComponentTestContent,
   getComponentExtension,
-  getTestExtension,
   getFileBaseName,
 } from '../utils/template.js';
 import { loadSnapshot } from '../utils/snapshot.js';
@@ -266,25 +264,6 @@ async function diffComponentFiles(
     );
   } catch (_error) {
     results.push({ fileName: cssFileName, status: 'missing' });
-  }
-
-  // Test file
-  const testExt = getTestExtension(config.framework, config.typescript);
-  const testFileName = `${fileBaseName}.${testExt}`;
-  const testFilePath = path.join(componentDir, testFileName);
-  try {
-    const generatedTest = await generateComponentTestContent(component, config);
-    const snapshotContent = snapshot?.[testFileName] ?? null;
-    results.push(
-      await compareFile(
-        testFilePath,
-        testFileName,
-        generatedTest,
-        snapshotContent
-      )
-    );
-  } catch (_error) {
-    results.push({ fileName: testFileName, status: 'missing' });
   }
 
   return results;
