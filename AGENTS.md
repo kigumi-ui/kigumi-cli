@@ -985,14 +985,7 @@ git push -u origin HEAD
 gh pr create --draft --title "feat: my feature" --body-file body.md
 ```
 
-The PR body becomes the squash commit on main, so it is written as history:
-a summary and four sections, per `.github/PULL_REQUEST_TEMPLATE.md`. Review
-rounds and evidence go in the PR log, one new comment per push. Use the
-`pr-log` skill when opening a PR and after every push to one; `pr-body.yml`
-and the `pr-log` status enforce it (`docs/adr/0006`). When `/code-review`
-runs on a PR, give its Spec sub-agent the PR body and the log comments too,
-and have it report body claims the diff does not back and user-facing
-changes the body omits.
+The PR body becomes the squash commit on main, so it is written as history: a summary and four sections, per `.github/PULL_REQUEST_TEMPLATE.md`. Review rounds and evidence go in the PR log, one new comment per push. Use the `pr-log` skill when opening a PR and after every push to one; `pr-body.yml` and the `pr-log` status enforce it (`docs/adr/0006`). When `/code-review` runs on a PR, give its Spec sub-agent the PR body and the log comments too, and have it report body claims the diff does not back and user-facing changes the body omits.
 
 **Step 4: Wait for CI, review, merge**
 
