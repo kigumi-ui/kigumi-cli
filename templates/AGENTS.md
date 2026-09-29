@@ -450,25 +450,3 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 ---
 
 **Parent:** [AGENTS.md](../AGENTS.md)
-
-**Last Updated:** 2026-09-28
-
-- 87 templates per framework after WA 3.13.0 (OtpInput, Pagination, TagInput)
-
-- component-count claims in this file are now enforced by validate:agents
-- the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
-- Vue templates forward through `hostAttributes()` with `inheritAttrs: false` and clean up listeners in `onBeforeUnmount`. Found by the Vue function harness: multi-word props rendered as camelCase attributes, a `false` boolean rendered as `attr="false"`, and listeners never removed, issue #76
-- every Angular Template resolves `#element` with `{ static: true }`: reactive forms write the initial value and disabled state before the first view check, which the non-static query dropped. Found by the Angular function harness, issue #77
-- `on*` props (IntersectionObserver's `once`) are written from `ngOnChanges`, since Angular refuses them as template bindings and the Template did not compile. Found by the Angular function harness, issue #77
-- a value form control reads on `input` only where its CEM declares that event, else on `change`: Rating's accessor listened for `input`, which `wa-rating` never dispatches, so forms never saw a user's pick. Found by the Angular function harness, issue #77
-- rule 11: `spellcheck` and `autocorrect` are enumerated attributes, written as their keyword for `false` instead of dropped, via the registry prop's `keywords` in all three generators and by hand in four `.jsx` files; previously neither could be turned off in Vue or Angular, and React wrote `autocorrect={false}` as `"false"` (React 18, read as on) and `autocorrect` as a bare attribute (React 19 without a native property, read as off), issue #101
-- rule 11: the generators share `enumeratedProps()` / `keywordPairLiteral()` / `keywordExpression()` from `scripts/generator-utils.ts`, and every emitted or hand-maintained copy spells a keyword pair as the registry's named `{ true, false }` shape instead of a positional tuple, review follow-up on issue #101
-- rule 12: a registry prop with `deprecated` stays in every Template and carries a JSDoc `@deprecated` tag written by `propJsdocLines()`; RadarChart's `stacked`, `grid`, `min` and `max` are the first, removal tracked in #130, issue #129
-- rule 12: recorded why deprecation carries no runtime `console.warn` (compile-time-only signal, by design, not an oversight) — a second-opinion review on #129 flagged the gap against a JS/no-language-server consumer, issue #129
-- rule 12: QrCode `fill` / `background` are deprecated in every Template (Web Awesome deprecates them for CSS `color` / `background-color`), and their registry defaults are `''` as in the CEM, so the `.js.vue` no longer writes `fill="black"` over the CSS fallback, issue #133
-- rule 13: Templates pass `@eslint/js` + typescript-eslint `recommended` with default options, the baseline consumer configs build on: no `any` (a default-only CEM parameter is typed from its default; Vue types its element ref and casts a model sync to the one property it touches), no empty `interface` / `defineEmits<{}>()`, no unused `emit`; a prop-less Vue wrapper exports `type XProps = object`. `no-undef` is the one exception. The repo had turned `no-explicit-any` and `no-empty-object-type` off for `templates/**`, so a default create-vite project failed where `pnpm lint` passed. Typecheck Pipeline gained `typecheck:templates:pro`, which checks the Vue Templates against the real Pro package in CI, issue #136
-- rule 3a: handlers are typed with the Web Awesome event class the component dispatches (`WaHideEvent`, imported from `dist/events/`), or the DOM interface for a native event; never `CustomEvent`. The accordion override and the refuse-rather-than-fallback rule are documented there, issue #6
-- rule 3a: listeners pass `e` uncast when the handler type is `Event` (`handlerArgument()`), and the Carousel/Checkbox `.jsx` JSDoc handler types follow the `.tsx`, held there by event-type-parity.test.ts, review follow-up on issue #6
-- 89 templates per framework after WA 3.14.0 (Step, Stepper). Angular Stepper / Step share the pre-existing host-element composition gap with TabGroup, Accordion and Carousel (a `k-*` child is invisible to a parent that filters slotted elements by `wa-*` tag), tracked in #146, issue #108
-- method signatures follow the metadata's `optional` flag in React, Vue and Angular alike (Stepper `goTo(name)` is required everywhere, `focus(options?)` optional everywhere); the React JSDoc ref example calls a method that takes no required argument, issue #108
-- `.jsx` prop docs: a hand-maintained `.jsx` that lists its props, as a typedef or as `@param props.*`, names every registry prop, test-enforced for both forms; TimeInput and KnownDate had missed props from #101 and #102, issue #102

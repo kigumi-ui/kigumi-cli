@@ -78,7 +78,7 @@ node dist/index.js add button --force
 | `tools/eslint-plugin-kigumi/` | Local ESLint plugin (plain directory, imported by relative path from `eslint.config.js`, not an npm package, no workspace). Rules are `.js` so `pnpm lint` needs no build step. Tested via RuleTester in `tests/unit/eslint-rules/` |
 | `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
 | `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
-| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (6 checks: version, component counts, pro list, template dirs, test files, and prose count claims in `templates/AGENTS.md`) |
+| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (7 checks: version, component counts, pro list, template dirs, test files, prose count claims in `templates/AGENTS.md`, and no "Last Updated" stamp or changelog in any tracked AGENTS.md/CLAUDE.md) |
 | `scripts/validate-cem-sync.ts` | `validate:cem-sync`. Two halves, reported separately: component presence (committed `COMPONENT_METADATA` vs registry, always runs) and the manifest half (needs a complete CEM): prop-value drift (registry enums vs CEM attribute types), attribute-name drift (`checkAttributeDrift()`, issue #100) and deprecation drift (`checkDeprecationDrift()`, `KIGUMI_DEPRECATIONS` for Kigumi-side deprecations, issue #133). Only a run where both halves were verified prints a pass (issue #43, `docs/adr/0003`). The manifest half runs in CI's `freshness` job |
 | `scripts/validate-changes.ts` | Validate changeset entries |
 | `scripts/validate-gha-permissions.ts` | Fail when a job running `actions/checkout` declares a job-level `permissions:` block without a readable `contents:`. Job-level blocks replace the workflow-level one rather than merging (the PR #173 regression) |
@@ -825,7 +825,7 @@ The code/registry side is guarded by validators (`validate:cem-sync`, `validate:
 - [ ] **Removed CSS custom properties / parts**: grep repo-wide for the removed name; also confirm it is absent from `kigumi-theme` references
 - [ ] **Theme token docs**: re-validate `.claude/skills/kigumi-theme/references/css-variables.md` and `available-themes.md` against the new `dist/styles/themes/default.css` and palette/theme file listing; bump the "Source:" footer version
 - [ ] **Skill tables**: new components reflected in the relevant `kigumi-compose-*` skills; regenerated `.claude/skills/shared/*-api-surface.md` committed
-- [ ] **AGENTS.md sync**: component counts + "Last Updated" date and a new footer bullet in root, `src/`, `templates/`, `tests/` AGENTS.md — `templates/AGENTS.md` is the one that historically gets missed
+- [ ] **AGENTS.md sync**: component counts in root, `src/`, `templates/`, `tests/` AGENTS.md — `templates/AGENTS.md` is the one that historically gets missed
 - [ ] **Storybook grid**: new components added to `StorybookComponentGrid.tsx` + thumbnail PNGs
 - [ ] **Zero-warning gate**: `pnpm validate:cem-sync` must pass with 0 warnings (new unwrapped components and new attributes on wrapped components must be consciously triaged, not left warning: surface the attribute as a registry prop, or add a `backfill`/`intentional` entry to `COMPONENT_ATTRIBUTE_ALLOWLIST` with a reason). An attribute Web Awesome removed leaves its allowlist entry stale, which is an error: delete the entry. An attribute Web Awesome newly deprecates warns until its registry prop carries `deprecated` (in Kigumi's own words)
 - [ ] **Runtime-backed `intentional` entries**: some `COMPONENT_ATTRIBUTE_ALLOWLIST` entries rest on how the build behaves, not on the CEM, so `validate:cem-sync` stays green when a bump changes that. The comments above `INERT_ON_AXISLESS_CHART` and `COMPONENT_ATTRIBUTE_ALLOWLIST` in `scripts/validate-cem-sync.ts` list them: when a bump touches one of those components, re-check them against the new build and surface any attribute that now works
@@ -1097,54 +1097,3 @@ pnpm release-readiness:quick         # skip e2e
 - **Source:** [src/AGENTS.md](src/AGENTS.md) - Code architecture details
 - **Tests:** [tests/AGENTS.md](tests/AGENTS.md) - Testing guidelines
 - **Kigumi Studio:** [docs/src/kigumi-studio/AGENTS.md](docs/src/kigumi-studio/AGENTS.md) - Visual theme builder
-
----
-
-**Maintained by:** AI Assistants | **Last Updated:** 2026-09-29
-
-- the CSS-template emitter is one shared generateCssTemplate in scripts/generator-utils.ts rather than three copies; the Angular copy had drifted and silently ignored cssInfo.docsUrl, see issue #30
-- the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
-- validate:cem-sync no longer reports success for work it did not do: the prop-value half requires a complete CEM and runs in the `freshness` job, guard reporting shared via scripts/guard-outcome.ts, see docs/adr/0003
-- CEM resolution unified in scripts/find-cem.ts as resolveCem(), scoped to one root -- the skill-reference generator's own copy, which walked up to the main worktree, is gone
-- validate:generated-fresh Check A now requires a complete CEM, never reports an unverified run as a pass, and runs in CI's own ungated `freshness` job
-- scripts/** path filter added, issue #43
-- validators, external links and upstream versions now run on the weekly maintenance cron, so drift caused by the outside world moving is visible without anyone editing a file
-- the two upstream checks report via an issue and never fail the build
-- committed credentials blocked via validate:no-secrets, and the Chromatic project token moved out of docs/package.json into CHROMATIC_PROJECT_TOKEN
-- local eslint-plugin-kigumi scaffold added under tools/
-- validate:agents now covers templates/AGENTS.md count claims
-- GHA job permissions enforced via validate:gha-permissions
-- commit attribution enforced via a husky commit-msg hook
-- story interaction lanes derive from one shared list
-- fixture exclusions enforced across the three ignore lists
-- 87 components
-- Web Awesome pin 3.13.0: wrap otp-input, pagination, tag-input; allowlist Pro data-grid
-- superpowers state-files and the Second Brain protocol retired in favour of the mattpocock-skills workflow
-- event handler types now resolve through one shared mapEventType keyed on the DOM event name, see docs/adr/0001
-- the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
-- `ComponentMetadata` and the CSS-metadata interfaces are declared once in `src/utils/metadata-types.ts`; generated metadata modules re-export them, issue #34
-- resolveCem takes an optional `{ tier }`, so the Dialog function harness reads the Free CEM through the root-scoped funnel instead of a Node package walk (ADR 0003), issue #74
-- CI `attribution` job (`validate:attribution`) fails a PR whose body or commits carry an AI attribution trailer; squash merges copied two Cursor Agent trailers onto main past the local hook, issue #97
-- scripts/is-entry-point.ts: parse-custom-elements and the React/Angular generators decide "run main()" on real paths; the plain argv[1] compare skipped main() and exited 0 when invoked through a symlink, issue #106
-- validate:cem-sync checks attribute names, not just enum values: `checkAttributeDrift()` warns on a CEM attribute with no registry prop, and a stale `COMPONENT_ATTRIBUTE_ALLOWLIST` entry is an error; names are kebab-cased on both sides via `toKebabCase`, so camelCase CEM names like `submenuOpen` stay matchable, issue #100
-- `scripts/check-upstream-versions.ts` no longer reports Web Awesome (that's `wa-upgrade`'s job, avoiding a duplicate weekly comment) and reads `scripts/upstream-holds.json` so an already-triaged toolchain major (TypeScript 7, Vitest 5) stops re-firing the weekly comment every week; a hold covers its whole major, not just the exact patch on npm when it was written
-- tier detection has no sync variant any more: commands call `detectTier` once, before their first write, and pass the tier to `regenerateKigumiSetup` / `generateComponent`, where it is now required, issue #121
-- validate:generated-fresh Check C covers Vue: every `.js.vue` emit, host listener and prop must exist in its `.vue`. The `<script setup>` is parsed (Vue's SFC parser, then the TypeScript AST), a declaration it cannot enumerate is a finding rather than an empty set, and a run that compared no Vue Template fails, issue #122
-- Check C's React arm follows the same rule: `checkReactJsVariantSubset()` reports how many `.tsx`/`.jsx` pairs it compared, and a run that compared none fails instead of passing silently, issue #122
-- the Angular `@Output()` naming rule moved from the generator into `toAngularOutputName()` in `src/utils/naming.ts`, shared with the Angular function harness; rule 10 now states it as a class-namespace collision (methods and `@Input()`s) rather than a lifecycle-method one, issue #77
-- form-control attributes the CEM declares are registry props (issue #101); `spellcheck`/`autocorrect` carry `keywords` because Web Awesome reads them by value, so `false` reaches the host as its keyword in React, Vue and Angular (`templates/AGENTS.md` rule 11)
-- `scripts/generator-utils.ts` gained the enumerated-boolean emitters shared by all three generators, so a keyword pair has one spelling (`{ true, false }`, never positional) across every Template, issue #101
-- registry props can be `deprecated`: they stay in every Template with a JSDoc `@deprecated` tag (`templates/AGENTS.md` rule 12) and removal waits for a major; RadarChart's `stacked`/`grid`/`min`/`max` are deprecated (#129), removal tracked in #130
-- validate:cem-sync checks deprecation drift: a prop the CEM deprecates must be `deprecated` in the registry (warning), and a registry deprecation the CEM does not share must be recorded in `KIGUMI_DEPRECATIONS` (error); QrCode `fill` / `background` deprecated as the first catch, issue #133
-- Vercel builds docs and Storybook only when something they render or serve changed: `ignoreCommand` in both `vercel.json` runs `scripts/vercel-ignore-build.mjs`, since building every push exhausted the free deployment quota in a day
-- `scripts/check-starter-wa-version.ts` (`check:starter-wa-version`) fails the Starter job when a starter's installed Web Awesome is older than `DEFAULT_WEBAWESOME_VERSION`, and the version-bump checklist has a Starters item. The nine-component contract of docs/adr/0004 stays: those nine all exist in Web Awesome 3.6.0, which is how the starters sat on 3.6.0 while the CLI targeted 3.13.0 without CI noticing, issue #138
-- `eslint.config.js` no longer turns `@eslint/js` / typescript-eslint `recommended` rules off for `templates/**` (`no-undef` excepted): Templates are linted as a consumer's project lints them, enforced by `tests/unit/eslint-rules/templates-consumer-rules.test.ts` (`templates/AGENTS.md` rule 13); CI's `freshness` job also runs `typecheck:templates:pro`, the Vue Templates against the real Pro types, issue #136
-- event handler types are the Web Awesome class each component dispatches, resolved once by `scripts/event-types.ts` from `dist/events/*.d.ts` into the metadata (`eventType`, `eventTypeModule`); `mapEventType` is gone, generators read the metadata and import via `formatEventTypeImports()`. Custom events are no longer `CustomEvent`, see docs/adr/0005, issue #6
-- event-type review follow-up (issue #6): the prebuild freshness gate also compares against `dist/events/*.d.ts`, the parser's second input; the resolver refuses a declared payload on a class whose `detail` it cannot read and a native event declared `CustomEvent`; listeners pass `e` uncast for `Event` via `handlerArgument()`; the docs-site UI wrappers, stories and landing components type handlers with the Web Awesome classes (imported from the Pro package) instead of `CustomEvent`
-- Web Awesome pin 3.14.0 (kigumi 1.3.0 in VERSION_MAP): 89 components, wrap step and stepper; new registry props for combobox server mode, divider label-placement, page nonce and zoomable-frame allow/name/label, issue #108
-- the event resolver refuses a non-`wa-` manifest event typed with a Web Awesome event class: every class hard-codes its `wa-` name, so the event never fires (the analyzer names it after the constructor argument). Known ones live in `MANIFEST_EVENT_ARTIFACTS` in `scripts/event-types.ts` and `resolveEvents()` drops them; Web Awesome 3.14 would otherwise have shipped `onDetail` on Stepper and `onRequest` on Combobox. Stale entries are judged against what the manifest describes, so a free-only parse no longer fails on the Pro-only entries, see `docs/adr/0005`, issue #108
-- method parameters carry the CEM's optionality: the parser writes `optional: true` (flagged optional or defaulted, and nothing required after it) and React, Vue, Angular and the Pro shim all format signatures through `formatParameters()`. React and Vue used to require every argument and Angular none, issue #108
-- `init` pins `DEFAULT_WEBAWESOME_VERSION`, the version the Templates target, instead of the version-map entry for `CLI_VERSION`, which between a bump and its release names the previous Web Awesome; the Pro typecheck shim has a `generate:pro-shim` script and is part of Check A, issue #108
-- the Web Awesome bump checklist re-checks the runtime-backed `intentional` allowlist entries (chart x/y axes, Carousel `slides` / `currentSlide`, QrCode `image-padding`, DropdownItem `submenuOpen`): they rest on how the build behaves, not on the CEM, so `validate:cem-sync` cannot notice a bump that makes one work, issue #102
-- the Free consumer tsc covers React, Vue and Angular plus a Next ambient-declaration pass (`tests/e2e/free-consumer-tsc-*.test.ts`, issue #78). Angular's scaffold is pinned as `ANGULAR_CLI_VERSION` in `src/constants.ts`, and `check-upstream-versions.ts` reads every scaffold pin from `SCAFFOLD_PINS`, so the new pin is tracked like `CREATE_VITE_VERSION`; Angular 22 is held until #156
-- review follow-up on #78: `check-upstream-versions.ts` imports the scaffold pins from `src/constants.ts` instead of parsing the file, and `groupStatus()` prints a group whose registry lookup failed as not checked; it used to print the scaffolders and the toolchain as current when npm could not be reached, against docs/adr/0003
