@@ -13,12 +13,14 @@
  * - Template diagram lists all frameworks with correct counts
  * - Test file count and list completeness in tests/AGENTS.md
  * - Component-count claims in templates/AGENTS.md prose match the registry
+ * - No AGENTS.md or CLAUDE.md carries a "Last Updated" stamp or a changelog
  *
  * USAGE:
  *   pnpm validate:agents
  *   tsx scripts/validate-agents.ts
  */
 
+import { execFileSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -297,6 +299,70 @@ async function checkTemplateGuideCounts(): Promise<string[]> {
 }
 
 // ---------------------------------------------------------------------------
+// Check: No history in agent context files
+// ---------------------------------------------------------------------------
+
+/**
+ * A "Last Updated" date stamp: `**Last Updated:** 2026-09-28`, the older
+ * `**Last Updated**: 2026-01-09`, and non-ISO forms such as `29/09/2026` or
+ * `Sep 29, 2026`, also after `on` / `as of`. Keyed on the date that follows,
+ * so prose that merely names the rule ("no Last Updated date") does not match.
+ */
+const DATE_STAMP =
+  /last updated\W{0,6}(?:(?:on|as of)\s+)?(?:\d|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d)/i;
+
+/** A heading that opens a changelog section. */
+const CHANGELOG_HEADING =
+  /^#{1,6}\s+(change\s*log|update\s*log|history|recent changes|revision history)\b/i;
+
+/**
+ * Finds history in an agent context file, as `line N: text` entries.
+ *
+ * Every AGENTS.md used to end in a changelog that each PR appended to. All
+ * PRs appended after the same last line, so every pair of open PRs touching
+ * the same file conflicted there, and every agent loaded the whole history on
+ * every task. History lives in git and the PR; these files state what is true
+ * now. Pure, so the matcher is table-tested without touching disk.
+ */
+export function findHistory(content: string): string[] {
+  return content
+    .split('\n')
+    .map((line, index) => ({ line, number: index + 1 }))
+    .filter(({ line }) => DATE_STAMP.test(line) || CHANGELOG_HEADING.test(line))
+    .map(({ line, number }) => `line ${number}: ${line.trim()}`);
+}
+
+export function checkHistoryFree(content: string, filename: string): string[] {
+  return findHistory(content).map(
+    (hit) =>
+      `${filename} carries history (${hit}). Delete it: history belongs in ` +
+      `git log and the PR, and an appended footer conflicts with every other open PR`
+  );
+}
+
+export async function checkNoHistory(root = PROJECT_ROOT): Promise<string[]> {
+  // Every tracked file, so a new AGENTS.md is covered without a list to edit.
+  const files = execFileSync(
+    'git',
+    ['ls-files', '--', ':(glob)**/AGENTS.md', ':(glob)**/CLAUDE.md'],
+    { cwd: root, encoding: 'utf-8' }
+  )
+    .split('\n')
+    .filter(Boolean);
+
+  if (!files.includes('AGENTS.md')) {
+    return ['git ls-files found no root AGENTS.md, so no file was checked'];
+  }
+
+  const errors: string[] = [];
+  for (const file of files) {
+    const content = await fs.readFile(path.join(root, file), 'utf-8');
+    errors.push(...checkHistoryFree(content, file));
+  }
+  return errors;
+}
+
+// ---------------------------------------------------------------------------
 // Check: Test file count and completeness
 // ---------------------------------------------------------------------------
 
@@ -335,6 +401,17 @@ async function checkTestFiles(): Promise<string[]> {
 // Main
 // ---------------------------------------------------------------------------
 
+/** Every check `validate:agents` runs, exported so the wiring is testable. */
+export const AGENTS_CHECKS = [
+  { name: 'Version', fn: checkVersion },
+  { name: 'Component counts', fn: checkComponentCounts },
+  { name: 'Pro component list', fn: checkProComponents },
+  { name: 'Template directories', fn: checkTemplateDirs },
+  { name: 'Test files', fn: checkTestFiles },
+  { name: 'Template guide counts', fn: checkTemplateGuideCounts },
+  { name: 'No history in agent context', fn: checkNoHistory },
+];
+
 export async function validateAgents(): Promise<ValidationResult> {
   const result: ValidationResult = {
     passed: true,
@@ -349,16 +426,7 @@ export async function validateAgents(): Promise<ValidationResult> {
 
   console.log(pc.cyan('\n🔍 Validating AGENTS.md files...\n'));
 
-  const checks = [
-    { name: 'Version', fn: checkVersion },
-    { name: 'Component counts', fn: checkComponentCounts },
-    { name: 'Pro component list', fn: checkProComponents },
-    { name: 'Template directories', fn: checkTemplateDirs },
-    { name: 'Test files', fn: checkTestFiles },
-    { name: 'Template guide counts', fn: checkTemplateGuideCounts },
-  ];
-
-  for (const check of checks) {
+  for (const check of AGENTS_CHECKS) {
     result.stats.checksRun++;
     const checkErrors = await check.fn();
     if (checkErrors.length > 0) {

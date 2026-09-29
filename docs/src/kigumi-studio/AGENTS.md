@@ -48,15 +48,15 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 
 ## Key Files
 
-| File                          | Purpose                                       |
-| ----------------------------- | --------------------------------------------- |
-| `contexts/StudioContext.tsx`  | State management (~43 properties, light/dark) |
-| `lib/property-definitions.ts` | Property metadata (43 definitions)            |
-| `lib/defaults.ts`             | Default values from Web Awesome               |
-| `lib/css-parser.ts`           | Parse `:root {}` and `.wa-dark {}` blocks     |
-| `lib/css-generator.ts`        | Generate CSS output                           |
-| `lib/preset-loader.ts`        | Load preset CSS files via `import.meta.glob`  |
-| `themes/*.css`                | Preset theme CSS files                        |
+| File | Purpose |
+| --- | --- |
+| `contexts/StudioContext.tsx` | State management (~43 properties, light/dark) |
+| `lib/property-definitions.ts` | Property metadata (43 definitions) |
+| `lib/defaults.ts` | Default values from Web Awesome |
+| `lib/css-parser.ts` | Parse `:root {}` and `.wa-dark {}` blocks |
+| `lib/css-generator.ts` | Generate CSS output |
+| `lib/preset-loader.ts` | Load preset CSS files via `import.meta.glob` |
+| `themes/*.css` | Preset theme CSS files |
 
 ## Testing
 

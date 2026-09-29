@@ -4,8 +4,7 @@
 
 ## Agent Instructions
 
-All detailed rules, architecture, decision trees, and checklists are in [AGENTS.md](AGENTS.md).
-Sub-guides: [src/AGENTS.md](src/AGENTS.md) | [templates/AGENTS.md](templates/AGENTS.md) | [tests/AGENTS.md](tests/AGENTS.md)
+All detailed rules, architecture, decision trees, and checklists are in [AGENTS.md](AGENTS.md). Sub-guides: [src/AGENTS.md](src/AGENTS.md) | [templates/AGENTS.md](templates/AGENTS.md) | [tests/AGENTS.md](tests/AGENTS.md)
 
 **Read AGENTS.md at the start of any non-trivial task.**
 
@@ -36,19 +35,7 @@ When you modify commands, utils, schemas, or project structure, you MUST also up
 - **Test structure changes** → Update `tests/AGENTS.md`
 - **Workflow/checklist changes** → Update `AGENTS.md` (Checklists section)
 
-Update the "Last Updated" footer at the bottom of any AGENTS.md you modify: set
-the date, and **append your change as a new bullet** to the list under it.
-
-```markdown
-**Last Updated:** 2026-09-19
-
-- what you changed, and why it matters, issue #NN
-```
-
-One bullet per change, newest at the bottom. Never fold the list back into a
-single line: git merges line by line, so a one-line footer makes every pair of
-PRs touching the same AGENTS.md conflict on it. Resolve a footer conflict by
-keeping **both** sides' bullets, never `--ours`/`--theirs`.
+Describe the current state, never the history. No "Last Updated" date, no changelog, no "added in #NN" log: history lives in `git log`, the PR body (the squash commit on main) and the PR's comment thread. Every PR appending at the same spot conflicts with every other open PR, and every agent pays the tokens for it on each task. `pnpm validate:agents` rejects a `Last Updated` line or a changelog heading in any AGENTS.md or CLAUDE.md.
 
 ## Development Workflow
 
@@ -87,24 +74,19 @@ Single-context: root `CONTEXT.md` plus `docs/adr/`. See `docs/agents/domain.md`.
 
 ### Workflow skills
 
-Engineering process runs on the `mattpocock-skills` plugin. There is no
-superpowers/state directory and no Second Brain protocol; both were retired.
+Engineering process runs on the `mattpocock-skills` plugin. There is no superpowers/state directory and no Second Brain protocol; both were retired.
 
-| Situation                                     | Skill                                                          |
-| --------------------------------------------- | -------------------------------------------------------------- |
-| New feature, big enough to span sessions      | `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` |
-| New feature, fits in one session              | `/grill-with-docs` → `/implement`                              |
-| Something is broken                           | `/diagnosing-bugs`                                             |
-| Incoming bug report or request                | `/triage`                                                      |
-| Before merging anything                       | `/code-review`                                                 |
-| Spare capacity, want to find unknown problems | `/improve-codebase-architecture`                               |
-| A term or boundary is fuzzy                   | `/domain-modeling`                                             |
-| Designing a module's shape                    | `/codebase-design`                                             |
+| Situation | Skill |
+| --- | --- |
+| New feature, big enough to span sessions | `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` |
+| New feature, fits in one session | `/grill-with-docs` → `/implement` |
+| Something is broken | `/diagnosing-bugs` |
+| Incoming bug report or request | `/triage` |
+| Before merging anything | `/code-review` |
+| Spare capacity, want to find unknown problems | `/improve-codebase-architecture` |
+| A term or boundary is fuzzy | `/domain-modeling` |
+| Designing a module's shape | `/codebase-design` |
 
-`/improve-codebase-architecture` is the replacement for the old audit cycle
-that produced the F-XXX finding lists: it surfaces deepening opportunities
-rather than bug inventories. Findings that need tracking become GitHub issues.
+`/improve-codebase-architecture` is the replacement for the old audit cycle that produced the F-XXX finding lists: it surfaces deepening opportunities rather than bug inventories. Findings that need tracking become GitHub issues.
 
-Kigumi's own domain skills (`kigumi-react`/`vue`/`angular`, the four
-`kigumi-compose-*`, `generate-*`, `apply-theme-to-figma`, `kigumi-theme`,
-`kigumi-cross-framework`, `release`, `release-readiness`) are unaffected.
+Kigumi's own domain skills (`kigumi-react`/`vue`/`angular`, the four `kigumi-compose-*`, `generate-*`, `apply-theme-to-figma`, `kigumi-theme`, `kigumi-cross-framework`, `release`, `release-readiness`) are unaffected.

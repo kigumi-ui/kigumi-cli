@@ -207,12 +207,7 @@ import React from 'react';
 const { forwardRef, useRef, useEffect } = React;
 ```
 
-**`.jsx` prop docs:** `pnpm generate:templates` does not write the `.jsx`, so a
-new registry prop has to be added to it by hand. Where a `.jsx` documents its
-props, as a `<Name>Props` `@typedef` or as an `@param {Object} props` list,
-that list names every registry prop. `tests/unit/template-registry-props.test.ts`
-pins which files use which form (`JSX_PROPS_TYPEDEFS`, `JSX_PROPS_PARAMS`) and
-fails on a missing prop (issue #102).
+**`.jsx` prop docs:** `pnpm generate:templates` does not write the `.jsx`, so a new registry prop has to be added to it by hand. Where a `.jsx` documents its props, as a `<Name>Props` `@typedef` or as an `@param {Object} props` list, that list names every registry prop. `tests/unit/template-registry-props.test.ts` pins which files use which form (`JSX_PROPS_TYPEDEFS`, `JSX_PROPS_PARAMS`) and fails on a missing prop (issue #102).
 
 ### 3. Event Naming Convention
 
@@ -240,11 +235,11 @@ fails on a missing prop (issue #102).
 
 A handler is typed with the metadata's `eventType`, which `scripts/parse-custom-elements.ts` resolves through `scripts/event-types.ts`. No generator picks a type (ADR 0005):
 
-| Event                            | Handler type                                     | Import                                                     |
-| -------------------------------- | ------------------------------------------------ | ---------------------------------------------------------- |
-| Custom (`wa-hide`)               | The Web Awesome class dispatched (`WaHideEvent`) | `import type { WaHideEvent } from '…/dist/events/hide.js'` |
-| Native, manifest declares a type | That type (FileInput `input` is `Event`)         | none, DOM global                                           |
-| Native, no declared type         | `NATIVE_EVENT_TYPES` (`blur` is `FocusEvent`)    | none, DOM global                                           |
+| Event | Handler type | Import |
+| --- | --- | --- |
+| Custom (`wa-hide`) | The Web Awesome class dispatched (`WaHideEvent`) | `import type { WaHideEvent } from '…/dist/events/hide.js'` |
+| Native, manifest declares a type | That type (FileInput `input` is `Event`) | none, DOM global |
+| Native, no declared type | `NATIVE_EVENT_TYPES` (`blur` is `FocusEvent`) | none, DOM global |
 
 Web Awesome's classes extend `Event`, not `CustomEvent`, so never type a handler `CustomEvent`. The accordion dispatches `WaAccordionExpandEvent` under `wa-expand`, a name registered to Details' `WaExpandEvent`; that case is pinned in `EVENT_CLASS_OVERRIDES`. An event neither rule types stops the parser instead of falling back.
 
@@ -264,22 +259,11 @@ useEffect(() => {
 
 ### 5. Dialog/Drawer use the `open` attribute, not imperative methods
 
-WA's `wa-dialog` / `wa-drawer` `show()` and `requestClose()` methods are
-declared `private` in WA's `.d.ts` (and emitted as `privacy: 'private'`
-in the CEM). `parse-custom-elements.ts` correctly drops private members,
-so `COMPONENT_METADATA.dialog.methods` and `.drawer.methods` are empty
-arrays. All three framework wrappers reflect that and converge on the
-attribute-based open/close pattern:
+WA's `wa-dialog` / `wa-drawer` `show()` and `requestClose()` methods are declared `private` in WA's `.d.ts` (and emitted as `privacy: 'private'` in the CEM). `parse-custom-elements.ts` correctly drops private members, so `COMPONENT_METADATA.dialog.methods` and `.drawer.methods` are empty arrays. All three framework wrappers reflect that and converge on the attribute-based open/close pattern:
 
-- **React** (`templates/react/Dialog/Dialog.tsx`): `DialogRef` exposes
-  only `element`. No `show`/`hide`/`requestClose`.
-- **Angular** (`templates/angular/Dialog/dialog.component.ts`): no public
-  methods on `DialogComponent`. Generated from current metadata via
-  `scripts/generate-angular-templates.ts`.
-- **Vue** (`templates/vue/Dialog/Dialog.vue`): `defineExpose({ element })`
-  only. The previous `defineExpose({ show, requestClose })` against an
-  `as any` cast has been removed (F-143). Generated from current
-  metadata via `scripts/generate-vue-templates.ts`.
+- **React** (`templates/react/Dialog/Dialog.tsx`): `DialogRef` exposes only `element`. No `show`/`hide`/`requestClose`.
+- **Angular** (`templates/angular/Dialog/dialog.component.ts`): no public methods on `DialogComponent`. Generated from current metadata via `scripts/generate-angular-templates.ts`.
+- **Vue** (`templates/vue/Dialog/Dialog.vue`): `defineExpose({ element })` only. The previous `defineExpose({ show, requestClose })` against an `as any` cast has been removed (F-143). Generated from current metadata via `scripts/generate-vue-templates.ts`.
 
 To programmatically open or close a dialog, toggle the `open` attribute:
 
@@ -299,11 +283,7 @@ To programmatically open or close a dialog, toggle the `open` attribute:
 <Dialog v-model:open="isOpen">…</Dialog>
 ```
 
-This is the WA-recommended API and matches the framework-agnostic shape
-of the underlying web component. Same applies to `wa-drawer`. Markdown's
-`getMarked()` and `updateAll()` are also private in WA 3.5.0; neither
-Angular nor Vue wrapper exposes them. Vue keeps `renderMarkdown()` (still
-public in WA) on `defineExpose`.
+This is the WA-recommended API and matches the framework-agnostic shape of the underlying web component. Same applies to `wa-drawer`. Markdown's `getMarked()` and `updateAll()` are also private in WA 3.5.0; neither Angular nor Vue wrapper exposes them. Vue keeps `renderMarkdown()` (still public in WA) on `defineExpose`.
 
 ### 6. Omit Conflicting HTMLAttributes
 
@@ -337,159 +317,60 @@ const setAvatarRef = useCallback((el: WaAvatar | null) => {
 <wa-avatar ref={setAvatarRef} ...>
 ```
 
-**Why:** Web Awesome's JSX augmentation declares `ref?: T | ((e: T) => void)`
-on every `<wa-X>` tag. This shape is framework-agnostic (Vue/Solid-style)
-and does NOT accept React's `RefObject<T>` from `useRef<T>(null)`. A
-`useCallback` setter with stable identity satisfies the `(e: T) => void`
-branch.
+**Why:** Web Awesome's JSX augmentation declares `ref?: T | ((e: T) => void)` on every `<wa-X>` tag. This shape is framework-agnostic (Vue/Solid-style) and does NOT accept React's `RefObject<T>` from `useRef<T>(null)`. A `useCallback` setter with stable identity satisfies the `(e: T) => void` branch.
 
-This is generator-side; never edit the emitted ref pattern by hand. Edit
-`scripts/generate-react-templates.ts` instead.
+This is generator-side; never edit the emitted ref pattern by hand. Edit `scripts/generate-react-templates.ts` instead.
 
 ### 10. Vue host forwarding and listener cleanup (issue #76)
 
-Every Vue template sets `defineOptions({ inheritAttrs: false })` and binds
-`v-bind="hostAttributes()"` on the `<wa-X>` host, with `class` bound
-separately. `hostAttributes()` merges fallthrough `$attrs` and declared props:
+Every Vue template sets `defineOptions({ inheritAttrs: false })` and binds `v-bind="hostAttributes()"` on the `<wa-X>` host, with `class` bound separately. `hostAttributes()` merges fallthrough `$attrs` and declared props:
 
-- **`false` never reaches the host.** WA reads attribute presence as true.
-  Vue gives every absent optional Boolean prop the value `false`, and would
-  render a fallthrough `false` as `attr="false"`. `aria-*` / `data-*` keep
-  `false`, since `"false"` is a real value there. Boolean models bind as
-  `:open="open || undefined"` / `:checked="model || undefined"` for the same
-  reason.
-- **Props go back to kebab-case.** Vue camelizes declared prop keys
-  (`with-caret` -> `withCaret`). Until the element upgrades (WA loads lazily
-  on mount), Vue writes that key as the attribute `withcaret`, which WA never
-  reads.
-- **A plain function, not `computed`.** `attrs` is tracked per property read,
-  so a `computed` over an empty `attrs` would miss an attribute added later.
+- **`false` never reaches the host.** WA reads attribute presence as true. Vue gives every absent optional Boolean prop the value `false`, and would render a fallthrough `false` as `attr="false"`. `aria-*` / `data-*` keep `false`, since `"false"` is a real value there. Boolean models bind as `:open="open || undefined"` / `:checked="model || undefined"` for the same reason.
+- **Props go back to kebab-case.** Vue camelizes declared prop keys (`with-caret` -> `withCaret`). Until the element upgrades (WA loads lazily on mount), Vue writes that key as the attribute `withcaret`, which WA never reads.
+- **A plain function, not `computed`.** `attrs` is tracked per property read, so a `computed` over an empty `attrs` would miss an attribute added later.
 
-Listener cleanup runs in `onBeforeUnmount`, not `onUnmounted`: Vue nulls
-template refs before `onUnmounted` hooks run, so `elementRef.value` is `null`
-there and `removeEventListener` never ran.
+Listener cleanup runs in `onBeforeUnmount`, not `onUnmounted`: Vue nulls template refs before `onUnmounted` hooks run, so `elementRef.value` is `null` there and `removeEventListener` never ran.
 
-All three were found by the Vue function harness
-(`tests/unit/vue-function-harness-registry.test.ts`). Edit
-`scripts/generate-vue-templates.ts`, never the emitted templates.
+All three were found by the Vue function harness (`tests/unit/vue-function-harness-registry.test.ts`). Edit `scripts/generate-vue-templates.ts`, never the emitted templates.
 
 ### 11. Enumerated booleans: `spellcheck` and `autocorrect` (issue #101)
 
-Most WA booleans are presence attributes, so rule 10 drops `false`. Two are
-not: WA reads `spellcheck` as `"true"`/`"false"` and `autocorrect` as
-`"on"`/`"off"`, and a bare attribute reads as false. Dropping `false` leaves
-the element's default (`spellcheck` defaults to on), so these props could not
-be turned off. A registry prop with `keywords: { true, false }` makes every
-generator write the keyword instead, and leave the attribute off only when
-the prop is unset. Such a prop takes no `default`.
+Most WA booleans are presence attributes, so rule 10 drops `false`. Two are not: WA reads `spellcheck` as `"true"`/`"false"` and `autocorrect` as `"on"`/`"off"`, and a bare attribute reads as false. Dropping `false` leaves the element's default (`spellcheck` defaults to on), so these props could not be turned off. A registry prop with `keywords: { true, false }` makes every generator write the keyword instead, and leave the attribute off only when the prop is unset. Such a prop takes no `default`.
 
 - **Angular** binds `[attr.spellcheck]="spellcheck == null ? null : spellcheck ? 'true' : 'false'"`.
-- **Vue** gives the prop an explicit `undefined` default (`withDefaults` in
-  `.vue`, `default: undefined` in `.js.vue`), since Vue casts an absent
-  Boolean to `false`. `hostAttributes()` looks the prop up in the Template's
-  `ENUMERATED_ATTRIBUTES` table and writes `^spellcheck: 'false'`. The `^`
-  forces an attribute even once the upgraded element has a property of that
-  name.
-- **React** pulls the prop out of the rest spread and writes the attribute in
-  an effect via `setEnumeratedAttribute()`. JSX cannot express it. React 19
-  sets `spellcheck` as a DOM property, whose setter coerces `"false"` to true,
-  and writes other booleans as a bare attribute, which WA reads as false. The
-  hand-maintained `.jsx` files and the docs-site wrappers carry the same
-  effect (Input, Textarea, TagInput, Combobox).
+- **Vue** gives the prop an explicit `undefined` default (`withDefaults` in `.vue`, `default: undefined` in `.js.vue`), since Vue casts an absent Boolean to `false`. `hostAttributes()` looks the prop up in the Template's `ENUMERATED_ATTRIBUTES` table and writes `^spellcheck: 'false'`. The `^` forces an attribute even once the upgraded element has a property of that name.
+- **React** pulls the prop out of the rest spread and writes the attribute in an effect via `setEnumeratedAttribute()`. JSX cannot express it. React 19 sets `spellcheck` as a DOM property, whose setter coerces `"false"` to true, and writes other booleans as a bare attribute, which WA reads as false. The hand-maintained `.jsx` files and the docs-site wrappers carry the same effect (Input, Textarea, TagInput, Combobox).
 
-The three generators share one source for what the frameworks have in common:
-`enumeratedProps()`, `keywordPairLiteral()` and `keywordExpression()` in
-`scripts/generator-utils.ts`. Every copy spells a pair with the registry's
-named shape, `{ true: 'on', false: 'off' }`, and reads it as `keywords.true` /
-`keywords.false`, never as a positional `[on, off]` tuple, so a transposed
-pair cannot compile. The per-Template copies are deliberate: a Template is
-copied into a user's project and has no shared runtime to import from.
+The three generators share one source for what the frameworks have in common: `enumeratedProps()`, `keywordPairLiteral()` and `keywordExpression()` in `scripts/generator-utils.ts`. Every copy spells a pair with the registry's named shape, `{ true: 'on', false: 'off' }`, and reads it as `keywords.true` / `keywords.false`, never as a positional `[on, off]` tuple, so a transposed pair cannot compile. The per-Template copies are deliberate: a Template is copied into a user's project and has no shared runtime to import from.
 
-The keyword pairs are pinned in `tests/unit/_helpers/enumerated-boolean-attributes.ts`
-and proven against WA's runtime converters. The function harnesses expect
-them for true and for false, and `enumerated-boolean-templates.test.ts`
-covers every hand-maintained copy (`.jsx`, `.js.vue`, the docs wrappers) and
-prop changes after mount. A new
-enumerated boolean in a WA release fails the pin test until it is pinned and
-its registry prop gets `keywords`.
+The keyword pairs are pinned in `tests/unit/_helpers/enumerated-boolean-attributes.ts` and proven against WA's runtime converters. The function harnesses expect them for true and for false, and `enumerated-boolean-templates.test.ts` covers every hand-maintained copy (`.jsx`, `.js.vue`, the docs wrappers) and prop changes after mount. A new enumerated boolean in a WA release fails the pin test until it is pinned and its registry prop gets `keywords`.
 
 ### 12. Deprecated props keep working and carry `@deprecated` (issue #129)
 
-A prop that should no longer be used is not deleted: that would break every
-consumer still passing it. Its registry entry gets `deprecated: '<what to do
-instead>'` and it stays a prop everywhere. How each surface states it:
+A prop that should no longer be used is not deleted: that would break every consumer still passing it. Its registry entry gets `deprecated: '<what to do instead>'` and it stays a prop everywhere. How each surface states it:
 
-- **React `.tsx`, Angular, docs wrappers**: a JSDoc `@deprecated` tag on the
-  declaration, below the description. `propJsdocLines()` in
-  `scripts/generator-utils.ts` writes it; docs wrappers copy it by hand.
-- **Vue `.vue` and `.js.vue`**: a tag-only `/** @deprecated ... */` line (Vue
-  Templates do not document props), above the interface member or the runtime
-  `defineProps` key. The runtime key's tag survives Vue's component types too.
-- **React `.jsx`**: its `@typedef` is not applied to the component, so a JS
-  consumer gets no per-prop types and nothing can strike the prop through. The
-  `@property` description reads `Deprecated: <message>` instead.
-- **Stories**: the argType `description` reads `**Deprecated.** <message>`,
-  filed under the `Deprecated` table category.
+- **React `.tsx`, Angular, docs wrappers**: a JSDoc `@deprecated` tag on the declaration, below the description. `propJsdocLines()` in `scripts/generator-utils.ts` writes it; docs wrappers copy it by hand.
+- **Vue `.vue` and `.js.vue`**: a tag-only `/** @deprecated ... */` line (Vue Templates do not document props), above the interface member or the runtime `defineProps` key. The runtime key's tag survives Vue's component types too.
+- **React `.jsx`**: its `@typedef` is not applied to the component, so a JS consumer gets no per-prop types and nothing can strike the prop through. The `@property` description reads `Deprecated: <message>` instead.
+- **Stories**: the argType `description` reads `**Deprecated.** <message>`, filed under the `Deprecated` table category.
 
-The message says what to do instead, reachable from where the consumer is: a
-chart's config lives in the `application/json` script inside the chart, so
-RadarChart's messages name that script, and a `RadialScaleFromConfig` story
-shows it. Check the alternative against the real element before it ships.
-`tests/unit/deprecated-props.test.ts` proves the React and both Vue shapes
-reach a consumer's TypeScript, and fails when any of the seven surfaces
-disagrees with the registry, in either direction. Removing the prop is a
-`major` changeset (`### Removed`).
+The message says what to do instead, reachable from where the consumer is: a chart's config lives in the `application/json` script inside the chart, so RadarChart's messages name that script, and a `RadialScaleFromConfig` story shows it. Check the alternative against the real element before it ships. `tests/unit/deprecated-props.test.ts` proves the React and both Vue shapes reach a consumer's TypeScript, and fails when any of the seven surfaces disagrees with the registry, in either direction. Removing the prop is a `major` changeset (`### Removed`).
 
-Deliberately no `console.warn` at runtime: the JSDoc tag only reaches a
-`.tsx`/`.vue` consumer's editor and type-checker, so a `.jsx`/`.js.vue`
-consumer with no language server sees nothing until the prop is removed. A
-runtime warning was considered and rejected — it would fire in every
-consumer's browser console, including the docs site, the Angular function
-harness and every starter fixture, for a prop that still works exactly as
-before. `kigumi update`'s strike-through is the intended signal.
+Deliberately no `console.warn` at runtime: the JSDoc tag only reaches a `.tsx`/`.vue` consumer's editor and type-checker, so a `.jsx`/`.js.vue` consumer with no language server sees nothing until the prop is removed. A runtime warning was considered and rejected — it would fire in every consumer's browser console, including the docs site, the Angular function harness and every starter fixture, for a prop that still works exactly as before. `kigumi update`'s strike-through is the intended signal.
 
 ### 13. Templates pass a consumer's lint (issue #136)
 
-A Template is copied verbatim into a consumer project and linted there, and
-so is its `.kigumi/snapshots/` copy. The consumer configs Kigumi targets
-(create-vite react-ts, create-vue, angular-eslint) share `@eslint/js` +
-typescript-eslint `recommended`, so every Template must pass that baseline
-with default options:
+A Template is copied verbatim into a consumer project and linted there, and so is its `.kigumi/snapshots/` copy. The consumer configs Kigumi targets (create-vite react-ts, create-vue, angular-eslint) share `@eslint/js` + typescript-eslint `recommended`, so every Template must pass that baseline with default options:
 
-- **No `any`.** Type what the code relies on. A CEM parameter without a type
-  is inferred from its default by `paramType()` in
-  `scripts/parse-custom-elements.ts`, else `unknown`. A Vue `elementRef` is
-  typed as the Web Awesome element (as in React), and a model sync casts to
-  the one property it touches, e.g. `HTMLElement & { checked: boolean }`
-  (`modelHost()` in the Vue generator): Pro typecheck shims declare no
-  properties, so the element class cannot carry it.
-- **No empty object types.** A React wrapper that adds no props or events
-  declares `export type XProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>`,
-  not an empty `interface`. A Vue wrapper without props exports
-  `type XProps = object` (the old empty interface's replacement, so imports
-  keep working) and calls no `defineProps`: Vue's compiler rejects empty types
-  such as `object` or `Record<string, never>` as its type argument. A Vue
-  wrapper without events calls no `defineEmits`, since its `emit` would be
-  unused.
-- **No unused variables**, under the rule's default options: no `_` prefix
-  escape, which the repo allows itself outside `templates/`.
+- **No `any`.** Type what the code relies on. A CEM parameter without a type is inferred from its default by `paramType()` in `scripts/parse-custom-elements.ts`, else `unknown`. A Vue `elementRef` is typed as the Web Awesome element (as in React), and a model sync casts to the one property it touches, e.g. `HTMLElement & { checked: boolean }` (`modelHost()` in the Vue generator): Pro typecheck shims declare no properties, so the element class cannot carry it.
+- **No empty object types.** A React wrapper that adds no props or events declares `export type XProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>`, not an empty `interface`. A Vue wrapper without props exports `type XProps = object` (the old empty interface's replacement, so imports keep working) and calls no `defineProps`: Vue's compiler rejects empty types such as `object` or `Record<string, never>` as its type argument. A Vue wrapper without events calls no `defineEmits`, since its `emit` would be unused.
+- **No unused variables**, under the rule's default options: no `_` prefix escape, which the repo allows itself outside `templates/`.
 
-`eslint.config.js` turns none of those rules off for `templates/**` except
-`no-undef`, whose result depends on which globals a project declares (DOM,
-vitest, Vue's compiler macros), not on the Template. typescript-eslint turns
-it off for `.ts`/`.tsx` anyway. `tests/unit/eslint-rules/templates-consumer-rules.test.ts`
-resolves the config for every Template file and fails on any other
-difference, or once the `no-undef` exception no longer excuses anything. The
-generator tests lint their output through `lintAsConsumer()`.
+`eslint.config.js` turns none of those rules off for `templates/**` except `no-undef`, whose result depends on which globals a project declares (DOM, vitest, Vue's compiler macros), not on the Template. typescript-eslint turns it off for `.ts`/`.tsx` anyway. `tests/unit/eslint-rules/templates-consumer-rules.test.ts` resolves the config for every Template file and fails on any other difference, or once the `no-undef` exception no longer excuses anything. The generator tests lint their output through `lintAsConsumer()`.
 
-`kigumi init` adds no lint ignore for `.kigumi/`: snapshots are the Templates
-as written, so they are clean exactly when the Templates are, and an ignore
-would hide a regression rather than stop it.
+`kigumi init` adds no lint ignore for `.kigumi/`: snapshots are the Templates as written, so they are clean exactly when the Templates are, and an ignore would hide a regression rather than stop it.
 
-Framework plugins a consumer adds on top (`eslint-plugin-react-hooks`,
-`eslint-plugin-vue`, angular-eslint's own rules) are not installed here and
-not checked. `eslint-plugin-vue`'s `multi-word-component-names`, in
-create-vue's config, would flag single-word files such as `Button.vue`.
+Framework plugins a consumer adds on top (`eslint-plugin-react-hooks`, `eslint-plugin-vue`, angular-eslint's own rules) are not installed here and not checked. `eslint-plugin-vue`'s `multi-word-component-names`, in create-vue's config, would flag single-word files such as `Button.vue`.
 
 ---
 
@@ -528,13 +409,13 @@ create-vue's config, would flag single-word files such as `Button.vue`.
 
 ## Reference Templates
 
-| Pattern                   | React                            | Vue                              | Angular                          |
-| ------------------------- | -------------------------------- | -------------------------------- | -------------------------------- |
-| Simple                    | `Button/Button.tsx`              | `Button/Button.vue`              | `Button/button.component.ts`     |
-| Complex (events)          | `Dialog/Dialog.tsx`              | `Dialog/Dialog.vue`              | `Dialog/dialog.component.ts`     |
-| Complex (two-way binding) | `Input/Input.tsx`                | `Input/Input.vue`                | `Input/input.component.ts` (CVA) |
-| Portal + methods          | `Toast/Toast.tsx`                | `Toast/Toast.vue`                | `Toast/toast.component.ts`       |
-| Sub-components            | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` |
+| Pattern | React | Vue | Angular |
+| --- | --- | --- | --- |
+| Simple | `Button/Button.tsx` | `Button/Button.vue` | `Button/button.component.ts` |
+| Complex (events) | `Dialog/Dialog.tsx` | `Dialog/Dialog.vue` | `Dialog/dialog.component.ts` |
+| Complex (two-way binding) | `Input/Input.tsx` | `Input/Input.vue` | `Input/input.component.ts` (CVA) |
+| Portal + methods | `Toast/Toast.tsx` | `Toast/Toast.vue` | `Toast/toast.component.ts` |
+| Sub-components | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` |
 
 ---
 
@@ -569,25 +450,3 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 ---
 
 **Parent:** [AGENTS.md](../AGENTS.md)
-
-**Last Updated:** 2026-09-28
-
-- 87 templates per framework after WA 3.13.0 (OtpInput, Pagination, TagInput)
-
-- component-count claims in this file are now enforced by validate:agents
-- the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
-- Vue templates forward through `hostAttributes()` with `inheritAttrs: false` and clean up listeners in `onBeforeUnmount`. Found by the Vue function harness: multi-word props rendered as camelCase attributes, a `false` boolean rendered as `attr="false"`, and listeners never removed, issue #76
-- every Angular Template resolves `#element` with `{ static: true }`: reactive forms write the initial value and disabled state before the first view check, which the non-static query dropped. Found by the Angular function harness, issue #77
-- `on*` props (IntersectionObserver's `once`) are written from `ngOnChanges`, since Angular refuses them as template bindings and the Template did not compile. Found by the Angular function harness, issue #77
-- a value form control reads on `input` only where its CEM declares that event, else on `change`: Rating's accessor listened for `input`, which `wa-rating` never dispatches, so forms never saw a user's pick. Found by the Angular function harness, issue #77
-- rule 11: `spellcheck` and `autocorrect` are enumerated attributes, written as their keyword for `false` instead of dropped, via the registry prop's `keywords` in all three generators and by hand in four `.jsx` files; previously neither could be turned off in Vue or Angular, and React wrote `autocorrect={false}` as `"false"` (React 18, read as on) and `autocorrect` as a bare attribute (React 19 without a native property, read as off), issue #101
-- rule 11: the generators share `enumeratedProps()` / `keywordPairLiteral()` / `keywordExpression()` from `scripts/generator-utils.ts`, and every emitted or hand-maintained copy spells a keyword pair as the registry's named `{ true, false }` shape instead of a positional tuple, review follow-up on issue #101
-- rule 12: a registry prop with `deprecated` stays in every Template and carries a JSDoc `@deprecated` tag written by `propJsdocLines()`; RadarChart's `stacked`, `grid`, `min` and `max` are the first, removal tracked in #130, issue #129
-- rule 12: recorded why deprecation carries no runtime `console.warn` (compile-time-only signal, by design, not an oversight) — a second-opinion review on #129 flagged the gap against a JS/no-language-server consumer, issue #129
-- rule 12: QrCode `fill` / `background` are deprecated in every Template (Web Awesome deprecates them for CSS `color` / `background-color`), and their registry defaults are `''` as in the CEM, so the `.js.vue` no longer writes `fill="black"` over the CSS fallback, issue #133
-- rule 13: Templates pass `@eslint/js` + typescript-eslint `recommended` with default options, the baseline consumer configs build on: no `any` (a default-only CEM parameter is typed from its default; Vue types its element ref and casts a model sync to the one property it touches), no empty `interface` / `defineEmits<{}>()`, no unused `emit`; a prop-less Vue wrapper exports `type XProps = object`. `no-undef` is the one exception. The repo had turned `no-explicit-any` and `no-empty-object-type` off for `templates/**`, so a default create-vite project failed where `pnpm lint` passed. Typecheck Pipeline gained `typecheck:templates:pro`, which checks the Vue Templates against the real Pro package in CI, issue #136
-- rule 3a: handlers are typed with the Web Awesome event class the component dispatches (`WaHideEvent`, imported from `dist/events/`), or the DOM interface for a native event; never `CustomEvent`. The accordion override and the refuse-rather-than-fallback rule are documented there, issue #6
-- rule 3a: listeners pass `e` uncast when the handler type is `Event` (`handlerArgument()`), and the Carousel/Checkbox `.jsx` JSDoc handler types follow the `.tsx`, held there by event-type-parity.test.ts, review follow-up on issue #6
-- 89 templates per framework after WA 3.14.0 (Step, Stepper). Angular Stepper / Step share the pre-existing host-element composition gap with TabGroup, Accordion and Carousel (a `k-*` child is invisible to a parent that filters slotted elements by `wa-*` tag), tracked in #146, issue #108
-- method signatures follow the metadata's `optional` flag in React, Vue and Angular alike (Stepper `goTo(name)` is required everywhere, `focus(options?)` optional everywhere); the React JSDoc ref example calls a method that takes no required argument, issue #108
-- `.jsx` prop docs: a hand-maintained `.jsx` that lists its props, as a typedef or as `@param props.*`, names every registry prop, test-enforced for both forms; TimeInput and KnownDate had missed props from #101 and #102, issue #102

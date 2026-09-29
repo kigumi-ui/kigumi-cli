@@ -69,8 +69,7 @@ Read all 4 AGENTS.md files and extract:
 
 1. **Documented directories and files** - What the docs say exists
 2. **Statistics** - Component counts, test counts, file counts
-3. **Last Updated dates** - When each file was last updated
-4. **Referenced patterns** - Template patterns, test patterns
+3. **Referenced patterns** - Template patterns, test patterns
 
 ### Step 3: Cross-Reference
 
@@ -142,7 +141,6 @@ Report any TypeScript errors in the docs directory.
 ### templates/AGENTS.md
 
 - [OK] Template structure matches
-- [DRIFT] Last Updated: 2026-03-12 (file changed since)
 
 ### tests/AGENTS.md
 
@@ -162,7 +160,6 @@ Report any TypeScript errors in the docs directory.
 1. Update root AGENTS.md component count to 75
 2. Add src/commands/migrate/ to src/AGENTS.md
 3. Add 3 new test files to tests/AGENTS.md
-4. Update Last Updated dates on all modified files
 ```
 
 ### Step 7: Apply Updates (if requested)
@@ -171,7 +168,6 @@ For straightforward additions (new file in existing category):
 
 1. Edit the relevant AGENTS.md section
 2. Update statistics/counts
-3. Update the "Last Updated" date at the bottom of modified files
 
 For structural changes or ambiguous cases:
 
@@ -180,7 +176,7 @@ For structural changes or ambiguous cases:
 
 ## Important Notes
 
-- Always update the **Last Updated** date at the bottom of any AGENTS.md you modify.
+- AGENTS.md describes the current state only. Never add a "Last Updated" date or a changelog: history lives in git, and `pnpm validate:agents` rejects both.
 - The root `pnpm type-check` does NOT cover `docs/.storybook/`. Always run the docs type-check separately.
 - Component counts should match `Object.keys(LOCAL_REGISTRY).length` from `src/utils/registry.ts`.
 - Test counts should match actual `.test.ts` files in `tests/unit/`.
