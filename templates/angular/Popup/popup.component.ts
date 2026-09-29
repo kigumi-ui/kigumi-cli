@@ -40,6 +40,7 @@ function ensureLoaded() {
       [attr.arrow]="arrow || null"
       [attr.arrow-placement]="arrowPlacement"
       [attr.arrow-padding]="arrowPadding"
+      [attr.boundary]="boundary"
       [attr.flip]="flip || null"
       [attr.flip-fallback-placements]="flipFallbackPlacements"
       [attr.flip-fallback-strategy]="flipFallbackStrategy"
@@ -49,6 +50,7 @@ function ensureLoaded() {
       [attr.auto-size]="autoSize"
       [attr.sync]="sync"
       [attr.auto-size-padding]="autoSizePadding"
+      [attr.hover-bridge]="hoverBridge || null"
     >
       <ng-content />
     </wa-popup>
@@ -89,6 +91,8 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
   @Input() arrowPlacement?: 'start' | 'end' | 'center' | 'anchor';
   /** Arrow edge padding */
   @Input() arrowPadding?: number;
+  /** Area flip, shift and auto-size keep the popup inside: the viewport, or the anchor's scrolling ancestors */
+  @Input() boundary?: 'viewport' | 'scroll';
   /** Flips when constrained */
   @Input() flip?: boolean;
   /** Fallback placements */
@@ -107,6 +111,8 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
   @Input() sync?: 'width' | 'height' | 'both';
   /** Auto-size boundary padding */
   @Input() autoSizePadding?: number;
+  /** Covers the gap between anchor and popup with an invisible element, so the pointer can cross it without leaving either */
+  @Input() hoverBridge?: boolean;
 
   @Output() repositionEvent = new EventEmitter<WaRepositionEvent>();
 

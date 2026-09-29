@@ -24,8 +24,13 @@ export interface SliderProps {
   disabled?: boolean;
   readonly?: boolean;
   range?: boolean;
+  'min-value'?: number;
+  'max-value'?: number;
+  'indicator-offset'?: number;
   'with-markers'?: boolean;
   'with-tooltip'?: boolean;
+  'tooltip-distance'?: number;
+  'tooltip-placement'?: 'top' | 'right' | 'bottom' | 'left';
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   autofocus?: boolean;
   'custom-error'?: string;

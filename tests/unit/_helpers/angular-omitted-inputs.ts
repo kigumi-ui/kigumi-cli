@@ -28,9 +28,11 @@ export const ANGULAR_INHERITED_OMISSIONS: ReadonlySet<string> = new Set([
 
 /**
  * Per registry key, the kebab-cased CEM attributes the Template has no
- * `@Input()` for, beyond the inherited three. Mostly `with-*` SSR slot hints,
- * attributes validate:cem-sync tracks as backfill (#102), and the x/y
- * axis attributes pie, doughnut, polar-area and radar charts ignore (#116).
+ * `@Input()` for, beyond the inherited three. Mostly `with-*` SSR slot hints
+ * and attributes validate:cem-sync allowlists as `intentional`: ones no
+ * attribute value can set or the element manages itself, ones the element
+ * ignores (#102), and the x/y axis attributes pie, doughnut, polar-area and
+ * radar charts ignore (#116).
  */
 export const ANGULAR_OMITTED_INPUTS: Readonly<
   Record<string, readonly string[]>
@@ -42,31 +44,15 @@ export const ANGULAR_OMITTED_INPUTS: Readonly<
   carousel: ['slides', 'current-slide'],
   'color-picker': ['with-label', 'with-hint'],
   combobox: ['with-label', 'with-hint'],
-  'copy-button': ['tooltip'],
   drawer: ['with-footer', 'with-label'],
   divider: ['with-label'],
   'dropdown-item': ['submenu-open'],
-  'intersection-observer': ['root'],
-  popup: [
-    'boundary',
-    'flip-boundary',
-    'shift-boundary',
-    'auto-size-boundary',
-    'hover-bridge',
-  ],
-  'qr-code': ['image', 'image-background', 'image-coverage', 'image-padding'],
+  popup: ['flip-boundary', 'shift-boundary', 'auto-size-boundary'],
+  'qr-code': ['image-padding'],
   'radio-group': ['with-label', 'with-hint'],
-  rating: ['role', 'default-value', 'get-symbol'],
+  rating: ['role', 'get-symbol'],
   select: ['with-label', 'with-hint'],
-  slider: [
-    'min-value',
-    'max-value',
-    'indicator-offset',
-    'tooltip-distance',
-    'tooltip-placement',
-    'with-label',
-    'with-hint',
-  ],
+  slider: ['with-label', 'with-hint'],
   step: ['with-description', 'role'],
   switch: ['with-hint'],
   tab: ['role'],
@@ -77,7 +63,7 @@ export const ANGULAR_OMITTED_INPUTS: Readonly<
   'tree-item': ['tabindex', 'role'],
   'zoomable-frame': ['with-theme-sync'],
   'file-input': ['with-label', 'with-hint'],
-  'number-input': ['pill', 'with-label', 'with-hint'],
+  'number-input': ['with-label', 'with-hint'],
   chart: ['plugins'],
   'bar-chart': ['type', 'plugins'],
   'line-chart': ['type', 'plugins'],
@@ -118,7 +104,7 @@ export const ANGULAR_OMITTED_INPUTS: Readonly<
   'radar-chart': ['type', 'x-label', 'y-label', 'index-axis', 'plugins'],
   'scatter-chart': ['type', 'plugins'],
   'toast-item': ['with-icon'],
-  'time-input': ['with-label', 'with-hint', 'distance'],
+  'time-input': ['with-label', 'with-hint'],
   'known-date': ['with-label', 'with-hint'],
   video: ['duration', 'current-time'],
   'date-input': ['with-label', 'with-hint'],

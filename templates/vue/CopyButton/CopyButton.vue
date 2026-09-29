@@ -22,6 +22,7 @@ export interface CopyButtonProps {
   'success-label'?: string;
   'error-label'?: string;
   'feedback-duration'?: number;
+  tooltip?: 'full' | 'copy' | 'none';
   'tooltip-placement'?: 'top' | 'right' | 'bottom' | 'left';
 }
 

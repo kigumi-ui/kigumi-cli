@@ -39,6 +39,7 @@ function ensureLoaded() {
       [attr.success-label]="successLabel"
       [attr.error-label]="errorLabel"
       [attr.feedback-duration]="feedbackDuration"
+      [attr.tooltip]="tooltip"
       [attr.tooltip-placement]="tooltipPlacement"
     >
       <ng-content />
@@ -64,6 +65,8 @@ export class CopyButtonComponent implements AfterViewInit, OnDestroy {
   @Input() errorLabel?: string;
   /** Duration of feedback state in milliseconds */
   @Input() feedbackDuration?: number;
+  /** When the tooltip shows: full (on hover, focus and after copying), copy (only after copying) or none */
+  @Input() tooltip?: 'full' | 'copy' | 'none';
   /** Tooltip position */
   @Input() tooltipPlacement?: 'top' | 'right' | 'bottom' | 'left';
 

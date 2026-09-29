@@ -38,6 +38,9 @@ export interface IntersectionObserverProps extends Omit<
   /** Intersection thresholds */
   threshold?: string;
 
+  /** ID of the element whose bounds count as the viewport; the browser viewport when unset */
+  root?: string;
+
   /** Root element margin */
   'root-margin'?: string;
 

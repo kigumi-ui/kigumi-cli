@@ -22,6 +22,7 @@ const props = defineProps({
   placeholder: { type: String, required: false },
   size: { type: String, required: false, default: 'medium' },
   appearance: { type: String, required: false, default: 'outlined' },
+  pill: { type: Boolean, required: false, default: false },
   'without-steppers': { type: Boolean, required: false, default: false },
   title: { type: String, required: false },
   name: { type: String, required: false },

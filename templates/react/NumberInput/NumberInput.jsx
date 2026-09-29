@@ -41,6 +41,7 @@ function ensureLoaded() {
  * @property {string} [placeholder] - Placeholder text
  * @property {string} [appearance] - Visual appearance: filled | outlined | filled-outlined
  * @property {string} [size] - Input size: small | medium | large
+ * @property {boolean} [pill] - Gives the input rounded edges
  * @property {boolean} [disabled] - Disables the input
  * @property {boolean} [required] - Makes field mandatory
  * @property {boolean} [without-steppers] - Hides the stepper buttons

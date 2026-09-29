@@ -123,14 +123,16 @@ function isSsrSlotHint(attrName: string): boolean {
 /**
  * Why a per-component allowlist entry is not (yet) a registry prop.
  *
- * `backfill` marks attributes that should be surfaced but are tracked by a
- * sibling ticket rather than this one — issue #102 turns these into real
- * props. `intentional` marks attributes that are never expected to become
- * a prop: ones a caller cannot meaningfully set from markup (function- or
- * object-typed values, playback state), ones the component manages itself
- * (e.g. ARIA `role`/`tabindex` on composite widgets), and ones the element
- * accepts but ignores (x/y axis settings on a chart without x/y axes, see
- * `INERT_ON_AXISLESS_CHART`).
+ * `backfill` marks an attribute that should be surfaced but is tracked by an
+ * open issue rather than by the change that found it (a Web Awesome bump,
+ * say); its reason names the issue. No entry is `backfill` today: issues
+ * #101, #116 and #102 triaged the whole 2026-09-24 baseline. `intentional`
+ * marks attributes that are never expected to become a prop: ones a caller
+ * cannot meaningfully set from markup (function-, object- or element-typed
+ * values, playback state), ones the component manages itself (e.g. ARIA
+ * `role`/`tabindex` on composite widgets, a submenu's open state), and ones
+ * the element accepts but ignores (x/y axis settings on a chart without x/y
+ * axes, see `INERT_ON_AXISLESS_CHART`, or QrCode's `image-padding`).
  */
 export interface AttributeAllowlistEntry {
   kind: 'backfill' | 'intentional';
@@ -174,6 +176,27 @@ export const INERT_ON_RADIAL_CHART: AttributeAllowlistEntry = {
     'x/y axis setting; WaChart builds this chart only a radial r scale, which does not read it',
 };
 
+/*
+ * Four of the `intentional` entries below rest on how Web Awesome's runtime
+ * treats an attribute, not on anything the CEM says, so a Web Awesome bump
+ * that changes the behaviour is not a CEM change and cannot trip
+ * validate:cem-sync. Checked against the Web Awesome Pro 3.13.0 build
+ * (issue #102); re-check them when a bump touches these components:
+ *
+ * - `wa-carousel` declares `slides` and `currentSlide` as reflected
+ *   properties, sets both to 0 in its constructor and never reads or writes
+ *   them again. The slide it shows is its internal `activeSlide` state,
+ *   moved by `goToSlide()`, so a prop for either would change nothing.
+ * - `wa-qr-code` hands `image-padding` to qr-creator as `imagePadding`,
+ *   which qr-creator reads into its settings and never uses: it pads the
+ *   centre image by a fixed 4px. That holds for 1.0.1 and 1.1.0, the two
+ *   releases inside Web Awesome's `^1.0.1` range.
+ * - `wa-dropdown-item` opens and closes its own submenu on hover and from the
+ *   keyboard, and closes any open sibling's, without an event a bound prop
+ *   could follow. Lit also reads the attribute as `submenuopen`, not the
+ *   kebab-cased name a Template would write.
+ */
+
 /**
  * Per-component attribute allowlist. Keyed by registry key, then by the
  * kebab-cased CEM attribute name: the CEM's `submenuOpen` is keyed
@@ -192,75 +215,54 @@ export const INERT_ON_RADIAL_CHART: AttributeAllowlistEntry = {
  * its other 24 to `intentional`, leaving 73 across 24 components (23
  * `backfill`, 50 `intentional`). Web Awesome 3.14.0 added `step`'s `role`
  * (`intentional`), leaving 74 across 25 components (23 `backfill`, 51
- * `intentional`).
+ * `intentional`). Issue #102 then surfaced 15 of the last 23 `backfill`
+ * entries as registry props and moved the other 8 to `intentional`, leaving
+ * 59 across 20 components, all `intentional`.
  *
- * `backfill` entries are triaged by issue #102 (component-specific
- * attributes): each either becomes a real prop or moves to `intentional`.
- * See `AttributeAllowlistEntry` for what `intentional` covers.
+ * See `AttributeAllowlistEntry` for what each kind covers.
  */
 export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
   Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
 > = {
   carousel: {
     slides: {
-      kind: 'backfill',
-      reason: 'reflected slide count, see #102',
+      kind: 'intentional',
+      reason: 'declared but never read; the carousel counts its slides itself',
     },
     'current-slide': {
-      kind: 'backfill',
-      reason: 'reflected active slide index, see #102',
+      kind: 'intentional',
+      reason:
+        'declared but never read; the shown slide is internal state, moved by goToSlide()',
     },
-  },
-  'copy-button': {
-    tooltip: { kind: 'backfill', reason: 'tooltip text override, see #102' },
   },
   'dropdown-item': {
     'submenu-open': {
-      kind: 'backfill',
-      reason: 'reflected submenu open state, see #102',
-    },
-  },
-  'intersection-observer': {
-    root: {
-      kind: 'backfill',
-      reason: 'viewport root element ID, see #102',
+      kind: 'intentional',
+      reason:
+        'submenu state the item toggles itself, with no event a bound prop could follow',
     },
   },
   popup: {
-    boundary: {
-      kind: 'backfill',
-      reason: "'viewport' | 'scroll' bounding box, see #102",
-    },
     'flip-boundary': {
-      kind: 'backfill',
-      reason: 'Element | Element[] flip boundary, see #102',
+      kind: 'intentional',
+      reason:
+        'Element or Element[] reference, which no attribute value can express',
     },
     'shift-boundary': {
-      kind: 'backfill',
-      reason: 'Element | Element[] shift boundary, see #102',
+      kind: 'intentional',
+      reason:
+        'Element or Element[] reference, which no attribute value can express',
     },
     'auto-size-boundary': {
-      kind: 'backfill',
-      reason: 'Element | Element[] auto-size boundary, see #102',
-    },
-    'hover-bridge': {
-      kind: 'backfill',
-      reason: 'hover bridge toggle, see #102',
+      kind: 'intentional',
+      reason:
+        'Element or Element[] reference, which no attribute value can express',
     },
   },
   'qr-code': {
-    image: { kind: 'backfill', reason: 'embedded logo image, see #102' },
-    'image-background': {
-      kind: 'backfill',
-      reason: 'embedded logo styling, see #102',
-    },
-    'image-coverage': {
-      kind: 'backfill',
-      reason: 'embedded logo styling, see #102',
-    },
     'image-padding': {
-      kind: 'backfill',
-      reason: 'embedded logo styling, see #102',
+      kind: 'intentional',
+      reason: 'never applied; qr-creator pads the centre image by a fixed 4px',
     },
   },
   rating: {
@@ -268,29 +270,10 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       kind: 'intentional',
       reason: 'ARIA role Web Awesome manages internally for the widget pattern',
     },
-    'default-value': {
-      kind: 'backfill',
-      reason: 'uncontrolled default value, see #102',
-    },
     'get-symbol': {
-      kind: 'backfill',
-      reason: 'function-typed symbol renderer, see #102',
-    },
-  },
-  slider: {
-    'min-value': { kind: 'backfill', reason: 'range slider bound, see #102' },
-    'max-value': { kind: 'backfill', reason: 'range slider bound, see #102' },
-    'indicator-offset': {
-      kind: 'backfill',
-      reason: 'range slider styling, see #102',
-    },
-    'tooltip-distance': {
-      kind: 'backfill',
-      reason: 'tooltip placement, see #102',
-    },
-    'tooltip-placement': {
-      kind: 'backfill',
-      reason: 'tooltip placement, see #102',
+      kind: 'intentional',
+      reason:
+        'function returning the symbol markup, which no attribute value can express',
     },
   },
   step: {
@@ -332,15 +315,6 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     role: {
       kind: 'intentional',
       reason: 'ARIA role Web Awesome manages internally for the tree pattern',
-    },
-  },
-  'number-input': {
-    pill: { kind: 'backfill', reason: 'pill styling variant, see #102' },
-  },
-  'time-input': {
-    distance: {
-      kind: 'backfill',
-      reason: 'popup placement distance, see #102',
     },
   },
   video: {

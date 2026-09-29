@@ -37,6 +37,21 @@ const meta = {
       description: 'Error correction level',
       table: { defaultValue: { summary: 'H' } },
     },
+    image: {
+      control: 'text',
+      description:
+        'URL or data URI of an image, such as a logo, drawn in the centre of the code',
+    },
+    'image-background': {
+      control: 'text',
+      description:
+        'Colour filled behind the centre image, so the code does not show through a transparent one',
+    },
+    'image-coverage': {
+      control: { type: 'number', min: 0, max: 1, step: 0.05 },
+      description:
+        "Share of the code's error-correction capacity the centre image may take, from 0 to 1 (0.5 when unset); higher values scan less reliably",
+    },
   },
 } satisfies Meta<typeof QrCode>;
 
@@ -121,6 +136,21 @@ export const CssStyling: Story = {
 /** Increases module radius for rounded-corner QR aesthetics. */
 export const Rounded: Story = {
   args: { value: 'https://kigumi.style', size: 200, radius: 0.5 },
+};
+
+/**
+ * Draws a logo in the centre of the code. The image hides modules, so keep
+ * `error-correction` at `H` and `image-coverage` modest for the code to stay
+ * scannable.
+ */
+export const WithLogo: Story = {
+  args: {
+    value: 'https://kigumi.style',
+    size: 200,
+    image: '/icon.svg',
+    'image-background': '#ffffff',
+    'image-coverage': 0.4,
+  },
 };
 
 /** Compares the four error-correction levels (L, M, Q, H). */

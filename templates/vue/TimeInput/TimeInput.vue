@@ -38,6 +38,7 @@ export interface TimeInputProps {
   open?: boolean;
   placement?:
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
+  distance?: number;
   autocomplete?: string;
   'custom-error'?: string;
 }

@@ -44,8 +44,13 @@ function ensureLoaded() {
       [attr.disabled]="disabled || null"
       [attr.readonly]="readonly || null"
       [attr.range]="range || null"
+      [attr.min-value]="minValue"
+      [attr.max-value]="maxValue"
+      [attr.indicator-offset]="indicatorOffset"
       [attr.with-markers]="withMarkers || null"
       [attr.with-tooltip]="withTooltip || null"
+      [attr.tooltip-distance]="tooltipDistance"
+      [attr.tooltip-placement]="tooltipPlacement"
       [attr.size]="size"
       [attr.autofocus]="autofocus || null"
       [attr.custom-error]="customError"
@@ -90,10 +95,20 @@ export class SliderComponent
   @Input() readonly?: boolean;
   /** Converts to a range slider with two thumbs */
   @Input() range?: boolean;
+  /** Lower thumb of a `range` slider; a form reset returns it here, or to `min` when unset */
+  @Input() minValue?: number;
+  /** Upper thumb of a `range` slider; a form reset returns it here, or to `max` when unset */
+  @Input() maxValue?: number;
+  /** Value the filled part of the track starts from; `min` when unset */
+  @Input() indicatorOffset?: number;
   /** Draws markers at each step */
   @Input() withMarkers?: boolean;
   /** Draws a tooltip above the thumb */
   @Input() withTooltip?: boolean;
+  /** Gap in pixels between the thumb and its tooltip */
+  @Input() tooltipDistance?: number;
+  /** Side of the thumb the tooltip appears on */
+  @Input() tooltipPlacement?: 'top' | 'right' | 'bottom' | 'left';
   /** Slider size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Automatically focuses the slider on page load */

@@ -44,6 +44,7 @@ function ensureLoaded() {
       [attr.placeholder]="placeholder"
       [attr.size]="size"
       [attr.appearance]="appearance"
+      [attr.pill]="pill || null"
       [attr.without-steppers]="withoutSteppers || null"
       [attr.title]="title"
       [attr.name]="name"
@@ -94,6 +95,8 @@ export class NumberInputComponent
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Visual appearance */
   @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  /** Gives the input rounded edges */
+  @Input() pill?: boolean;
   /** Hides the stepper buttons */
   @Input() withoutSteppers?: boolean;
   /** Native tooltip text, shown on hover */

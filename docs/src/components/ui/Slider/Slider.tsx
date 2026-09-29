@@ -69,11 +69,29 @@ export interface SliderProps extends Omit<
   /** Converts to a range slider with two thumbs */
   range?: boolean;
 
+  /** Lower thumb of a `range` slider; a form reset returns it here, or to `min` when unset */
+  'min-value'?: number;
+
+  /** Upper thumb of a `range` slider; a form reset returns it here, or to `max` when unset */
+  'max-value'?: number;
+
+  /** Value the filled part of the track starts from; `min` when unset */
+  'indicator-offset'?: number;
+
   /** Draws markers at each step */
   'with-markers'?: boolean;
 
   /** Draws a tooltip above the thumb */
   'with-tooltip'?: boolean;
+
+  /** Gap in pixels between the thumb and its tooltip */
+  'tooltip-distance'?: number;
+
+  /** Side of the thumb the tooltip appears on */
+  'tooltip-placement'?: 'top' | 'right' | 'bottom' | 'left';
+
+  /** Automatically focuses the slider on page load */
+  autofocus?: boolean;
 
   /** Custom validation message; the control is invalid while it is set */
   'custom-error'?: string;

@@ -36,6 +36,7 @@ function ensureLoaded() {
       #element
       [attr.label]="label"
       [attr.value]="value"
+      [attr.default-value]="defaultValue"
       [attr.max]="max"
       [attr.precision]="precision"
       [attr.readonly]="readonly || null"
@@ -67,6 +68,8 @@ export class RatingComponent
   @Input() label?: string;
   /** Current rating value */
   @Input() value?: number;
+  /** Value the rating returns to when its form is reset */
+  @Input() defaultValue?: number;
   /** Maximum rating value */
   @Input() max?: number;
   /** Rating precision (e.g., 0.5) */

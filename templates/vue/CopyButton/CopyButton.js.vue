@@ -19,6 +19,7 @@ const props = defineProps({
   'success-label': { type: String, required: false, default: '' },
   'error-label': { type: String, required: false, default: '' },
   'feedback-duration': { type: Number, required: false, default: 1000 },
+  tooltip: { type: String, required: false, default: 'full' },
   'tooltip-placement': { type: String, required: false, default: 'top' },
 });
 

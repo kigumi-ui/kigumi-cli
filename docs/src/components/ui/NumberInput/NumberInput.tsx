@@ -72,6 +72,9 @@ export interface NumberInputProps extends Omit<
   /** Visual appearance */
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
 
+  /** Gives the input rounded edges */
+  pill?: boolean;
+
   /** Hides the stepper buttons */
   'without-steppers'?: boolean;
 

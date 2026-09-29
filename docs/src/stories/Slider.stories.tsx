@@ -53,6 +53,21 @@ const meta = {
       description: 'Converts to a range slider with two thumbs',
       table: { defaultValue: { summary: 'false' } },
     },
+    'min-value': {
+      control: 'number',
+      description:
+        'Lower thumb of a `range` slider; a form reset returns it here, or to `min` when unset',
+    },
+    'max-value': {
+      control: 'number',
+      description:
+        'Upper thumb of a `range` slider; a form reset returns it here, or to `max` when unset',
+    },
+    'indicator-offset': {
+      control: 'number',
+      description:
+        'Value the filled part of the track starts from; `min` when unset',
+    },
     'with-markers': {
       control: 'boolean',
       description: 'Draws markers at each step',
@@ -62,6 +77,17 @@ const meta = {
       control: 'boolean',
       description: 'Draws a tooltip above the thumb',
       table: { defaultValue: { summary: 'true' } },
+    },
+    'tooltip-distance': {
+      control: 'number',
+      description: 'Gap in pixels between the thumb and its tooltip',
+      table: { defaultValue: { summary: '8' } },
+    },
+    'tooltip-placement': {
+      control: 'select',
+      options: ['top', 'right', 'bottom', 'left'],
+      description: 'Side of the thumb the tooltip appears on',
+      table: { defaultValue: { summary: 'top' } },
     },
     size: {
       control: 'select',
@@ -167,6 +193,55 @@ export const CustomRange: Story = {
     'with-tooltip': true,
     hint: 'Adjust room temperature',
   },
+};
+
+/**
+ * Two thumbs select a span instead of a single value. `min-value` and
+ * `max-value` set where the thumbs start.
+ */
+export const Range: Story = {
+  args: {
+    label: 'Price range',
+    range: true,
+    min: 0,
+    max: 1000,
+    step: 10,
+    'min-value': 200,
+    'max-value': 750,
+    'with-tooltip': true,
+  },
+};
+
+/**
+ * Fills the track from `indicator-offset` rather than from `min`, so a value
+ * either side of zero reads as a deviation.
+ */
+export const IndicatorOffset: Story = {
+  args: {
+    label: 'Balance',
+    min: -50,
+    max: 50,
+    value: 20,
+    'indicator-offset': 0,
+    'with-tooltip': true,
+  },
+};
+
+/** Moves the tooltip beside the thumb, further away than the default. */
+export const TooltipPlacement: Story = {
+  args: {
+    label: 'Level',
+    value: 60,
+    orientation: 'vertical',
+    'with-tooltip': true,
+    'tooltip-placement': 'right',
+    'tooltip-distance': 16,
+  },
+  render: (args) => (
+    <div style={{ height: '200px' }}>
+      <Slider {...args} />
+    </div>
+  ),
 };
 
 /** Compares small, medium, and large slider sizes. */

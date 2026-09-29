@@ -34,6 +34,7 @@ function ensureLoaded() {
       #element
       [attr.disabled]="disabled || null"
       [attr.threshold]="threshold"
+      [attr.root]="root"
       [attr.root-margin]="rootMargin"
       [attr.intersect-class]="intersectClass"
     >
@@ -54,6 +55,8 @@ export class IntersectionObserverComponent
   @Input() once?: boolean;
   /** Intersection thresholds */
   @Input() threshold?: string;
+  /** ID of the element whose bounds count as the viewport; the browser viewport when unset */
+  @Input() root?: string;
   /** Root element margin */
   @Input() rootMargin?: string;
   /** CSS class to apply when intersecting */

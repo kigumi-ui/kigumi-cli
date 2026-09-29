@@ -39,6 +39,8 @@ function ensureLoaded() {
  * @param {string} [props.min] - The earliest acceptable date
  * @param {string} [props.max] - The latest acceptable date
  * @param {string} [props.locale] - The locale used to format and parse the date
+ * @param {string} [props.autocomplete] - Hint for browser autofill
+ * @param {string} [props['custom-error']] - Custom validation message; the control is invalid while it is set
  * @param {function} [props.onInput] - Emitted as the user types in any field.
  * @param {function} [props.onChange] - Emitted when the committed value transitions to a new ISO date.
  * @param {function} [props.onBlur] - Emitted when the control loses focus.

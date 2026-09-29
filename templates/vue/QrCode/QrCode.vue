@@ -22,6 +22,9 @@ export interface QrCodeProps {
   background?: string;
   radius?: number;
   'error-correction'?: 'L' | 'M' | 'Q' | 'H';
+  image?: string;
+  'image-background'?: string;
+  'image-coverage'?: number;
 }
 
 const props = defineProps<QrCodeProps>();

@@ -24,6 +24,7 @@ export interface NumberInputProps {
   placeholder?: string;
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  pill?: boolean;
   'without-steppers'?: boolean;
   title?: string;
   name?: string;

@@ -207,6 +207,13 @@ import React from 'react';
 const { forwardRef, useRef, useEffect } = React;
 ```
 
+**`.jsx` prop docs:** `pnpm generate:templates` does not write the `.jsx`, so a
+new registry prop has to be added to it by hand. Where a `.jsx` documents its
+props, as a `<Name>Props` `@typedef` or as an `@param {Object} props` list,
+that list names every registry prop. `tests/unit/template-registry-props.test.ts`
+pins which files use which form (`JSX_PROPS_TYPEDEFS`, `JSX_PROPS_PARAMS`) and
+fails on a missing prop (issue #102).
+
 ### 3. Event Naming Convention
 
 **Form controls** (wa-button, wa-input, wa-number-input, wa-file-input, wa-textarea, wa-select, wa-checkbox, wa-switch) emit **native DOM events** — no `wa-` prefix:
@@ -583,3 +590,4 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - rule 3a: listeners pass `e` uncast when the handler type is `Event` (`handlerArgument()`), and the Carousel/Checkbox `.jsx` JSDoc handler types follow the `.tsx`, held there by event-type-parity.test.ts, review follow-up on issue #6
 - 89 templates per framework after WA 3.14.0 (Step, Stepper). Angular Stepper / Step share the pre-existing host-element composition gap with TabGroup, Accordion and Carousel (a `k-*` child is invisible to a parent that filters slotted elements by `wa-*` tag), tracked in #146, issue #108
 - method signatures follow the metadata's `optional` flag in React, Vue and Angular alike (Stepper `goTo(name)` is required everywhere, `focus(options?)` optional everywhere); the React JSDoc ref example calls a method that takes no required argument, issue #108
+- `.jsx` prop docs: a hand-maintained `.jsx` that lists its props, as a typedef or as `@param props.*`, names every registry prop, test-enforced for both forms; TimeInput and KnownDate had missed props from #101 and #102, issue #102

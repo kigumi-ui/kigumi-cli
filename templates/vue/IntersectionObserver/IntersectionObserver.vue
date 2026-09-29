@@ -17,6 +17,7 @@ export interface IntersectionObserverProps {
   disabled?: boolean;
   once?: boolean;
   threshold?: string;
+  root?: string;
   'root-margin'?: string;
   'intersect-class'?: string;
 }

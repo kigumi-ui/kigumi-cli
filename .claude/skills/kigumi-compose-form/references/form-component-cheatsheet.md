@@ -65,7 +65,7 @@ Quick reference: which Kigumi component for which input type.
 
 ### Slider
 
-`label` `hint` `min` `max` `step` `value` `name` `required` `disabled` `range` `orientation` `with-markers` `with-tooltip` `size`
+`label` `hint` `min` `max` `step` `value` `name` `disabled` `range` `min-value` `max-value` (the two thumbs, with `range`) `indicator-offset` `orientation` `with-markers` `with-tooltip` `tooltip-placement` (top|right|bottom|left) `tooltip-distance` `size`
 
 ### ColorPicker
 
@@ -73,11 +73,11 @@ Quick reference: which Kigumi component for which input type.
 
 ### Rating
 
-`label` `value` `max` `precision` `readonly` `disabled` `size`
+`label` `value` `default-value` (restored on form reset) `max` `precision` `readonly` `disabled` `size`
 
 ### TimeInput
 
-`label` `hint` `value` `min` `max` `step` `hour-format` (auto|12|24) `with-clear` `with-now` `required` `disabled` `readonly` `name` `size` `appearance`
+`label` `hint` `value` `min` `max` `step` `hour-format` (auto|12|24) `with-clear` `with-now` `required` `disabled` `readonly` `name` `size` `appearance` `distance`
 
 ### KnownDate
 
@@ -85,7 +85,7 @@ Quick reference: which Kigumi component for which input type.
 
 ### NumberInput (Pro)
 
-`label` `hint` `value` `min` `max` `step` `placeholder` `required` `disabled` `without-steppers` `size` `appearance`
+`label` `hint` `value` `min` `max` `step` `placeholder` `required` `disabled` `without-steppers` `size` `appearance` `pill`
 
 ### FileInput (Pro)
 
