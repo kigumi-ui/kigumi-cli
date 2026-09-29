@@ -23,20 +23,18 @@
  * A job with NO job-level `permissions:` block is fine: it inherits the
  * workflow-level grant. This check deliberately says nothing about those.
  *
+ * A run that inspected no checkout job verified nothing, and fails instead of
+ * passing empty (docs/adr/0003).
+ *
  * USAGE:
  *   pnpm validate:gha-permissions
  *   tsx scripts/validate-gha-permissions.ts
  */
 
-import fs from 'fs-extra';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import pc from 'picocolors';
-import { parse } from 'yaml';
 
-const __filename = fileURLToPath(import.meta.url);
-const PROJECT_ROOT = path.dirname(path.dirname(__filename));
-const WORKFLOW_DIR = path.join(PROJECT_ROOT, '.github', 'workflows');
+import { inspectionGap, readWorkflowFiles } from './gha-workflows.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -51,6 +49,8 @@ export interface PermissionResult {
   findings: PermissionFinding[];
   /** Every job inspected, so a run proves what it actually covered. */
   jobsChecked: Array<{ workflow: string; job: string; declares: boolean }>;
+  /** Why the run verified nothing, or null when it inspected a checkout job. */
+  gap: string | null;
 }
 
 /** Values of `contents:` that still allow actions/checkout to clone. */
@@ -150,28 +150,28 @@ export function checkWorkflowPermissions(
 
 // ── Filesystem shell ────────────────────────────────────────────────────────
 
-export function validateGhaPermissions(): PermissionResult {
+export function validateGhaPermissions(dir?: string): PermissionResult {
   const findings: PermissionFinding[] = [];
   const jobsChecked: PermissionResult['jobsChecked'] = [];
 
-  if (!fs.pathExistsSync(WORKFLOW_DIR)) {
-    return { passed: true, findings, jobsChecked };
-  }
-
-  const files = fs
-    .readdirSync(WORKFLOW_DIR)
-    .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
-    .sort();
-
-  for (const file of files) {
-    const raw = fs.readFileSync(path.join(WORKFLOW_DIR, file), 'utf8');
-    const doc = parse(raw);
+  const workflows = readWorkflowFiles(dir);
+  for (const { file, doc } of workflows) {
     const result = checkWorkflowPermissions(doc, file);
     findings.push(...result.findings);
     jobsChecked.push(...result.jobsChecked);
   }
 
-  return { passed: findings.length === 0, findings, jobsChecked };
+  const gap = inspectionGap(
+    workflows.length,
+    jobsChecked.length,
+    'checkout job'
+  );
+  return {
+    passed: findings.length === 0 && gap === null,
+    findings,
+    jobsChecked,
+    gap,
+  };
 }
 
 // ── Output ──────────────────────────────────────────────────────────────────
@@ -208,7 +208,11 @@ function printResults(result: PermissionResult): void {
     );
   }
 
-  if (result.passed) {
+  if (result.gap !== null) {
+    console.log(
+      pc.red(`GHA permission validation verified nothing: ${result.gap}\n`)
+    );
+  } else if (result.passed) {
     console.log(
       pc.green(
         `GHA permission validation passed! All ${result.jobsChecked.length} checkout jobs can read the repo.\n`
@@ -238,6 +242,6 @@ function main(): void {
 }
 
 // Only run when executed directly, not when imported (keeps the script testable)
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isEntryPoint(import.meta.url)) {
   main();
 }

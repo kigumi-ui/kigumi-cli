@@ -5,13 +5,18 @@
  * reads .github/workflows, so these tests cannot start passing or failing
  * because the repo's own CI configuration changed.
  */
-import { describe, expect, it } from 'vitest';
+import os from 'os';
+import path from 'path';
+import fs from 'fs-extra';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { summarizeGuard } from '../../scripts/guard-outcome.js';
 import {
   checkWorkflowIssueWrites,
-  coverageGap,
+  issueWriteGuardResult,
   prEventsReachable,
   stepWritesIssues,
+  validateGhaIssueWrites,
   workflowPrEvents,
 } from '../../scripts/validate-gha-issue-writes.js';
 
@@ -135,6 +140,53 @@ describe('prEventsReachable', () => {
     ).toEqual(PR);
   });
 
+  it('reads && as binding tighter than ||, like GitHub does', () => {
+    // (gate && x) || y: y alone runs the step on a pull request.
+    for (const condition of [
+      "github.event_name != 'pull_request' && steps.x.outputs.y == '1' || steps.z.outputs.w == '1'",
+      "github.event_name != 'pull_request' && steps.x.outputs.y == '1' || always()",
+      "github.event_name != 'pull_request' && steps.x.outputs.y == '1' || failure()",
+      "github.event_name == 'schedule' && steps.x.outputs.y == '1' || steps.z.outputs.w == '1'",
+    ]) {
+      expect(prEventsReachable(condition, PR), condition).toEqual(PR);
+    }
+  });
+
+  it('is closed when every || alternative carries the gate', () => {
+    expect(
+      prEventsReachable(
+        "github.event_name != 'pull_request' && steps.x.outputs.y == '1' || github.event_name != 'pull_request' && failure()",
+        PR
+      )
+    ).toEqual([]);
+  });
+
+  it('is closed by a gate outside a parenthesised ||', () => {
+    expect(
+      prEventsReachable(
+        "github.event_name != 'pull_request' && (steps.x.outputs.y == '1' || always())",
+        PR
+      )
+    ).toEqual([]);
+  });
+
+  it('is closed by an unparenthesised allowlist, and by false in every branch', () => {
+    expect(
+      prEventsReachable(
+        "github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'",
+        PR
+      )
+    ).toEqual([]);
+    expect(prEventsReachable('false || (false && always())', PR)).toEqual([]);
+  });
+
+  it('treats a negation as able to run anywhere', () => {
+    // Correct, but not a shape the reader understands: rejected, never accepted.
+    expect(
+      prEventsReachable("!(github.event_name == 'pull_request')", PR)
+    ).toEqual(PR);
+  });
+
   it('stays open when an allowlist names the PR event', () => {
     expect(
       prEventsReachable(
@@ -205,12 +257,26 @@ describe('checkWorkflowIssueWrites', () => {
     );
     expect(stepsChecked).toHaveLength(1);
     expect(findings).toHaveLength(1);
-    expect(findings[0]).toMatchObject({
+    expect(findings[0].at).toEqual({
       workflow: 'maintenance.yml',
       job: 'report',
       step: 'Report dead links',
     });
-    expect(findings[0].message).toContain('pull_request');
+    expect(findings[0].message).toContain(
+      'Add "github.event_name != \'pull_request\'"'
+    );
+  });
+
+  it('names every reachable event in the fix it suggests', () => {
+    // Suggesting only the first event would leave the step flagged after
+    // the reader applied the fix.
+    const { findings } = checkWorkflowIssueWrites(
+      workflow(['pull_request', 'pull_request_target'], [reportStep()]),
+      'both.yml'
+    );
+    expect(findings[0].message).toContain(
+      "Add \"github.event_name != 'pull_request' && github.event_name != 'pull_request_target'\""
+    );
   });
 
   it('accepts an issue write gated off pull_request at the step', () => {
@@ -236,13 +302,22 @@ describe('checkWorkflowIssueWrites', () => {
     expect(findings).toEqual([]);
   });
 
-  it('says nothing about a workflow without pull request triggers', () => {
+  it('inspects but never flags a workflow without pull request triggers', () => {
     const { findings, stepsChecked } = checkWorkflowIssueWrites(
       workflow({ schedule: [] }, [reportStep()]),
       'weekly.yml'
     );
     expect(findings).toEqual([]);
-    expect(stepsChecked).toEqual([]);
+    expect(stepsChecked).toEqual([
+      {
+        at: {
+          workflow: 'weekly.yml',
+          job: 'report',
+          step: 'Report dead links',
+        },
+        prEvents: [],
+      },
+    ]);
   });
 
   it('names an unnamed step by its position', () => {
@@ -253,7 +328,7 @@ describe('checkWorkflowIssueWrites', () => {
       ]),
       'ci.yml'
     );
-    expect(findings[0].step).toBe('step 2');
+    expect(findings[0].at.step).toBe('step 2');
   });
 
   it('handles documents without jobs', () => {
@@ -264,18 +339,83 @@ describe('checkWorkflowIssueWrites', () => {
   });
 });
 
-describe('coverageGap', () => {
-  it('is null once at least one issue-writing step was inspected', () => {
-    expect(coverageGap(9, 3)).toBeNull();
+describe('issueWriteGuardResult', () => {
+  const inspected = checkWorkflowIssueWrites(
+    workflow({ schedule: [] }, [reportStep()]),
+    'weekly.yml'
+  );
+  const flagged = checkWorkflowIssueWrites(
+    workflow('pull_request', [reportStep()]),
+    'ci.yml'
+  );
+
+  it('passes, verified, when it inspected a step and found nothing wrong', () => {
+    const summary = summarizeGuard(issueWriteGuardResult(1, inspected));
+    expect(summary).toMatchObject({ exitCode: 0, verified: true });
   });
 
-  it('reports a run that found no workflow file', () => {
-    expect(coverageGap(0, 0)).toMatch(/no workflow file/);
+  it('fails on a finding', () => {
+    const result = issueWriteGuardResult(1, flagged);
+    expect(result.passed).toBe(false);
+    expect(summarizeGuard(result).exitCode).toBe(1);
+    expect(result.findings[0].component).toBe(
+      'ci.yml / report / Report dead links'
+    );
   });
 
-  it('reports a run that read workflows but inspected no step', () => {
+  it('fails, unverified, when it inspected no step (docs/adr/0003)', () => {
     // A trigger or `run:` matcher that stopped matching lands here, and must
-    // not print the same pass as a correctly gated repo (docs/adr/0003).
-    expect(coverageGap(9, 0)).toMatch(/found no "gh issue" write/);
+    // not print the same pass as a correctly gated repo.
+    const empty = { findings: [], stepsChecked: [] };
+    for (const workflowsRead of [0, 7]) {
+      const result = issueWriteGuardResult(workflowsRead, empty);
+      expect(result.passed).toBe(false);
+      expect(summarizeGuard(result)).toMatchObject({
+        exitCode: 1,
+        verified: false,
+      });
+    }
+  });
+});
+
+describe('validateGhaIssueWrites on a workflow directory', () => {
+  let dir: string;
+  beforeEach(async () => {
+    dir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-gha-issue-writes-'));
+  });
+  afterEach(() => fs.remove(dir));
+
+  const gated = `on: { schedule: [{ cron: '0 6 * * 1' }], pull_request: {} }
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        if: github.event_name != 'pull_request'
+        run: gh issue comment 1 --body hi
+`;
+
+  it('passes a gated report', async () => {
+    await fs.writeFile(path.join(dir, 'maintenance.yml'), gated);
+    const { summary } = validateGhaIssueWrites(dir);
+    expect(summary).toMatchObject({ exitCode: 0, verified: true });
+  });
+
+  it('fails an ungated one', async () => {
+    await fs.writeFile(
+      path.join(dir, 'maintenance.yml'),
+      gated.replace("        if: github.event_name != 'pull_request'\n", '')
+    );
+    expect(validateGhaIssueWrites(dir).summary.exitCode).toBe(1);
+  });
+
+  it('fails an empty or missing directory instead of passing it', async () => {
+    expect(validateGhaIssueWrites(dir).summary).toMatchObject({
+      exitCode: 1,
+      verified: false,
+    });
+    expect(
+      validateGhaIssueWrites(path.join(dir, 'missing')).summary.exitCode
+    ).toBe(1);
   });
 });
