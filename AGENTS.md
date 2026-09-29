@@ -780,7 +780,7 @@ START: Change affects tier detection or packages
 
 - [ ] **Updated tests**
   - Function: the React, Vue and Angular function harnesses (`*-function-harness-registry.test.ts`) prove every TypeScript Template from its metadata, and `validate:generated-fresh` Check C holds the `.jsx` / `.js.vue` to it; there is no per-Template test to write
-  - Types: `pnpm typecheck:templates` typechecks the committed Templates against the shims, and the consumer tsc suites (`tests/e2e/consumer-tsc-*.test.ts`) typecheck `init` + `add --all` output in a strict Free and Pro project
+  - Types: `pnpm typecheck:templates` typechecks the committed Templates against the shims, and the consumer tsc suites (`tests/e2e/consumer-tsc-*.test.ts`) typecheck `init` + `add --all` output in a strict Free and Pro project (React against both React 19 and React 18 types)
   - Snapshot: Visual regression (if applicable)
 
 ### Checklist: Before Adding New Component
@@ -891,7 +891,7 @@ The code/registry side is guarded by validators (`validate:cem-sync`, `validate:
 
 - [ ] **Check TypeScript compilation**
   - Templates: `pnpm typecheck:templates`. `pnpm typecheck:templates:pro` checks only the Vue Templates, and only with the docs dependencies installed with the Pro token; without them every import fails with "Cannot find module", which is not a Template error
-  - Generated output: `pnpm build`, then `pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts` (or the `-vue` / `-angular` suite). The React suite includes the Next ambient pass. A Pro consumer reports NOT verified where this machine cannot install the pinned Pro package
+  - Generated output: `pnpm build`, then `pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts` (or the `-vue` / `-angular` suite). The React suite includes the Next ambient pass and the React 18 pass. A Pro consumer reports NOT verified where this machine cannot install the pinned Pro package
   - Look for: Type errors in generated code
 
 - [ ] **Check runtime errors**

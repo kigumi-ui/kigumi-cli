@@ -211,7 +211,7 @@ tests/
 │   ├── smoke.test.ts            # End-to-end workflows
 │   ├── init-source-layout.test.ts # `init` across all 4 framework/layout combos (issue #48)
 │   ├── diff.test.ts             # Real Vite project: modify a component, then `diff` and the snapshot round trip
-│   ├── consumer-tsc-react.test.ts   # Free and Pro: Vite-React init + add --all + strict `tsc -b` (issues #73, #79), then the same add-output under the Next ambient declaration (issue #78)
+│   ├── consumer-tsc-react.test.ts   # Free and Pro: Vite-React init + add --all + strict `tsc -b` (issues #73, #79), then the same add-output under the Next ambient declaration (issue #78) and against React 18's types (issue #81)
 │   ├── consumer-tsc-vue.test.ts     # Free and Pro: create-vite vue-ts init + add --all + `vue-tsc -b` (issues #78, #79)
 │   ├── consumer-tsc-angular.test.ts # Free and Pro: `ng new` init + add --all + `ngc` with strictTemplates (issues #78, #79)
 │   ├── _helpers/
@@ -588,6 +588,7 @@ The types seam of `docs/adr/0004`: each suite scaffolds a project with the frame
 
 - **Angular runs `ngc`, not `tsc`.** A Template's markup is a string only the Angular compiler reads: plain `tsc` passed a Template carrying `[attr.once]` (NG5002), and it passes the planted error too, which sits in a component template for that reason. `ngc` colours its output even when piped and ignores `--pretty false`, so `commandText()` strips ANSI codes.
 - **The Next pass** typechecks the React add-output a second time with `web-awesome.d.ts` (written by `generateNextEnvDts`, the function `init` calls for Next) in place of `vite-env.d.ts`, and `types: []`, so no `vite/client`. Only the components directory is included: the Vite scaffold's own `App.tsx` imports an SVG. One line stands in for Next's own `declare module '*.css' {}`, which TypeScript 6 needs for every Template's side-effect CSS import. A planted `import.meta.env` passes the Vite pass and fails the Next one, which is what shows `vite/client` is out of scope, and the strict-only plant fails it too, since the Next pass inherits `strict` rather than setting it. No Next install, no Next build, no Pages Router CSS strip.
+- **The React 18 pass** swaps `@types/react@18` and `@types/react-dom@18` into the same project, runs the same strict `tsc -b`, then restores React 19's types. A React 19-only import (`useActionState`), typechecked clean before the swap, must fail after it, and a `wa-button` given a `variant` it does not accept must fail too, so `wa-*` elements are typed under React 18 rather than accepting anything. It proves types only: React 19 behaviour that shows at runtime alone, such as a callback ref returning a cleanup React 18 never calls, passes it.
 - Both scaffolders are exact pins in `src/constants.ts`, tracked by the weekly upstream report (`SCAFFOLD_PINS` in `scripts/check-upstream-versions.ts` imports them). Angular 22 is held there until #156: `init` writes an `@/` import for Angular without the alias, which TypeScript 6 rejects.
 
 ---
@@ -661,7 +662,7 @@ E2E tests create temporary projects in `tests/.tmp-*`:
 | `.tmp-e2e-idempotent/` | `smoke.test.ts` | Second project, for the run-`init`-twice idempotency block |
 | `.tmp-e2e-diff/` | `diff.test.ts` | Component comparison against a modified working copy |
 | `.tmp-e2e-source-layout/` | `init-source-layout.test.ts` | One scaffold per framework/layout combination (issue #48) |
-| `.tmp-e2e-{free,pro}-consumer-tsc-react/` | `consumer-tsc-react.test.ts` | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next pass (#73, #78, #79) |
+| `.tmp-e2e-{free,pro}-consumer-tsc-react/` | `consumer-tsc-react.test.ts` | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next and React 18 passes (#73, #78, #79, #81) |
 | `.tmp-e2e-{free,pro}-consumer-tsc-vue/` | `consumer-tsc-vue.test.ts` | create-vite vue-ts `init` + `add --all` + `vue-tsc -b` (issues #78, #79) |
 | `.tmp-e2e-{free,pro}-consumer-tsc-angular/` | `consumer-tsc-angular.test.ts` | `ng new` `init` + `add --all` + `ngc` (issues #78, #79) |
 
