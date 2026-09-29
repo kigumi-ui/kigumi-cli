@@ -11,7 +11,7 @@
  * - Component counts match registry (root + src/AGENTS.md)
  * - Pro-only component list matches registry tier assignments
  * - Template diagram lists all frameworks with correct counts
- * - Test file count and list completeness in tests/AGENTS.md
+ * - Every tests/unit test file is listed in tests/AGENTS.md, and no file count is stated
  * - Component-count claims in templates/AGENTS.md prose match the registry
  * - No AGENTS.md or CLAUDE.md carries a "Last Updated" stamp or a changelog
  *
@@ -363,8 +363,23 @@ export async function checkNoHistory(root = PROJECT_ROOT): Promise<string[]> {
 }
 
 // ---------------------------------------------------------------------------
-// Check: Test file count and completeness
+// Check: Test file completeness
 // ---------------------------------------------------------------------------
+
+/**
+ * Finds a test-file count in the tests/AGENTS.md tree, e.g. "(120 files".
+ *
+ * The tree used to state one, and every PR that added a test bumped it. Two
+ * PRs bumping 119 to 120 is the same edit on both sides, so git merged it
+ * without a conflict to a number one too low (#154 and #161: 120 claimed,
+ * 121 real), and main went red. The tree already lists every file, which is
+ * what the check below holds, so the number carries nothing but that risk.
+ * Pure, so the matcher is table-tested without touching disk.
+ */
+export function findTestCountClaim(content: string): string | null {
+  const match = content.match(/unit\/\s+#.*?\(\d+\s+files/);
+  return match ? match[0] : null;
+}
 
 async function checkTestFiles(): Promise<string[]> {
   const errors: string[] = [];
@@ -376,15 +391,12 @@ async function checkTestFiles(): Promise<string[]> {
 
   const testsAgents = await readAgentsFile('tests/AGENTS.md');
 
-  // Check count in header
-  const countMatch = testsAgents.match(/unit\/\s+#.*?\((\d+)\s+files/);
-  if (countMatch) {
-    const claimed = parseInt(countMatch[1], 10);
-    if (claimed !== actualFiles.length) {
-      errors.push(
-        `tests/AGENTS.md says ${claimed} test files, actual ${actualFiles.length}`
-      );
-    }
+  const countClaim = findTestCountClaim(testsAgents);
+  if (countClaim) {
+    errors.push(
+      `tests/AGENTS.md states a test-file count ("${countClaim}"). Delete it: ` +
+        `the tree lists every file, and parallel PRs bumping the same number merge to a wrong one silently`
+    );
   }
 
   // Check each file is listed in the tree

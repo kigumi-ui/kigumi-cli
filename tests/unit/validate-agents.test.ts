@@ -18,6 +18,7 @@ import {
   checkNoHistory,
   checkTemplateCountClaims,
   findHistory,
+  findTestCountClaim,
   findTemplateCountClaims,
 } from '../../scripts/validate-agents.js';
 
@@ -233,5 +234,23 @@ describe('checkNoHistory', () => {
 
   it('is one of the checks validate:agents runs', () => {
     expect(AGENTS_CHECKS.map((check) => check.fn)).toContain(checkNoHistory);
+  });
+});
+
+describe('findTestCountClaim', () => {
+  it('finds the count the tree used to state', () => {
+    expect(
+      findTestCountClaim(
+        '├── unit/                    # Fast, isolated tests (120 files at top level, ~1500 tests)'
+      )
+    ).toBe('unit/                    # Fast, isolated tests (120 files');
+  });
+
+  it('passes the tree line without a count', () => {
+    expect(
+      findTestCountClaim(
+        '├── unit/                    # Fast, isolated tests (more under eslint-rules/, scripts/, schemas/)'
+      )
+    ).toBeNull();
   });
 });
