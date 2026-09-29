@@ -22,6 +22,7 @@ tests/
 │   ├── config-checks.test.ts        # Config validation checks
 │   ├── config-error-surface.test.ts # Config error surface (cluster A: ConfigInvalidError vs TypeError)
 │   ├── config-schema.test.ts        # Zod config schema validation
+│   ├── consumer-premise.test.ts     # consumerPremise + reportNotRun: a tokenless Pro consumer tsc is skipped (locally, fork and Dependabot PRs) or failed (CI), never a pass; CI's e2e job never takes the failing branch unless broken, so this holds it (#79)
 │   ├── detect-framework.test.ts     # Framework/TS/PM detection
 │   ├── diff-command.test.ts         # Diff command (component comparison)
 │   ├── diff-renderer.test.ts        # Diff renderer terminal output
@@ -189,11 +190,13 @@ tests/
 ├── e2e/                     # Full CLI integration
 │   ├── smoke.test.ts            # End-to-end workflows
 │   ├── init-source-layout.test.ts # `init` across all 4 framework/layout combos (issue #48)
-│   ├── free-consumer-tsc-react.test.ts   # Vite-React init + add --all + strict `tsc -b` (issue #73), then the same add-output under the Next ambient declaration (issue #78)
-│   ├── free-consumer-tsc-vue.test.ts     # create-vite vue-ts init + add --all + `vue-tsc -b` (issue #78)
-│   ├── free-consumer-tsc-angular.test.ts # `ng new` init + add --all + `ngc` with strictTemplates (issue #78)
+│   ├── consumer-tsc-react.test.ts   # Free and Pro: Vite-React init + add --all + strict `tsc -b` (issues #73, #79), then the same add-output under the Next ambient declaration (issue #78)
+│   ├── consumer-tsc-vue.test.ts     # Free and Pro: create-vite vue-ts init + add --all + `vue-tsc -b` (issues #78, #79)
+│   ├── consumer-tsc-angular.test.ts # Free and Pro: `ng new` init + add --all + `ngc` with strictTemplates (issues #78, #79)
 │   ├── _helpers/
-│   │   └── free-consumer.ts              # describeFreeConsumer(): the four checks every Free consumer suite shares
+│   │   ├── consumer.ts              # describeConsumers(): the four checks every consumer suite shares, registered once per tier
+│   │   ├── consumer-premise.ts      # consumerPremise(): whether a tier's consumer can run here; reportNotRun(): a tokenless Pro consumer did not run (docs/adr/0003)
+│   │   └── free-tier-env.ts         # FREE_TIER_ENV: blanks both token sources so a global Pro token cannot move a Free suite onto Pro
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures, and no fixture without an emitted file (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
@@ -549,9 +552,11 @@ describe('smoke test', () => {
 });
 ```
 
-#### Free consumer tsc (`free-consumer-tsc-*.test.ts`)
+#### Consumer tsc (`consumer-tsc-*.test.ts`)
 
-The types seam of `docs/adr/0004`: each suite scaffolds a project with the framework's own tool, runs the real CLI (`init`, then `add --all`), and typechecks it with that project's own compiler. `describeFreeConsumer()` in `tests/e2e/_helpers/free-consumer.ts` registers the same four checks for every framework: the Free package at `DEFAULT_WEBAWESOME_VERSION` and no Pro package, the Free Templates and no Pro-only ones, a clean typecheck, and a planted strict-only error (`take(null)`, TS2345) reported as the compiler's own output. Every plant goes into the components directory beside the Templates (`withPlanted()`), so a rejected plant also shows that directory is in the compiled program; a clean typecheck alone would pass with the Templates excluded. `expectRejected()` is the one assertion for a plant: non-zero exit, the plant's path and each diagnostic in the output, and a message naming the command and the file when the compiler exits 0. A new consumer (the Pro one of issue #79, say) supplies a `FreeConsumerSpec` rather than copying the checks.
+The types seam of `docs/adr/0004`: each suite scaffolds a project with the framework's own tool, runs the real CLI (`init`, then `add --all`), and typechecks it with that project's own compiler. `describeConsumers()` in `tests/e2e/_helpers/consumer.ts` registers the same four checks for every framework, once for a Free and once for a Pro consumer, each on its own project: the tier's package at `DEFAULT_WEBAWESOME_VERSION` and the other tier's package in neither `package.json` nor `node_modules` (so a Template importing the wrong path cannot resolve), the tier's Templates (Free drops the Pro-only ones, Pro installs every one), a clean typecheck, and a planted strict-only error (`take(null)`, TS2345) reported as the compiler's own output. `add --all` is the only tier filter; the suites compare what landed with the registry. Every plant goes into the components directory beside the Templates (`withPlanted()`), so a rejected plant also shows that directory is in the compiled program; a clean typecheck alone would pass with the Templates excluded. `expectRejected()` is the one assertion for a plant: non-zero exit, the plant's path and each diagnostic in the output, and a message naming the command and the file when the compiler exits 0. A new framework supplies a `ConsumerSpec` rather than copying the checks, and gets both tiers.
+
+**The Pro consumer needs a Web Awesome Pro token**, found the way `init` finds one: `detectProTokenSync` on the consumer's own directory, which reads `WEBAWESOME_NPM_TOKEN`, then `~/.npmrc`, then that directory's `.env` (which a fresh scaffold does not have). Without one it did not run: `consumerPremise()` and `reportNotRun()` register a single `has the Pro package to typecheck against` test that is skipped as `NOT verified` where `skipPermitted()` allows it (outside CI, or with `KIGUMI_FRESHNESS_ALLOW_SKIP=1`) and fails as `could not run` everywhere else, in the `summarizeGuard()` wording of `docs/adr/0003`. A premise check, not the typecheck, is what catches a "Pro" consumer that installed Free: its typecheck passes. The install authenticates only through the `~/.npmrc` `_authToken` line; `WEBAWESOME_NPM_TOKEN` alone makes `init` choose Pro and then fail with a 401 (#160), so the Pro consumer fails rather than skips there. CI's `e2e` job writes that line when the `WEBAWESOME_NPM_TOKEN` secret exists, and sets `KIGUMI_FRESHNESS_ALLOW_SKIP` only on the pull requests that receive no secrets (forks and Dependabot); a same-repo pull request without the token fails. Every other e2e suite spreads `FREE_TIER_ENV` into the CLI's environment, so a global token does not move it onto Pro.
 
 | Framework | Scaffold | Typecheck |
 | --- | --- | --- |
@@ -634,9 +639,9 @@ E2E tests create temporary projects in `tests/.tmp-*`:
 | `.tmp-e2e-idempotent/` | `smoke.test.ts` | Second project, for the run-`init`-twice idempotency block |
 | `.tmp-e2e-diff/` | `diff.test.ts` | Component comparison against a modified working copy |
 | `.tmp-e2e-source-layout/` | `init-source-layout.test.ts` | One scaffold per framework/layout combination (issue #48) |
-| `.tmp-e2e-free-consumer-tsc-react/` | `free-consumer-tsc-react.test.ts` | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next pass (#73, #78) |
-| `.tmp-e2e-free-consumer-tsc-vue/` | `free-consumer-tsc-vue.test.ts` | create-vite vue-ts `init` + `add --all` + `vue-tsc -b` (issue #78) |
-| `.tmp-e2e-free-consumer-tsc-angular/` | `free-consumer-tsc-angular.test.ts` | `ng new` `init` + `add --all` + `ngc` (issue #78) |
+| `.tmp-e2e-{free,pro}-consumer-tsc-react/` | `consumer-tsc-react.test.ts` | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next pass (#73, #78, #79) |
+| `.tmp-e2e-{free,pro}-consumer-tsc-vue/` | `consumer-tsc-vue.test.ts` | create-vite vue-ts `init` + `add --all` + `vue-tsc -b` (issues #78, #79) |
+| `.tmp-e2e-{free,pro}-consumer-tsc-angular/` | `consumer-tsc-angular.test.ts` | `ng new` `init` + `add --all` + `ngc` (issues #78, #79) |
 
 These are gitignored and recreated on each run.
 

@@ -1,5 +1,5 @@
 /**
- * Free consumer tsc, Vue (issue #78).
+ * Consumer tsc, Vue: Free (issue #78) and Pro (issue #79).
  *
  * An ephemeral create-vite vue-ts project created with the real CLI (`init`,
  * then `add --all`), typechecked with that project's own `vue-tsc -b`, the
@@ -13,13 +13,11 @@
 
 import { execa } from 'execa';
 import fs from 'fs-extra';
-import path from 'path';
 import { CREATE_VITE_VERSION } from '../../src/constants.js';
-import { describeFreeConsumer } from './_helpers/free-consumer.js';
+import { describeConsumers } from './_helpers/consumer.js';
 
-describeFreeConsumer({
-  title: 'Free consumer tsc: Vue',
-  dir: path.resolve(__dirname, '../.tmp-e2e-free-consumer-tsc-vue'),
+describeConsumers({
+  framework: 'Vue',
   scaffold: async (dir) => {
     await fs.ensureDir(dir);
     await execa(

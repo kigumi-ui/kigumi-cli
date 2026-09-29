@@ -1,12 +1,16 @@
 /**
- * Shared shape of the Free consumer tsc suites (issues #73, #78).
+ * Shared shape of the consumer tsc suites (issues #73, #78, #79).
  *
  * Types are proven on the files a user receives: an ephemeral project made
  * by the framework's own scaffolder, then the real CLI (`init`, then
  * `add --all`), then that project's own strict typecheck. Each framework
- * file supplies a `FreeConsumerSpec`; `describeFreeConsumer` registers the
- * same four checks for all of them, so a gap in one framework cannot hide
- * behind coverage in another.
+ * file supplies a `ConsumerSpec`; `describeConsumers` registers the same
+ * checks for all of them, once per tier, so a gap in one framework or one
+ * tier cannot hide behind coverage in another.
+ *
+ * The Free consumer always runs. The Pro consumer runs where `init` finds a
+ * Web Awesome Pro token; without one it reports did not run
+ * (`consumerPremise`, docs/adr/0003) and never a pass.
  *
  * `add --all` is the only install filter. The suites read the registry
  * afterwards to observe which Templates landed; they never pick components.
@@ -28,17 +32,58 @@ import path from 'path';
 import { stripVTControlCharacters } from 'node:util';
 import { getAllComponents } from '../../../src/utils/registry.js';
 import { DEFAULT_WEBAWESOME_VERSION } from '../../../src/constants.js';
+import { detectProTokenSync } from '../../../src/utils/token.js';
+import type { Tier } from '../../../src/utils/tier.js';
+import { consumerPremise, reportNotRun } from './consumer-premise.js';
+import { FREE_TIER_ENV } from './free-tier-env.js';
 
 export const CLI_PATH = path.resolve(__dirname, '../../../dist/index.js');
 
-export const FREE_PACKAGE = '@awesome.me/webawesome';
+const TIERS: readonly Tier[] = ['free', 'pro'];
+
+interface RegistryNames {
+  free: string[];
+  pro: string[];
+}
+
+interface TierFacts {
+  /** Capitalised, for titles. */
+  name: string;
+  /** The package this tier's consumer must install. */
+  packageName: string;
+  /** The package it must not, so an import of it cannot resolve. */
+  otherPackage: string;
+  /** Environment for the CLI, on top of the test process's own. */
+  env: Readonly<Record<string, string>>;
+  /** Title of the check comparing installed Templates with the registry. */
+  templatesTitle: string;
+  /** The registry components `add --all` must install on this tier, sorted. */
+  expectedTemplates: (names: RegistryNames) => string[];
+}
+
+const FREE_PACKAGE = '@awesome.me/webawesome';
 const PRO_PACKAGE = '@awesome.me/webawesome-pro';
 
-// Same isolation as smoke.test.ts: a developer's global Pro token must not
-// switch this consumer onto the Pro package.
-const FREE_TIER_ENV = {
-  WEBAWESOME_NPM_TOKEN: '',
-  KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
+const TIER_FACTS: Record<Tier, TierFacts> = {
+  free: {
+    name: 'Free',
+    packageName: FREE_PACKAGE,
+    otherPackage: PRO_PACKAGE,
+    env: FREE_TIER_ENV,
+    templatesTitle: 'installs Free Templates and drops Pro-only ones',
+    expectedTemplates: ({ free }) => free,
+  },
+  pro: {
+    name: 'Pro',
+    packageName: PRO_PACKAGE,
+    otherPackage: FREE_PACKAGE,
+    // Nothing added: the CLI inherits this environment and reads the same
+    // ~/.npmrc, so it finds the token `consumerPremise` was given.
+    env: {},
+    templatesTitle: 'installs every Template, Pro-only ones included',
+    expectedTemplates: ({ free, pro }) =>
+      [...free, ...pro].sort((a, b) => a.localeCompare(b)),
+  },
 };
 
 export const SCAFFOLD_TIMEOUT_MS = 600_000;
@@ -96,11 +141,9 @@ const STRICT_ONLY_DIAGNOSTICS = [
   "Argument of type 'null' is not assignable to parameter of type 'string'.",
 ] as const;
 
-export interface FreeConsumerSpec {
-  /** Name of the describe block. */
-  title: string;
-  /** Absolute path of the ephemeral project. Removed before and after. */
-  dir: string;
+export interface ConsumerSpec {
+  /** Framework name for titles; lower-cased, it names the project directories. */
+  framework: string;
   /** Create the project in `dir` with the framework's own scaffolder. */
   scaffold: (dir: string) => Promise<void>;
   /** Arguments after `kigumi init`. */
@@ -116,7 +159,9 @@ export interface FreeConsumerSpec {
 }
 
 /** Handle the framework file uses to add checks on the same project. */
-export interface FreeConsumer {
+export interface Consumer {
+  /** The Web Awesome package this consumer installs and typechecks against. */
+  packageName: string;
   dir: string;
   /** `pnpm exec <args>` in the consumer. Never rejects. */
   exec: (args: string[]) => Promise<CommandOutput>;
@@ -143,7 +188,7 @@ interface ConsumerConfig {
   installedComponents?: Record<string, unknown>;
 }
 
-function registryNamesByTier(): { free: string[]; pro: string[] } {
+function registryNamesByTier(): RegistryNames {
   const free: string[] = [];
   const pro: string[] = [];
 
@@ -161,21 +206,52 @@ function registryNamesByTier(): { free: string[]; pro: string[] } {
 }
 
 /**
- * Register the Free consumer checks for one framework. `more` runs inside
- * the same describe block, after the shared checks, so it sees the same
- * scaffolded project.
+ * Register the consumer checks for one framework, a Free and a Pro consumer
+ * each on its own project. `more` runs inside each consumer's describe block,
+ * after the shared checks, so it sees the same scaffolded project.
  */
-export function describeFreeConsumer(
-  spec: FreeConsumerSpec,
-  more?: (consumer: FreeConsumer) => void
+export function describeConsumers(
+  spec: ConsumerSpec,
+  more?: (consumer: Consumer) => void
 ): void {
+  for (const tier of TIERS) {
+    describeConsumer(tier, spec, more);
+  }
+}
+
+function describeConsumer(
+  tier: Tier,
+  spec: ConsumerSpec,
+  more?: (consumer: Consumer) => void
+): void {
+  const facts = TIER_FACTS[tier];
+  const title = `${facts.name} consumer tsc: ${spec.framework}`;
+  const dir = path.resolve(
+    __dirname,
+    `../../.tmp-e2e-${tier}-consumer-tsc-${spec.framework.toLowerCase()}`
+  );
+
+  const premise = consumerPremise(tier, {
+    label: title,
+    token: detectProTokenSync(dir),
+  });
+
+  if (!premise.run) {
+    const { summary } = premise;
+    describe(title, () => {
+      it(`has the ${facts.name} package to typecheck against`, (ctx) =>
+        reportNotRun(summary, (note) => ctx.skip(note)));
+    });
+    return;
+  }
+
   const typecheckCommand = spec.typecheck.join(' ');
   let config: ConsumerConfig | undefined;
 
   async function exec(args: string[]): Promise<CommandOutput> {
     return toCommandOutput(
       await execa('pnpm', ['exec', ...args], {
-        cwd: spec.dir,
+        cwd: dir,
         reject: false,
       })
     );
@@ -184,11 +260,11 @@ export function describeFreeConsumer(
   async function runCli(args: string[]): Promise<CommandOutput> {
     return toCommandOutput(
       await execa('node', [CLI_PATH, ...args], {
-        cwd: spec.dir,
+        cwd: dir,
         reject: false,
         env: {
           ...process.env,
-          ...FREE_TIER_ENV,
+          ...facts.env,
         },
       })
     );
@@ -201,8 +277,9 @@ export function describeFreeConsumer(
     return config;
   }
 
-  const consumer: FreeConsumer = {
-    dir: spec.dir,
+  const consumer: Consumer = {
+    packageName: facts.packageName,
+    dir,
     exec,
     typecheck: () => exec(spec.typecheck),
     componentsDir: () => readConfig().componentsDir,
@@ -214,7 +291,7 @@ export function describeFreeConsumer(
     },
     async withPlanted(planted, run) {
       const plantedPath = path.join(
-        spec.dir,
+        dir,
         consumer.componentsDir(),
         planted.file
       );
@@ -241,10 +318,10 @@ export function describeFreeConsumer(
     },
   };
 
-  describe(spec.title, () => {
+  describe(title, () => {
     beforeAll(async () => {
-      await fs.remove(spec.dir);
-      await spec.scaffold(spec.dir);
+      await fs.remove(dir);
+      await spec.scaffold(dir);
 
       const init = await runCli(['init', ...spec.initArgs]);
       expect(init.exitCode, commandText(init)).toBe(0);
@@ -253,19 +330,19 @@ export function describeFreeConsumer(
       expect(add.exitCode, commandText(add)).toBe(0);
 
       config = (await fs.readJSON(
-        path.join(spec.dir, 'kigumi.config.json')
+        path.join(dir, 'kigumi.config.json')
       )) as ConsumerConfig;
 
-      await spec.prepare?.(spec.dir);
+      await spec.prepare?.(dir);
     }, SCAFFOLD_TIMEOUT_MS);
 
     afterAll(async () => {
-      await fs.remove(spec.dir);
+      await fs.remove(dir);
     });
 
-    it('installs the pinned Free Web Awesome package only', async () => {
+    it(`installs the pinned ${facts.name} Web Awesome package only`, async () => {
       const packageJson = (await fs.readJSON(
-        path.join(spec.dir, 'package.json')
+        path.join(dir, 'package.json')
       )) as {
         dependencies?: Record<string, string>;
         devDependencies?: Record<string, string>;
@@ -273,35 +350,44 @@ export function describeFreeConsumer(
 
       // Types are proven against the version the CLI ships (#71, story 45),
       // which `init` writes as an exact pin.
-      expect(packageJson.dependencies?.[FREE_PACKAGE]).toBe(
+      expect(packageJson.dependencies?.[facts.packageName]).toBe(
         DEFAULT_WEBAWESOME_VERSION
       );
-      expect(packageJson.dependencies?.[PRO_PACKAGE]).toBeUndefined();
-      expect(packageJson.devDependencies?.[PRO_PACKAGE]).toBeUndefined();
+      expect(packageJson.dependencies?.[facts.otherPackage]).toBeUndefined();
+      expect(packageJson.devDependencies?.[facts.otherPackage]).toBeUndefined();
 
       const installed = (await fs.readJSON(
         path.join(
-          spec.dir,
+          dir,
           'node_modules',
-          ...FREE_PACKAGE.split('/'),
+          ...facts.packageName.split('/'),
           'package.json'
         )
       )) as { version?: string };
       expect(installed.version).toBe(DEFAULT_WEBAWESOME_VERSION);
+
+      // Absent from node_modules too, so a Template still importing the other
+      // tier's path cannot resolve and fails the typecheck below.
+      expect(
+        await fs.pathExists(
+          path.join(dir, 'node_modules', ...facts.otherPackage.split('/'))
+        )
+      ).toBe(false);
     });
 
-    it('installs Free Templates and drops Pro-only ones', async () => {
-      const { free, pro } = registryNamesByTier();
-      expect(free.length).toBeGreaterThan(0);
-      expect(pro.length).toBeGreaterThan(0);
+    it(facts.templatesTitle, async () => {
+      const names = registryNamesByTier();
+      expect(names.free.length).toBeGreaterThan(0);
+      expect(names.pro.length).toBeGreaterThan(0);
+      const expected = facts.expectedTemplates(names);
 
       const { componentsDir, installedComponents } = readConfig();
       const installed = Object.keys(installedComponents ?? {}).sort((a, b) =>
         a.localeCompare(b)
       );
-      expect(installed).toEqual(free);
+      expect(installed).toEqual(expected);
 
-      const componentsPath = path.join(spec.dir, componentsDir);
+      const componentsPath = path.join(dir, componentsDir);
       const entries = await fs.readdir(componentsPath, {
         withFileTypes: true,
       });
@@ -310,8 +396,8 @@ export function describeFreeConsumer(
         .map((entry) => entry.name)
         .sort((a, b) => a.localeCompare(b));
 
-      expect(onDisk).toEqual(free);
-      for (const name of free) {
+      expect(onDisk).toEqual(expected);
+      for (const name of expected) {
         expect(
           await fs.pathExists(
             path.join(componentsPath, name, spec.templateFile(name))

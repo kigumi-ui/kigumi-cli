@@ -145,7 +145,7 @@ export const DEFAULT_WEBAWESOME_VERSION = '3.14.0';
 
 /**
  * Exact `create-vite` version used to scaffold the ephemeral React and Vue
- * consumer projects in `tests/e2e/free-consumer-tsc-{react,vue}.test.ts`.
+ * consumer projects in `tests/e2e/consumer-tsc-{react,vue}.test.ts`.
  *
  * Pinned (no floating `pnpm create vite` with no version): the tests assert
  * on what the react-ts and vue-ts templates produce (a `tsconfig.app.json`,
@@ -160,7 +160,7 @@ export const CREATE_VITE_VERSION = '9.2.1';
 
 /**
  * Exact `@angular/cli` version whose `ng new` scaffolds the ephemeral Angular
- * consumer in `tests/e2e/free-consumer-tsc-angular.test.ts` (issue #78).
+ * consumers in `tests/e2e/consumer-tsc-angular.test.ts` (issues #78, #79).
  *
  * Same reasoning as `CREATE_VITE_VERSION`: invoked via `pnpm dlx`, so
  * Dependabot cannot see it, and the weekly upstream report tracks it instead.

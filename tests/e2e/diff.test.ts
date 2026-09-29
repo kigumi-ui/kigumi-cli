@@ -11,6 +11,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
+import { FREE_TIER_ENV } from './_helpers/free-tier-env.js';
 
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-diff');
 const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
@@ -37,6 +38,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
       cwd: TEST_DIR,
       env: {
         ...process.env,
+        ...FREE_TIER_ENV,
         CI: 'true',
         NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
       },
@@ -51,6 +53,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
       cwd: TEST_DIR,
       env: {
         ...process.env,
+        ...FREE_TIER_ENV,
         CI: 'true',
         NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
       },
@@ -80,6 +83,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
         cwd: TEST_DIR,
         env: {
           ...process.env,
+          ...FREE_TIER_ENV,
           CI: 'true',
           NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
         },
@@ -97,6 +101,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
       cwd: TEST_DIR,
       env: {
         ...process.env,
+        ...FREE_TIER_ENV,
         CI: 'true',
         NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
       },

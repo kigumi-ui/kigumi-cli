@@ -1,6 +1,6 @@
 /**
- * Free consumer tsc, React (issue #73) plus the Next ambient declaration
- * (issue #78).
+ * Consumer tsc, React: Free (issue #73) and Pro (issue #79), each plus the
+ * Next ambient declaration (issue #78).
  *
  * An ephemeral Vite-React project created with the real CLI (`init`, then
  * `add --all`), typechecked with that project's own `tsc -b`. Vite's react-ts
@@ -23,14 +23,11 @@ import { readJSONWithComments } from '../../src/utils/json.js';
 import { generateNextEnvDts } from '../../src/utils/regenerate.js';
 import { CREATE_VITE_VERSION } from '../../src/constants.js';
 import {
-  FREE_PACKAGE,
   TSC_TIMEOUT_MS,
   commandText,
-  describeFreeConsumer,
+  describeConsumers,
   type PlantedError,
-} from './_helpers/free-consumer.js';
-
-const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-free-consumer-tsc-react');
+} from './_helpers/consumer.js';
 
 const NEXT_AMBIENT_DIR = 'next-ambient';
 const NEXT_TSCONFIG = 'tsconfig.next.json';
@@ -57,10 +54,9 @@ const VITE_ONLY_ERROR: PlantedError = {
  */
 const NEXT_CSS_DECLARATION = "declare module '*.css' {}\n";
 
-describeFreeConsumer(
+describeConsumers(
   {
-    title: 'Free consumer tsc: React',
-    dir: TEST_DIR,
+    framework: 'React',
     scaffold: async (dir) => {
       await fs.ensureDir(dir);
       await execa(
@@ -116,7 +112,11 @@ describeFreeConsumer(
       beforeAll(async () => {
         // The function `init` calls for a Next project. A Vite project never
         // reaches that branch, so this is the highest seam that writes it.
-        await generateNextEnvDts(consumer.dir, NEXT_AMBIENT_DIR, FREE_PACKAGE);
+        await generateNextEnvDts(
+          consumer.dir,
+          NEXT_AMBIENT_DIR,
+          consumer.packageName
+        );
         await fs.writeFile(
           path.join(consumer.dir, NEXT_AMBIENT_DIR, 'next-css.d.ts'),
           NEXT_CSS_DECLARATION

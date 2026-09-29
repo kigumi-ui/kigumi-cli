@@ -26,16 +26,10 @@ import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
+import { FREE_TIER_ENV } from './_helpers/free-tier-env.js';
 
 const TEST_ROOT = path.resolve(__dirname, '../.tmp-e2e-source-layout');
 const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
-
-// Same isolation as smoke.test.ts: keep a developer's global Pro token from
-// changing which Web Awesome package this resolves to.
-const FREE_TIER_ENV = {
-  WEBAWESOME_NPM_TOKEN: '',
-  KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
-};
 
 type Framework = 'react' | 'vue';
 type Layout = 'src' | 'root';

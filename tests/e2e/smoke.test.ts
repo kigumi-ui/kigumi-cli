@@ -11,23 +11,11 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
+import { FREE_TIER_ENV } from './_helpers/free-tier-env.js';
 
 // Use workspace temp directory to avoid system permission issues
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-smoke');
 const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
-
-// Isolate from host Pro-tier detection. Mirrors `tests/integration/helpers.ts`:
-// kigumi looks at `WEBAWESOME_NPM_TOKEN` (env), `.npmrc` (project + global),
-// and the project's `package.json` to decide whether to install
-// `@awesome.me/webawesome` (Free) or `@awesome.me/webawesome-pro`. A developer
-// running locally with a Pro token configured globally would otherwise see the
-// Free-tier smoke test resolve to the Pro package and the
-// `dependencies['@awesome.me/webawesome']` assertion fail. CI runners have
-// neither the token nor a global npmrc, so this was a local-only failure.
-const FREE_TIER_ENV = {
-  WEBAWESOME_NPM_TOKEN: '',
-  KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
-};
 
 // `init --yes` runs two sequential package-manager installs (deps then
 // devDeps) via execa. On a cold CI runner with an empty pnpm/npm store the

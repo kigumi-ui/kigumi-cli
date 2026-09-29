@@ -17,6 +17,11 @@
  * separate facts, so `GuardSummary` carries both and only a fully verified run
  * may print an unqualified pass.
  *
+ * The Pro consumer tsc suites (tests/e2e/_helpers/consumer-premise.ts) report
+ * through the same summary. Their missing input is the Pro package rather
+ * than a manifest, which is also what ships the complete one, so they pass a
+ * verdict for that package as `cem`.
+ *
  * Deciding what absence *means* stays with the caller (see `SummarizeOptions`).
  * A resolver reports facts; policy differs per guard, because the operations
  * differ: Check A regenerates every template and is dishonest against a partial
