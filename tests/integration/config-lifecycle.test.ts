@@ -19,6 +19,7 @@ import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { execa } from 'execa';
+import { FREE_TIER_ENV } from '../_helpers/free-tier-env.js';
 
 const CLI_PATH = path.join(process.cwd(), 'dist', 'index.js');
 
@@ -58,8 +59,7 @@ async function runKigumi(
       env: {
         ...process.env,
         CI: 'true',
-        WEBAWESOME_NPM_TOKEN: '',
-        KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
+        ...FREE_TIER_ENV,
       },
     });
     return {

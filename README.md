@@ -482,7 +482,7 @@ If `npm install` fails with 401 errors:
 
 3. Check your token is valid at [https://webawesome.com/login](https://webawesome.com/login)
 
-**Using pnpm?** pnpm does not use global auth for scoped registries. If 401 persists, add the token to your project `.npmrc` or use `npx kigumi init --token YOUR_TOKEN`.
+**Using pnpm?** pnpm reads the same global `~/.npmrc` auth line as npm (checked with pnpm 10). If 401 persists, add the token to your project `.npmrc` or use `npx kigumi init --token YOUR_TOKEN`.
 
 ### Component styles not loading
 

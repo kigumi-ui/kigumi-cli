@@ -81,7 +81,10 @@ guards disagree. The distinction is carried by `verified`.
 `scripts/guard-outcome.ts` owns this vocabulary (`summarizeGuard`,
 `GuardSummary`, `skipPermitted`) and both CEM-dependent guards consume it. A
 third guard that needs a manifest uses it too rather than writing its own
-reporting.
+reporting. The Pro consumer tsc suites (issue #79) are such a caller: their
+missing input is the Pro package rather than a manifest, and they report it
+through the same summary. The release-readiness gate runner reads the
+`NOT verified` those summaries print as a failed gate.
 
 A check that cannot run in CI must either be given what it needs (the
 `freshness` job installs Pro for exactly this reason) or fail. "It self-skips

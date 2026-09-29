@@ -11,7 +11,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
-import { FREE_TIER_ENV } from './_helpers/free-tier-env.js';
+import { FREE_TIER_ENV } from '../_helpers/free-tier-env.js';
 
 // Use workspace temp directory to avoid system permission issues
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-smoke');

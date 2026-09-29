@@ -10,10 +10,15 @@ Thanks for your interest in Kigumi. This guide covers everything you need to get
   metadata and type-check shims that carry names and signatures but no Pro-authored documentation, so
   a plain clone builds, type-checks and tests fine.
 
-  Two things do need a Pro token, and both are maintainer tasks: building the documentation site
+  Three things do need a Pro token. Two are maintainer tasks: building the documentation site
   (`docs/` depends on the Pro package), and regenerating the Pro metadata and shims after a Web
-  Awesome upgrade. CI detects a missing token and skips the docs jobs, so a pull request from a fork
-  gets a clean run rather than an authentication error.
+  Awesome upgrade. The third is the Pro consumer typecheck in `pnpm test:e2e`, which installs the
+  Pro package: without a token (the `_authToken` line in `~/.npmrc`) it is skipped and reported as
+  `NOT verified`, so your local run stays green but proves nothing about Pro. CI detects a missing
+  token and skips the docs jobs and the Pro consumer typecheck on pull requests from forks and
+  Dependabot, which receive no secrets, so those get a clean run rather than an authentication
+  error. A pull request from a branch of this repository has the token, and fails if it cannot
+  install the Pro package.
 
 ## Getting Started
 

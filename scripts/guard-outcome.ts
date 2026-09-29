@@ -56,8 +56,9 @@ export interface GuardSummary {
 export interface SummarizeOptions {
   /**
    * Whether an unusable manifest may be tolerated. True only where the Pro
-   * package genuinely cannot be installed -- fork pull requests, which receive
-   * no secrets. Everywhere else an unusable manifest is a real failure.
+   * package genuinely cannot be installed -- fork and Dependabot pull requests,
+   * which receive no repository secrets. Everywhere else an unusable manifest
+   * is a real failure.
    */
   allowSkip?: boolean;
   /**
@@ -72,6 +73,12 @@ export interface SummarizeOptions {
 }
 
 const DEFAULT_LABEL = 'This check';
+
+/**
+ * The words every skipped headline carries. A reader that must not mistake a
+ * skip for a pass, such as the release-readiness gate runner, looks for them.
+ */
+export const NOT_VERIFIED = 'NOT verified';
 const DEFAULT_PASS_HEADLINE = 'Validation passed!';
 const DEFAULT_FIX_HINT =
   'Install the Web Awesome Pro package so the guard can run against a\n' +
@@ -109,11 +116,12 @@ export function summarizeGuard(
       exitCode: skipAllowed ? 0 : 1,
       verified: false,
       headline: skipAllowed
-        ? `${label} skipped, NOT verified: ${result.cem.reason}`
+        ? `${label} skipped, ${NOT_VERIFIED}: ${result.cem.reason}`
         : `${label} could not run: ${result.cem.reason}`,
       detail: skipAllowed
         ? `${label} is unguarded on this run. Expected only where the\n` +
-          'Web Awesome Pro package cannot be installed (fork pull requests).'
+          'Web Awesome Pro package cannot be installed:\n' +
+          'fork and Dependabot pull requests.'
         : (options.fixHint ?? DEFAULT_FIX_HINT),
     };
   }
@@ -131,7 +139,8 @@ export function summarizeGuard(
  * failure.
  *
  * Permitted only where the Web Awesome Pro package genuinely cannot be
- * installed: a fork pull request, which receives no repository secrets.
+ * installed: a fork or Dependabot pull request, which receives no repository
+ * secrets.
  * Everywhere else an unusable manifest is a real failure, because tolerating it
  * everywhere is what let Check A skip on every CI run for months.
  *
