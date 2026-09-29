@@ -5,7 +5,7 @@
  *
  * Reads token from .env files and writes it to:
  * - Global ~/.npmrc (for npm/yarn and projects without local .npmrc)
- * - docs/.npmrc (required for pnpm in docs/ - pnpm does not use global auth for scoped registries)
+ * - docs/.npmrc (docs/ has no committed .npmrc, so its Pro registry line lives here)
  *
  * The docs/.npmrc file is gitignored. Run this script after cloning to generate it.
  *
@@ -120,7 +120,7 @@ function writeTokenToGlobalNpmrc(token) {
   fs.writeFileSync(npmrcPath, content);
 }
 
-// --- docs/.npmrc (required for pnpm - does not use global auth for scoped registries) ---
+// --- docs/.npmrc (docs/ has no committed .npmrc: Pro registry line plus token) ---
 
 function writeDocsNpmrc(token) {
   const docsDir = path.join(ROOT_DIR, 'docs');
@@ -164,7 +164,7 @@ function main() {
     console.log('\u2713 Token already in global ~/.npmrc');
   }
 
-  // Always write to docs/.npmrc (pnpm requires auth in project .npmrc)
+  // Always write to docs/.npmrc: docs/ needs the Pro registry line
   writeDocsNpmrc(token);
   console.log('\u2713 docs/.npmrc updated (gitignored)');
   console.log('   You can now run: pnpm install');

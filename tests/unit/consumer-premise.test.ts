@@ -1,24 +1,28 @@
 /**
- * Whether a consumer tsc suite may run, and what it reports when it may not
- * (issue #79).
+ * Whether the Pro consumer tsc suite can run, and what it reports when it
+ * cannot (issue #79).
  *
- * The Pro consumer needs the Pro package, and only a Web Awesome Pro token
- * installs it. Without one the suite reports "did not run" in the
- * guard-outcome vocabulary of docs/adr/0003: skipped where a missing token is
- * legitimate (a local Free machine, a fork pull request), failed everywhere
- * else, and never a pass.
+ * The Pro consumer needs the pinned Pro package. `resolveProPackage` reports
+ * whether this machine can get it (a token `init` would find, and a registry
+ * that serves the package with this machine's auth); `consumerPremise` turns
+ * that verdict into run, skip or fail in the guard-outcome vocabulary of
+ * docs/adr/0003; `reportNotRun` settles a consumer that did not run. A skip is
+ * permitted only where a missing package is legitimate (a local machine, a
+ * fork or Dependabot pull request), and nothing here is ever a pass.
  *
- * CI's e2e job takes the run branch on this repository's pull requests and
- * the skip branch on fork and Dependabot ones; the could-not-run branch only
- * runs when something is broken. These assertions hold all three on every
- * run, and `reportNotRun` is what turns the last two into a skip or a failure.
+ * These are the only assertions on the skip and fail branches: CI's e2e job
+ * has the token on this repository's pull requests, so there the Pro
+ * consumer runs. tests/unit/ci-e2e-pro-step.test.ts holds the job's side.
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import {
   consumerPremise,
   reportNotRun,
+  resolveProPackage,
+  type ProPackageProbe,
 } from '../e2e/_helpers/consumer-premise.js';
+import type { CemVerdict } from '../../scripts/find-cem.js';
 
 const LABEL = 'Pro consumer tsc: React';
 const TOKEN = 'a'.repeat(32);
@@ -29,65 +33,120 @@ const CI_SKIP_ALLOWED: NodeJS.ProcessEnv = {
   CI: 'true',
   KIGUMI_FRESHNESS_ALLOW_SKIP: '1',
 };
+// What the e2e job's step sets on this repository's pull requests: the
+// variable is present but empty, which must mean the same as absent.
+const CI_SKIP_EMPTY: NodeJS.ProcessEnv = {
+  CI: 'true',
+  KIGUMI_FRESHNESS_ALLOW_SKIP: '',
+};
 
-function unrun(env: NodeJS.ProcessEnv) {
-  const premise = consumerPremise('pro', { label: LABEL, token: null, env });
+const NO_TOKEN = resolveProPackage({
+  token: null,
+  probe: () => {
+    throw new Error('probed without a token');
+  },
+});
+
+function notRunSummary(verdict: CemVerdict, env: NodeJS.ProcessEnv) {
+  const premise = consumerPremise(verdict, { label: LABEL, env });
   if (premise.run) {
-    throw new Error('expected the tokenless Pro consumer not to run');
+    throw new Error('expected the Pro consumer not to run');
   }
   return premise.summary;
 }
 
-describe('consumerPremise', () => {
-  it('runs the Free consumer, which needs no token, even in CI', () => {
-    expect(
-      consumerPremise('free', { label: LABEL, token: null, env: CI })
-    ).toEqual({ run: true });
+describe('resolveProPackage', () => {
+  it('reports the package absent without a token, and never probes', () => {
+    expect(NO_TOKEN).toEqual({
+      usable: false,
+      outcome: 'absent',
+      reason: 'no Web Awesome Pro token, so `init` would install Free',
+    });
   });
 
-  it('runs the Pro consumer when init would find a token', () => {
-    for (const env of [LOCAL, CI, CI_SKIP_ALLOWED]) {
-      expect(
-        consumerPremise('pro', { label: LABEL, token: TOKEN, env })
-      ).toEqual({ run: true });
+  it('reports the package absent when the registry does not serve it here', () => {
+    const probe = vi.fn<() => ProPackageProbe>(() => ({
+      ok: false,
+      detail: 'npm view: E401',
+    }));
+
+    expect(resolveProPackage({ token: TOKEN, probe })).toEqual({
+      usable: false,
+      outcome: 'absent',
+      reason:
+        'the registry does not serve the pinned Pro package to this machine (npm view: E401)',
+    });
+    expect(probe).toHaveBeenCalledOnce();
+  });
+
+  it('reports the package usable when a token exists and the registry serves it', () => {
+    expect(
+      resolveProPackage({
+        token: TOKEN,
+        probe: () => ({ ok: true, detail: '3.14.0' }),
+      })
+    ).toEqual({
+      usable: true,
+      outcome: 'complete',
+      reason: 'pinned Pro package (3.14.0)',
+    });
+  });
+});
+
+describe('consumerPremise', () => {
+  const USABLE: CemVerdict = {
+    usable: true,
+    outcome: 'complete',
+    reason: 'pinned Pro package (3.14.0)',
+  };
+
+  it('runs when the Pro package is usable, whatever the environment', () => {
+    for (const env of [LOCAL, CI, CI_SKIP_ALLOWED, CI_SKIP_EMPTY]) {
+      expect(consumerPremise(USABLE, { label: LABEL, env })).toEqual({
+        run: true,
+      });
     }
   });
 
-  it('skips a tokenless Pro consumer on a local machine, NOT verified', () => {
-    const summary = unrun(LOCAL);
+  it('skips on a local machine, NOT verified', () => {
+    const summary = notRunSummary(NO_TOKEN, LOCAL);
 
     expect(summary.exitCode).toBe(0);
     expect(summary.verified).toBe(false);
     expect(summary.headline).toBe(
-      `${LABEL} skipped, NOT verified: no Web Awesome Pro token, so the Pro package cannot be installed`
+      `${LABEL} skipped, NOT verified: no Web Awesome Pro token, so \`init\` would install Free`
     );
   });
 
-  it('fails a tokenless Pro consumer in CI, naming how to give it one', () => {
-    const summary = unrun(CI);
+  it('fails in CI, naming how to give the machine a token', () => {
+    const summary = notRunSummary(NO_TOKEN, CI);
 
     expect(summary.exitCode).toBe(1);
     expect(summary.verified).toBe(false);
     expect(summary.headline).toBe(
-      `${LABEL} could not run: no Web Awesome Pro token, so the Pro package cannot be installed`
+      `${LABEL} could not run: no Web Awesome Pro token, so \`init\` would install Free`
     );
     expect(summary.detail).toContain(
       'npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken'
     );
   });
 
-  it('skips a tokenless Pro consumer where CI permits it (fork pull requests)', () => {
-    const summary = unrun(CI_SKIP_ALLOWED);
+  it('fails in CI when the skip variable is set but empty', () => {
+    expect(notRunSummary(NO_TOKEN, CI_SKIP_EMPTY).exitCode).toBe(1);
+  });
+
+  it('skips where CI permits it (fork and Dependabot pull requests)', () => {
+    const summary = notRunSummary(NO_TOKEN, CI_SKIP_ALLOWED);
 
     expect(summary.exitCode).toBe(0);
     expect(summary.verified).toBe(false);
     expect(summary.headline).toContain('skipped, NOT verified');
-    expect(summary.detail).toContain('fork pull requests');
+    expect(summary.detail).toContain('fork and Dependabot pull requests');
   });
 
-  it('never reports a tokenless Pro consumer as a pass', () => {
-    for (const env of [LOCAL, CI, CI_SKIP_ALLOWED]) {
-      const summary = unrun(env);
+  it('never reports a Pro consumer that did not run as a pass', () => {
+    for (const env of [LOCAL, CI, CI_SKIP_ALLOWED, CI_SKIP_EMPTY]) {
+      const summary = notRunSummary(NO_TOKEN, env);
       expect(summary.verified).toBe(false);
       expect(summary.headline).not.toMatch(/pass/i);
     }
@@ -96,6 +155,10 @@ describe('consumerPremise', () => {
 
 describe('reportNotRun', () => {
   const SKIPPED = new Error('skip called');
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   function skipSpy() {
     const notes: string[] = [];
@@ -107,7 +170,7 @@ describe('reportNotRun', () => {
   }
 
   it('skips with the headline where the skip is permitted', () => {
-    const summary = unrun(LOCAL);
+    const summary = notRunSummary(NO_TOKEN, LOCAL);
     const { notes, skip } = skipSpy();
     const printed = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -116,11 +179,10 @@ describe('reportNotRun', () => {
     expect(printed).toHaveBeenCalledWith(
       `${summary.headline}\n${summary.detail}`
     );
-    printed.mockRestore();
   });
 
   it('fails with the headline and the fix where it is not, never skipping', () => {
-    const summary = unrun(CI);
+    const summary = notRunSummary(NO_TOKEN, CI);
     const { notes, skip } = skipSpy();
 
     expect(() => reportNotRun(summary, skip)).toThrow(

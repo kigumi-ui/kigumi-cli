@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { execaSync } from 'execa';
 import pc from 'picocolors';
 import semver from 'semver';
+import { NOT_VERIFIED } from './guard-outcome.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.dirname(__dirname);
@@ -90,6 +91,32 @@ function buildGateSpecs(quick: boolean): GateSpec[] {
   return gates;
 }
 
+/**
+ * Whether a gate passed. Exit 0 is not enough: a guard that could not reach
+ * its input may be permitted to skip and exit 0 (docs/adr/0003), and says
+ * NOT verified when it does. A release cannot rest on a check that did not
+ * run, so that output is a failed gate here.
+ */
+export function judgeGate(
+  name: string,
+  exitCode: number | undefined,
+  output: string,
+  durationSec: number
+): GateResult {
+  const unverified = exitCode === 0 && output.includes(NOT_VERIFIED);
+  return {
+    name,
+    pass: exitCode === 0 && !unverified,
+    durationSec,
+    detail:
+      exitCode !== 0
+        ? `exit=${exitCode}`
+        : unverified
+          ? `exit=0 but reported ${NOT_VERIFIED}`
+          : undefined,
+  };
+}
+
 function runGate(spec: GateSpec): GateResult {
   const start = Date.now();
   const result = execaSync(spec.cmd, spec.args, {
@@ -97,12 +124,10 @@ function runGate(spec: GateSpec): GateResult {
     reject: false,
   });
   const durationSec = (Date.now() - start) / 1000;
+  const output = result.stdout + '\n' + result.stderr;
   return {
-    name: spec.name,
-    pass: result.exitCode === 0,
-    durationSec,
-    coveragePct: spec.parseCoverage?.(result.stdout + '\n' + result.stderr),
-    detail: result.exitCode === 0 ? undefined : `exit=${result.exitCode}`,
+    ...judgeGate(spec.name, result.exitCode, output, durationSec),
+    coveragePct: spec.parseCoverage?.(output),
   };
 }
 

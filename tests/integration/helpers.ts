@@ -8,6 +8,7 @@ import { execa } from 'execa';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
+import { FREE_TIER_ENV } from '../_helpers/free-tier-env.js';
 
 const CLI_PATH = path.join(process.cwd(), 'dist', 'index.js');
 
@@ -306,9 +307,7 @@ export async function runKigumi(
         ...process.env,
         // Force non-interactive mode
         CI: 'true',
-        // Isolate from host Pro tier detection
-        WEBAWESOME_NPM_TOKEN: '',
-        KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
+        ...FREE_TIER_ENV,
         NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
       },
     });

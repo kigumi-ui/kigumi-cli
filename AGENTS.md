@@ -61,7 +61,7 @@ node dist/index.js add button --force
 | `scripts/event-types.ts` | Resolve each manifest event to the type its handler receives: the Web Awesome class the component dispatches, read from `dist/events/*.d.ts` via the event name it registers, else a native event's declared scalar type or `NATIVE_EVENT_TYPES`. `EVENT_CLASS_OVERRIDES` pins the accordion's classes; `MANIFEST_EVENT_ARTIFACTS` pins manifest events that never fire, which `resolveEvents()` drops; stale entries are judged against what the manifest describes. Anything unresolvable stops the parser. See `docs/adr/0005` |
 | `scripts/find-cem.ts` | Resolve the Web Awesome CEM on disk, scoped to one root: `resolveCem()` returns path + tier (pro/free) + component count; `{ tier: 'free' }` narrows it to the Free package. Shared by the parser, the skill-reference generator and the freshness guard |
 | `scripts/check-metadata-freshness.ts` | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM or any `dist/events/*.d.ts` beside it, triggering regen |
-| `scripts/guard-outcome.ts` | Shared reporting vocabulary for CEM-dependent guards: `summarizeGuard()` keeps "did it pass" and "did it actually run" as separate facts; `skipPermitted()` decides where an absent manifest may be tolerated. Consumed by `check-generated-fresh.ts`, `validate-cem-sync.ts` and the Pro consumer tsc (`tests/e2e/_helpers/consumer-premise.ts`), which did not run without a Pro token. See `docs/adr/0003` |
+| `scripts/guard-outcome.ts` | Shared reporting vocabulary for CEM-dependent guards: `summarizeGuard()` keeps "did it pass" and "did it actually run" as separate facts; `skipPermitted()` decides where an absent manifest may be tolerated. Consumed by `check-generated-fresh.ts`, `validate-cem-sync.ts` and the Pro consumer tsc (`tests/e2e/_helpers/consumer-premise.ts`), which reports did-not-run where the pinned Pro package cannot be installed. Every skipped headline carries `NOT_VERIFIED`. See `docs/adr/0003` |
 | `scripts/is-entry-point.ts` | `isEntryPoint(import.meta.url)`: true only when the script is the process entry point. Compares real paths, so an absolute invocation through a symlinked directory still runs `main()` instead of exiting 0 silently. Used by the parser, the React/Angular generators (issue #106) and the skill-reference generator (issue #129) |
 | `scripts/check-commit-attribution.ts` | `commit-msg` hook: rejects AI attribution trailers (`Co-Authored-By: Claude`/`Cursor`, `Generated/Made/Created with ...`). Prose mentioning Claude is deliberately allowed. `--pr` mode (`validate:attribution`, CI `attribution` job) checks every branch commit, since squash merges copy them onto main server-side (issue #97); the PR body is `validate:pr-body`'s job |
 | `scripts/pr-body-rules.ts` | Pure rules for PR bodies and PR logs (issue #150, `docs/adr/0006`): `checkBody()` (four allowed headings, no tables/`<details>`/HTML comments/checklists, 2,500 characters, attribution, and on a ready PR claims matched against the diff), `checkRewrite()`/`checkEditHistory()`/`bodyEdit()` (a rewrite of a ready PR, also from GitHub's edit history, and the machine-written trail), `logCoverage()`/`logStatus()` (`**Round N** · Covers: a..b` ranges), `isExempt()` |
@@ -109,7 +109,7 @@ node dist/index.js add button --force
 | `scripts/storybook/patch-stories.ts` | Patch generated Storybook stories |
 | `scripts/storybook/story-data.ts` | Storybook story data helpers |
 | `scripts/storybook/validate-stories.ts` | Validate Storybook story structure: an argType per registry prop, and each argType's `defaultValue.summary` equal to the registry default, read from the parsed story file; an argType whose summary it cannot read statically is an `unreadable-argtypes` error, never a skip (issue #152, `docs/adr/0003`) |
-| `scripts/release-readiness.ts` | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness` |
+| `scripts/release-readiness.ts` | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness`. A gate that exits 0 but reports a guard `NOT verified` fails (`judgeGate()`, docs/adr/0003) |
 | `scripts/upstream-holds.json` | Majors already evaluated and deliberately held: toolchain (`typescript`, `vitest`) and the `@angular/cli` scaffold pin (Angular 22, until #156); `check-upstream-versions.ts` reads it so the weekly report stops re-flagging a decision already made, and only surfaces a genuinely new major |
 
 ---
@@ -356,7 +356,7 @@ async function detectTier(cwd: string): Promise<Tier> {
 The repository includes `scripts/setup-npmrc.mjs` which reads tokens from `.env` files and writes them to:
 
 - Global `~/.npmrc` (for npm/yarn)
-- `docs/.npmrc` (gitignored) - **required for pnpm**, which does not use global auth for scoped registries
+- `docs/.npmrc` (gitignored) - the Pro registry line `docs/` needs, plus the token; CI's docs jobs write only this file
 
 ```bash
 # Setup token (after clone, or when .env changes)
@@ -376,7 +376,7 @@ This approach:
 | User project | Project root | Registry URL only; token from global or `.env` |
 | docs/ (this repo) | `docs/.npmrc` | Gitignored; generated by `setup:npmrc` from `.env` |
 
-User projects get `.npmrc` with registry URL only via `kigumi init`. The docs app needs the token in its project `.npmrc` because pnpm does not use global auth for scoped registries.
+User projects get `.npmrc` with registry URL only via `kigumi init`. The docs app has no committed `.npmrc`, so `docs/.npmrc` carries its Pro registry line and the token. Pnpm reads the global `~/.npmrc` auth line like npm does (checked with pnpm 10: a fresh Pro install succeeds with only that line and gets a 401 without it), so a user project on pnpm needs no token in its own `.npmrc`.
 
 ### Migration Triggers
 
@@ -1015,7 +1015,7 @@ Once CI passes and review is approved, merge via GitHub UI (squash or merge comm
 ### What Happens After Merge (Fully Automated)
 
 1. **Release workflow** (`.github/workflows/release.yml`) triggers on push to main
-2. **CI runs** again via reusable workflow (`.github/workflows/ci.yml`)
+2. **The release job** installs, builds, smoke-tests the packed tarball and checks its contents; it does not re-run `ci.yml`, which triggers on pull requests only
 3. **If changesets exist:**
    - `changeset version` bumps `package.json` and updates `CHANGELOG.md`
    - `pnpm build && changeset publish` builds and publishes to npm

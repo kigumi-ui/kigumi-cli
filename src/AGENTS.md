@@ -188,7 +188,7 @@ It is not the only reader of the file. `isNextProject` goes through it but swall
 | `~/.npmrc` (global) | Auth token (user configures once)              |
 | `.env` (project)    | `WEBAWESOME_NPM_TOKEN` for tier detection only |
 
-**Exception:** For `docs/` (pnpm), the token must also be in `docs/.npmrc` – pnpm does not use global auth for scoped registries. Written by `pnpm run setup:npmrc`.
+**Exception:** `docs/` has no committed `.npmrc`, so `docs/.npmrc` (gitignored, written by `pnpm run setup:npmrc`) carries its Pro registry line and the token; CI's docs jobs write only this file. Pnpm reads the global `~/.npmrc` auth line like npm does (checked with pnpm 10: a fresh Pro install succeeds with only that line and gets a 401 without it).
 
 **Why global:**
 

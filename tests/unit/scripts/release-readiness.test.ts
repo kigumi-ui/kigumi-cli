@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   decideGoNoGo,
+  judgeGate,
   renderReport,
   type GateResult,
   type MetaResult,
@@ -212,5 +213,43 @@ describe('renderReport', () => {
   it('shows coverage % for the unit-test gate', () => {
     const md = renderReport(inputs, decideGoNoGo(inputs.gates, inputs.meta));
     expect(md).toMatch(/test.*87\.4/);
+  });
+});
+
+describe('judgeGate', () => {
+  // What a guard that could not reach its input prints when a skip is
+  // permitted (docs/adr/0003), e.g. the Pro consumer tsc without a token.
+  const SKIPPED =
+    'Pro consumer tsc: React skipped, NOT verified: no Web Awesome Pro token';
+
+  it('passes a gate that exited 0 and skipped nothing', () => {
+    expect(judgeGate('test:e2e', 0, 'Tests  54 passed (54)', 90)).toEqual({
+      name: 'test:e2e',
+      pass: true,
+      durationSec: 90,
+      detail: undefined,
+    });
+  });
+
+  it('fails a gate that exited 0 but reported a guard as NOT verified', () => {
+    const gate = judgeGate('test:e2e', 0, `ok\n${SKIPPED}\nok`, 90);
+
+    expect(gate.pass).toBe(false);
+    expect(gate.detail).toBe('exit=0 but reported NOT verified');
+  });
+
+  it('fails a gate that exited non-zero, naming the exit code', () => {
+    const gate = judgeGate('validate:all', 1, SKIPPED, 6);
+
+    expect(gate.pass).toBe(false);
+    expect(gate.detail).toBe('exit=1');
+  });
+
+  it('keeps the NO-GO decision honest about a skipped guard', () => {
+    const gates = greenGates.map((gate) =>
+      gate.name === 'test:e2e' ? judgeGate('test:e2e', 0, SKIPPED, 90) : gate
+    );
+
+    expect(decideGoNoGo(gates, goMeta).go).toBe(false);
   });
 });

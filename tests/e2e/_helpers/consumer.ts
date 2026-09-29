@@ -8,9 +8,13 @@
  * checks for all of them, once per tier, so a gap in one framework or one
  * tier cannot hide behind coverage in another.
  *
- * The Free consumer always runs. The Pro consumer runs where `init` finds a
- * Web Awesome Pro token; without one it reports did not run
- * (`consumerPremise`, docs/adr/0003) and never a pass.
+ * The Free consumer always runs. The Pro consumer runs where this machine
+ * can install the pinned Pro package; elsewhere it reports did not run
+ * (`consumer-premise.ts`, docs/adr/0003) and never a pass.
+ *
+ * `KIGUMI_CONSUMER_TIER` (`free` or `pro`) narrows a run to one tier's
+ * consumers, so CI can give the Pro token to the Pro step alone. Unset, both
+ * tiers register.
  *
  * `add --all` is the only install filter. The suites read the registry
  * afterwards to observe which Templates landed; they never pick components.
@@ -33,13 +37,23 @@ import { stripVTControlCharacters } from 'node:util';
 import { getAllComponents } from '../../../src/utils/registry.js';
 import { DEFAULT_WEBAWESOME_VERSION } from '../../../src/constants.js';
 import { detectProTokenSync } from '../../../src/utils/token.js';
-import type { Tier } from '../../../src/utils/tier.js';
-import { consumerPremise, reportNotRun } from './consumer-premise.js';
-import { FREE_TIER_ENV } from './free-tier-env.js';
+import { tierSchema, type Tier } from '../../../src/utils/tier.js';
+import {
+  consumerPremise,
+  probeProPackage,
+  reportNotRun,
+  resolveProPackage,
+  type ConsumerPremise,
+} from './consumer-premise.js';
+import { FREE_TIER_ENV } from '../../_helpers/free-tier-env.js';
 
 export const CLI_PATH = path.resolve(__dirname, '../../../dist/index.js');
 
-const TIERS: readonly Tier[] = ['free', 'pro'];
+/** The tiers this run registers consumers for (see the header). */
+function consumerTiers(env: NodeJS.ProcessEnv = process.env): readonly Tier[] {
+  const only = env.KIGUMI_CONSUMER_TIER;
+  return only ? [tierSchema.parse(only)] : tierSchema.options;
+}
 
 interface RegistryNames {
   free: string[];
@@ -59,6 +73,8 @@ interface TierFacts {
   templatesTitle: string;
   /** The registry components `add --all` must install on this tier, sorted. */
   expectedTemplates: (names: RegistryNames) => string[];
+  /** Whether this tier's consumer can run from `dir`, named `label`. */
+  premise: (label: string, dir: string) => ConsumerPremise;
 }
 
 const FREE_PACKAGE = '@awesome.me/webawesome';
@@ -72,17 +88,26 @@ const TIER_FACTS: Record<Tier, TierFacts> = {
     env: FREE_TIER_ENV,
     templatesTitle: 'installs Free Templates and drops Pro-only ones',
     expectedTemplates: ({ free }) => free,
+    premise: () => ({ run: true }),
   },
   pro: {
     name: 'Pro',
     packageName: PRO_PACKAGE,
     otherPackage: FREE_PACKAGE,
     // Nothing added: the CLI inherits this environment and reads the same
-    // ~/.npmrc, so it finds the token `consumerPremise` was given.
+    // ~/.npmrc, so it finds the token the premise found.
     env: {},
     templatesTitle: 'installs every Template, Pro-only ones included',
     expectedTemplates: ({ free, pro }) =>
       [...free, ...pro].sort((a, b) => a.localeCompare(b)),
+    premise: (label, dir) =>
+      consumerPremise(
+        resolveProPackage({
+          token: detectProTokenSync(dir),
+          probe: () => probeProPackage(DEFAULT_WEBAWESOME_VERSION),
+        }),
+        { label }
+      ),
   },
 };
 
@@ -208,13 +233,14 @@ function registryNamesByTier(): RegistryNames {
 /**
  * Register the consumer checks for one framework, a Free and a Pro consumer
  * each on its own project. `more` runs inside each consumer's describe block,
- * after the shared checks, so it sees the same scaffolded project.
+ * after the shared checks, so it sees the same scaffolded project, unless
+ * that consumer did not run.
  */
 export function describeConsumers(
   spec: ConsumerSpec,
   more?: (consumer: Consumer) => void
 ): void {
-  for (const tier of TIERS) {
+  for (const tier of consumerTiers()) {
     describeConsumer(tier, spec, more);
   }
 }
@@ -226,15 +252,13 @@ function describeConsumer(
 ): void {
   const facts = TIER_FACTS[tier];
   const title = `${facts.name} consumer tsc: ${spec.framework}`;
+  const slug = spec.framework.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const dir = path.resolve(
     __dirname,
-    `../../.tmp-e2e-${tier}-consumer-tsc-${spec.framework.toLowerCase()}`
+    `../../.tmp-e2e-${tier}-consumer-tsc-${slug}`
   );
 
-  const premise = consumerPremise(tier, {
-    label: title,
-    token: detectProTokenSync(dir),
-  });
+  const premise = facts.premise(title, dir);
 
   if (!premise.run) {
     const { summary } = premise;
