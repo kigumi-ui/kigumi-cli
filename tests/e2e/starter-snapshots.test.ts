@@ -3,7 +3,8 @@
  *
  * Walks every emitted file under componentsDir + utilsDir + stylesDir of a
  * real Kigumi starter, and asserts each file matches a frozen fixture under
- * tests/fixtures/starter-snapshots/<framework>/<rel>. Drift fails the test.
+ * tests/fixtures/starter-snapshots/<framework>/<rel>. Drift fails the test,
+ * and so does a fixture with no emitted file left to compare it with.
  *
  * Run via the per-framework matrix lane (CI) or `pnpm test:starters` (local),
  * with KIGUMI_STARTER and KIGUMI_STARTER_DIR set.
@@ -90,6 +91,20 @@ if (!ENABLED) {
   describe(`starter snapshots: ${framework}`, () => {
     it('emits at least one file (components+utils+styles non-empty)', () => {
       expect(allFiles.length).toBeGreaterThan(0);
+    });
+
+    // The cases below only read fixtures for files the starter has, so an
+    // orphaned fixture would pass unread forever: six Angular spec fixtures
+    // outlived `kigumi add` writing them (issue #80).
+    it('has no fixture without an emitted file', () => {
+      const fixtureDir = path.join(FIXTURES_ROOT, framework);
+      const emitted = new Set(
+        allFiles.map((file) => fixtureRelative(starterDir, file))
+      );
+      const orphans = walk(fixtureDir)
+        .map((fixture) => path.relative(fixtureDir, fixture))
+        .filter((rel) => !emitted.has(rel));
+      expect(orphans).toEqual([]);
     });
 
     for (const file of allFiles) {

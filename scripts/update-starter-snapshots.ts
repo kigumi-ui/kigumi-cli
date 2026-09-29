@@ -167,6 +167,12 @@ async function processStarter(
       stdio: 'inherit',
     });
 
+    // `--update` writes every file snapshot but deletes none, and the harness
+    // fails on a fixture with no emitted file, so regenerate from empty.
+    await fs.remove(
+      path.join(ROOT_DIR, 'tests/fixtures/starter-snapshots', starter.framework)
+    );
+
     console.log(pc.dim('  running snapshot harness in --update mode'));
     await execa(
       'pnpm',
