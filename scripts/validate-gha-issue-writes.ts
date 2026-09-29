@@ -14,6 +14,14 @@
  * - In a workflow triggered by `pull_request` or `pull_request_target`, a step
  *   whose `run:` script writes through `gh issue <subcommand>` must be gated
  *   off those events by its own `if:` or its job's `if:`.
+ * - A run that inspected no such step fails instead of passing empty
+ *   (docs/adr/0003): a matcher that stopped matching would otherwise look
+ *   exactly like a correctly gated repo.
+ *
+ * WHY ISSUES AND NOT PULL REQUESTS: a comment a pull_request run posts on its
+ * own pull request (`gh pr comment`) lands where that push happened, which is
+ * the point of it (pr-body.yml does this). An issue is shared by every run, so
+ * there the same comment piles up once per push to any PR.
  *
  * WHAT COUNTS AS GATED: the condition must be a top-level `&&` chain in which
  * one link either
@@ -64,6 +72,8 @@ export interface IssueWriteResult {
   findings: IssueWriteFinding[];
   /** Every issue-writing step inspected, so a run proves what it covered. */
   stepsChecked: CheckedStep[];
+  /** Why the run verified nothing, or null when it inspected at least one step. */
+  gap: string | null;
 }
 
 /** Triggers that fire once per push to a pull request. */
@@ -100,28 +110,36 @@ export function stepWritesIssues(step: unknown): boolean {
 }
 
 /**
- * Splits an expression on `op` where it sits outside parentheses and string
- * literals. GitHub escapes a quote inside a string as `''`, which toggles the
- * in-string state twice and so needs no special case.
+ * Calls `visit` with the index and the parenthesis depth after each character
+ * that sits outside a string literal; stops early when `visit` returns false.
+ * GitHub escapes a quote inside a string as `''`, which toggles the in-string
+ * state twice and so needs no special case.
  */
-function splitTopLevel(expr: string, op: '&&' | '||'): string[] {
-  const parts: string[] = [];
+function walkOutsideStrings(
+  expr: string,
+  visit: (index: number, depth: number) => boolean | void
+): void {
   let depth = 0;
   let inString = false;
-  let start = 0;
-
   for (let i = 0; i < expr.length; i++) {
     const ch = expr[i];
     if (ch === "'") inString = !inString;
     if (inString) continue;
     if (ch === '(') depth++;
     else if (ch === ')') depth--;
-    else if (depth === 0 && expr.startsWith(op, i)) {
-      parts.push(expr.slice(start, i));
-      start = i + op.length;
-      i += op.length - 1;
-    }
+    if (visit(i, depth) === false) return;
   }
+}
+
+/** Splits an expression on `op` where it sits outside parentheses and strings. */
+function splitTopLevel(expr: string, op: '&&' | '||'): string[] {
+  const parts: string[] = [];
+  let start = 0;
+  walkOutsideStrings(expr, (i, depth) => {
+    if (i < start || depth !== 0 || !expr.startsWith(op, i)) return;
+    parts.push(expr.slice(start, i));
+    start = i + op.length;
+  });
   parts.push(expr.slice(start));
   return parts.map((p) => p.trim());
 }
@@ -132,20 +150,12 @@ function stripOuterParens(expr: string): string {
   while (current.startsWith('(') && current.endsWith(')')) {
     // Only strip when the first `(` closes at the very end: `(a) && (b)`
     // starts and ends with parentheses that belong to different groups.
-    let depth = 0;
-    let inString = false;
+    const last = current.length - 1;
     let closesAtEnd = true;
-    for (let i = 0; i < current.length; i++) {
-      const ch = current[i];
-      if (ch === "'") inString = !inString;
-      if (inString) continue;
-      if (ch === '(') depth++;
-      else if (ch === ')') depth--;
-      if (depth === 0 && i < current.length - 1) {
-        closesAtEnd = false;
-        break;
-      }
-    }
+    walkOutsideStrings(current, (i, depth) => {
+      if (depth === 0 && i < last) closesAtEnd = false;
+      return closesAtEnd;
+    });
     if (!closesAtEnd) break;
     current = current.slice(1, -1).trim();
   }
@@ -256,18 +266,38 @@ export function checkWorkflowIssueWrites(
   return { findings, stepsChecked };
 }
 
+/**
+ * Why a run did not verify anything, or null when it did.
+ *
+ * An empty result must not read as a clean one (docs/adr/0003): a missing
+ * workflow directory, or a trigger or `run:` matcher that stopped matching,
+ * would otherwise print the same pass as a correctly gated repo.
+ */
+export function coverageGap(
+  workflowsRead: number,
+  stepsChecked: number
+): string | null {
+  if (workflowsRead === 0) {
+    return 'no workflow file found in .github/workflows';
+  }
+  if (stepsChecked === 0) {
+    return (
+      `read ${workflowsRead} workflow(s) but found no "gh issue" write in a pull-request workflow. ` +
+      'If the report steps were removed on purpose, remove this validator with them'
+    );
+  }
+  return null;
+}
+
 // ── Filesystem shell ────────────────────────────────────────────────────────
 
 export function validateGhaIssueWrites(): IssueWriteResult {
   const findings: IssueWriteFinding[] = [];
   const stepsChecked: CheckedStep[] = [];
 
-  if (!fs.pathExistsSync(WORKFLOW_DIR)) {
-    return { passed: true, findings, stepsChecked };
-  }
-
-  const files = fs
-    .readdirSync(WORKFLOW_DIR)
+  const files = (
+    fs.pathExistsSync(WORKFLOW_DIR) ? fs.readdirSync(WORKFLOW_DIR) : []
+  )
     .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
     .sort();
 
@@ -278,7 +308,13 @@ export function validateGhaIssueWrites(): IssueWriteResult {
     stepsChecked.push(...result.stepsChecked);
   }
 
-  return { passed: findings.length === 0, findings, stepsChecked };
+  const gap = coverageGap(files.length, stepsChecked.length);
+  return {
+    passed: findings.length === 0 && gap === null,
+    findings,
+    stepsChecked,
+    gap,
+  };
 }
 
 // ── Output ──────────────────────────────────────────────────────────────────
@@ -317,18 +353,24 @@ function printResults(result: IssueWriteResult): void {
     );
   }
 
+  if (result.gap !== null) {
+    console.log(pc.red(`Nothing verified: ${result.gap}\n`));
+  }
+
   if (result.passed) {
     console.log(
       pc.green(
         `GHA issue-write validation passed! ${result.stepsChecked.length} issue-writing step(s) are gated off pull requests.\n`
       )
     );
-  } else {
+  } else if (result.findings.length > 0) {
     console.log(
       pc.red(
         `GHA issue-write validation failed with ${result.findings.length} error(s)\n`
       )
     );
+  } else {
+    console.log(pc.red('GHA issue-write validation verified nothing\n'));
   }
 }
 

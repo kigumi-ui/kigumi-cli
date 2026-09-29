@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   checkWorkflowIssueWrites,
+  coverageGap,
   prEventsReachable,
   stepWritesIssues,
   workflowPrEvents,
@@ -260,5 +261,21 @@ describe('checkWorkflowIssueWrites', () => {
       findings: [],
       stepsChecked: [],
     });
+  });
+});
+
+describe('coverageGap', () => {
+  it('is null once at least one issue-writing step was inspected', () => {
+    expect(coverageGap(9, 3)).toBeNull();
+  });
+
+  it('reports a run that found no workflow file', () => {
+    expect(coverageGap(0, 0)).toMatch(/no workflow file/);
+  });
+
+  it('reports a run that read workflows but inspected no step', () => {
+    // A trigger or `run:` matcher that stopped matching lands here, and must
+    // not print the same pass as a correctly gated repo (docs/adr/0003).
+    expect(coverageGap(9, 0)).toMatch(/found no "gh issue" write/);
   });
 });
