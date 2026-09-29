@@ -88,20 +88,14 @@ src/
 
 ### Two kinds of content under `src/`
 
-Most of `src/` is CLI code: it runs when someone invokes `kigumi`. A few
-files are **template artifacts** that the CLI copies into a consumer's
-project and never executes itself:
+Most of `src/` is CLI code: it runs when someone invokes `kigumi`. A few files are **template artifacts** that the CLI copies into a consumer's project and never executes itself:
 
 | File                | What it is                                       |
 | ------------------- | ------------------------------------------------ |
 | `src/lib/kigumi.ts` | Setup module written into the consumer's project |
 | `src/vite-env.d.ts` | Ambient types for the consumer's Vite project    |
 
-Nothing in `src/` imports either one, which is expected rather than dead
-code. Searching for the import that "must" exist is wasted effort. The
-paths that reference them, such as `utils/regenerate.ts` and
-`commands/init/file-generator.ts`, are talking about the generated copy in
-the consumer's tree, not about these files.
+Nothing in `src/` imports either one, which is expected rather than dead code. Searching for the import that "must" exist is wasted effort. The paths that reference them, such as `utils/regenerate.ts` and `commands/init/file-generator.ts`, are talking about the generated copy in the consumer's tree, not about these files.
 
 ## Key Modules
 
@@ -172,53 +166,15 @@ export async function detectTier(cwd: string): Promise<Tier> {
 }
 ```
 
-A missing `package.json`, a file that is not a JSON object
-(`PackageJsonInvalidError`: a syntax error, or valid JSON such as `null`), or
-one that lists neither Web Awesome package falls through to token detection.
-A file that cannot be read (permissions, a directory at that path) is thrown
-as `PackageJsonReadError` (`src/errors/filesystem.ts`, exit code 4): it names
-the file and suggests a fix matched to the errno code, instead of reaching
-`handleError` as an `UnknownError` that tells the user to report a Kigumi
-bug. The installed package wins over a token: the free package stays `'free'`
-even when `WEBAWESOME_NPM_TOKEN` is set.
+A missing `package.json`, a file that is not a JSON object (`PackageJsonInvalidError`: a syntax error, or valid JSON such as `null`), or one that lists neither Web Awesome package falls through to token detection. A file that cannot be read (permissions, a directory at that path) is thrown as `PackageJsonReadError` (`src/errors/filesystem.ts`, exit code 4): it names the file and suggests a fix matched to the errno code, instead of reaching `handleError` as an `UnknownError` that tells the user to report a Kigumi bug. The installed package wins over a token: the free package stays `'free'` even when `WEBAWESOME_NPM_TOKEN` is set.
 
-The fix steps' shell commands (`chmod u+r package.json`) use the relative
-path on purpose. The CLI has no `--cwd` flag, so every command reads
-`package.json` from the directory it was run in; the absolute path is already
-in the message, and inside a command it wraps in the terminal box and can no
-longer be copied.
+The fix steps' shell commands (`chmod u+r package.json`) use the relative path on purpose. The CLI has no `--cwd` flag, so every command reads `package.json` from the directory it was run in; the absolute path is already in the message, and inside a command it wraps in the terminal box and can no longer be copied.
 
-The read goes through `readDependencies` (`src/utils/package-json.ts`),
-which returns `dependencies` and
-`devDependencies` merged. A missing file is an empty map, since every caller
-treats "no package.json" as "no dependencies". Project detection in
-`detect-framework.ts` uses the same reader. That matters because `init` and
-`upgrade` call `getProjectInfo` before `detectTier`, and its first read
-(`detectFramework`) used to let the raw error through. Project detection does
-not catch `PackageJsonInvalidError`: `init` and `upgrade` cannot continue with
-a broken `package.json`, so they report it (exit code 4).
+The read goes through `readDependencies` (`src/utils/package-json.ts`), which returns `dependencies` and `devDependencies` merged. A missing file is an empty map, since every caller treats "no package.json" as "no dependencies". Project detection in `detect-framework.ts` uses the same reader. That matters because `init` and `upgrade` call `getProjectInfo` before `detectTier`, and its first read (`detectFramework`) used to let the raw error through. Project detection does not catch `PackageJsonInvalidError`: `init` and `upgrade` cannot continue with a broken `package.json`, so they report it (exit code 4).
 
-It is not the only reader of the file. `isNextProject` goes through it but
-swallows both errors on purpose and falls back to `next.config.*`. `status`, `init`'s `detectPreviousTier` / `checkDuplicatePackages`,
-the `add` installer's test-setup check and `cleanupOldPackage` read the file
-directly but catch the error, and `doctor`'s version check runs after its
-`detectTier` call, so none of them can surface a raw fs error today. A new
-reader that can run before tier detection should use the helper.
+It is not the only reader of the file. `isNextProject` goes through it but swallows both errors on purpose and falls back to `next.config.*`. `status`, `init`'s `detectPreviousTier` / `checkDuplicatePackages`, the `add` installer's test-setup check and `cleanupOldPackage` read the file directly but catch the error, and `doctor`'s version check runs after its `detectTier` call, so none of them can surface a raw fs error today. A new reader that can run before tier detection should use the helper.
 
-**Detect before writing** (issue #121). A command that writes to the project
-resolves the tier (and, for `upgrade`, the project info) before its first
-write and passes it on. `regenerateKigumiSetup` and `generateComponent` take
-the tier as a required argument, and there is no `detectTierSync`, so no
-helper can detect behind a command's back after the command has written: the
-rule is enforced by the type checker, not by convention. `brand`, `palette`,
-`theme set`, `theme install`, `diff`, `update` and `add` detect up front with
-`detectTier`. A broken `package.json` then fails the command before anything
-changed. When `brand` and `theme install` left detection to
-`regenerateKigumiSetup`'s old `detectTierSync` fallback, they had already
-saved the config (and theme files) by the time it threw. Two related orderings follow the same rule: `upgrade` installs
-the new Web Awesome package before it saves the new version, so a failed
-install is retried on the next run instead of reported as "Already up to
-date", and `theme install` downloads every theme file before writing any.
+**Detect before writing** (issue #121). A command that writes to the project resolves the tier (and, for `upgrade`, the project info) before its first write and passes it on. `regenerateKigumiSetup` and `generateComponent` take the tier as a required argument, and there is no `detectTierSync`, so no helper can detect behind a command's back after the command has written: the rule is enforced by the type checker, not by convention. `brand`, `palette`, `theme set`, `theme install`, `diff`, `update` and `add` detect up front with `detectTier`. A broken `package.json` then fails the command before anything changed. When `brand` and `theme install` left detection to `regenerateKigumiSetup`'s old `detectTierSync` fallback, they had already saved the config (and theme files) by the time it threw. Two related orderings follow the same rule: `upgrade` installs the new Web Awesome package before it saves the new version, so a failed install is retried on the next run instead of reported as "Already up to date", and `theme install` downloads every theme file before writing any.
 
 ### Pro Authentication
 
@@ -330,12 +286,12 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, `vite-env.d.ts`, and — for N
 
 Converts between PascalCase, kebab-case and camelCase. Used for Angular's lowercase file naming convention and tag name construction (`ButtonGroup` -> `button-group`), and by the three template generators to turn Web Awesome event names into per-framework handler names.
 
-| Export                  | Direction                                                                        |
-| ----------------------- | -------------------------------------------------------------------------------- |
-| `toKebabCase()`         | PascalCase -> kebab-case (`QRCode` -> `qr-code`)                                 |
-| `toPascalCase()`        | kebab-case -> PascalCase (`after-hide` -> `AfterHide`)                           |
-| `toCamelCase()`         | kebab-case -> camelCase (`after-hide` -> `afterHide`)                            |
-| `stripWaPrefix()`       | drops a leading `wa-` from an event name                                         |
+| Export | Direction |
+| --- | --- |
+| `toKebabCase()` | PascalCase -> kebab-case (`QRCode` -> `qr-code`) |
+| `toPascalCase()` | kebab-case -> PascalCase (`after-hide` -> `AfterHide`) |
+| `toCamelCase()` | kebab-case -> camelCase (`after-hide` -> `afterHide`) |
+| `stripWaPrefix()` | drops a leading `wa-` from an event name |
 | `toAngularOutputName()` | event -> Angular `@Output()` name (`blur` with a `blur()` method -> `blurEvent`) |
 
 The two directions are not mirror images. `toKebabCase` has to decide where a run of capitals ends, so it carries a second replace: without it `QRCode` becomes `qrcode` rather than `qr-code` and silently misses every registry and metadata lookup keyed by the kebab name (issue #31). `toPascalCase` only joins parts already separated by hyphens, so it needs no such rule.
@@ -395,10 +351,7 @@ Modular initialization with separate concerns:
 | `file-generator.ts` | Generate project files            |
 | `migration.ts`      | Free↔Pro package migration        |
 
-Dependency installation is **not** here: `utils/dependency-installer.ts` holds
-`installDependencies` and `cleanupOldPackage`, because `upgrade` needs them too.
-Commands are leaf nodes and never import from a sibling command's directory;
-`kigumi/no-cross-command-import` enforces it.
+Dependency installation is **not** here: `utils/dependency-installer.ts` holds `installDependencies` and `cleanupOldPackage`, because `upgrade` needs them too. Commands are leaf nodes and never import from a sibling command's directory; `kigumi/no-cross-command-import` enforces it.
 
 **Tier Migration Flow:**
 
@@ -414,18 +367,16 @@ if (previousTier !== newTier) {
 
 ### `commands/add/`
 
-| File                           | Responsibility                                            |
-| ------------------------------ | --------------------------------------------------------- |
-| `index.ts`                     | Orchestration (branches on `--from` for remote flow)      |
-| `validator.ts`                 | Validate component exists, tier access                    |
-| `component-selector.ts`        | Interactive component picker (built-in registry)          |
-| `installer.ts`                 | Copy templates, run transforms, detect modifications      |
-| `remote-installer.ts`          | Download + install from GitHub (no template substitution) |
-| `remote-component-selector.ts` | Interactive picker (community registry)                   |
+| File | Responsibility |
+| --- | --- |
+| `index.ts` | Orchestration (branches on `--from` for remote flow) |
+| `validator.ts` | Validate component exists, tier access |
+| `component-selector.ts` | Interactive component picker (built-in registry) |
+| `installer.ts` | Copy templates, run transforms, detect modifications |
+| `remote-installer.ts` | Download + install from GitHub (no template substitution) |
+| `remote-component-selector.ts` | Interactive picker (community registry) |
 
-**Built-in flow:** Reads framework templates from `templates/<fw>/<Component>/` via `materializeTemplate` and copies via `ComponentInstaller`.
-**Remote flow (`--from`):** Downloads pre-rendered files via `RemoteComponentInstaller`, resolves internal dependencies (topological sort), tracks provenance in `config.installedComponents`.
-**Cross-framework flow (`--from <foreign> --cross-framework`):** When the registry's framework does not match the consumer project, `RemoteComponentInstaller` switches to `stageForeignComponent` (in `utils/foreign-files-staging.ts`) which writes the source-framework files into `.kigumi/foreign/<slug>/` along with a `_meta.json` (sourceFramework, targetFramework, registry provenance). `printSummary` then prints a "Convert with kigumi-cross-framework" hand-off block with the canonical Claude prompt. Component is marked `staged-for-conversion` in the install result and is NOT registered in `installedComponents`.
+**Built-in flow:** Reads framework templates from `templates/<fw>/<Component>/` via `materializeTemplate` and copies via `ComponentInstaller`. **Remote flow (`--from`):** Downloads pre-rendered files via `RemoteComponentInstaller`, resolves internal dependencies (topological sort), tracks provenance in `config.installedComponents`. **Cross-framework flow (`--from <foreign> --cross-framework`):** When the registry's framework does not match the consumer project, `RemoteComponentInstaller` switches to `stageForeignComponent` (in `utils/foreign-files-staging.ts`) which writes the source-framework files into `.kigumi/foreign/<slug>/` along with a `_meta.json` (sourceFramework, targetFramework, registry provenance). `printSummary` then prints a "Convert with kigumi-cross-framework" hand-off block with the canonical Claude prompt. Component is marked `staged-for-conversion` in the install result and is NOT registered in `installedComponents`.
 
 **Lazy component loading:** Generated wrappers register their WA component via a mount-triggered dynamic `import()` rather than a top-level side-effect import. Each component ships as its own webpack/rollup chunk, which bundlers can tree-shake away for routes that never render it. Power users needing eager loading (e.g., LCP-critical Button above the fold) can still add an explicit `import '@awesome.me/webawesome/dist/components/<name>/<name>.js';` to `src/lib/kigumi.ts`.
 
@@ -469,10 +420,7 @@ Used by `commands/add/index.ts` and `commands/theme/install.ts`.
 
 ## Error Handling
 
-Use typed errors from `src/errors/`. **Never `throw new Error(...)` in `src/`** -
-`kigumi/no-raw-throw` enforces this. A raw Error reaches `handleError` as
-`UnknownError`, so it exits 1 whatever went wrong and loses its semantic code
-and suggestions.
+Use typed errors from `src/errors/`. **Never `throw new Error(...)` in `src/`** - `kigumi/no-raw-throw` enforces this. A raw Error reaches `handleError` as `UnknownError`, so it exits 1 whatever went wrong and loses its semantic code and suggestions.
 
 ```typescript
 import {
@@ -504,31 +452,28 @@ try {
 }
 ```
 
-`ValidationError` takes an optional 5th argument that overrides its generic
-`"Validation failed for: <field>"` summary. Pass it whenever the caller can be
-more specific — the message is the line the user reads first.
+`ValidationError` takes an optional 5th argument that overrides its generic `"Validation failed for: <field>"` summary. Pass it whenever the caller can be more specific — the message is the line the user reads first.
 
 **Community registry errors** (`src/errors/community-registry.ts`):
 
-| Error Class                       | When Thrown                                          |
-| --------------------------------- | ---------------------------------------------------- |
-| `CommunityRegistryNotFoundError`  | Repo or registry.json not found                      |
-| `CommunityRegistryInvalidError`   | Zod validation of registry.json failed               |
-| `CommunityComponentNotFoundError` | Component key not in registry                        |
-| `FrameworkMismatchError`          | Registry doesn't support user's framework            |
-| `CircularDependencyError`         | Dependency cycle detected in resolution              |
-| `PathTraversalError`              | Local-source file path escapes the registry root     |
-| `RegistrySourceInvalidError`      | Source URL unparseable, non-GitHub, or no owner/repo |
-| `RegistryFetchError`              | A registry file could not be read or fetched         |
+| Error Class | When Thrown |
+| --- | --- |
+| `CommunityRegistryNotFoundError` | Repo or registry.json not found |
+| `CommunityRegistryInvalidError` | Zod validation of registry.json failed |
+| `CommunityComponentNotFoundError` | Component key not in registry |
+| `FrameworkMismatchError` | Registry doesn't support user's framework |
+| `CircularDependencyError` | Dependency cycle detected in resolution |
+| `PathTraversalError` | Local-source file path escapes the registry root |
+| `RegistrySourceInvalidError` | Source URL unparseable, non-GitHub, or no owner/repo |
+| `RegistryFetchError` | A registry file could not be read or fetched |
 
-`CommunityComponentNotFoundError` takes a `kind` of `'component'` (default) or
-`'theme'`, since registries hold both.
+`CommunityComponentNotFoundError` takes a `kind` of `'component'` (default) or `'theme'`, since registries hold both.
 
 **File system errors** (`src/errors/filesystem.ts`):
 
-| Error Class               | When Thrown                                                                                                                                                                            |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PackageJsonReadError`    | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `readDependencies` in `utils/package-json.ts`                                                                |
+| Error Class | When Thrown |
+| --- | --- |
+| `PackageJsonReadError` | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `readDependencies` in `utils/package-json.ts` |
 | `PackageJsonInvalidError` | `package.json` is not a JSON object (syntax error, `null`, an array); same readers. Tier detection catches it and falls through to the token; project detection lets it reach the user |
 
 ---
@@ -559,9 +504,7 @@ output.warn('Pro theme requires token');
 output.error('Failed to install');
 ```
 
-`output.debug()` is **not** general-purpose printing. It is gated on
-`process.env.DEBUG`, so with DEBUG unset the message is discarded. Use
-`output.info()` for anything the user is meant to read.
+`output.debug()` is **not** general-purpose printing. It is gated on `process.env.DEBUG`, so with DEBUG unset the message is discarded. Use `output.info()` for anything the user is meant to read.
 
 ---
 

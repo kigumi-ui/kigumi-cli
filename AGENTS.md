@@ -21,102 +21,102 @@ node dist/index.js add button --force
 
 ## Repository Structure
 
-| Directory         | Purpose                                                        | Local AGENTS.md                            |
-| ----------------- | -------------------------------------------------------------- | ------------------------------------------ |
-| `src/`            | CLI source code                                                | [src/AGENTS.md](src/AGENTS.md)             |
-| `templates/`      | Component templates (real `.tsx`/`.vue`/`.component.ts` files) | [templates/AGENTS.md](templates/AGENTS.md) |
-| `tests/`          | Unit & E2E tests                                               | [tests/AGENTS.md](tests/AGENTS.md)         |
-| `tools/`          | Local dev tooling (ESLint plugin); not published               | -                                          |
-| `.claude/skills/` | AI agent skills                                                | -                                          |
-| `dist/`           | Build output                                                   | -                                          |
+| Directory | Purpose | Local AGENTS.md |
+| --- | --- | --- |
+| `src/` | CLI source code | [src/AGENTS.md](src/AGENTS.md) |
+| `templates/` | Component templates (real `.tsx`/`.vue`/`.component.ts` files) | [templates/AGENTS.md](templates/AGENTS.md) |
+| `tests/` | Unit & E2E tests | [tests/AGENTS.md](tests/AGENTS.md) |
+| `tools/` | Local dev tooling (ESLint plugin); not published | - |
+| `.claude/skills/` | AI agent skills | - |
+| `dist/` | Build output | - |
 
 **Key Files:**
 
-| File                                     | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/index.ts`                           | CLI entry point (Commander routing)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `src/utils/registry.ts`                  | Component definitions (single source of truth)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `src/utils/tier.ts`                      | Free/Pro tier detection from `package.json` + `.env`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `src/utils/registry-resolver.ts`         | Resolves `--from` value (URL or saved registry name)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `src/commands/init/`                     | Project initialization                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `src/commands/add/`                      | Component installation (built-in + community)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `src/commands/registry.ts`               | Community registry management (connect, list, remove)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `src/commands/theme/install.ts`          | Community theme installation from registry                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `src/commands/theme/list.ts`             | List available themes for current tier                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `src/commands/theme/show.ts`             | Show current theme details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `src/commands/list.ts`                   | List all available components (`--json` supported)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `src/commands/status.ts`                 | Project status (`--json` supported)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `src/commands/upgrade.ts`                | Version upgrade + dependency installation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `src/commands/diff.ts`                   | Compare installed components vs current templates                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `src/commands/update.ts`                 | Three-way merge update for installed components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `src/utils/diff-renderer.ts`             | Colored unified diff output using node-diff3 diffPatch                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `src/utils/snapshot.ts`                  | Snapshot CRUD for `.kigumi/snapshots/`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `src/utils/three-way-merge.ts`           | Three-way merge logic using `node-diff3`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `src/utils/version-check.ts`             | CLI vs project version compatibility check                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `src/utils/version-map.ts`               | Version history + breaking changes data                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `src/utils/github-fetcher.ts`            | GitHub registry fetcher (also handles local filesystem `RegistrySource` since 0.20.0)                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `src/utils/foreign-files-staging.ts`     | Stages source-framework files into `.kigumi/foreign/<slug>/` for `--cross-framework`                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `src/schemas/community-registry.ts`      | Community registry schema validation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `scripts/parse-custom-elements.ts`       | Parse WA custom-elements.json → `component-metadata.ts` / `css-metadata.ts` (data only). Types live in `src/utils/metadata-types.ts` and are imported + re-exported by the generated modules (issue #34)                                                                                                                                                                                                                                                                                                                                                       |
-| `scripts/event-types.ts`                 | Resolve each manifest event to the type its handler receives: the Web Awesome class the component dispatches, read from `dist/events/*.d.ts` via the event name it registers, else a native event's declared scalar type or `NATIVE_EVENT_TYPES`. `EVENT_CLASS_OVERRIDES` pins the accordion's classes; `MANIFEST_EVENT_ARTIFACTS` pins manifest events that never fire, which `resolveEvents()` drops; stale entries are judged against what the manifest describes. Anything unresolvable stops the parser. See `docs/adr/0005`                              |
-| `scripts/find-cem.ts`                    | Resolve the Web Awesome CEM on disk, scoped to one root: `resolveCem()` returns path + tier (pro/free) + component count; `{ tier: 'free' }` narrows it to the Free package. Shared by the parser, the skill-reference generator and the freshness guard                                                                                                                                                                                                                                                                                                       |
-| `scripts/check-metadata-freshness.ts`    | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM or any `dist/events/*.d.ts` beside it, triggering regen                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `scripts/guard-outcome.ts`               | Shared reporting vocabulary for CEM-dependent guards: `summarizeGuard()` keeps "did it pass" and "did it actually run" as separate facts; `skipPermitted()` decides where an absent manifest may be tolerated. Consumed by `check-generated-fresh.ts` and `validate-cem-sync.ts`. See `docs/adr/0003`                                                                                                                                                                                                                                                          |
-| `scripts/is-entry-point.ts`              | `isEntryPoint(import.meta.url)`: true only when the script is the process entry point. Compares real paths, so an absolute invocation through a symlinked directory still runs `main()` instead of exiting 0 silently. Used by the parser, the React/Angular generators (issue #106) and the skill-reference generator (issue #129)                                                                                                                                                                                                                            |
-| `scripts/check-commit-attribution.ts`    | `commit-msg` hook: rejects AI attribution trailers (`Co-Authored-By: Claude`/`Cursor`, `Generated/Made/Created with ...`). Prose mentioning Claude is deliberately allowed. `--pr` mode (`validate:attribution`, CI `attribution` job) checks the PR body and every branch commit, since squash merges copy them onto main server-side (issue #97)                                                                                                                                                                                                             |
-| `scripts/check-generated-fresh.ts`       | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx`/`.js.vue` stay within `.tsx`/`.vue`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs/Pro typecheck shim in a tmp copy + diff) requires a CEM covering every registry component; a partial one is refused and an unverified run is never reported as a pass (issue #43). Runs in CI's own `freshness` job                                                                                           |
-| `scripts/generate-angular-templates.ts`  | Generate Angular component templates from registry + metadata                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `scripts/generate-react-templates.ts`    | Generate React component templates from registry + metadata                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `scripts/generate-vue-templates.ts`      | Generate Vue SFC templates from registry + metadata                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `scripts/generator-utils.ts`             | Shared helpers (`DOM_GLOBALS`, `extractCustomTypeImports`, `formatEventTypeImports`, `handlerArgument`, `generateCssTemplate`, rule-11 keyword emitters, `propJsdocLines`) used by all three generators. `generateCssTemplate(name, { selector, body })` emits every component CSS template: the header comment is identical across frameworks, and only the selector block differs (Angular `:host { display: contents }`, React/Vue `.ComponentName`), see issue #30                                                                                         |
-| `scripts/sync-wa-pro-shim.ts`            | `generate:pro-shim`: write `typecheck-shims/wa-pro-{paths,jsx}.d.ts` from the Pro package the docs site installs (names, types and signatures only, no Pro prose). Run after `generate:metadata` on every bump; Check A fails on a stale shim (issue #108)                                                                                                                                                                                                                                                                                                     |
-| `scripts/generate-skill-references.ts`   | Generate React/Vue/Angular API surface files for skills (deprecated props labelled)                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `scripts/publish-skills.mjs`             | Copy whitelisted skills to docs/public/ for Vercel (whitelist lives here)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `scripts/generate-skills-index.mjs`      | Generate `.well-known/skills/index.json` from published skills                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `scripts/vercel-ignore-build.mjs`        | Vercel `ignoreCommand` for both Vercel projects (`docs`, `storybook`): builds only when a file the project renders or serves changed since the branch's last deployment (docs/ denylist, plus CHANGELOG, `package.json`, `llms.txt` and the `PUBLISHED_SKILLS` for the landing page); dependabot branches never deploy. Plain Node, runs before install, builds whenever unsure                                                                                                                                                                                |
-| `scripts/post-changeset-version.ts`      | Update version references after changeset version bump                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `tools/eslint-plugin-kigumi/`            | Local ESLint plugin (plain directory, imported by relative path from `eslint.config.js`, not an npm package, no workspace). Rules are `.js` so `pnpm lint` needs no build step. Tested via RuleTester in `tests/unit/eslint-rules/`                                                                                                                                                                                                                                                                                                                            |
-| `scripts/setup-npmrc.mjs`                | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `scripts/update-starter-snapshots.ts`    | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header)                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `scripts/validate-agents.ts`             | Validate AGENTS.md facts against codebase reality (6 checks: version, component counts, pro list, template dirs, test files, and prose count claims in `templates/AGENTS.md`)                                                                                                                                                                                                                                                                                                                                                                                  |
-| `scripts/validate-cem-sync.ts`           | `validate:cem-sync`. Two halves, reported separately: component presence (committed `COMPONENT_METADATA` vs registry, always runs) and the manifest half (needs a complete CEM): prop-value drift (registry enums vs CEM attribute types), attribute-name drift (`checkAttributeDrift()`, issue #100) and deprecation drift (`checkDeprecationDrift()`, `KIGUMI_DEPRECATIONS` for Kigumi-side deprecations, issue #133). Only a run where both halves were verified prints a pass (issue #43, `docs/adr/0003`). The manifest half runs in CI's `freshness` job |
-| `scripts/validate-changes.ts`            | Validate changeset entries                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `scripts/validate-gha-permissions.ts`    | Fail when a job running `actions/checkout` declares a job-level `permissions:` block without a readable `contents:`. Job-level blocks replace the workflow-level one rather than merging (the PR #173 regression)                                                                                                                                                                                                                                                                                                                                              |
-| `scripts/validate-parity.ts`             | Validate React/Vue/Angular template parity                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `scripts/validate-registry.ts`           | Validate registry definitions are complete                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `scripts/validate-story-lanes.ts`        | Check the shared interaction-lane story list against the stories actually tagged `interaction`, in both directions                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `scripts/validate-fixture-exclusions.ts` | Check that `.prettierignore`, `eslint.config.js` and `tsconfig.tests.json` all exclude `tests/fixtures/starter-snapshots` (recorded CLI output that must not be reformatted)                                                                                                                                                                                                                                                                                                                                                                                   |
-| `scripts/validate-templates.ts`          | Validate template rendering for all components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `scripts/validate-wa-pins.ts`            | Validate the six Web Awesome version pins agree, are exact, and that the newest VERSION_MAP entry matches `DEFAULT_WEBAWESOME_VERSION`                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `scripts/check-starter-wa-version.ts`    | Starter job step: fail when the starter's installed Web Awesome is older than `DEFAULT_WEBAWESOME_VERSION`; a starter without Web Awesome installed fails too (issue #138)                                                                                                                                                                                                                                                                                                                                                                                     |
-| `scripts/verify-test-app.ts`             | Verify test app output after build                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `scripts/storybook/overrides.ts`         | Storybook story overrides                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `scripts/storybook/patch-stories.ts`     | Patch generated Storybook stories                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `scripts/storybook/story-data.ts`        | Storybook story data helpers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `scripts/storybook/validate-stories.ts`  | Validate Storybook story structure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `scripts/release-readiness.ts`           | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness`                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `scripts/upstream-holds.json`            | Majors already evaluated and deliberately held: toolchain (`typescript`, `vitest`) and the `@angular/cli` scaffold pin (Angular 22, until #156); `check-upstream-versions.ts` reads it so the weekly report stops re-flagging a decision already made, and only surfaces a genuinely new major                                                                                                                                                                                                                                                                 |
+| File | Purpose |
+| --- | --- |
+| `src/index.ts` | CLI entry point (Commander routing) |
+| `src/utils/registry.ts` | Component definitions (single source of truth) |
+| `src/utils/tier.ts` | Free/Pro tier detection from `package.json` + `.env` |
+| `src/utils/registry-resolver.ts` | Resolves `--from` value (URL or saved registry name) |
+| `src/commands/init/` | Project initialization |
+| `src/commands/add/` | Component installation (built-in + community) |
+| `src/commands/registry.ts` | Community registry management (connect, list, remove) |
+| `src/commands/theme/install.ts` | Community theme installation from registry |
+| `src/commands/theme/list.ts` | List available themes for current tier |
+| `src/commands/theme/show.ts` | Show current theme details |
+| `src/commands/list.ts` | List all available components (`--json` supported) |
+| `src/commands/status.ts` | Project status (`--json` supported) |
+| `src/commands/upgrade.ts` | Version upgrade + dependency installation |
+| `src/commands/diff.ts` | Compare installed components vs current templates |
+| `src/commands/update.ts` | Three-way merge update for installed components |
+| `src/utils/diff-renderer.ts` | Colored unified diff output using node-diff3 diffPatch |
+| `src/utils/snapshot.ts` | Snapshot CRUD for `.kigumi/snapshots/` |
+| `src/utils/three-way-merge.ts` | Three-way merge logic using `node-diff3` |
+| `src/utils/version-check.ts` | CLI vs project version compatibility check |
+| `src/utils/version-map.ts` | Version history + breaking changes data |
+| `src/utils/github-fetcher.ts` | GitHub registry fetcher (also handles local filesystem `RegistrySource` since 0.20.0) |
+| `src/utils/foreign-files-staging.ts` | Stages source-framework files into `.kigumi/foreign/<slug>/` for `--cross-framework` |
+| `src/schemas/community-registry.ts` | Community registry schema validation |
+| `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json → `component-metadata.ts` / `css-metadata.ts` (data only). Types live in `src/utils/metadata-types.ts` and are imported + re-exported by the generated modules (issue #34) |
+| `scripts/event-types.ts` | Resolve each manifest event to the type its handler receives: the Web Awesome class the component dispatches, read from `dist/events/*.d.ts` via the event name it registers, else a native event's declared scalar type or `NATIVE_EVENT_TYPES`. `EVENT_CLASS_OVERRIDES` pins the accordion's classes; `MANIFEST_EVENT_ARTIFACTS` pins manifest events that never fire, which `resolveEvents()` drops; stale entries are judged against what the manifest describes. Anything unresolvable stops the parser. See `docs/adr/0005` |
+| `scripts/find-cem.ts` | Resolve the Web Awesome CEM on disk, scoped to one root: `resolveCem()` returns path + tier (pro/free) + component count; `{ tier: 'free' }` narrows it to the Free package. Shared by the parser, the skill-reference generator and the freshness guard |
+| `scripts/check-metadata-freshness.ts` | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM or any `dist/events/*.d.ts` beside it, triggering regen |
+| `scripts/guard-outcome.ts` | Shared reporting vocabulary for CEM-dependent guards: `summarizeGuard()` keeps "did it pass" and "did it actually run" as separate facts; `skipPermitted()` decides where an absent manifest may be tolerated. Consumed by `check-generated-fresh.ts` and `validate-cem-sync.ts`. See `docs/adr/0003` |
+| `scripts/is-entry-point.ts` | `isEntryPoint(import.meta.url)`: true only when the script is the process entry point. Compares real paths, so an absolute invocation through a symlinked directory still runs `main()` instead of exiting 0 silently. Used by the parser, the React/Angular generators (issue #106) and the skill-reference generator (issue #129) |
+| `scripts/check-commit-attribution.ts` | `commit-msg` hook: rejects AI attribution trailers (`Co-Authored-By: Claude`/`Cursor`, `Generated/Made/Created with ...`). Prose mentioning Claude is deliberately allowed. `--pr` mode (`validate:attribution`, CI `attribution` job) checks the PR body and every branch commit, since squash merges copy them onto main server-side (issue #97) |
+| `scripts/check-generated-fresh.ts` | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx`/`.js.vue` stay within `.tsx`/`.vue`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs/Pro typecheck shim in a tmp copy + diff) requires a CEM covering every registry component; a partial one is refused and an unverified run is never reported as a pass (issue #43). Runs in CI's own `freshness` job |
+| `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
+| `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
+| `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
+| `scripts/generator-utils.ts` | Shared helpers (`DOM_GLOBALS`, `extractCustomTypeImports`, `formatEventTypeImports`, `handlerArgument`, `generateCssTemplate`, rule-11 keyword emitters, `propJsdocLines`) used by all three generators. `generateCssTemplate(name, { selector, body })` emits every component CSS template: the header comment is identical across frameworks, and only the selector block differs (Angular `:host { display: contents }`, React/Vue `.ComponentName`), see issue #30 |
+| `scripts/sync-wa-pro-shim.ts` | `generate:pro-shim`: write `typecheck-shims/wa-pro-{paths,jsx}.d.ts` from the Pro package the docs site installs (names, types and signatures only, no Pro prose). Run after `generate:metadata` on every bump; Check A fails on a stale shim (issue #108) |
+| `scripts/generate-skill-references.ts` | Generate React/Vue/Angular API surface files for skills (deprecated props labelled) |
+| `scripts/publish-skills.mjs` | Copy whitelisted skills to docs/public/ for Vercel (whitelist lives here) |
+| `scripts/generate-skills-index.mjs` | Generate `.well-known/skills/index.json` from published skills |
+| `scripts/vercel-ignore-build.mjs` | Vercel `ignoreCommand` for both Vercel projects (`docs`, `storybook`): builds only when a file the project renders or serves changed since the branch's last deployment (docs/ denylist, plus CHANGELOG, `package.json`, `llms.txt` and the `PUBLISHED_SKILLS` for the landing page); dependabot branches never deploy. Plain Node, runs before install, builds whenever unsure |
+| `scripts/post-changeset-version.ts` | Update version references after changeset version bump |
+| `tools/eslint-plugin-kigumi/` | Local ESLint plugin (plain directory, imported by relative path from `eslint.config.js`, not an npm package, no workspace). Rules are `.js` so `pnpm lint` needs no build step. Tested via RuleTester in `tests/unit/eslint-rules/` |
+| `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
+| `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
+| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (6 checks: version, component counts, pro list, template dirs, test files, and prose count claims in `templates/AGENTS.md`) |
+| `scripts/validate-cem-sync.ts` | `validate:cem-sync`. Two halves, reported separately: component presence (committed `COMPONENT_METADATA` vs registry, always runs) and the manifest half (needs a complete CEM): prop-value drift (registry enums vs CEM attribute types), attribute-name drift (`checkAttributeDrift()`, issue #100) and deprecation drift (`checkDeprecationDrift()`, `KIGUMI_DEPRECATIONS` for Kigumi-side deprecations, issue #133). Only a run where both halves were verified prints a pass (issue #43, `docs/adr/0003`). The manifest half runs in CI's `freshness` job |
+| `scripts/validate-changes.ts` | Validate changeset entries |
+| `scripts/validate-gha-permissions.ts` | Fail when a job running `actions/checkout` declares a job-level `permissions:` block without a readable `contents:`. Job-level blocks replace the workflow-level one rather than merging (the PR #173 regression) |
+| `scripts/validate-parity.ts` | Validate React/Vue/Angular template parity |
+| `scripts/validate-registry.ts` | Validate registry definitions are complete |
+| `scripts/validate-story-lanes.ts` | Check the shared interaction-lane story list against the stories actually tagged `interaction`, in both directions |
+| `scripts/validate-fixture-exclusions.ts` | Check that `.prettierignore`, `eslint.config.js` and `tsconfig.tests.json` all exclude `tests/fixtures/starter-snapshots` (recorded CLI output that must not be reformatted) |
+| `scripts/validate-templates.ts` | Validate template rendering for all components |
+| `scripts/validate-wa-pins.ts` | Validate the six Web Awesome version pins agree, are exact, and that the newest VERSION_MAP entry matches `DEFAULT_WEBAWESOME_VERSION` |
+| `scripts/check-starter-wa-version.ts` | Starter job step: fail when the starter's installed Web Awesome is older than `DEFAULT_WEBAWESOME_VERSION`; a starter without Web Awesome installed fails too (issue #138) |
+| `scripts/verify-test-app.ts` | Verify test app output after build |
+| `scripts/storybook/overrides.ts` | Storybook story overrides |
+| `scripts/storybook/patch-stories.ts` | Patch generated Storybook stories |
+| `scripts/storybook/story-data.ts` | Storybook story data helpers |
+| `scripts/storybook/validate-stories.ts` | Validate Storybook story structure |
+| `scripts/release-readiness.ts` | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness` |
+| `scripts/upstream-holds.json` | Majors already evaluated and deliberately held: toolchain (`typescript`, `vitest`) and the `@angular/cli` scaffold pin (Angular 22, until #156); `check-upstream-versions.ts` reads it so the weekly report stops re-flagging a decision already made, and only surfaces a genuinely new major |
 
 ---
 
 ## Skills
 
-| Skill                        | Location                                     | Audience    | Purpose                                                                                   |
-| ---------------------------- | -------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------- |
-| `kigumi-react`               | `.claude/skills/kigumi-react/`               | End user    | Convert WA HTML to Kigumi React JSX                                                       |
-| `kigumi-vue`                 | `.claude/skills/kigumi-vue/`                 | End user    | Convert WA HTML to Kigumi Vue SFC                                                         |
-| `kigumi-angular`             | `.claude/skills/kigumi-angular/`             | End user    | Convert WA HTML to Kigumi Angular                                                         |
-| `kigumi-cross-framework`     | `.claude/skills/kigumi-cross-framework/`     | End user    | Convert components between React/Vue/Angular (paired with `kigumi add --cross-framework`) |
-| `kigumi-compose-form`        | `.claude/skills/kigumi-compose-form/`        | End user    | Build forms with validation                                                               |
-| `kigumi-compose-layout`      | `.claude/skills/kigumi-compose-layout/`      | End user    | Build page layouts, dashboards                                                            |
-| `kigumi-compose-overlay`     | `.claude/skills/kigumi-compose-overlay/`     | End user    | Build dialogs, drawers, menus, toasts                                                     |
-| `kigumi-compose-data`        | `.claude/skills/kigumi-compose-data/`        | End user    | Build data tables, stats, list views                                                      |
-| `kigumi-theme`               | `.claude/skills/kigumi-theme/`               | End user    | Theme customization guidance                                                              |
-| `generate-theme-preset`      | `.claude/skills/generate-theme-preset/`      | Contributor | Create Studio theme presets                                                               |
-| `generate-component-wrapper` | `.claude/skills/generate-component-wrapper/` | Contributor | Generate React/Vue wrapper templates                                                      |
-| `release`                    | `.claude/skills/release/`                    | Contributor | Prepare and publish releases                                                              |
-| `kigumi-feature-spec`        | `.claude/skills/kigumi-feature-spec/`        | Contributor | Create feature specs and plans                                                            |
-| `apply-theme-to-figma`       | `.claude/skills/apply-theme-to-figma/`       | Contributor | Apply CSS tokens to Figma UI Kit                                                          |
+| Skill | Location | Audience | Purpose |
+| --- | --- | --- | --- |
+| `kigumi-react` | `.claude/skills/kigumi-react/` | End user | Convert WA HTML to Kigumi React JSX |
+| `kigumi-vue` | `.claude/skills/kigumi-vue/` | End user | Convert WA HTML to Kigumi Vue SFC |
+| `kigumi-angular` | `.claude/skills/kigumi-angular/` | End user | Convert WA HTML to Kigumi Angular |
+| `kigumi-cross-framework` | `.claude/skills/kigumi-cross-framework/` | End user | Convert components between React/Vue/Angular (paired with `kigumi add --cross-framework`) |
+| `kigumi-compose-form` | `.claude/skills/kigumi-compose-form/` | End user | Build forms with validation |
+| `kigumi-compose-layout` | `.claude/skills/kigumi-compose-layout/` | End user | Build page layouts, dashboards |
+| `kigumi-compose-overlay` | `.claude/skills/kigumi-compose-overlay/` | End user | Build dialogs, drawers, menus, toasts |
+| `kigumi-compose-data` | `.claude/skills/kigumi-compose-data/` | End user | Build data tables, stats, list views |
+| `kigumi-theme` | `.claude/skills/kigumi-theme/` | End user | Theme customization guidance |
+| `generate-theme-preset` | `.claude/skills/generate-theme-preset/` | Contributor | Create Studio theme presets |
+| `generate-component-wrapper` | `.claude/skills/generate-component-wrapper/` | Contributor | Generate React/Vue wrapper templates |
+| `release` | `.claude/skills/release/` | Contributor | Prepare and publish releases |
+| `kigumi-feature-spec` | `.claude/skills/kigumi-feature-spec/` | Contributor | Create feature specs and plans |
+| `apply-theme-to-figma` | `.claude/skills/apply-theme-to-figma/` | Contributor | Apply CSS tokens to Figma UI Kit |
 
 ### Skills Publishing
 
@@ -239,13 +239,13 @@ All Kigumi Angular components use `k-` prefix (e.g., `<k-button>`, `<k-dialog>`)
 
 An `@Output()` shares the component class namespace with its public methods and `@Input()`s, so a name already taken there gets an `Event` suffix. `input` always does, since it reads as the `@Input()` decorator. The rule is `toAngularOutputName()` in `src/utils/naming.ts`, shared by the generator and the Angular function harness:
 
-| WA Event     | Angular @Output() | Why                                                    |
-| ------------ | ----------------- | ------------------------------------------------------ |
-| `input`      | `inputEvent`      | always                                                 |
-| `blur`       | `blurEvent`       | form controls have a public `blur()` method            |
-| `focus`      | `focusEvent`      | form controls have a public `focus()` method           |
-| `wa-show`    | `showEvent`       | only with a public `show()` (e.g. Tooltip, Select)     |
-| `wa-invalid` | `invalidEvent`    | only with an `invalid` input (e.g. Select, RadioGroup) |
+| WA Event | Angular @Output() | Why |
+| --- | --- | --- |
+| `input` | `inputEvent` | always |
+| `blur` | `blurEvent` | form controls have a public `blur()` method |
+| `focus` | `focusEvent` | form controls have a public `focus()` method |
+| `wa-show` | `showEvent` | only with a public `show()` (e.g. Tooltip, Select) |
+| `wa-invalid` | `invalidEvent` | only with an `invalid` input (e.g. Select, RadioGroup) |
 
 Non-colliding events keep their base name: `wa-hide` -> `hide`, `wa-after-show` -> `afterShow`, and Dialog's `wa-show` -> `show` (its `show()` is private since WA 3.5.0).
 
@@ -304,10 +304,10 @@ Reference: https://webawesome.com/docs/utilities/ and https://webawesome.com/doc
 
 **Single source of truth:** `package.json` determines tier (with token fallback), NOT config.
 
-| Tier | Detection                                    | Package                      | Themes    |
-| ---- | -------------------------------------------- | ---------------------------- | --------- |
-| Free | `@awesome.me/webawesome` in package.json     | `@awesome.me/webawesome`     | 3 themes  |
-| Pro  | `@awesome.me/webawesome-pro` in package.json | `@awesome.me/webawesome-pro` | 11 themes |
+| Tier | Detection | Package | Themes |
+| --- | --- | --- | --- |
+| Free | `@awesome.me/webawesome` in package.json | `@awesome.me/webawesome` | 3 themes |
+| Pro | `@awesome.me/webawesome-pro` in package.json | `@awesome.me/webawesome-pro` | 11 themes |
 
 **Pro-only components:** chart, bar-chart, line-chart, bubble-chart, doughnut-chart, pie-chart, polar-area-chart, radar-chart, scatter-chart, combobox, file-input, number-input, sparkline, toast, toast-item, video, video-playlist, date-picker, date-input
 
@@ -337,8 +337,7 @@ async function detectTier(cwd: string): Promise<Tier> {
 
 **Token Setup (Architecture):**
 
-The repository includes `scripts/setup-npmrc.mjs` which reads tokens from `.env` files
-and writes them to:
+The repository includes `scripts/setup-npmrc.mjs` which reads tokens from `.env` files and writes them to:
 
 - Global `~/.npmrc` (for npm/yarn)
 - `docs/.npmrc` (gitignored) - **required for pnpm**, which does not use global auth for scoped registries
@@ -356,10 +355,10 @@ This approach:
 
 **docs/ vs. User Projects:**
 
-| Context           | `.npmrc` location | Token source                                       |
-| ----------------- | ----------------- | -------------------------------------------------- |
-| User project      | Project root      | Registry URL only; token from global or `.env`     |
-| docs/ (this repo) | `docs/.npmrc`     | Gitignored; generated by `setup:npmrc` from `.env` |
+| Context | `.npmrc` location | Token source |
+| --- | --- | --- |
+| User project | Project root | Registry URL only; token from global or `.env` |
+| docs/ (this repo) | `docs/.npmrc` | Gitignored; generated by `setup:npmrc` from `.env` |
 
 User projects get `.npmrc` with registry URL only via `kigumi init`. The docs app needs the token in its project `.npmrc` because pnpm does not use global auth for scoped registries.
 
@@ -393,15 +392,15 @@ pnpm test          # Vitest: all passing
 
 ### Module Boundaries
 
-| Layer    | Directory       | Responsibility                                              |
-| -------- | --------------- | ----------------------------------------------------------- |
-| Entry    | `src/index.ts`  | CLI routing, error handling                                 |
-| Commands | `src/commands/` | User-facing operations                                      |
-| Utils    | `src/utils/`    | Business logic (registry, tier, config)                     |
-| Schemas  | `src/schemas/`  | Zod validation                                              |
-| Errors   | `src/errors/`   | Typed error classes                                         |
-| Output   | `src/output/`   | Console formatting (delegates to prompts wrapper)           |
-| Prompts  | `src/prompts/`  | `@clack/prompts` wrapper + DI hook (`setPromptsForTesting`) |
+| Layer | Directory | Responsibility |
+| --- | --- | --- |
+| Entry | `src/index.ts` | CLI routing, error handling |
+| Commands | `src/commands/` | User-facing operations |
+| Utils | `src/utils/` | Business logic (registry, tier, config) |
+| Schemas | `src/schemas/` | Zod validation |
+| Errors | `src/errors/` | Typed error classes |
+| Output | `src/output/` | Console formatting (delegates to prompts wrapper) |
+| Prompts | `src/prompts/` | `@clack/prompts` wrapper + DI hook (`setPromptsForTesting`) |
 
 ### Module Dependency Graph
 
@@ -614,23 +613,23 @@ flowchart LR
 
 ## Debugging
 
-| Problem             | Check                       | Fix                                                                            |
-| ------------------- | --------------------------- | ------------------------------------------------------------------------------ |
-| Components unstyled | `kigumi.ts` imports?        | Confirm `layers.css` import. WA JS loads per-component on mount (no barrel).   |
-| TypeScript errors   | `declare module 'react'`?   | Use `declare global` instead                                                   |
-| wa-\* type errors   | `vite-env.d.ts` exists?     | Run `generateViteEnvDts()`                                                     |
-| Theme not applying  | CSS imported? HTML classes? | Check `kigumi.ts` imports                                                      |
-| Theme conflicts     | Duplicate theme imports?    | Verify `theme.css` has no `@import`                                            |
-| Tier wrong          | `.env` has token?           | Use `detectTier()`                                                             |
-| Free→Pro fails      | Migration ran?              | Check `migration.ts`                                                           |
-| Wrong import paths  | Mixed free/pro imports?     | Run `kigumi doctor`                                                            |
-| Stale WA version    | Config or package outdated? | Run `kigumi doctor`                                                            |
-| Version mismatch    | `kigumiVersion` in config?  | Run `kigumi upgrade`                                                           |
-| JSON parse fails    | File has comments?          | Use `readJSONWithComments()`                                                   |
-| 401 in docs/        | `docs/.npmrc` present?      | Run `pnpm run setup:npmrc`                                                     |
-| Broken error URLs   | `https://https://` prefix?  | Use constants from `src/constants.ts` (`GITHUB_ISSUES_URL`, `GITHUB_REPO_URL`) |
-| Unhandled error     | `catch {}` swallows error?  | Always capture: `catch (_error) {}` with descriptive comment                   |
-| Config validation   | Generic `Error` thrown?     | Use `ConfigInvalidError` from `src/errors/config.ts`                           |
+| Problem | Check | Fix |
+| --- | --- | --- |
+| Components unstyled | `kigumi.ts` imports? | Confirm `layers.css` import. WA JS loads per-component on mount (no barrel). |
+| TypeScript errors | `declare module 'react'`? | Use `declare global` instead |
+| wa-\* type errors | `vite-env.d.ts` exists? | Run `generateViteEnvDts()` |
+| Theme not applying | CSS imported? HTML classes? | Check `kigumi.ts` imports |
+| Theme conflicts | Duplicate theme imports? | Verify `theme.css` has no `@import` |
+| Tier wrong | `.env` has token? | Use `detectTier()` |
+| Free→Pro fails | Migration ran? | Check `migration.ts` |
+| Wrong import paths | Mixed free/pro imports? | Run `kigumi doctor` |
+| Stale WA version | Config or package outdated? | Run `kigumi doctor` |
+| Version mismatch | `kigumiVersion` in config? | Run `kigumi upgrade` |
+| JSON parse fails | File has comments? | Use `readJSONWithComments()` |
+| 401 in docs/ | `docs/.npmrc` present? | Run `pnpm run setup:npmrc` |
+| Broken error URLs | `https://https://` prefix? | Use constants from `src/constants.ts` (`GITHUB_ISSUES_URL`, `GITHUB_REPO_URL`) |
+| Unhandled error | `catch {}` swallows error? | Always capture: `catch (_error) {}` with descriptive comment |
+| Config validation | Generic `Error` thrown? | Use `ConfigInvalidError` from `src/errors/config.ts` |
 
 ---
 
@@ -657,16 +656,16 @@ flowchart LR
 
 ## Auto-Generated Files
 
-| File                                | Purpose                                                                                  | Regenerated When                                                                                 | User-Editable      |
-| ----------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------ |
-| `src/lib/kigumi.ts`                 | Imports layers.css and applies theme classes to `<html>`                                 | Theme/brand/palette commands                                                                     | ❌ No              |
-| `src/styles/layers.css`             | Wraps Web Awesome CSS in cascade layers                                                  | Theme/brand/palette commands                                                                     | ❌ No              |
-| `src/styles/theme.css`              | User custom CSS overrides                                                                | Only on init (if missing)                                                                        | ✅ Yes - preserved |
-| `src/vite-env.d.ts`                 | JSX augmentation importing official Web Awesome `CustomElements` / `CustomCssProperties` | Only on init (React Vite + TS); `kigumi doctor` advisory for legacy `src/types/web-awesome.d.ts` | ❌ No              |
-| `src/web-awesome.d.ts`              | Next.js-flavored variant of `vite-env.d.ts` (no `vite/client` reference)                 | Only on init (Next.js + TS)                                                                      | ❌ No              |
-| `src/styles/community-themes/*.css` | Downloaded community theme CSS                                                           | `kigumi theme install --from`                                                                    | ❌ No              |
-| `.npmrc` (user project)             | Registry URL only (no token)                                                             | Only on init                                                                                     | ❌ No              |
-| `docs/.npmrc`                       | Registry + token (gitignored)                                                            | `pnpm run setup:npmrc`                                                                           | ❌ No              |
+| File | Purpose | Regenerated When | User-Editable |
+| --- | --- | --- | --- |
+| `src/lib/kigumi.ts` | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands | ❌ No |
+| `src/styles/layers.css` | Wraps Web Awesome CSS in cascade layers | Theme/brand/palette commands | ❌ No |
+| `src/styles/theme.css` | User custom CSS overrides | Only on init (if missing) | ✅ Yes - preserved |
+| `src/vite-env.d.ts` | JSX augmentation importing official Web Awesome `CustomElements` / `CustomCssProperties` | Only on init (React Vite + TS); `kigumi doctor` advisory for legacy `src/types/web-awesome.d.ts` | ❌ No |
+| `src/web-awesome.d.ts` | Next.js-flavored variant of `vite-env.d.ts` (no `vite/client` reference) | Only on init (Next.js + TS) | ❌ No |
+| `src/styles/community-themes/*.css` | Downloaded community theme CSS | `kigumi theme install --from` | ❌ No |
+| `.npmrc` (user project) | Registry URL only (no token) | Only on init | ❌ No |
+| `docs/.npmrc` | Registry + token (gitignored) | `pnpm run setup:npmrc` | ❌ No |
 
 **Key Points:**
 
@@ -1050,11 +1049,11 @@ To stay inside the GitHub Actions allowance, `ci.yml` runs heavy jobs only when 
 
 **Dynamic matrix sizes (Integration + Starter):** beyond skipping jobs entirely, the `changes` job also computes the matrix size for the two matrix jobs and emits it as JSON outputs (`integration_matrix`, `starter_matrix`).
 
-| Trigger                                            | Integration matrix                             | Starter matrix                        |
-| -------------------------------------------------- | ---------------------------------------------- | ------------------------------------- |
-| `full-ci` label or `changeset-release/main`        | 4 entries (react@18, react@19, vue@3, angular) | 4 entries (react, vue, angular, next) |
-| `templates` or `deps` changed                      | 3 entries (drop react@18)                      | 4 entries                             |
-| `src` (or `integration` / `starters` / `e2e`) only | 3 entries                                      | 1 entry (react)                       |
+| Trigger | Integration matrix | Starter matrix |
+| --- | --- | --- |
+| `full-ci` label or `changeset-release/main` | 4 entries (react@18, react@19, vue@3, angular) | 4 entries (react, vue, angular, next) |
+| `templates` or `deps` changed | 3 entries (drop react@18) | 4 entries |
+| `src` (or `integration` / `starters` / `e2e`) only | 3 entries | 1 entry (react) |
 
 The reduction is safe because: (1) react@18-vs-19 differences are JSX-typing only and bounded; (2) starter coverage for non-react frameworks is high-value only when templates or deps change; (3) any regression missed on a regular PR is caught at the next release PR (full matrix auto-fires on `changeset-release/main`) before publish. To force the full matrix on a regular PR, add the `full-ci` label.
 

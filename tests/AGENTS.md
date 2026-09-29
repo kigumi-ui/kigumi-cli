@@ -220,17 +220,7 @@ pnpm test:watch        # Watch mode
 
 ## Type-Checking Tests
 
-`tests/**` is included in `tsconfig.tests.json` and gated by `pnpm check:tests`.
-The script runs `tsc --noEmit -p tsconfig.tests.json` and fails CI on any error.
-The function harness renders committed React and Vue Templates, so this tsconfig sets
-`jsx` and the DOM lib and includes the CSS and React JSX shims.
-Angular Templates are imported by computed path, so `tsc` does not follow them here: their
-decorators need `experimentalDecorators`, which only `templates/angular/tsconfig.json`
-(`pnpm typecheck:templates`) sets. For the same reason the Angular adapter's inline test
-components use `Component({...})(class ...)` instead of decorator syntax: Vite compiles
-test files under the root tsconfig, and esbuild would emit standard decorators.
-The historical baseline at `tests/.tsc-baseline.json` was retired in PR #137
-once the existing 133 errors were fixed; the gate is now strict.
+`tests/**` is included in `tsconfig.tests.json` and gated by `pnpm check:tests`. The script runs `tsc --noEmit -p tsconfig.tests.json` and fails CI on any error. The function harness renders committed React and Vue Templates, so this tsconfig sets `jsx` and the DOM lib and includes the CSS and React JSX shims. Angular Templates are imported by computed path, so `tsc` does not follow them here: their decorators need `experimentalDecorators`, which only `templates/angular/tsconfig.json` (`pnpm typecheck:templates`) sets. For the same reason the Angular adapter's inline test components use `Component({...})(class ...)` instead of decorator syntax: Vite compiles test files under the root tsconfig, and esbuild would emit standard decorators. The historical baseline at `tests/.tsc-baseline.json` was retired in PR #137 once the existing 133 errors were fixed; the gate is now strict.
 
 ```bash
 pnpm check:tests                       # gate; fails on any tests/ type error
@@ -240,32 +230,27 @@ pnpm check:tests --update-baseline     # re-create the baseline (only if a delib
 
 ### When `tsc` upgrades introduce new error codes
 
-A TypeScript minor bump can flag previously-silent issues. Fix the new errors
-in the upgrade PR. Re-introducing the baseline file is a last resort and should
-be paired with a follow-up plan to drain it.
+A TypeScript minor bump can flag previously-silent issues. Fix the new errors in the upgrade PR. Re-introducing the baseline file is a last resort and should be paired with a follow-up plan to drain it.
 
 ---
 
 ## Test Helpers (`tests/unit/_helpers/`)
 
-Sibling modules shared across unit tests. Prefer these over per-file `vi.mock`
-factories (cluster S).
+Sibling modules shared across unit tests. Prefer these over per-file `vi.mock` factories (cluster S).
 
-| Helper                                                                                                                           | Use when                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `createTestOutput()` (from `_helpers/output.ts`)                                                                                 | You only need a satisfies-the-interface output that records via `vi.fn()` and lets you assert with `vi.mocked(output.success).toHaveBeenCalledWith(...)`. The 4 init-family tests still use this shape.                                                                                                                                                                                                                                |
-| `createRecordingOutput()` (from `_helpers/output.ts`)                                                                            | You want a `RecordingOutput` with a typed `calls` array. Assert via `expect(output.calls).toContainEqual({ method: 'note', args: ['Settings', expect.stringContaining('awesome')] })`. Pair with `setOutputForTesting(output)`.                                                                                                                                                                                                        |
-| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`)                                                                        | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`.                                                      |
-| `writeTierFixture(dir, 'free' \| 'pro')` (from `_helpers/tier.ts`)                                                               | You need `detectTier()` to read a real `package.json` instead of mocking `src/utils/tier.js`. Call after `mkdtemp` + `chdir(testDir)`; production code reads the dependencies map and returns the requested tier.                                                                                                                                                                                                                      |
-| `createTestKigumiConfig(overrides)` (from `_helpers/kigumi-config.ts`)                                                           | You need a fully-typed `KigumiConfig` for `parseKigumiConfig()` callers.                                                                                                                                                                                                                                                                                                                                                               |
-| `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`)                                                               | You need a fully-typed `AddOptions` for command tests.                                                                                                                                                                                                                                                                                                                                                                                 |
-| `registerTestSeams(output, prompts)` / `clearTestSeams()` (from `_helpers/seams.ts`)                                             | You're wiring both the output and prompts seams in the same test file. Call `registerTestSeams` after `vi.resetModules()` in `beforeEach`, and `clearTestSeams` in `afterEach`. Wraps the dynamic-import dance below.                                                                                                                                                                                                                  |
-| `WebAwesomeComponentStub` (default export of `_helpers/wa-component-stub.ts`)                                                    | You don't import it: both vitest configs alias every `@awesome.me/webawesome(-pro)/dist/components/**` deep-import to it (via `vitest.wa-stub-alias.ts`), so a Template's dynamic component import resolves without loading Web Awesome's runtime. Pro isn't installed at all, and Free's runtime is dead weight for a contract proof. It registers nothing, keeping the harness's `customElements.get(tagName)` assertion meaningful. |
-| `METHODLESS_COMPONENTS` / `EVENTLESS_COMPONENTS` (from `_helpers/methodless-components.ts` / `_helpers/eventless-components.ts`) | A registry harness needs to know which components may legitimately prove zero methods / events. Committed data, never derived from `COMPONENT_METADATA`: `describeRegistryCoverage()` (`_helpers/registry-coverage.ts`, registered by every registry loop) pins both directions, so a WA bump that adds or removes a method or event must edit the list in the same commit.                                                            |
+| Helper | Use when |
+| --- | --- |
+| `createTestOutput()` (from `_helpers/output.ts`) | You only need a satisfies-the-interface output that records via `vi.fn()` and lets you assert with `vi.mocked(output.success).toHaveBeenCalledWith(...)`. The 4 init-family tests still use this shape. |
+| `createRecordingOutput()` (from `_helpers/output.ts`) | You want a `RecordingOutput` with a typed `calls` array. Assert via `expect(output.calls).toContainEqual({ method: 'note', args: ['Settings', expect.stringContaining('awesome')] })`. Pair with `setOutputForTesting(output)`. |
+| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`) | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`. |
+| `writeTierFixture(dir, 'free' \| 'pro')` (from `_helpers/tier.ts`) | You need `detectTier()` to read a real `package.json` instead of mocking `src/utils/tier.js`. Call after `mkdtemp` + `chdir(testDir)`; production code reads the dependencies map and returns the requested tier. |
+| `createTestKigumiConfig(overrides)` (from `_helpers/kigumi-config.ts`) | You need a fully-typed `KigumiConfig` for `parseKigumiConfig()` callers. |
+| `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`) | You need a fully-typed `AddOptions` for command tests. |
+| `registerTestSeams(output, prompts)` / `clearTestSeams()` (from `_helpers/seams.ts`) | You're wiring both the output and prompts seams in the same test file. Call `registerTestSeams` after `vi.resetModules()` in `beforeEach`, and `clearTestSeams` in `afterEach`. Wraps the dynamic-import dance below. |
+| `WebAwesomeComponentStub` (default export of `_helpers/wa-component-stub.ts`) | You don't import it: both vitest configs alias every `@awesome.me/webawesome(-pro)/dist/components/**` deep-import to it (via `vitest.wa-stub-alias.ts`), so a Template's dynamic component import resolves without loading Web Awesome's runtime. Pro isn't installed at all, and Free's runtime is dead weight for a contract proof. It registers nothing, keeping the harness's `customElements.get(tagName)` assertion meaningful. |
+| `METHODLESS_COMPONENTS` / `EVENTLESS_COMPONENTS` (from `_helpers/methodless-components.ts` / `_helpers/eventless-components.ts`) | A registry harness needs to know which components may legitimately prove zero methods / events. Committed data, never derived from `COMPONENT_METADATA`: `describeRegistryCoverage()` (`_helpers/registry-coverage.ts`, registered by every registry loop) pins both directions, so a WA bump that adds or removes a method or event must edit the list in the same commit. |
 
-The DI hooks live on the production modules. Prefer `registerTestSeams` /
-`clearTestSeams` from `_helpers/seams.ts` so the dynamic-import boilerplate
-stays in one place:
+The DI hooks live on the production modules. Prefer `registerTestSeams` / `clearTestSeams` from `_helpers/seams.ts` so the dynamic-import boilerplate stays in one place:
 
 ```typescript
 // In beforeEach (after vi.resetModules()):
@@ -278,8 +263,7 @@ await registerTestSeams(
 await clearTestSeams();
 ```
 
-Direct seam access is still available when only one of the two seams is
-needed (e.g. `setOutputForTesting` alone):
+Direct seam access is still available when only one of the two seams is needed (e.g. `setOutputForTesting` alone):
 
 ```typescript
 const outMod = await import('../../src/output/index.js');
@@ -288,25 +272,15 @@ outMod.setOutputForTesting(createRecordingOutput());
 (await import('../../src/output/index.js')).resetOutputForTesting();
 ```
 
-The dynamic imports are required because the registered instance lives in
-module-level state, and `vi.resetModules()` evicts the module so the next
-import re-evaluates with fresh state - register the test instance after
-the reset, before the production command's dynamic import.
+The dynamic imports are required because the registered instance lives in module-level state, and `vi.resetModules()` evicts the module so the next import re-evaluates with fresh state - register the test instance after the reset, before the production command's dynamic import.
 
-For other module-level seams (`regenerate`, `github-fetcher`, `github-token`,
-`registry-resolver`, `version-map`, `template`, `registry`), prefer
-`vi.spyOn(module, 'fn').mockResolvedValue(...)` per-test inside the
-beforeEach or test body. `vi.spyOn` does not match the `vi\.mock`
-substring used by the budget gate (see below) and preserves the rest of
-the module's real behavior.
+For other module-level seams (`regenerate`, `github-fetcher`, `github-token`, `registry-resolver`, `version-map`, `template`, `registry`), prefer `vi.spyOn(module, 'fn').mockResolvedValue(...)` per-test inside the beforeEach or test body. `vi.spyOn` does not match the `vi\.mock` substring used by the budget gate (see below) and preserves the rest of the module's real behavior.
 
 ## Mock Budget (`pnpm check:mocks`)
 
-`scripts/check-mock-budget.ts` walks `tests/unit/`, counts `vi.mock`
-substring matches, and gates against:
+`scripts/check-mock-budget.ts` walks `tests/unit/`, counts `vi.mock` substring matches, and gates against:
 
-- **Total**: < 50 across `tests/unit/` (currently 16; cluster S PR-S4
-  closed out the initiative).
+- **Total**: < 50 across `tests/unit/` (currently 16; cluster S PR-S4 closed out the initiative).
 - **Per-file**: `theme-commands.test.ts` < 10 (currently 0).
 
 Modes:
@@ -316,149 +290,125 @@ pnpm check:mocks                        # advisory; prints counts, exits 0
 MOCK_BUDGET_ENFORCE=1 pnpm check:mocks  # enforced; exits 1 on threshold breach
 ```
 
-CI runs the gate in enforce mode (`MOCK_BUDGET_ENFORCE=1` set in the
-`Check mock budget` step in `.github/workflows/ci.yml`); the local
-stop-hook stays advisory and runs alongside `check:tests` on the
-test-only fast path.
+CI runs the gate in enforce mode (`MOCK_BUDGET_ENFORCE=1` set in the `Check mock budget` step in `.github/workflows/ci.yml`); the local stop-hook stays advisory and runs alongside `check:tests` on the test-only fast path.
 
 ### Legitimate exceptions to `vi.mock`
 
-The cluster S target leaves room for ~30 mocks. These are the documented
-exceptions:
+The cluster S target leaves room for ~30 mocks. These are the documented exceptions:
 
-- **`execa` / `node:child_process`**: tests that must not actually shell
-  out (subprocess boundaries are fine to mock; spawning a real binary in
-  unit tests is the smell).
-- **Third-party SDKs without a kigumi wrapper**: when no internal seam
-  exists yet. Add the seam in a follow-up if the same SDK gets mocked in
-  three or more places.
+- **`execa` / `node:child_process`**: tests that must not actually shell out (subprocess boundaries are fine to mock; spawning a real binary in unit tests is the smell).
+- **Third-party SDKs without a kigumi wrapper**: when no internal seam exists yet. Add the seam in a follow-up if the same SDK gets mocked in three or more places.
 
-`@clack/prompts` is **not** an exception once the wrapper migration is
-complete. New tests must register a `setPromptsForTesting()` adapter
-instead.
+`@clack/prompts` is **not** an exception once the wrapper migration is complete. New tests must register a `setPromptsForTesting()` adapter instead.
 
 ---
 
 ## Negative-Path Inventory
 
-Every user-facing command must have at least three negative-path tests
-(invalid input, missing dependency, failed pre-flight, surfaced error).
-The table below tracks current coverage; reviewers extending a command
-must add or update a row when introducing a new failure mode.
+Every user-facing command must have at least three negative-path tests (invalid input, missing dependency, failed pre-flight, surfaced error). The table below tracks current coverage; reviewers extending a command must add or update a row when introducing a new failure mode.
 
-Cluster T (PR-T3) ships this section. New tests added in cluster T
-are noted as `[T1]` (property tests), `[T2]` (corrupt-config), and
-`[T3]` (concurrency / failure-modes).
+Cluster T (PR-T3) ships this section. New tests added in cluster T are noted as `[T1]` (property tests), `[T2]` (corrupt-config), and `[T3]` (concurrency / failure-modes).
 
-| Command                  | Scenario                                       | Expected Surface                                               | Test File                                         | Test Name (substring)                                                                   |
-| ------------------------ | ---------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `init`                   | unsupported framework                          | `ConfigInvalidError`                                           | `tests/unit/options-schema.test.ts`               | `rejects invalid framework`                                                             |
-| `init`                   | unknown top-level config key (e.g. `framwork`) | `ConfigInvalidError`                                           | `tests/unit/schemas/config-property.test.ts` [T1] | `rejects an arbitrary unknown top-level key on kigumiConfigSchema`                      |
-| `init`                   | `--yes` mode with missing required arg         | `ValidationError`                                              | `tests/unit/options-schema.test.ts`               | `throws formatted error on invalid input`                                               |
-| `init`                   | user cancels prompt mid-flow                   | `UserCancelledError`                                           | `tests/unit/init-validate-and-prepare.test.ts`    | `throws UserCancelledError when the user picks "cancel"`                                |
-| `init`                   | missing `package.json`                         | `PreFlightCheckError`                                          | `tests/unit/init-validate-and-prepare.test.ts`    | `rejects with PreFlightCheckError when package.json is missing`                         |
-| `init`                   | unreadable `package.json` (a directory)        | `PackageJsonReadError`, exit 4                                 | `tests/unit/package-json-read-error.test.ts`      | `kigumi init reports a directory at package.json`                                       |
-| `init`                   | invalid JSON in `package.json`                 | `PackageJsonInvalidError`, exit 4                              | `tests/unit/package-json-read-error.test.ts`      | `kigumi init renders the full error and fix for invalid JSON in package.json`           |
-| `add`                    | no config present                              | error output (no throw)                                        | `tests/unit/add-command.test.ts`                  | `should fail without config file`                                                       |
-| `add`                    | malformed config JSON                          | `ConfigInvalidError`                                           | `tests/unit/add-command.test.ts`                  | `should fail with invalid config (completely broken JSON)`                              |
-| `add`                    | typo'd config key                              | `ConfigInvalidError`                                           | `tests/unit/add-command.test.ts`                  | `surfaces ConfigInvalidError instead of the generic post-check fallback`                |
-| `add`                    | invalid component name                         | error output                                                   | `tests/unit/add-command.test.ts`                  | `should handle invalid component names`                                                 |
-| `add`                    | GitHub fetcher 401 / 403                       | `Error` "Authentication failed"                                | `tests/unit/failure-modes.test.ts` [T3]           | `fetchFile throws on 403 with "Authentication failed"`                                  |
-| `add`                    | GitHub fetcher 429                             | `Error` with status code                                       | `tests/unit/failure-modes.test.ts` [T3]           | `fetchFile throws on 429 with the status code in the message`                           |
-| `add`                    | network unreachable (ECONNREFUSED)             | `TypeError`                                                    | `tests/unit/failure-modes.test.ts` [T3]           | `fetchFile rethrows a TypeError when fetch rejects with ECONNREFUSED`                   |
-| `update`                 | no config present                              | `output.error` call                                            | `tests/unit/update-command.test.ts`               | `should call output.error when no config is found`                                      |
-| `update`                 | empty `componentsDir`                          | "no installed components"                                      | `tests/unit/update-command.test.ts`               | `should report no installed components when componentsDir is empty`                     |
-| `update`                 | snapshot/template merge conflict               | conflict markers written                                       | `tests/unit/update-command.test.ts`               | `should write conflict markers when changes overlap`                                    |
-| `upgrade`                | no config file                                 | `output.error` + exit                                          | `tests/unit/upgrade-command.test.ts`              | `should error when no config file exists`                                               |
-| `upgrade`                | typo'd config key                              | hint + non-zero exit                                           | `tests/unit/upgrade-command.test.ts`              | `prepends a friendly hint and exits non-zero on typo configs`                           |
-| `upgrade`                | unreadable `package.json` (a directory)        | `PackageJsonReadError`, exit 4, config unchanged               | `tests/unit/package-json-read-error.test.ts`      | `kigumi upgrade reports a directory at package.json`                                    |
-| `upgrade`                | dependency install fails                       | `DependencyInstallError`, exit 5, config keeps the old version | `tests/unit/upgrade-command.test.ts`              | `keeps the old version in kigumi.config.json when the install fails`                    |
-| `diff`                   | no config present                              | `output.error` call                                            | `tests/unit/diff-command.test.ts`                 | `should call output.error when no config is found`                                      |
-| `diff`                   | empty `componentsDir`                          | "no installed components"                                      | `tests/unit/diff-command.test.ts`                 | `should report no installed components when componentsDir is empty`                     |
-| `diff`                   | non-existent `componentsDir`                   | "no installed components"                                      | `tests/unit/diff-command.test.ts`                 | `should report no installed components when componentsDir does not exist`               |
-| `diff`                   | unreadable `package.json` (a directory)        | `PackageJsonReadError`, exit 4, not "missing" files            | `tests/unit/package-json-read-error.test.ts`      | `kigumi diff reports a directory at package.json instead of missing files`              |
-| `theme set`              | no config file                                 | error                                                          | `tests/unit/theme-commands.test.ts`               | `should fail without config file`                                                       |
-| `theme set`              | pro theme on free tier                         | `ProThemeRequiredError`                                        | `tests/unit/theme-commands.test.ts`               | `should reject pro theme on free tier with ProThemeRequiredError`                       |
-| `theme set`              | typo'd config key                              | `ConfigInvalidError`                                           | `tests/unit/config-error-surface.test.ts`         | `theme command surfaces ConfigInvalidError on typo config`                              |
-| `theme set`              | user cancellation                              | `UserCancelledError`                                           | `tests/unit/theme-commands.test.ts`               | `should handle user cancellation`                                                       |
-| `theme set`              | unreadable `package.json` (a directory)        | `PackageJsonReadError`, exit 4, config unchanged               | `tests/unit/package-json-read-error.test.ts`      | `kigumi theme set reports a directory at package.json and saves nothing`                |
-| `theme show`             | no config file                                 | error                                                          | `tests/unit/theme-commands.test.ts`               | `should fail without config file` (in `show` describe)                                  |
-| `theme show`             | pro theme on free tier                         | `ProThemeRequiredError`                                        | `tests/unit/theme-commands.test.ts`               | `should reject pro theme on free tier`                                                  |
-| `theme show`             | malformed config                               | `ConfigInvalidError`                                           | `tests/unit/config-error-surface.test.ts`         | `theme command surfaces ConfigInvalidError on typo config`                              |
-| `theme install`          | no config file                                 | error                                                          | `tests/unit/theme-commands.test.ts`               | `should fail without config file` (in `install` describe)                               |
-| `theme install`          | invalid theme name                             | error output                                                   | `tests/unit/theme-commands.test.ts`               | `should fail when theme not found in registry`                                          |
-| `theme install`          | typo'd config key                              | `ConfigInvalidError`                                           | `tests/unit/config-error-surface.test.ts`         | `theme command surfaces ConfigInvalidError on typo config`                              |
-| `theme install`          | unreadable `package.json` (a directory)        | `PackageJsonReadError`, exit 4, nothing written                | `tests/unit/package-json-read-error.test.ts`      | `kigumi theme install reports a directory at package.json and writes nothing`           |
-| `theme install`          | a theme file cannot be fetched                 | non-zero exit, nothing written                                 | `tests/unit/theme-install-local-source.test.ts`   | `writes nothing when one of the theme files cannot be fetched`                          |
-| `palette`                | no config file                                 | error                                                          | `tests/unit/palette-command.test.ts`              | `should fail without config file`                                                       |
-| `palette`                | invalid palette name                           | exits non-zero                                                 | `tests/unit/palette-command.test.ts`              | `should reject invalid palette name and call process.exit`                              |
-| `palette`                | pro palette on free tier                       | `ProThemeRequiredError`                                        | `tests/unit/palette-command.test.ts`              | `should reject pro palettes on free tier`                                               |
-| `palette`                | typo'd config key                              | `ConfigInvalidError`                                           | `tests/unit/config-error-surface.test.ts`         | `palette command surfaces ConfigInvalidError on typo config`                            |
-| `palette`                | unreadable `package.json` (a directory)        | `PackageJsonReadError`, exit 4, config unchanged               | `tests/unit/package-json-read-error.test.ts`      | `kigumi palette reports a directory at package.json and saves nothing`                  |
-| `brand`                  | no config file                                 | error                                                          | `tests/unit/brand-command.test.ts`                | `should fail without config file`                                                       |
-| `brand`                  | invalid brand color                            | exits non-zero                                                 | `tests/unit/brand-command.test.ts`                | `should reject invalid brand color and call process.exit`                               |
-| `brand`                  | typo'd config key                              | `ConfigInvalidError`                                           | `tests/unit/config-error-surface.test.ts`         | `brand command surfaces ConfigInvalidError on typo config`                              |
-| `brand`                  | user cancellation                              | `UserCancelledError`                                           | `tests/unit/brand-command.test.ts`                | `should handle user cancellation`                                                       |
-| `brand`                  | unreadable `package.json` (a directory)        | `PackageJsonReadError`, exit 4, config unchanged               | `tests/unit/package-json-read-error.test.ts`      | `kigumi brand reports a directory at package.json and saves nothing`                    |
-| `status`                 | no config file                                 | thrown error                                                   | `tests/unit/status.test.ts`                       | `should throw error when config not found`                                              |
-| `status`                 | tier mismatch (pro package without token)      | warning                                                        | `tests/unit/status.test.ts`                       | `should warn about tier mismatch (pro package without token)`                           |
-| `status`                 | duplicate WA packages installed                | warning                                                        | `tests/unit/status.test.ts`                       | `should warn about duplicate packages`                                                  |
-| `status`                 | missing components directory                   | graceful handling                                              | `tests/unit/status.test.ts`                       | `should handle missing components directory gracefully`                                 |
-| `list`                   | `package.json` is a directory                  | `PackageJsonReadError`, exit 4                                 | `tests/unit/package-json-read-error.test.ts`      | `kigumi list renders the full error and fix for a directory at package.json`            |
-| `list`                   | `package.json` not readable (EACCES)           | `PackageJsonReadError`, exit 4                                 | `tests/unit/package-json-read-error.test.ts`      | `kigumi list renders the full error and permissions fix for an unreadable package.json` |
-| `registry init`          | existing `registry.json`                       | warn (do not overwrite)                                        | `tests/unit/registry-init-command.test.ts`        | `should warn if registry.json already exists`                                           |
-| `registry init`          | user provides bad arg                          | exits with error                                               | `tests/unit/registry-init-command.test.ts`        | (see scaffold negative-path describes)                                                  |
-| `registry init`          | user cancellation                              | `UserCancelledError`                                           | `tests/unit/registry-init-command.test.ts`        | (interactive-prompts describe)                                                          |
-| `registry validate`      | missing `registry.json`                        | failure                                                        | `tests/unit/registry-validate-command.test.ts`    | `should fail when registry.json does not exist`                                         |
-| `registry validate`      | invalid JSON                                   | failure                                                        | `tests/unit/registry-validate-command.test.ts`    | `should fail on invalid JSON`                                                           |
-| `registry validate`      | invalid Zod schema                             | failure                                                        | `tests/unit/registry-validate-command.test.ts`    | `should fail on invalid schema`                                                         |
-| `registry validate`      | missing referenced files                       | failure                                                        | `tests/unit/registry-validate-command.test.ts`    | `should detect missing referenced files`                                                |
-| `registry validate`      | wrong file extension for framework             | failure                                                        | `tests/unit/registry-validate-command.test.ts`    | `should detect wrong file extensions for framework`                                     |
-| `registry connect`       | foreign-framework registry                     | warn (proceed)                                                 | `tests/unit/registry-connect-command.test.ts`     | `warns (does not throw) when connecting a foreign-framework registry`                   |
-| `registry connect`       | duplicate connection                           | no-op                                                          | `tests/unit/registry-connect-command.test.ts`     | `does not duplicate when the same local registry is connected twice`                    |
-| `registry connect`       | typo'd config key                              | `ConfigInvalidError`                                           | `tests/unit/config-error-surface.test.ts`         | `registry list-sources action surfaces ConfigInvalidError on typo config`               |
-| `registry list`          | no registries configured                       | message + zero exit                                            | `tests/unit/registry-list-remove-command.test.ts` | `should show message when no registries configured`                                     |
-| `registry list`          | missing config file                            | non-zero exit                                                  | `tests/unit/registry-list-remove-command.test.ts` | `should exit with error code when config is missing`                                    |
-| `registry list`          | typo'd config key                              | `ConfigInvalidError`                                           | `tests/unit/config-error-surface.test.ts`         | `registry list-sources action surfaces ConfigInvalidError on typo config`               |
-| `registry remove`        | unknown registry URL/name                      | warn                                                           | `tests/unit/registry-list-remove-command.test.ts` | `should warn when registry not found`                                                   |
-| `registry remove`        | components depend on it                        | warn about affected components                                 | `tests/unit/registry-list-remove-command.test.ts` | `should warn about affected components when removing registry`                          |
-| `registry remove`        | missing config file                            | non-zero exit                                                  | `tests/unit/registry-list-remove-command.test.ts` | `should exit with error code when config is missing`                                    |
-| `registry add-component` | missing `registry.json`                        | no-op                                                          | `tests/unit/registry-add-component.test.ts`       | `returns without writing when registry.json is missing`                                 |
-| `registry add-component` | invalid `registry.json`                        | no-op                                                          | `tests/unit/registry-add-component.test.ts`       | `returns without writing when registry.json fails Zod parse`                            |
-| `registry add-component` | duplicate slug                                 | rejection                                                      | `tests/unit/registry-add-component.test.ts`       | `rejects duplicate slug via the slug prompt validate function`                          |
-| `registry add-component` | user cancellation                              | `UserCancelledError`                                           | `tests/unit/registry-add-component.test.ts`       | `aborts via UserCancelledError when the user cancels mid-flow`                          |
-| `registry add-theme`     | missing `registry.json`                        | no-op                                                          | `tests/unit/registry-add-theme.test.ts`           | `returns without writing when registry.json is missing`                                 |
-| `registry add-theme`     | invalid `registry.json`                        | no-op                                                          | `tests/unit/registry-add-theme.test.ts`           | `returns without writing when registry.json fails Zod parse`                            |
-| `registry add-theme`     | duplicate / non-kebab / empty slug             | rejection                                                      | `tests/unit/registry-add-theme.test.ts`           | `rejects duplicate slug, non-kebab-case, and empty via slug prompt validate`            |
+| Command | Scenario | Expected Surface | Test File | Test Name (substring) |
+| --- | --- | --- | --- | --- |
+| `init` | unsupported framework | `ConfigInvalidError` | `tests/unit/options-schema.test.ts` | `rejects invalid framework` |
+| `init` | unknown top-level config key (e.g. `framwork`) | `ConfigInvalidError` | `tests/unit/schemas/config-property.test.ts` [T1] | `rejects an arbitrary unknown top-level key on kigumiConfigSchema` |
+| `init` | `--yes` mode with missing required arg | `ValidationError` | `tests/unit/options-schema.test.ts` | `throws formatted error on invalid input` |
+| `init` | user cancels prompt mid-flow | `UserCancelledError` | `tests/unit/init-validate-and-prepare.test.ts` | `throws UserCancelledError when the user picks "cancel"` |
+| `init` | missing `package.json` | `PreFlightCheckError` | `tests/unit/init-validate-and-prepare.test.ts` | `rejects with PreFlightCheckError when package.json is missing` |
+| `init` | unreadable `package.json` (a directory) | `PackageJsonReadError`, exit 4 | `tests/unit/package-json-read-error.test.ts` | `kigumi init reports a directory at package.json` |
+| `init` | invalid JSON in `package.json` | `PackageJsonInvalidError`, exit 4 | `tests/unit/package-json-read-error.test.ts` | `kigumi init renders the full error and fix for invalid JSON in package.json` |
+| `add` | no config present | error output (no throw) | `tests/unit/add-command.test.ts` | `should fail without config file` |
+| `add` | malformed config JSON | `ConfigInvalidError` | `tests/unit/add-command.test.ts` | `should fail with invalid config (completely broken JSON)` |
+| `add` | typo'd config key | `ConfigInvalidError` | `tests/unit/add-command.test.ts` | `surfaces ConfigInvalidError instead of the generic post-check fallback` |
+| `add` | invalid component name | error output | `tests/unit/add-command.test.ts` | `should handle invalid component names` |
+| `add` | GitHub fetcher 401 / 403 | `Error` "Authentication failed" | `tests/unit/failure-modes.test.ts` [T3] | `fetchFile throws on 403 with "Authentication failed"` |
+| `add` | GitHub fetcher 429 | `Error` with status code | `tests/unit/failure-modes.test.ts` [T3] | `fetchFile throws on 429 with the status code in the message` |
+| `add` | network unreachable (ECONNREFUSED) | `TypeError` | `tests/unit/failure-modes.test.ts` [T3] | `fetchFile rethrows a TypeError when fetch rejects with ECONNREFUSED` |
+| `update` | no config present | `output.error` call | `tests/unit/update-command.test.ts` | `should call output.error when no config is found` |
+| `update` | empty `componentsDir` | "no installed components" | `tests/unit/update-command.test.ts` | `should report no installed components when componentsDir is empty` |
+| `update` | snapshot/template merge conflict | conflict markers written | `tests/unit/update-command.test.ts` | `should write conflict markers when changes overlap` |
+| `upgrade` | no config file | `output.error` + exit | `tests/unit/upgrade-command.test.ts` | `should error when no config file exists` |
+| `upgrade` | typo'd config key | hint + non-zero exit | `tests/unit/upgrade-command.test.ts` | `prepends a friendly hint and exits non-zero on typo configs` |
+| `upgrade` | unreadable `package.json` (a directory) | `PackageJsonReadError`, exit 4, config unchanged | `tests/unit/package-json-read-error.test.ts` | `kigumi upgrade reports a directory at package.json` |
+| `upgrade` | dependency install fails | `DependencyInstallError`, exit 5, config keeps the old version | `tests/unit/upgrade-command.test.ts` | `keeps the old version in kigumi.config.json when the install fails` |
+| `diff` | no config present | `output.error` call | `tests/unit/diff-command.test.ts` | `should call output.error when no config is found` |
+| `diff` | empty `componentsDir` | "no installed components" | `tests/unit/diff-command.test.ts` | `should report no installed components when componentsDir is empty` |
+| `diff` | non-existent `componentsDir` | "no installed components" | `tests/unit/diff-command.test.ts` | `should report no installed components when componentsDir does not exist` |
+| `diff` | unreadable `package.json` (a directory) | `PackageJsonReadError`, exit 4, not "missing" files | `tests/unit/package-json-read-error.test.ts` | `kigumi diff reports a directory at package.json instead of missing files` |
+| `theme set` | no config file | error | `tests/unit/theme-commands.test.ts` | `should fail without config file` |
+| `theme set` | pro theme on free tier | `ProThemeRequiredError` | `tests/unit/theme-commands.test.ts` | `should reject pro theme on free tier with ProThemeRequiredError` |
+| `theme set` | typo'd config key | `ConfigInvalidError` | `tests/unit/config-error-surface.test.ts` | `theme command surfaces ConfigInvalidError on typo config` |
+| `theme set` | user cancellation | `UserCancelledError` | `tests/unit/theme-commands.test.ts` | `should handle user cancellation` |
+| `theme set` | unreadable `package.json` (a directory) | `PackageJsonReadError`, exit 4, config unchanged | `tests/unit/package-json-read-error.test.ts` | `kigumi theme set reports a directory at package.json and saves nothing` |
+| `theme show` | no config file | error | `tests/unit/theme-commands.test.ts` | `should fail without config file` (in `show` describe) |
+| `theme show` | pro theme on free tier | `ProThemeRequiredError` | `tests/unit/theme-commands.test.ts` | `should reject pro theme on free tier` |
+| `theme show` | malformed config | `ConfigInvalidError` | `tests/unit/config-error-surface.test.ts` | `theme command surfaces ConfigInvalidError on typo config` |
+| `theme install` | no config file | error | `tests/unit/theme-commands.test.ts` | `should fail without config file` (in `install` describe) |
+| `theme install` | invalid theme name | error output | `tests/unit/theme-commands.test.ts` | `should fail when theme not found in registry` |
+| `theme install` | typo'd config key | `ConfigInvalidError` | `tests/unit/config-error-surface.test.ts` | `theme command surfaces ConfigInvalidError on typo config` |
+| `theme install` | unreadable `package.json` (a directory) | `PackageJsonReadError`, exit 4, nothing written | `tests/unit/package-json-read-error.test.ts` | `kigumi theme install reports a directory at package.json and writes nothing` |
+| `theme install` | a theme file cannot be fetched | non-zero exit, nothing written | `tests/unit/theme-install-local-source.test.ts` | `writes nothing when one of the theme files cannot be fetched` |
+| `palette` | no config file | error | `tests/unit/palette-command.test.ts` | `should fail without config file` |
+| `palette` | invalid palette name | exits non-zero | `tests/unit/palette-command.test.ts` | `should reject invalid palette name and call process.exit` |
+| `palette` | pro palette on free tier | `ProThemeRequiredError` | `tests/unit/palette-command.test.ts` | `should reject pro palettes on free tier` |
+| `palette` | typo'd config key | `ConfigInvalidError` | `tests/unit/config-error-surface.test.ts` | `palette command surfaces ConfigInvalidError on typo config` |
+| `palette` | unreadable `package.json` (a directory) | `PackageJsonReadError`, exit 4, config unchanged | `tests/unit/package-json-read-error.test.ts` | `kigumi palette reports a directory at package.json and saves nothing` |
+| `brand` | no config file | error | `tests/unit/brand-command.test.ts` | `should fail without config file` |
+| `brand` | invalid brand color | exits non-zero | `tests/unit/brand-command.test.ts` | `should reject invalid brand color and call process.exit` |
+| `brand` | typo'd config key | `ConfigInvalidError` | `tests/unit/config-error-surface.test.ts` | `brand command surfaces ConfigInvalidError on typo config` |
+| `brand` | user cancellation | `UserCancelledError` | `tests/unit/brand-command.test.ts` | `should handle user cancellation` |
+| `brand` | unreadable `package.json` (a directory) | `PackageJsonReadError`, exit 4, config unchanged | `tests/unit/package-json-read-error.test.ts` | `kigumi brand reports a directory at package.json and saves nothing` |
+| `status` | no config file | thrown error | `tests/unit/status.test.ts` | `should throw error when config not found` |
+| `status` | tier mismatch (pro package without token) | warning | `tests/unit/status.test.ts` | `should warn about tier mismatch (pro package without token)` |
+| `status` | duplicate WA packages installed | warning | `tests/unit/status.test.ts` | `should warn about duplicate packages` |
+| `status` | missing components directory | graceful handling | `tests/unit/status.test.ts` | `should handle missing components directory gracefully` |
+| `list` | `package.json` is a directory | `PackageJsonReadError`, exit 4 | `tests/unit/package-json-read-error.test.ts` | `kigumi list renders the full error and fix for a directory at package.json` |
+| `list` | `package.json` not readable (EACCES) | `PackageJsonReadError`, exit 4 | `tests/unit/package-json-read-error.test.ts` | `kigumi list renders the full error and permissions fix for an unreadable package.json` |
+| `registry init` | existing `registry.json` | warn (do not overwrite) | `tests/unit/registry-init-command.test.ts` | `should warn if registry.json already exists` |
+| `registry init` | user provides bad arg | exits with error | `tests/unit/registry-init-command.test.ts` | (see scaffold negative-path describes) |
+| `registry init` | user cancellation | `UserCancelledError` | `tests/unit/registry-init-command.test.ts` | (interactive-prompts describe) |
+| `registry validate` | missing `registry.json` | failure | `tests/unit/registry-validate-command.test.ts` | `should fail when registry.json does not exist` |
+| `registry validate` | invalid JSON | failure | `tests/unit/registry-validate-command.test.ts` | `should fail on invalid JSON` |
+| `registry validate` | invalid Zod schema | failure | `tests/unit/registry-validate-command.test.ts` | `should fail on invalid schema` |
+| `registry validate` | missing referenced files | failure | `tests/unit/registry-validate-command.test.ts` | `should detect missing referenced files` |
+| `registry validate` | wrong file extension for framework | failure | `tests/unit/registry-validate-command.test.ts` | `should detect wrong file extensions for framework` |
+| `registry connect` | foreign-framework registry | warn (proceed) | `tests/unit/registry-connect-command.test.ts` | `warns (does not throw) when connecting a foreign-framework registry` |
+| `registry connect` | duplicate connection | no-op | `tests/unit/registry-connect-command.test.ts` | `does not duplicate when the same local registry is connected twice` |
+| `registry connect` | typo'd config key | `ConfigInvalidError` | `tests/unit/config-error-surface.test.ts` | `registry list-sources action surfaces ConfigInvalidError on typo config` |
+| `registry list` | no registries configured | message + zero exit | `tests/unit/registry-list-remove-command.test.ts` | `should show message when no registries configured` |
+| `registry list` | missing config file | non-zero exit | `tests/unit/registry-list-remove-command.test.ts` | `should exit with error code when config is missing` |
+| `registry list` | typo'd config key | `ConfigInvalidError` | `tests/unit/config-error-surface.test.ts` | `registry list-sources action surfaces ConfigInvalidError on typo config` |
+| `registry remove` | unknown registry URL/name | warn | `tests/unit/registry-list-remove-command.test.ts` | `should warn when registry not found` |
+| `registry remove` | components depend on it | warn about affected components | `tests/unit/registry-list-remove-command.test.ts` | `should warn about affected components when removing registry` |
+| `registry remove` | missing config file | non-zero exit | `tests/unit/registry-list-remove-command.test.ts` | `should exit with error code when config is missing` |
+| `registry add-component` | missing `registry.json` | no-op | `tests/unit/registry-add-component.test.ts` | `returns without writing when registry.json is missing` |
+| `registry add-component` | invalid `registry.json` | no-op | `tests/unit/registry-add-component.test.ts` | `returns without writing when registry.json fails Zod parse` |
+| `registry add-component` | duplicate slug | rejection | `tests/unit/registry-add-component.test.ts` | `rejects duplicate slug via the slug prompt validate function` |
+| `registry add-component` | user cancellation | `UserCancelledError` | `tests/unit/registry-add-component.test.ts` | `aborts via UserCancelledError when the user cancels mid-flow` |
+| `registry add-theme` | missing `registry.json` | no-op | `tests/unit/registry-add-theme.test.ts` | `returns without writing when registry.json is missing` |
+| `registry add-theme` | invalid `registry.json` | no-op | `tests/unit/registry-add-theme.test.ts` | `returns without writing when registry.json fails Zod parse` |
+| `registry add-theme` | duplicate / non-kebab / empty slug | rejection | `tests/unit/registry-add-theme.test.ts` | `rejects duplicate slug, non-kebab-case, and empty via slug prompt validate` |
 
 ### Cross-cutting infrastructure (covers many commands)
 
-| Surface                    | Scenario                                 | Expected Behavior          | Test File                                        | Test Name (substring)                                              |
-| -------------------------- | ---------------------------------------- | -------------------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
-| `loadConfig` / `getConfig` | BOM-prefixed JSON                        | throws via cosmiconfig     | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when kigumi.config.json starts with a UTF-8 BOM`           |
-| `loadConfig` / `getConfig` | trailing-comma JSON                      | throws                     | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when JSON has a trailing comma`                            |
-| `loadConfig` / `getConfig` | truncated mid-write                      | throws                     | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when the config file was truncated`                        |
-| `loadConfig` / `getConfig` | wrong type per required field            | `ConfigInvalidError`       | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `rejects $field set to a wrong-type value via ConfigInvalidError`  |
-| `saveConfig`               | concurrent disjoint patches (race)       | at-least-one-fulfils       | `tests/unit/concurrency.test.ts` [T3]            | `leaves disk in a valid JSON state and at least one patch fulfils` |
-| `saveConfig`               | mid-write `loadConfig` race              | `ConfigNotFoundError` on B | `tests/unit/concurrency.test.ts` [T3]            | `exposes the load-modify-write race`                               |
-| `saveConfig`               | `fs.writeJson` rejects (ENOSPC / EACCES) | propagates with code       | `tests/unit/failure-modes.test.ts` [T3]          | `saveConfig propagates ENOSPC ... with code preserved`             |
+| Surface | Scenario | Expected Behavior | Test File | Test Name (substring) |
+| --- | --- | --- | --- | --- |
+| `loadConfig` / `getConfig` | BOM-prefixed JSON | throws via cosmiconfig | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when kigumi.config.json starts with a UTF-8 BOM` |
+| `loadConfig` / `getConfig` | trailing-comma JSON | throws | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when JSON has a trailing comma` |
+| `loadConfig` / `getConfig` | truncated mid-write | throws | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when the config file was truncated` |
+| `loadConfig` / `getConfig` | wrong type per required field | `ConfigInvalidError` | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `rejects $field set to a wrong-type value via ConfigInvalidError` |
+| `saveConfig` | concurrent disjoint patches (race) | at-least-one-fulfils | `tests/unit/concurrency.test.ts` [T3] | `leaves disk in a valid JSON state and at least one patch fulfils` |
+| `saveConfig` | mid-write `loadConfig` race | `ConfigNotFoundError` on B | `tests/unit/concurrency.test.ts` [T3] | `exposes the load-modify-write race` |
+| `saveConfig` | `fs.writeJson` rejects (ENOSPC / EACCES) | propagates with code | `tests/unit/failure-modes.test.ts` [T3] | `saveConfig propagates ENOSPC ... with code preserved` |
 
 ---
 
 ## Regression suite (`tests/unit/regression/`)
 
-Cluster V (F-X11) bug-bash arm. Each test in this directory protects against
-a specific historical bug that real users hit and the project later fixed.
-Mutation testing (next section) measures _whether_ tests catch generic
-breakage; this directory provides documented evidence that the suite catches
-the specific breakage on file.
+Cluster V (F-X11) bug-bash arm. Each test in this directory protects against a specific historical bug that real users hit and the project later fixed. Mutation testing (next section) measures _whether_ tests catch generic breakage; this directory provides documented evidence that the suite catches the specific breakage on file.
 
-**Where it lives.** The cluster-V spec writes the path as `tests/regression/`.
-Execution placed it under `tests/unit/regression/` so the existing positional
-`pnpm test tests/unit` glob, the `tests/unit/`-scoped `pnpm check:mocks`
-budget, the `tsconfig.tests.json` baseline, and `.lintstagedrc.json`'s
-`vitest related` gate all cover these tests automatically. `tests/regression/`
-remains an option for a future move; the rename is mechanical.
+**Where it lives.** The cluster-V spec writes the path as `tests/regression/`. Execution placed it under `tests/unit/regression/` so the existing positional `pnpm test tests/unit` glob, the `tests/unit/`-scoped `pnpm check:mocks` budget, the `tsconfig.tests.json` baseline, and `.lintstagedrc.json`'s `vitest related` gate all cover these tests automatically. `tests/regression/` remains an option for a future move; the rename is mechanical.
 
 **File-header contract.** Every test opens with:
 
@@ -472,10 +422,7 @@ remains an option for a future move; the rename is mechanical.
 
 The `describe()` block name should match the protected PR/F-ID.
 
-**Adding a new entry.** Pick a bug from a closed GitHub issue or a recent
-merged PR that (a) was user-visible, (b) had a non-trivial fix,
-(c) covers a structural area the rest of the suite touches. Write a test that
-asserts the invariant the fix established. Verify on a scratch branch:
+**Adding a new entry.** Pick a bug from a closed GitHub issue or a recent merged PR that (a) was user-visible, (b) had a non-trivial fix, (c) covers a structural area the rest of the suite touches. Write a test that asserts the invariant the fix established. Verify on a scratch branch:
 
 ```bash
 git checkout -b scratch/regression-verify-<id> main
@@ -485,78 +432,43 @@ pnpm test tests/unit/regression/<your-file>
 git checkout main && git branch -D scratch/regression-verify-<id>
 ```
 
-If `git revert` is impossible (later refactors renamed files), assert the
-logical invariant instead and note "revert verification by manual code
-rollback" in the file header.
+If `git revert` is impossible (later refactors renamed files), assert the logical invariant instead and note "revert verification by manual code rollback" in the file header.
 
 See `tests/unit/regression/README.md` for the full contract.
 
 ## Mutation testing (`pnpm test:mutation`)
 
-Cluster V (F-X10). [StrykerJS](https://stryker-mutator.io/) mutates a
-declared subset of `src/**` and runs the unit suite per mutant. The
-percentage of mutants killed by _any_ test = the mutation score. The break
-threshold is **80 %**; below that the run fails.
+Cluster V (F-X10). [StrykerJS](https://stryker-mutator.io/) mutates a declared subset of `src/**` and runs the unit suite per mutant. The percentage of mutants killed by _any_ test = the mutation score. The break threshold is **80 %**; below that the run fails.
 
-Run locally with `pnpm test:mutation`. Output:
-`reports/mutation/mutation.html` (gitignored). The CI workflow at
-`.github/workflows/mutation.yml` runs weekly (Sun 02:00 UTC) plus on manual
-`workflow_dispatch`, with a 30-day artifact retention.
+Run locally with `pnpm test:mutation`. Output: `reports/mutation/mutation.html` (gitignored). The CI workflow at `.github/workflows/mutation.yml` runs weekly (Sun 02:00 UTC) plus on manual `workflow_dispatch`, with a 30-day artifact retention.
 
-V1 baseline scope: `src/utils/tier.ts` only. The first two scheduled runs
-scored 73.33 % and failed the 80 % break threshold; the gaps were an
-unparsed `tierSchema`, the free package not asserted against a Pro token,
-and non-JSON `package.json` read failures swallowed by a catch-all. Those
-are covered now (100 % kill rate on `tier.ts`). Wider
-scopes hit two upstream blockers and are tracked as follow-up: see
-`stryker.conf.mjs` for the full investigation. The mutate list is
-intentionally a literal array of paths so future PRs widen it explicitly.
+V1 baseline scope: `src/utils/tier.ts` only. The first two scheduled runs scored 73.33 % and failed the 80 % break threshold; the gaps were an unparsed `tierSchema`, the free package not asserted against a Pro token, and non-JSON `package.json` read failures swallowed by a catch-all. Those are covered now (100 % kill rate on `tier.ts`). Wider scopes hit two upstream blockers and are tracked as follow-up: see `stryker.conf.mjs` for the full investigation. The mutate list is intentionally a literal array of paths so future PRs widen it explicitly.
 
-**Why `coverageAnalysis: 'all'`** instead of the spec's `'perTest'`
-preference: the patched `@stryker-mutator/vitest-runner@9.6.1` plus vitest
-4.x hangs the `perTest` dry run on this codebase regardless of mutate
-scope. `'all'` is functionally equivalent for the score (it runs all tests
-per mutant; the kill criterion is the same).
+**Why `coverageAnalysis: 'all'`** instead of the spec's `'perTest'` preference: the patched `@stryker-mutator/vitest-runner@9.6.1` plus vitest 4.x hangs the `perTest` dry run on this codebase regardless of mutate scope. `'all'` is functionally equivalent for the score (it runs all tests per mutant; the kill criterion is the same).
 
-**Why `disableTypeChecks: 'src/**/\*.ts'`** is on: Stryker's mutators
-intentionally introduce type errors; treating them as failures would
-pollute the score. Type safety is enforced separately by `pnpm type-check`and`pnpm check:tests` (Cluster Q1's tests baseline).
+**Why `disableTypeChecks: 'src/**/\*.ts'`** is on: Stryker's mutators intentionally introduce type errors; treating them as failures would pollute the score. Type safety is enforced separately by `pnpm type-check`and`pnpm check:tests` (Cluster Q1's tests baseline).
 
-**Why the upstream `@stryker-mutator/vitest-runner` is patched** (see
-`patches/`): vitest 4.x's threads pool forbids `process.chdir()`, which 5
-legacy unit tests rely on. The runner hardcodes `pool: 'threads'`. The
-patch switches it to `pool: 'forks'` (singleFork) so all tests run.
+**Why the upstream `@stryker-mutator/vitest-runner` is patched** (see `patches/`): vitest 4.x's threads pool forbids `process.chdir()`, which 5 legacy unit tests rely on. The runner hardcodes `pool: 'threads'`. The patch switches it to `pool: 'forks'` (singleFork) so all tests run.
 
 ---
 
 ## Local Pre-Commit Signal
 
-`.husky/pre-commit` runs `pnpm lint-staged && pnpm type-check` on every commit.
-The lint-staged config at `.lintstagedrc.json` scopes test execution narrowly:
+`.husky/pre-commit` runs `pnpm lint-staged && pnpm type-check` on every commit. The lint-staged config at `.lintstagedrc.json` scopes test execution narrowly:
 
-- `src/**/*.{ts,tsx}` and `tests/unit/**/*.{ts,tsx}`: eslint, prettier, and
-  `vitest related --run` (runs only the unit tests that import the staged files).
-- `tests/integration/**`, `tests/e2e/**`, `scripts/**`: eslint and prettier only.
-  Integration and e2e suites are CI-only; firing them on commit would block for
-  minutes.
+- `src/**/*.{ts,tsx}` and `tests/unit/**/*.{ts,tsx}`: eslint, prettier, and `vitest related --run` (runs only the unit tests that import the staged files).
+- `tests/integration/**`, `tests/e2e/**`, `scripts/**`: eslint and prettier only. Integration and e2e suites are CI-only; firing them on commit would block for minutes.
 - Other globs (json/md/vue/css/etc.): prettier-only formatting.
 
-Typical commit overhead is 5 to 30 seconds depending on how many unit tests the
-staged files transitively touch. Failures block the commit; fix the failing
-test or back out the change before retrying.
+Typical commit overhead is 5 to 30 seconds depending on how many unit tests the staged files transitively touch. Failures block the commit; fix the failing test or back out the change before retrying.
 
 ```bash
 HUSKY=0 git commit -m '...'    # emergency escape hatch; skips both halves
 ```
 
-Use the escape hatch only for branch-state operations (rebase fixups, WIP
-snapshots) where running tests would be premature. CI re-runs lint, type-check,
-and the full unit suite on every PR, so escaped commits get caught at push.
+Use the escape hatch only for branch-state operations (rebase fixups, WIP snapshots) where running tests would be premature. CI re-runs lint, type-check, and the full unit suite on every PR, so escaped commits get caught at push.
 
-`vitest related` uses the root `vitest.config.ts`, which includes only
-`tests/unit/**`. The e2e suite has its own `vitest.e2e.config.ts` (used by
-`pnpm test:e2e`); integration uses `vitest.integration.config.ts`. Neither
-fires from the pre-commit hook.
+`vitest related` uses the root `vitest.config.ts`, which includes only `tests/unit/**`. The e2e suite has its own `vitest.e2e.config.ts` (used by `pnpm test:e2e`); integration uses `vitest.integration.config.ts`. Neither fires from the pre-commit hook.
 
 ---
 
@@ -633,49 +545,17 @@ describe('smoke test', () => {
 
 #### Free consumer tsc (`free-consumer-tsc-*.test.ts`)
 
-The types seam of `docs/adr/0004`: each suite scaffolds a project with the
-framework's own tool, runs the real CLI (`init`, then `add --all`), and
-typechecks it with that project's own compiler. `describeFreeConsumer()` in
-`tests/e2e/_helpers/free-consumer.ts` registers the same four checks for every
-framework: the Free package at `DEFAULT_WEBAWESOME_VERSION` and no Pro package,
-the Free Templates and no Pro-only ones, a clean typecheck, and a planted
-strict-only error (`take(null)`, TS2345) reported as the compiler's own
-output. Every plant goes into the components directory beside the Templates
-(`withPlanted()`), so a rejected plant also shows that directory is in the
-compiled program; a clean typecheck alone would pass with the Templates
-excluded. `expectRejected()` is the one assertion for a plant: non-zero exit,
-the plant's path and each diagnostic in the output, and a message naming the
-command and the file when the compiler exits 0. A new consumer (the Pro one
-of issue #79, say) supplies a `FreeConsumerSpec` rather than copying the
-checks.
+The types seam of `docs/adr/0004`: each suite scaffolds a project with the framework's own tool, runs the real CLI (`init`, then `add --all`), and typechecks it with that project's own compiler. `describeFreeConsumer()` in `tests/e2e/_helpers/free-consumer.ts` registers the same four checks for every framework: the Free package at `DEFAULT_WEBAWESOME_VERSION` and no Pro package, the Free Templates and no Pro-only ones, a clean typecheck, and a planted strict-only error (`take(null)`, TS2345) reported as the compiler's own output. Every plant goes into the components directory beside the Templates (`withPlanted()`), so a rejected plant also shows that directory is in the compiled program; a clean typecheck alone would pass with the Templates excluded. `expectRejected()` is the one assertion for a plant: non-zero exit, the plant's path and each diagnostic in the output, and a message naming the command and the file when the compiler exits 0. A new consumer (the Pro one of issue #79, say) supplies a `FreeConsumerSpec` rather than copying the checks.
 
-| Framework | Scaffold                                    | Typecheck                           |
-| --------- | ------------------------------------------- | ----------------------------------- |
-| React     | `pnpm create vite@CREATE_VITE_VERSION`      | `tsc -b`, `strict` turned on first  |
-| Vue       | `pnpm create vite@CREATE_VITE_VERSION`      | `vue-tsc -b`                        |
-| Angular   | `pnpm dlx @angular/cli@ANGULAR_CLI_VERSION` | `ngc -p tsconfig.app.json --noEmit` |
+| Framework | Scaffold | Typecheck |
+| --- | --- | --- |
+| React | `pnpm create vite@CREATE_VITE_VERSION` | `tsc -b`, `strict` turned on first |
+| Vue | `pnpm create vite@CREATE_VITE_VERSION` | `vue-tsc -b` |
+| Angular | `pnpm dlx @angular/cli@ANGULAR_CLI_VERSION` | `ngc -p tsconfig.app.json --noEmit` |
 
-- **Angular runs `ngc`, not `tsc`.** A Template's markup is a string only the
-  Angular compiler reads: plain `tsc` passed a Template carrying
-  `[attr.once]` (NG5002), and it passes the planted error too, which sits in a
-  component template for that reason. `ngc` colours its output even when
-  piped and ignores `--pretty false`, so `commandText()` strips ANSI codes.
-- **The Next pass** typechecks the React add-output a second time with
-  `web-awesome.d.ts` (written by `generateNextEnvDts`, the function `init`
-  calls for Next) in place of `vite-env.d.ts`, and `types: []`, so no
-  `vite/client`. Only the components directory is included: the Vite
-  scaffold's own `App.tsx` imports an SVG. One line stands in for Next's own
-  `declare module '*.css' {}`, which TypeScript 6 needs for every Template's
-  side-effect CSS import. A planted `import.meta.env` passes the Vite pass and
-  fails the Next one, which is what shows `vite/client` is out of scope, and
-  the strict-only plant fails it too, since the Next pass inherits `strict`
-  rather than setting it. No Next install, no Next build, no Pages Router CSS
-  strip.
-- Both scaffolders are exact pins in `src/constants.ts`, tracked by the weekly
-  upstream report (`SCAFFOLD_PINS` in `scripts/check-upstream-versions.ts`
-  imports them).
-  Angular 22 is held there until #156: `init` writes an `@/` import for Angular
-  without the alias, which TypeScript 6 rejects.
+- **Angular runs `ngc`, not `tsc`.** A Template's markup is a string only the Angular compiler reads: plain `tsc` passed a Template carrying `[attr.once]` (NG5002), and it passes the planted error too, which sits in a component template for that reason. `ngc` colours its output even when piped and ignores `--pretty false`, so `commandText()` strips ANSI codes.
+- **The Next pass** typechecks the React add-output a second time with `web-awesome.d.ts` (written by `generateNextEnvDts`, the function `init` calls for Next) in place of `vite-env.d.ts`, and `types: []`, so no `vite/client`. Only the components directory is included: the Vite scaffold's own `App.tsx` imports an SVG. One line stands in for Next's own `declare module '*.css' {}`, which TypeScript 6 needs for every Template's side-effect CSS import. A planted `import.meta.env` passes the Vite pass and fails the Next one, which is what shows `vite/client` is out of scope, and the strict-only plant fails it too, since the Next pass inherits `strict` rather than setting it. No Next install, no Next build, no Pages Router CSS strip.
+- Both scaffolders are exact pins in `src/constants.ts`, tracked by the weekly upstream report (`SCAFFOLD_PINS` in `scripts/check-upstream-versions.ts` imports them). Angular 22 is held there until #156: `init` writes an `@/` import for Angular without the alias, which TypeScript 6 rejects.
 
 ---
 
@@ -708,112 +588,33 @@ const tsconfig = await readJSONWithComments(tsconfigPath);
 
 ### Internals Exported for Test Coverage
 
-Some command helpers are exported solely for direct unit testing when the
-surrounding command handler would require too much mocking to exercise the
-helper's logic in isolation. Current cases:
+Some command helpers are exported solely for direct unit testing when the surrounding command handler would require too much mocking to exercise the helper's logic in isolation. Current cases:
 
-- `resolveComponents` in `src/utils/installed-components.ts` — shared by the
-  `diff` and `update` commands, and asserted directly by
-  `tests/unit/update-command.test.ts`, `tests/unit/diff-command.test.ts`, and
-  `tests/unit/regression/f-095-community-component-skip.test.ts` (multi-word
-  kebab↔PascalCase canonicalization, and the builtin/community split).
-- `handleTierMigration`, `confirmMigration`, `confirmInstallation`, and
-  `showPostInstallInstructions` in `src/commands/init/index.ts` — exported so
-  `tests/unit/init-tier-migration.test.ts`,
-  `tests/unit/init-post-install-instructions.test.ts`, and
-  `tests/unit/init-validate-and-prepare.test.ts` can cover Free↔Pro migration
-  prompts, post-install instruction branches, and the non-interactive paths
-  without staging the entire `initCommand` orchestration.
-- `tidyBlankLines` in `scripts/post-changeset-version.ts` — the whole
-  blank-line policy for the generated changelog, asserted directly by
-  `tests/unit/scripts/post-changeset-version.test.ts`. Exported so the
-  invariants can be enumerated exhaustively (every sequence up to length 7
-  over `{blank, prose, bullet}`) rather than inferred from whole-changelog
-  fixtures.
+- `resolveComponents` in `src/utils/installed-components.ts` — shared by the `diff` and `update` commands, and asserted directly by `tests/unit/update-command.test.ts`, `tests/unit/diff-command.test.ts`, and `tests/unit/regression/f-095-community-component-skip.test.ts` (multi-word kebab↔PascalCase canonicalization, and the builtin/community split).
+- `handleTierMigration`, `confirmMigration`, `confirmInstallation`, and `showPostInstallInstructions` in `src/commands/init/index.ts` — exported so `tests/unit/init-tier-migration.test.ts`, `tests/unit/init-post-install-instructions.test.ts`, and `tests/unit/init-validate-and-prepare.test.ts` can cover Free↔Pro migration prompts, post-install instruction branches, and the non-interactive paths without staging the entire `initCommand` orchestration.
+- `tidyBlankLines` in `scripts/post-changeset-version.ts` — the whole blank-line policy for the generated changelog, asserted directly by `tests/unit/scripts/post-changeset-version.test.ts`. Exported so the invariants can be enumerated exhaustively (every sequence up to length 7 over `{blank, prose, bullet}`) rather than inferred from whole-changelog fixtures.
 
-- `isPlaceholder`, `findSecretsInText`, `findHomePaths`, `findTrackedEnvFiles`
-  and `isScannable` in `scripts/validate-no-secrets.ts` — the matchers,
-  asserted directly by `tests/unit/scripts/validate-no-secrets.test.ts`.
-  Exported so the placeholder-vs-real boundary can be pinned case by case
-  without staging a repository full of fixture files. This is also the one
-  file the validator exempts from its own scan, since its fixtures must look
-  like real credentials to prove the matchers fire.
+- `isPlaceholder`, `findSecretsInText`, `findHomePaths`, `findTrackedEnvFiles` and `isScannable` in `scripts/validate-no-secrets.ts` — the matchers, asserted directly by `tests/unit/scripts/validate-no-secrets.test.ts`. Exported so the placeholder-vs-real boundary can be pinned case by case without staging a repository full of fixture files. This is also the one file the validator exempts from its own scan, since its fixtures must look like real credentials to prove the matchers fire.
 
-- `findBrokenLinks`, `isCheckableTarget`, `normalizeTarget` and `isExcluded`
-  in `scripts/validate-doc-links.ts` — the link matchers, asserted directly by
-  `tests/unit/scripts/validate-doc-links.test.ts`. `findBrokenLinks` takes its
-  `exists` probe as an argument, so the checker is exercised without laying
-  files on disk.
+- `findBrokenLinks`, `isCheckableTarget`, `normalizeTarget` and `isExcluded` in `scripts/validate-doc-links.ts` — the link matchers, asserted directly by `tests/unit/scripts/validate-doc-links.test.ts`. `findBrokenLinks` takes its `exists` probe as an argument, so the checker is exercised without laying files on disk.
 
-- `isPlaceholder`, `normalizeUrl`, `extractUrls` and `probe` in
-  `scripts/check-external-links.ts` — the URL matchers and the HTTP check,
-  asserted directly by `tests/unit/scripts/check-external-links.test.ts`.
-  Exported so the placeholder-and-punctuation boundary and the HEAD-vs-GET
-  fallback can be pinned without making a network request, which is the whole
-  reason the reporter is weekly rather than part of `validate:all`. `probe`
-  takes its `request` function as an argument so issue #37 (HEAD 404, GET 200)
-  cannot regress without a live page.
+- `isPlaceholder`, `normalizeUrl`, `extractUrls` and `probe` in `scripts/check-external-links.ts` — the URL matchers and the HTTP check, asserted directly by `tests/unit/scripts/check-external-links.test.ts`. Exported so the placeholder-and-punctuation boundary and the HEAD-vs-GET fallback can be pinned without making a network request, which is the whole reason the reporter is weekly rather than part of `validate:all`. `probe` takes its `request` function as an argument so issue #37 (HEAD 404, GET 200) cannot regress without a live page.
 
-- `parsePinned`, `majorOf`, `isMajorBump`, `classifyScaffold`,
-  `groupStatus`, `readHolds` and `isHeld` in
-  `scripts/check-upstream-versions.ts`: the version and hold matchers,
-  asserted directly by `tests/unit/scripts/check-upstream-versions.test.ts`.
-  Exported so the major-boundary rule (including the downgrade and
-  unparseable cases), the hold-suppression rule (a hold covers its major,
-  never a newer one, and never a release inside the pinned major) and the
-  did-not-run rule (a group with a failed registry lookup is `unchecked`,
-  never `current`, per docs/adr/0003) can be asserted without reaching the
-  npm registry. Web Awesome is not read by this
-  script at all — `wa-upgrade` (`scripts/check-wa-upgrade.ts`) owns that
-  report — so `readWebAwesomePin` was removed rather than kept unused.
+- `parsePinned`, `majorOf`, `isMajorBump`, `classifyScaffold`, `groupStatus`, `readHolds` and `isHeld` in `scripts/check-upstream-versions.ts`: the version and hold matchers, asserted directly by `tests/unit/scripts/check-upstream-versions.test.ts`. Exported so the major-boundary rule (including the downgrade and unparseable cases), the hold-suppression rule (a hold covers its major, never a newer one, and never a release inside the pinned major) and the did-not-run rule (a group with a failed registry lookup is `unchecked`, never `current`, per docs/adr/0003) can be asserted without reaching the npm registry. Web Awesome is not read by this script at all — `wa-upgrade` (`scripts/check-wa-upgrade.ts`) owns that report — so `readWebAwesomePin` was removed rather than kept unused.
 
-- `tagNames`, `attributeTypes` and `diffManifests` in
-  `scripts/check-wa-upgrade.ts` — the manifest comparators, asserted directly
-  by `tests/unit/scripts/check-wa-upgrade.test.ts`. Exported so the
-  added/removed/changed boundary can be pinned against hand-built manifests
-  rather than downloading two real Web Awesome tarballs per assertion.
+- `tagNames`, `attributeTypes` and `diffManifests` in `scripts/check-wa-upgrade.ts` — the manifest comparators, asserted directly by `tests/unit/scripts/check-wa-upgrade.test.ts`. Exported so the added/removed/changed boundary can be pinned against hand-built manifests rather than downloading two real Web Awesome tarballs per assertion.
 
-- `printSummary` in `src/commands/add/index.ts` — the `add` command's whole
-  reporting surface, asserted directly by
-  `tests/unit/add-print-summary.test.ts`. Exported so the four reporting
-  concerns (installed, cross-framework staged, overwritten-modifications
-  warning, skipped/failed) can be pinned independently; the four helpers it
-  delegates to stay private, so callers still see one function. The
-  assertions were written against the pre-split 86-line version, which is
-  what makes the extraction in issue #33 provably behaviour-preserving.
+- `printSummary` in `src/commands/add/index.ts` — the `add` command's whole reporting surface, asserted directly by `tests/unit/add-print-summary.test.ts`. Exported so the four reporting concerns (installed, cross-framework staged, overwritten-modifications warning, skipped/failed) can be pinned independently; the four helpers it delegates to stay private, so callers still see one function. The assertions were written against the pre-split 86-line version, which is what makes the extraction in issue #33 provably behaviour-preserving.
 
-- `generateTypeScriptSource` and `generateCssMetadataSource` in
-  `scripts/parse-custom-elements.ts` — the metadata emitters' output contract,
-  asserted directly by `tests/unit/parse-custom-elements-types.test.ts`.
-  Test-only seam: re-exported at the bottom of that module so a regenerated
-  file that re-declares `ComponentMetadata` (or the CSS types) instead of
-  importing `src/utils/metadata-types.ts` fails without a live CEM (issue #34).
+- `generateTypeScriptSource` and `generateCssMetadataSource` in `scripts/parse-custom-elements.ts` — the metadata emitters' output contract, asserted directly by `tests/unit/parse-custom-elements-types.test.ts`. Test-only seam: re-exported at the bottom of that module so a regenerated file that re-declares `ComponentMetadata` (or the CSS types) instead of importing `src/utils/metadata-types.ts` fails without a live CEM (issue #34).
 
-- `extractVueSurface`, `compareVueVariants`, `checkReactJsVariantSubset` and
-  `checkVueJsVariantSubset` in `scripts/check-generated-fresh.ts` — Check C's
-  Vue SFC reader, its per-component comparer, and both arms' walks, asserted
-  directly by `tests/unit/scripts/check-generated-fresh.test.ts`. Re-exported
-  at the bottom of the module so each declaration the reader refuses, and each
-  walk's pair count, can be pinned without running the whole guard (issue
-  #122). The older helpers in that file (`extractReactSurface`, `diffSubset`,
-  the CSS matchers) are still exported inline.
+- `extractVueSurface`, `compareVueVariants`, `checkReactJsVariantSubset` and `checkVueJsVariantSubset` in `scripts/check-generated-fresh.ts` — Check C's Vue SFC reader, its per-component comparer, and both arms' walks, asserted directly by `tests/unit/scripts/check-generated-fresh.test.ts`. Re-exported at the bottom of the module so each declaration the reader refuses, and each walk's pair count, can be pinned without running the whole guard (issue #122). The older helpers in that file (`extractReactSurface`, `diffSubset`, the CSS matchers) are still exported inline.
 
-- `formatCompactProps` in `scripts/generate-skill-references.ts` — the prop
-  list the skill API surfaces print, asserted directly by
-  `tests/unit/scripts/generate-skill-references.test.ts`. Re-exported at the
-  bottom of the module; the script only runs `main()` when it is the entry
-  point (`isEntryPoint`), so importing it writes nothing (issue #129).
+- `formatCompactProps` in `scripts/generate-skill-references.ts` — the prop list the skill API surfaces print, asserted directly by `tests/unit/scripts/generate-skill-references.test.ts`. Re-exported at the bottom of the module; the script only runs `main()` when it is the entry point (`isEntryPoint`), so importing it writes nothing (issue #129).
 
-- `newestInputMtime` in `scripts/check-metadata-freshness.ts` — the newest
-  mtime among the parser's inputs (the CEM and `dist/events/*.d.ts`), asserted
-  directly by `tests/unit/scripts/check-metadata-freshness.test.ts` on a temp
-  tree. Re-exported at the bottom of the module so an event declaration newer
-  than the CEM can be shown to mark the metadata stale without touching the
-  installed package's mtimes (issue #6).
+- `newestInputMtime` in `scripts/check-metadata-freshness.ts` — the newest mtime among the parser's inputs (the CEM and `dist/events/*.d.ts`), asserted directly by `tests/unit/scripts/check-metadata-freshness.test.ts` on a temp tree. Re-exported at the bottom of the module so an event declaration newer than the CEM can be shown to mark the metadata stale without touching the installed package's mtimes (issue #6).
 
-If you add a similar export, keep it at the bottom of the module, mark its
-role in the accompanying test's describe block, and avoid adding new public
-callers — these are test-only seams.
+If you add a similar export, keep it at the bottom of the module, mark its role in the accompanying test's describe block, and avoid adding new public callers — these are test-only seams.
 
 ---
 
@@ -821,15 +622,15 @@ callers — these are test-only seams.
 
 E2E tests create temporary projects in `tests/.tmp-*`:
 
-| Directory                             | Used by                             | Purpose                                                                          |
-| ------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------- |
-| `.tmp-e2e-smoke/`                     | `smoke.test.ts`                     | Real Vite project driven through the full CLI workflow                           |
-| `.tmp-e2e-idempotent/`                | `smoke.test.ts`                     | Second project, for the run-`init`-twice idempotency block                       |
-| `.tmp-e2e-diff/`                      | `diff.test.ts`                      | Component comparison against a modified working copy                             |
-| `.tmp-e2e-source-layout/`             | `init-source-layout.test.ts`        | One scaffold per framework/layout combination (issue #48)                        |
-| `.tmp-e2e-free-consumer-tsc-react/`   | `free-consumer-tsc-react.test.ts`   | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next pass (#73, #78) |
-| `.tmp-e2e-free-consumer-tsc-vue/`     | `free-consumer-tsc-vue.test.ts`     | create-vite vue-ts `init` + `add --all` + `vue-tsc -b` (issue #78)               |
-| `.tmp-e2e-free-consumer-tsc-angular/` | `free-consumer-tsc-angular.test.ts` | `ng new` `init` + `add --all` + `ngc` (issue #78)                                |
+| Directory | Used by | Purpose |
+| --- | --- | --- |
+| `.tmp-e2e-smoke/` | `smoke.test.ts` | Real Vite project driven through the full CLI workflow |
+| `.tmp-e2e-idempotent/` | `smoke.test.ts` | Second project, for the run-`init`-twice idempotency block |
+| `.tmp-e2e-diff/` | `diff.test.ts` | Component comparison against a modified working copy |
+| `.tmp-e2e-source-layout/` | `init-source-layout.test.ts` | One scaffold per framework/layout combination (issue #48) |
+| `.tmp-e2e-free-consumer-tsc-react/` | `free-consumer-tsc-react.test.ts` | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next pass (#73, #78) |
+| `.tmp-e2e-free-consumer-tsc-vue/` | `free-consumer-tsc-vue.test.ts` | create-vite vue-ts `init` + `add --all` + `vue-tsc -b` (issue #78) |
+| `.tmp-e2e-free-consumer-tsc-angular/` | `free-consumer-tsc-angular.test.ts` | `ng new` `init` + `add --all` + `ngc` (issue #78) |
 
 These are gitignored and recreated on each run.
 
@@ -840,8 +641,7 @@ These are gitignored and recreated on each run.
 Component behavior is verified manually in browser:
 
 1. Build CLI: `pnpm build`
-2. Scaffold a throwaway project somewhere outside the repo:
-   `pnpm create vite my-kigumi-check --template react-ts && cd my-kigumi-check && pnpm install`
+2. Scaffold a throwaway project somewhere outside the repo: `pnpm create vite my-kigumi-check --template react-ts && cd my-kigumi-check && pnpm install`
 3. Initialize: `node /path/to/kigumi-cli/dist/index.js init --framework=react --yes`
 4. Add component: `node /path/to/kigumi-cli/dist/index.js add dialog`
 5. Run dev server: `pnpm dev`
