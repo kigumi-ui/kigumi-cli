@@ -25,8 +25,12 @@
  *
  * USAGE:
  *   tsx scripts/check-commit-attribution.ts .git/COMMIT_EDITMSG
- *   tsx scripts/check-commit-attribution.ts --pr   (CI; reads PR_BODY,
- *     BASE_SHA and HEAD_SHA from the environment, issue #97)
+ *   tsx scripts/check-commit-attribution.ts --pr   (CI; reads BASE_SHA and
+ *     HEAD_SHA from the environment, issue #97)
+ *
+ * The PR body, which the squash also copies onto main, is checked by
+ * `validate:pr-body` in `pr-body.yml`: that workflow runs on `edited`, so it
+ * sees a body changed after the last push, and CI never does (issue #150).
  */
 
 import { execFileSync } from 'child_process';
@@ -99,34 +103,29 @@ export function findAttribution(message: string): AttributionFinding[] {
 }
 
 export interface PullRequestAttributionFinding extends AttributionFinding {
-  /** Where the line was found: "PR body" or "commit <sha>". */
+  /** Where the line was found: "commit <sha>". */
   source: string;
 }
 
 export interface PullRequestInput {
-  body: string;
   commits: Array<{ sha: string; message: string }>;
 }
 
 /**
- * Finds AI attribution anywhere a squash merge can copy it onto main: the PR
- * body and every commit message on the branch. The commit-msg hook cannot
- * cover these, because GitHub writes the squash commit server-side (issue #97).
+ * Finds AI attribution in every commit message on the branch, which a squash
+ * merge can copy onto main. The commit-msg hook cannot cover these, because
+ * GitHub writes the squash commit server-side (issue #97). The PR body is
+ * `validate:pr-body`'s job (issue #150).
  */
 export function findPullRequestAttribution(
   pr: PullRequestInput
 ): PullRequestAttributionFinding[] {
-  const bodyFindings = findAttribution(pr.body).map((f) => ({
-    ...f,
-    source: 'PR body',
-  }));
-  const commitFindings = pr.commits.flatMap((c) =>
+  return pr.commits.flatMap((c) =>
     findAttribution(c.message).map((f) => ({
       ...f,
       source: `commit ${c.sha.slice(0, 8)}`,
     }))
   );
-  return [...bodyFindings, ...commitFindings];
 }
 
 // ── CLI Entry ───────────────────────────────────────────────────────────────
@@ -173,17 +172,10 @@ function mainPullRequest(): void {
     process.exit(1);
   }
 
-  const findings = findPullRequestAttribution({
-    body: process.env.PR_BODY ?? '',
-    commits,
-  });
+  const findings = findPullRequestAttribution({ commits });
 
   if (findings.length === 0) {
-    console.log(
-      pc.green(
-        `No AI attribution in the PR body or ${commits.length} commit(s).`
-      )
-    );
+    console.log(pc.green(`No AI attribution in ${commits.length} commit(s).`));
     process.exit(0);
   }
 
@@ -195,8 +187,8 @@ function mainPullRequest(): void {
   }
   console.error(
     pc.yellow(
-      '\nA squash merge copies these lines onto main. Remove them from the PR\n' +
-        'body, or reword the commits, and push again.\n'
+      '\nA squash merge copies these lines onto main. Reword the commits and\n' +
+        'push again.\n'
     )
   );
   process.exit(1);

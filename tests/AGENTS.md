@@ -41,6 +41,8 @@ tests/
 │   ├── scripts/check-starter-wa-version.test.ts # Starter job guard: a starter older than DEFAULT_WEBAWESOME_VERSION fails, numeric compare, missing install fails (#138)
 │   ├── parse-custom-elements-import.test.ts # Importing the parser never starts main() (#106)
 │   ├── scripts/validate-cem-sync-coverage.test.ts # cem-sync two-half coverage reporting (presence, and the manifest half: prop-value + attribute drift)
+│   ├── scripts/pr-body-rules.test.ts # PR body rules (headings, noise constructs, size, attribution, claims vs the diff), body-edit ratio and trail, rewrites since ready from the edit history, log coverage and the pr-log status (#150)
+│   ├── scripts/pr-body-context.test.ts # Git facts for the PR guards on real temp repos: changeset bump and known paths (also once main moved on), branch commits, the PR's merge base via a clone, rev-list ranges (#150)
 │   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
 │   ├── helpers.test.ts              # Cluster S helpers (createRecordingOutput, createTestPrompts, writeTierFixture)
@@ -251,6 +253,8 @@ Sibling modules shared across unit tests. Prefer these over per-file `vi.mock` f
 | `registerTestSeams(output, prompts)` / `clearTestSeams()` (from `_helpers/seams.ts`) | You're wiring both the output and prompts seams in the same test file. Call `registerTestSeams` after `vi.resetModules()` in `beforeEach`, and `clearTestSeams` in `afterEach`. Wraps the dynamic-import dance below. |
 | `WebAwesomeComponentStub` (default export of `_helpers/wa-component-stub.ts`) | You don't import it: both vitest configs alias every `@awesome.me/webawesome(-pro)/dist/components/**` deep-import to it (via `vitest.wa-stub-alias.ts`), so a Template's dynamic component import resolves without loading Web Awesome's runtime. Pro isn't installed at all, and Free's runtime is dead weight for a contract proof. It registers nothing, keeping the harness's `customElements.get(tagName)` assertion meaningful. |
 | `METHODLESS_COMPONENTS` / `EVENTLESS_COMPONENTS` (from `_helpers/methodless-components.ts` / `_helpers/eventless-components.ts`) | A registry harness needs to know which components may legitimately prove zero methods / events. Committed data, never derived from `COMPONENT_METADATA`: `describeRegistryCoverage()` (`_helpers/registry-coverage.ts`, registered by every registry loop) pins both directions, so a WA bump that adds or removes a method or event must edit the list in the same commit. |
+| `isolatedGitEnv(extra)` (from `_helpers/git-env.ts`) | A test spawns git against a temporary repo. Pass it as the child's `env`: it drops every `GIT_*` variable, because git exports `GIT_INDEX_FILE` to hooks and lint-staged runs `vitest related` in the pre-commit hook, so an inherited environment makes `git add` write the real repository's index (issue #150). |
+| `stripGitEnv()` (from `_helpers/git-env.ts`) | The code under test spawns git itself, with `process.env`. Call it in `beforeEach` and its restore function in `afterEach`: `isolatedGitEnv()` cannot reach those calls, and inside the pre-commit hook a `git fetch` or `update-ref` would follow the hook's `GIT_*` variables to the real repository (issue #150). |
 
 The DI hooks live on the production modules. Prefer `registerTestSeams` / `clearTestSeams` from `_helpers/seams.ts` so the dynamic-import boilerplate stays in one place:
 

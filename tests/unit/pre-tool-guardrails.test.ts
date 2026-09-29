@@ -15,13 +15,15 @@ import { fileURLToPath } from 'node:url';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { isolatedGitEnv } from './_helpers/git-env.js';
+
 const HOOK = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../../.claude/hooks/pre-tool-guardrails.sh'
 );
 
 function git(cwd: string, ...args: string[]): void {
-  execFileSync('git', args, { cwd, stdio: 'pipe' });
+  execFileSync('git', args, { cwd, stdio: 'pipe', env: isolatedGitEnv() });
 }
 
 /** Runs the hook with a payload and returns its stdout (empty means allow). */
@@ -34,7 +36,7 @@ function runHook(
     cwd,
     input: JSON.stringify(payload),
     encoding: 'utf8',
-    env: { ...process.env, ...env },
+    env: { ...isolatedGitEnv(), ...env },
   });
 }
 
