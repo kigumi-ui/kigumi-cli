@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (more under eslint-rules/, scripts/, schemas/, utils/, regression/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -50,6 +50,8 @@ tests/
 │   ├── init-config-preservation.test.ts # Init with config preservation scenarios
 │   ├── init-existing-config.test.ts # Init with existing project
 │   ├── init-file-generator.test.ts  # Init file generator (per-framework setup file emission)
+│   ├── init-post-install-instructions.test.ts # showPostInstallInstructions: Vite vs Pro vs Vue, Next App vs Pages Router with custom dirs, and the install + Pro-token steps only when dependencies were installed
+│   ├── init-tier-migration.test.ts  # handleTierMigration dispatch (Free <-> Pro) with the migration helpers spied, plus confirmMigration / confirmInstallation
 │   ├── dependency-installer.test.ts # npm/pnpm install + package cleanup
 │   ├── init-validate-and-prepare.test.ts # Init pre-flight validation + prep
 │   ├── json.test.ts                 # JSON with comments parsing
@@ -122,7 +124,7 @@ tests/
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
-│   ├── validate-agents.test.ts      # Pure matchers for templates/AGENTS.md count claims, for history (date stamp, changelog heading) in agent context files, and for tree rows naming deleted test files; checkNoHistory() on a temp git repo, checkTestFiles() on a temp tests/ tree
+│   ├── validate-agents.test.ts      # Pure matchers for templates/AGENTS.md count claims, for history (date stamp, changelog heading) in agent context files, and the tests/ tree (parseTestTree: rows as paths; findTestTreeDrift: both directions, exact paths and glob rows); checkNoHistory() and checkTestFiles() on a temp git repo
 │   ├── validate-gha-permissions.test.ts # Pure matcher for GHA job-level permissions vs actions/checkout (cluster V)
 │   ├── pre-tool-guardrails.test.ts  # Drives the PreToolUse hook end-to-end against real throwaway git repos: default-branch guard, worktree exemption, escape hatch (cluster T)
 │   ├── validate-story-lanes.test.ts # Matchers for the interaction-lane story list vs the `interaction` tags on disk (cluster O)
@@ -151,13 +153,29 @@ tests/
 │   │   ├── event-types.test.ts                 # Event-class resolution (scripts/event-types.ts): dist/events d.ts parsing, override > registered class > declared type > NATIVE_EVENT_TYPES, every refusal (including a non-`wa-` event typed with an event class), stale overrides, `MANIFEST_EVENT_ARTIFACTS` entries (recognised, refused when wrong, reported when stale), and every event of the installed manifest
 │   │   ├── event-type-parity.test.ts           # Metadata eventType invariants (wa- events are Wa*Event classes with a module, natives are DOM interfaces, never CustomEvent, and no manifest artifact for any component, wrapped or not) and React/Vue/Angular each typing + importing it for every registry event. The React prop is found through the listener that subscribes to the event, never derived with the generator's helper; React names are pinned on hard-coded cases; hand-maintained `.jsx` JSDoc handler types must match the `.tsx`
 │   │   ├── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
+│   │   ├── check-external-links.test.ts        # URL matchers (placeholder, normalization, extraction) and the HTTP probe of check:external-links, no real network request
+│   │   ├── check-metadata-freshness.test.ts    # compareFreshness and newestInputMtime: the prebuild gate regenerates when the CEM or any dist/events/*.d.ts is newer than the metadata
+│   │   ├── check-upstream-versions.test.ts     # Version and hold matchers of the weekly upstream report (parsePinned, isMajorBump, classifyScaffold, readHolds, isHeld)
+│   │   ├── check-wa-upgrade.test.ts            # Manifest comparators of check:wa-upgrade (components added/removed, attributes removed or retyped) on hand-built manifests
+│   │   ├── generate-css-template.test.ts       # generateCssTemplate, pinned by assertion: one emitter for all three frameworks, docsUrl honoured (issue #30)
+│   │   ├── release-readiness.test.ts           # decideGoNoGo, renderReport and judgeGate: a gate that exits 0 but reports NOT verified fails
+│   │   ├── validate-cache-keys.test.ts         # validate:cache-keys: the Playwright cache key and path must match between cache-warm.yml and ci.yml
+│   │   ├── validate-changesets.test.ts         # validate:changesets: frontmatter strip and the Keep a Changelog category header every changeset needs
+│   │   ├── validate-doc-links.test.ts          # validate:doc-links matchers: which targets are checkable, normalization, exclusions, broken relative links
+│   │   ├── validate-flush-code.test.ts         # validate:flush-code: a `pre` in a zero-inset docs container must carry `flush-code`
+│   │   ├── validate-no-secrets.test.ts         # validate:no-secrets matchers: placeholders, provider-prefixed secrets, home-directory paths, tracked .env files
+│   │   ├── vercel-ignore-build.test.ts         # The Vercel ignoreCommand: which changed paths build the docs and storybook projects
 │   │   └── validate-templates.test.ts          # A Template directory holds exactly getTemplateFileNames(): a missing file and any other file (a per-Template test in particular) both fail, dotfiles skipped (issue #80)
 │   ├── eslint-rules/
 │   │   ├── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
+│   │   ├── no-cross-command-import.test.ts     # RuleTester + wiring: a command must not import from a sibling command's directory (issue #4)
+│   │   ├── no-raw-throw.test.ts                # RuleTester + wiring: no raw `throw new Error` reaching handleError as UnknownError (issue #1)
 │   │   └── templates-consumer-rules.test.ts    # Resolves eslint.config.js for every Template file and fails when a consumer-baseline rule is off or has other options there, `no-undef` excepted, and when that exception no longer excuses anything (issue #136)
 │   ├── schemas/
 │   │   ├── config-corrupt.test.ts              # Cluster T: corrupt-config edge cases (BOM, trailing comma, truncated, null byte, wrong-type per required field)
 │   │   └── config-property.test.ts             # Cluster T: fast-check property tests (round-trip, strict rejection, mergeWithDefaults invariance)
+│   ├── utils/
+│   │   └── naming.test.ts                      # Casing primitives the generators share (toKebabCase, toPascalCase, toCamelCase, stripWaPrefix, toAngularOutputName)
 │   ├── regression/                             # Cluster V: bug-bash regression suite (≥ 10 entries, each protecting a historical PR/F-ID)
 │   │   ├── README.md                           # Directory contract + how to add a new entry
 │   │   ├── pr-117-config-safe-parse.test.ts    # F-037 — init safeParse on malformed config
@@ -169,6 +187,8 @@ tests/
 │   │   ├── f-068-vue-boolean-prop-filter.test.ts        # Vue hostAttributes strips false (else attrs stick)
 │   │   ├── f-013-palette-tier-gating.test.ts   # Free tier rejects Pro palettes (B3 bug-injection mirror)
 │   │   ├── resolve-components-tolowercase.test.ts       # Multi-word components survive kebab/Pascal
+│   │   ├── f-095-community-component-skip.test.ts       # diff and update report community components instead of silently skipping them
+│   │   ├── issue-133-qr-code-color-defaults.test.ts     # QrCode fill/background default empty, so the CSS color fallback applies (#133)
 │   │   └── f-058-config-monorepo-isolation.test.ts      # loadConfig stopDir: cwd, no parent inheritance
 │   ├── _helpers/                               # Shared test helpers (see Test Helpers below); not test files
 │   │   ├── consumer-lint.ts                    # CONSUMER_BASELINE (`@eslint/js` + typescript-eslint `recommended`, unmodified), the one `consumerESLint` instance, SETUP_DEPENDENT_RULES (`no-undef`) and lintAsConsumer(): lint generated source as a consumer would (issue #136)
@@ -190,6 +210,7 @@ tests/
 ├── e2e/                     # Full CLI integration
 │   ├── smoke.test.ts            # End-to-end workflows
 │   ├── init-source-layout.test.ts # `init` across all 4 framework/layout combos (issue #48)
+│   ├── diff.test.ts             # Real Vite project: modify a component, then `diff` and the snapshot round trip
 │   ├── consumer-tsc-react.test.ts   # Free and Pro: Vite-React init + add --all + strict `tsc -b` (issues #73, #79), then the same add-output under the Next ambient declaration (issue #78)
 │   ├── consumer-tsc-vue.test.ts     # Free and Pro: create-vite vue-ts init + add --all + `vue-tsc -b` (issues #78, #79)
 │   ├── consumer-tsc-angular.test.ts # Free and Pro: `ng new` init + add --all + `ngc` with strictTemplates (issues #78, #79)

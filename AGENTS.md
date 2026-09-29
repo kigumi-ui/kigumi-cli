@@ -85,7 +85,7 @@ node dist/index.js add button --force
 | `tools/eslint-plugin-kigumi/` | Local ESLint plugin (plain directory, imported by relative path from `eslint.config.js`, not an npm package, no workspace). Rules are `.js` so `pnpm lint` needs no build step. Tested via RuleTester in `tests/unit/eslint-rules/` |
 | `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
 | `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
-| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (7 checks: version, component counts, pro list, template dirs, test files (every unit test listed in `tests/AGENTS.md`, every test file it names exists), prose count claims in `templates/AGENTS.md`, and no "Last Updated" stamp or changelog in any tracked AGENTS.md/CLAUDE.md) |
+| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (7 checks: version, component counts, pro list, template dirs, test files (the `tests/AGENTS.md` tree has a row for every test file under `tests/` outside `fixtures/`, matched by exact path or a glob row in the same directory, and every row names a file that exists), prose count claims in `templates/AGENTS.md`, and no "Last Updated" stamp or changelog in any tracked AGENTS.md/CLAUDE.md) |
 | `scripts/validate-cem-sync.ts` | `validate:cem-sync`. Two halves, reported separately: component presence (committed `COMPONENT_METADATA` vs. registry, always runs) and the manifest half (needs a complete CEM): prop-value drift (registry enums vs CEM attribute types), attribute-name drift (`checkAttributeDrift()`, #100), deprecation drift (`checkDeprecationDrift()`, `KIGUMI_DEPRECATIONS`, #133) and default drift (`checkDefaultDrift()`, #152). Only a run where both halves were verified prints a pass (#43, `docs/adr/0003`). The manifest half runs in CI's `freshness` job. |
 | `scripts/validate-changes.ts` | No manual-edit markers in generated files, no known anti-patterns. Template file completeness is `validate:templates`' job |
 | `scripts/validate-cache-keys.ts` | `validate:cache-keys`, CI: the Playwright browser cache key and path in `cache-warm.yml` (writer, on main) and `ci.yml` (reader, on PRs) must match. Drift is silent: CI passes but re-downloads the browsers every run |
@@ -890,8 +890,8 @@ The code/registry side is guarded by validators (`validate:cem-sync`, `validate:
   - Look for: Wrong package imports (free vs pro)
 
 - [ ] **Check TypeScript compilation**
-  - Templates: `pnpm typecheck:templates` (and `pnpm typecheck:templates:pro` for Pro)
-  - Generated output: `pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts` (or the `-vue` / `-angular` suite) after `pnpm build`
+  - Templates: `pnpm typecheck:templates`. `pnpm typecheck:templates:pro` checks only the Vue Templates, and only with the docs dependencies installed with the Pro token; without them every import fails with "Cannot find module", which is not a Template error
+  - Generated output: `pnpm build`, then `pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts` (or the `-vue` / `-angular` suite). The React suite includes the Next ambient pass. A Pro consumer reports NOT verified where this machine cannot install the pinned Pro package
   - Look for: Type errors in generated code
 
 - [ ] **Check runtime errors**
@@ -1039,7 +1039,7 @@ pnpm release
 **main** branch is protected:
 
 - Require PR before merging
-- Require CI status checks (`quality`, `test`, `pack-test` are the always-on baseline)
+- Require status checks: Quality Checks, Test, Detect changes, PR body and pr-log
 - Require conversation resolution
 - No force push allowed
 - No direct commits
@@ -1048,7 +1048,7 @@ pnpm release
 
 To stay inside the GitHub Actions allowance, `ci.yml` runs heavy jobs only when relevant paths change. The `changes` job (top of `ci.yml`) uses `dorny/paths-filter@v4` to compute outputs (`docs`, `src`, `templates`, `integration`, `e2e`, `starters`, `story`, `deps`), and each gated job's `if:` predicate references those outputs.
 
-**Always-on jobs:** `quality`, `test`, `pack-test`. These are the required status checks for branch protection.
+**Always-on jobs:** `quality`, `test`, `pack-test`. Branch protection requires `quality` and `test` (with `changes` and the `PR body` and `pr-log` checks), not `pack-test`.
 
 **Path-gated jobs:** `integration`, `e2e`, `starters`, `docs-typecheck`, `story-interactions`. Skipped if paths don't match.
 

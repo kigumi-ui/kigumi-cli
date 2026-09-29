@@ -19,8 +19,9 @@ import {
   checkTemplateCountClaims,
   checkTestFiles,
   findHistory,
-  findStaleTestRows,
   findTestCountClaim,
+  findTestTreeDrift,
+  parseTestTree,
   findTemplateCountClaims,
 } from '../../scripts/validate-agents.js';
 
@@ -176,8 +177,12 @@ describe('checkHistoryFree', () => {
   });
 });
 
-describe('checkNoHistory', () => {
-  let root: string;
+/**
+ * A throwaway git repository per test, for the checks that list files with
+ * `git ls-files`. `track` writes a file and stages it; `write` only writes it.
+ */
+function useTempRepo() {
+  const repo = { root: '' };
   const savedGitEnv: Record<string, string | undefined> = {};
 
   beforeEach(async () => {
@@ -189,26 +194,36 @@ describe('checkNoHistory', () => {
         delete process.env[key];
       }
     }
-    root = await fs.mkdtemp(path.join(os.tmpdir(), 'validate-agents-'));
-    execFileSync('git', ['init', '-q'], { cwd: root });
+    repo.root = await fs.mkdtemp(path.join(os.tmpdir(), 'validate-agents-'));
+    execFileSync('git', ['init', '-q'], { cwd: repo.root });
   });
 
   afterEach(async () => {
     Object.assign(process.env, savedGitEnv);
-    await fs.remove(root);
+    await fs.remove(repo.root);
   });
 
-  async function track(file: string, content: string): Promise<void> {
-    await fs.outputFile(path.join(root, file), content);
-    execFileSync('git', ['add', file], { cwd: root });
+  async function write(file: string, content = ''): Promise<void> {
+    await fs.outputFile(path.join(repo.root, file), content);
   }
+
+  async function track(file: string, content = ''): Promise<void> {
+    await write(file, content);
+    execFileSync('git', ['add', file], { cwd: repo.root });
+  }
+
+  return { repo, write, track };
+}
+
+describe('checkNoHistory', () => {
+  const { repo, track } = useTempRepo();
 
   it('finds history in a nested AGENTS.md no list names', async () => {
     await track('AGENTS.md', '# Root\n');
     await track('docs/new-area/AGENTS.md', '**Last Updated:** 2026-09-28\n');
     await track('CLAUDE.md', '# Rules\n');
 
-    const errors = await checkNoHistory(root);
+    const errors = await checkNoHistory(repo.root);
     expect(errors).toHaveLength(1);
     expect(errors[0]).toContain('docs/new-area/AGENTS.md');
   });
@@ -217,19 +232,19 @@ describe('checkNoHistory', () => {
     await track('AGENTS.md', '# Root\n');
     await track('CLAUDE.md', '## Changelog\n');
 
-    expect(await checkNoHistory(root)).toHaveLength(1);
+    expect(await checkNoHistory(repo.root)).toHaveLength(1);
   });
 
   it('passes a tree without history', async () => {
     await track('AGENTS.md', '# Root\n');
     await track('src/AGENTS.md', '**Parent:** [AGENTS.md](../AGENTS.md)\n');
 
-    expect(await checkNoHistory(root)).toEqual([]);
+    expect(await checkNoHistory(repo.root)).toEqual([]);
   });
 
   it('fails rather than passes when it found nothing to check', async () => {
     // An empty file list would make every run green.
-    expect(await checkNoHistory(root)).toEqual([
+    expect(await checkNoHistory(repo.root)).toEqual([
       'git ls-files found no root AGENTS.md, so no file was checked',
     ]);
   });
@@ -257,91 +272,221 @@ describe('findTestCountClaim', () => {
   });
 });
 
-describe('findStaleTestRows', () => {
-  it('finds a row naming a test file that no longer exists', () => {
-    expect(
-      findStaleTestRows(
-        '│   ├── gone.test.ts          # Deleted two PRs ago\n' +
-          '│   ├── kept.test.ts          # Still here\n',
-        new Set(['kept.test.ts'])
+/** A tests/AGENTS.md holding `tree` as its fenced directory tree. */
+function agentsWithTree(tree: string): string {
+  return `# Tests\n\n\`\`\`\ntests/\n${tree}\`\`\`\n`;
+}
+
+describe('parseTestTree', () => {
+  it('reads each test-file row as its path under tests/', () => {
+    const tree = parseTestTree(
+      agentsWithTree(
+        [
+          '├── unit/                    # Fast tests',
+          '│   ├── add.test.ts          # Add command',
+          '│   ├── helper.ts            # not a test file',
+          '│   ├── scripts/',
+          '│   │   ├── README.md',
+          '│   │   └── gen.test.ts      # Generator',
+          '│   └── zeta.test.ts         # after the subdirectory closed',
+          '└── e2e/',
+          '    └── smoke.test.ts',
+          '',
+        ].join('\n')
       )
-    ).toEqual(['gone.test.ts']);
+    );
+    expect(tree).toEqual({
+      found: true,
+      rows: [
+        'unit/add.test.ts',
+        'unit/scripts/gen.test.ts',
+        'unit/zeta.test.ts',
+        'e2e/smoke.test.ts',
+      ],
+      unreadable: [],
+    });
   });
 
-  it('passes a row whose file lives in a subdirectory', () => {
-    // The set holds basenames from every directory under tests/.
+  it('joins a row that carries its own directory prefix', () => {
     expect(
-      findStaleTestRows(
-        '│   │   └── no-any.test.ts # RuleTester',
-        new Set(['no-any.test.ts'])
+      parseTestTree(agentsWithTree('├── unit/\n│   └── scripts/gen.test.ts\n'))
+        .rows
+    ).toEqual(['unit/scripts/gen.test.ts']);
+  });
+
+  it('ignores test files named in prose outside the tree', () => {
+    const content =
+      'We replaced `gone.test.ts` with **other.test.ts**.\n' +
+      agentsWithTree('├── unit/\n│   └── kept.test.ts\n');
+    expect(parseTestTree(content).rows).toEqual(['unit/kept.test.ts']);
+  });
+
+  it('reports a tree line it cannot place, rather than skipping it', () => {
+    const tree = parseTestTree(
+      agentsWithTree('├── unit/\n│  ├── misindented.test.ts\n')
+    );
+    expect(tree.unreadable).toEqual(['│  ├── misindented.test.ts']);
+  });
+
+  it('reports no tree when the fenced tests/ block is missing', () => {
+    expect(parseTestTree('# Tests\n\nNo tree here.\n')).toEqual({
+      found: false,
+      rows: [],
+      unreadable: [],
+    });
+  });
+});
+
+describe('findTestTreeDrift', () => {
+  it('passes a tree that lists exactly the files on disk', () => {
+    expect(
+      findTestTreeDrift(
+        ['unit/a.test.ts', 'unit/scripts/b.test.ts'],
+        ['unit/a.test.ts', 'unit/scripts/b.test.ts']
       )
     ).toEqual([]);
   });
 
-  it('skips glob patterns, which name no single file', () => {
+  it('flags a row whose test file was deleted', () => {
     expect(
-      findStaleTestRows(
-        '│   └── *.test.ts # Tests that require built CLI\n' +
-          '#### Consumer tsc (`consumer-tsc-*.test.ts`)\n' +
-          'Pro lanes: `consumer-tsc-*-pro.test.ts`, `$name.test.ts`\n',
-        new Set()
+      findTestTreeDrift(
+        ['unit/a.test.ts', 'unit/gone.test.ts'],
+        ['unit/a.test.ts']
+      )
+    ).toEqual([
+      'tests/AGENTS.md tree lists tests/unit/gone.test.ts, which does not exist',
+    ]);
+  });
+
+  it('flags a test file with no row, in any directory', () => {
+    expect(
+      findTestTreeDrift(
+        ['unit/a.test.ts'],
+        ['unit/a.test.ts', 'unit/utils/b.test.ts']
+      )
+    ).toEqual([
+      'tests/AGENTS.md tree has no row for tests/unit/utils/b.test.ts',
+    ]);
+  });
+
+  it('matches whole paths, so a longer name does not list a shorter one', () => {
+    expect(
+      findTestTreeDrift(
+        ['unit/github-token.test.ts'],
+        ['unit/github-token.test.ts', 'unit/token.test.ts']
+      )
+    ).toEqual(['tests/AGENTS.md tree has no row for tests/unit/token.test.ts']);
+  });
+
+  it('does not accept a same-named file in another directory', () => {
+    expect(
+      findTestTreeDrift(['unit/init.test.ts'], ['integration/init.test.ts'])
+    ).toEqual([
+      'tests/AGENTS.md tree has no row for tests/integration/init.test.ts',
+      'tests/AGENTS.md tree lists tests/unit/init.test.ts, which does not exist',
+    ]);
+  });
+
+  it('lets a glob row cover the files it matches in its own directory', () => {
+    expect(
+      findTestTreeDrift(
+        ['integration/*.test.ts', 'unit/{a,b}.test.ts'],
+        ['integration/init.test.ts', 'unit/a.test.ts', 'unit/b.test.ts']
       )
     ).toEqual([]);
   });
 
-  it('reports a stale name once however often it is mentioned', () => {
+  it('does not let a glob row reach into a subdirectory', () => {
     expect(
-      findStaleTestRows('gone.test.ts, and again: `gone.test.ts`', new Set())
-    ).toEqual(['gone.test.ts']);
+      findTestTreeDrift(
+        ['integration/*.test.ts'],
+        ['integration/init.test.ts', 'integration/deep/x.test.ts']
+      )
+    ).toEqual([
+      'tests/AGENTS.md tree has no row for tests/integration/deep/x.test.ts',
+    ]);
+  });
+
+  it('flags a glob row that matches no file', () => {
+    expect(
+      findTestTreeDrift(
+        ['unit/a.test.ts', 'e2e/consumer-*.test.ts'],
+        ['unit/a.test.ts']
+      )
+    ).toEqual([
+      'tests/AGENTS.md tree lists tests/e2e/consumer-*.test.ts, which matches no test file',
+    ]);
   });
 });
 
 describe('checkTestFiles', () => {
-  let root: string;
+  const { repo, write, track } = useTempRepo();
 
-  beforeEach(async () => {
-    root = await fs.mkdtemp(path.join(os.tmpdir(), 'validate-agents-tests-'));
-  });
-
-  afterEach(async () => {
-    await fs.remove(root);
-  });
-
-  async function write(file: string, content = ''): Promise<void> {
-    await fs.outputFile(path.join(root, file), content);
-  }
-
-  it('flags a tree row whose test file was deleted', async () => {
-    await write('tests/unit/kept.test.ts');
-    await write(
+  it('flags a deleted row and an unlisted file', async () => {
+    await track('tests/unit/kept.test.ts');
+    await track('tests/unit/scripts/new.test.ts');
+    await track(
       'tests/AGENTS.md',
-      '├── kept.test.ts # here\n├── gone.test.ts # deleted\n'
+      agentsWithTree('├── unit/\n│   ├── kept.test.ts\n│   └── gone.test.ts\n')
     );
 
-    expect(await checkTestFiles(root)).toEqual([
-      'tests/AGENTS.md names a test file that does not exist: gone.test.ts',
+    expect(await checkTestFiles(repo.root)).toEqual([
+      'tests/AGENTS.md tree has no row for tests/unit/scripts/new.test.ts',
+      'tests/AGENTS.md tree lists tests/unit/gone.test.ts, which does not exist',
     ]);
   });
 
-  it('passes rows for test files outside tests/unit', async () => {
-    await write('tests/unit/kept.test.ts');
-    await write('tests/e2e/smoke.test.ts');
-    await write('tests/unit/scripts/nested.test.ts');
-    await write(
+  it('passes a tree in step with the files', async () => {
+    await track('tests/unit/kept.test.ts');
+    await track('tests/e2e/smoke.test.ts');
+    await track(
       'tests/AGENTS.md',
-      '├── kept.test.ts\n├── smoke.test.ts\n├── nested.test.ts\n'
+      agentsWithTree(
+        '├── unit/\n│   └── kept.test.ts\n└── e2e/\n    └── smoke.test.ts\n'
+      )
     );
 
-    expect(await checkTestFiles(root)).toEqual([]);
+    expect(await checkTestFiles(repo.root)).toEqual([]);
   });
 
-  it('still flags a unit test file the tree does not list', async () => {
-    await write('tests/unit/kept.test.ts');
-    await write('tests/unit/unlisted.test.ts');
-    await write('tests/AGENTS.md', '├── kept.test.ts\n');
+  it('sees a new test file before it is staged', async () => {
+    await track('tests/AGENTS.md', agentsWithTree('├── unit/\n'));
+    await write('tests/unit/unstaged.test.ts');
 
-    expect(await checkTestFiles(root)).toEqual([
-      'tests/AGENTS.md tree is missing test file: unlisted.test.ts',
+    expect(await checkTestFiles(repo.root)).toEqual([
+      'tests/AGENTS.md tree has no row for tests/unit/unstaged.test.ts',
+    ]);
+  });
+
+  it('skips recorded CLI output under tests/fixtures', async () => {
+    await track(
+      'tests/AGENTS.md',
+      agentsWithTree('├── unit/\n│   └── a.test.ts\n')
+    );
+    await track('tests/unit/a.test.ts');
+    await track('tests/fixtures/starter-snapshots/react/X.test.tsx');
+
+    expect(await checkTestFiles(repo.root)).toEqual([]);
+  });
+
+  it('fails rather than passes when there is no tree to check', async () => {
+    await track('tests/AGENTS.md', '# Tests\n');
+    await track('tests/unit/a.test.ts');
+
+    expect(await checkTestFiles(repo.root)).toEqual([
+      'tests/AGENTS.md has no fenced `tests/` tree, so no test file was checked',
+    ]);
+  });
+
+  it('reports a tree line it cannot place', async () => {
+    await track('tests/unit/a.test.ts');
+    await track(
+      'tests/AGENTS.md',
+      agentsWithTree('├── unit/\n│   ├── a.test.ts\n│  └── bad.test.ts\n')
+    );
+
+    expect(await checkTestFiles(repo.root)).toEqual([
+      'tests/AGENTS.md tree line cannot be placed in the tree: "│  └── bad.test.ts"',
     ]);
   });
 
