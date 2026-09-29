@@ -780,7 +780,7 @@ START: Change affects tier detection or packages
 
 - [ ] **Updated tests**
   - Function: the React, Vue and Angular function harnesses (`*-function-harness-registry.test.ts`) prove every TypeScript Template from its metadata, and `validate:generated-fresh` Check C holds the `.jsx` / `.js.vue` to it; there is no per-Template test to write
-  - Integration: Compile-check test
+  - Types: `pnpm typecheck:templates` typechecks the committed Templates against the shims, and the consumer tsc suites (`tests/e2e/consumer-tsc-*.test.ts`) typecheck `init` + `add --all` output in a strict Free and Pro project
   - Snapshot: Visual regression (if applicable)
 
 ### Checklist: Before Adding New Component
@@ -890,7 +890,8 @@ The code/registry side is guarded by validators (`validate:cem-sync`, `validate:
   - Look for: Wrong package imports (free vs pro)
 
 - [ ] **Check TypeScript compilation**
-  - Test: Run compile-check integration test
+  - Templates: `pnpm typecheck:templates` (and `pnpm typecheck:templates:pro` for Pro)
+  - Generated output: `pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts` (or the `-vue` / `-angular` suite) after `pnpm build`
   - Look for: Type errors in generated code
 
 - [ ] **Check runtime errors**
@@ -1060,15 +1061,15 @@ To stay inside the GitHub Actions allowance, `ci.yml` runs heavy jobs only when 
 
 **`visual-test` label** is a separate, narrower override that forces the Chromatic job to run when no visual paths changed. It is unrelated to `full-ci`.
 
-**Dynamic matrix sizes (Integration + Starter):** beyond skipping jobs entirely, the `changes` job also computes the matrix size for the two matrix jobs and emits it as JSON outputs (`integration_matrix`, `starter_matrix`).
+**Dynamic matrix size (Starter):** beyond skipping jobs entirely, the `changes` job also computes the Starter job's matrix and emits it as a JSON output (`starter_matrix`). The Integration job is a single lane: its suites do not vary by framework.
 
-| Trigger | Integration matrix | Starter matrix |
-| --- | --- | --- |
-| `full-ci` label or `changeset-release/main` | 4 entries (react@18, react@19, vue@3, angular) | 4 entries (react, vue, angular, next) |
-| `templates` or `deps` changed | 3 entries (drop react@18) | 4 entries |
-| `src` (or `integration` / `starters` / `e2e`) only | 3 entries | 1 entry (react) |
+| Trigger | Starter matrix |
+| --- | --- |
+| `full-ci` label or `changeset-release/main` | 4 entries (react, vue, angular, next) |
+| `templates` or `deps` changed | 4 entries |
+| `src` (or `integration` / `starters` / `e2e`) only | 1 entry (react) |
 
-The reduction is safe because: (1) react@18-vs-19 differences are JSX-typing only and bounded; (2) starter coverage for non-react frameworks is high-value only when templates or deps change; (3) any regression missed on a regular PR is caught at the next release PR (full matrix auto-fires on `changeset-release/main`) before publish. To force the full matrix on a regular PR, add the `full-ci` label.
+The reduction is safe because: (1) starter coverage for non-react frameworks is high-value only when templates or deps change; (2) any regression missed on a regular PR is caught at the next release PR (full matrix auto-fires on `changeset-release/main`) before publish. To force the full matrix on a regular PR, add the `full-ci` label.
 
 ### Troubleshooting
 

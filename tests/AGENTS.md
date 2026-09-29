@@ -72,7 +72,6 @@ tests/
 │   ├── react-function-harness.ts    # proveReactTemplate: the React adapter (`onAfterHide`, ref handle) over template-function-harness.ts (not a test file)
 │   ├── react-function-harness-registry.test.ts # Loops proveReactTemplate over every LOCAL_REGISTRY component (issue #75); fails closed on a missing COMPONENT_METADATA entry, on an emptied attributes/methods list, and asserts public CEM methods reach the host via the exposed ref
 │   ├── regenerate.test.ts           # File regeneration utilities
-│   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed (issue #73)
 │   ├── remote-component-selector.test.ts # getAvailableRemoteComponents + cancel path
 │   ├── remote-installer.test.ts     # Remote (community) component installer
 │   ├── remote-installer-cross-framework.test.ts # Cross-framework staging branch
