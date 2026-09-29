@@ -45,7 +45,6 @@ tests/
 │   ├── scripts/validate-cem-sync-coverage.test.ts # cem-sync two-half coverage reporting (presence, and the manifest half: prop-value + attribute drift)
 │   ├── scripts/pr-body-rules.test.ts # PR body rules (headings, noise constructs, size, attribution, claims vs the diff), body-edit ratio and trail, rewrites since ready from the edit history, log coverage and the pr-log status (#150)
 │   ├── scripts/pr-body-context.test.ts # Git facts for the PR guards on real temp repos: changeset bump and known paths (also once main moved on), branch commits, the PR's merge base via a clone, rev-list ranges (#150)
-│   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
 │   ├── helpers.test.ts              # Cluster S helpers (createRecordingOutput, createTestPrompts, writeTierFixture)
 │   ├── init-config-preservation.test.ts # Init with config preservation scenarios
@@ -103,7 +102,6 @@ tests/
 │   ├── tier.test.ts                 # Tier detection
 │   ├── tier-consistency.test.ts     # Registry/tier consistency validation
 │   ├── tier-restrictions.test.ts    # Tier restriction logic
-│   ├── tier-schema.test.ts          # Tier schema validation
 │   ├── token.test.ts                # Token handling
 │   ├── type-installation.test.ts    # TypeScript type installation
 │   ├── update-check.test.ts         # CLI update notification check
@@ -124,7 +122,7 @@ tests/
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
-│   ├── validate-agents.test.ts      # Pure matchers for templates/AGENTS.md count claims and for history (date stamp, changelog heading) in agent context files; checkNoHistory() on a temp git repo
+│   ├── validate-agents.test.ts      # Pure matchers for templates/AGENTS.md count claims, for history (date stamp, changelog heading) in agent context files, and for tree rows naming deleted test files; checkNoHistory() on a temp git repo, checkTestFiles() on a temp tests/ tree
 │   ├── validate-gha-permissions.test.ts # Pure matcher for GHA job-level permissions vs actions/checkout (cluster V)
 │   ├── pre-tool-guardrails.test.ts  # Drives the PreToolUse hook end-to-end against real throwaway git repos: default-branch guard, worktree exemption, escape hatch (cluster T)
 │   ├── validate-story-lanes.test.ts # Matchers for the interaction-lane story list vs the `interaction` tags on disk (cluster O)

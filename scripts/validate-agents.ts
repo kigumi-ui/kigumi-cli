@@ -11,7 +11,8 @@
  * - Component counts match registry (root + src/AGENTS.md)
  * - Pro-only component list matches registry tier assignments
  * - Template diagram lists all frameworks with correct counts
- * - Every tests/unit test file is listed in tests/AGENTS.md, and no file count is stated
+ * - Every tests/unit test file is listed in tests/AGENTS.md, every test file it
+ *   names exists, and no file count is stated
  * - Component-count claims in templates/AGENTS.md prose match the registry
  * - No AGENTS.md or CLAUDE.md carries a "Last Updated" stamp or a changelog
  *
@@ -381,15 +382,57 @@ export function findTestCountClaim(content: string): string | null {
   return match ? match[0] : null;
 }
 
-async function checkTestFiles(): Promise<string[]> {
+/**
+ * Finds test files the tests/AGENTS.md tree names that no longer exist.
+ *
+ * `existing` holds the basename of every test file under tests/, so a row
+ * for a file in tests/e2e/ or a tests/unit/ subdirectory passes. A glob such
+ * as `consumer-tsc-*.test.ts` names no single file and is skipped. Deleting a
+ * test and leaving its row used to pass: the check only ran the other way.
+ * Pure, so the matcher is table-tested without touching disk.
+ */
+export function findStaleTestRows(
+  content: string,
+  existing: ReadonlySet<string>
+): string[] {
+  const named = content.match(
+    /(?<![\w*$.{}-])[\w.-]+\.test\.(?:ts|tsx|js|jsx)\b/g
+  );
+  return [...new Set(named ?? [])].filter((name) => !existing.has(name));
+}
+
+const TEST_FILE = /\.test\.(?:ts|tsx|js|jsx)$/;
+
+/** Basenames of every test file under `dir`, recursively. */
+async function collectTestFileNames(dir: string): Promise<Set<string>> {
+  const names = new Set<string>();
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    if (entry.name === 'node_modules') continue;
+    if (entry.isDirectory()) {
+      for (const name of await collectTestFileNames(
+        path.join(dir, entry.name)
+      )) {
+        names.add(name);
+      }
+    } else if (TEST_FILE.test(entry.name)) {
+      names.add(entry.name);
+    }
+  }
+  return names;
+}
+
+export async function checkTestFiles(root = PROJECT_ROOT): Promise<string[]> {
   const errors: string[] = [];
 
-  const testDir = path.join(PROJECT_ROOT, 'tests', 'unit');
+  const testDir = path.join(root, 'tests', 'unit');
   const actualFiles = (await fs.readdir(testDir))
     .filter((f) => f.endsWith('.test.ts'))
     .sort();
 
-  const testsAgents = await readAgentsFile('tests/AGENTS.md');
+  const testsAgents = await fs.readFile(
+    path.join(root, 'tests', 'AGENTS.md'),
+    'utf-8'
+  );
 
   const countClaim = findTestCountClaim(testsAgents);
   if (countClaim) {
@@ -404,6 +447,13 @@ async function checkTestFiles(): Promise<string[]> {
     if (!testsAgents.includes(file)) {
       errors.push(`tests/AGENTS.md tree is missing test file: ${file}`);
     }
+  }
+
+  const existing = await collectTestFileNames(path.join(root, 'tests'));
+  for (const file of findStaleTestRows(testsAgents, existing)) {
+    errors.push(
+      `tests/AGENTS.md tree lists a test file that does not exist: ${file}`
+    );
   }
 
   return errors;

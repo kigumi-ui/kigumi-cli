@@ -17,7 +17,9 @@ import {
   checkHistoryFree,
   checkNoHistory,
   checkTemplateCountClaims,
+  checkTestFiles,
   findHistory,
+  findStaleTestRows,
   findTestCountClaim,
   findTemplateCountClaims,
 } from '../../scripts/validate-agents.js';
@@ -252,5 +254,98 @@ describe('findTestCountClaim', () => {
         '├── unit/                    # Fast, isolated tests (more under eslint-rules/, scripts/, schemas/)'
       )
     ).toBeNull();
+  });
+});
+
+describe('findStaleTestRows', () => {
+  it('finds a row naming a test file that no longer exists', () => {
+    expect(
+      findStaleTestRows(
+        '│   ├── gone.test.ts          # Deleted two PRs ago\n' +
+          '│   ├── kept.test.ts          # Still here\n',
+        new Set(['kept.test.ts'])
+      )
+    ).toEqual(['gone.test.ts']);
+  });
+
+  it('passes a row whose file lives in a subdirectory', () => {
+    // The set holds basenames from every directory under tests/.
+    expect(
+      findStaleTestRows(
+        '│   │   └── no-any.test.ts # RuleTester',
+        new Set(['no-any.test.ts'])
+      )
+    ).toEqual([]);
+  });
+
+  it('skips glob patterns, which name no single file', () => {
+    expect(
+      findStaleTestRows(
+        '│   └── *.test.ts # Tests that require built CLI\n' +
+          '#### Consumer tsc (`consumer-tsc-*.test.ts`)\n' +
+          'Pro lanes: `consumer-tsc-*-pro.test.ts`, `$name.test.ts`\n',
+        new Set()
+      )
+    ).toEqual([]);
+  });
+
+  it('reports a stale name once however often it is mentioned', () => {
+    expect(
+      findStaleTestRows('gone.test.ts, and again: `gone.test.ts`', new Set())
+    ).toEqual(['gone.test.ts']);
+  });
+});
+
+describe('checkTestFiles', () => {
+  let root: string;
+
+  beforeEach(async () => {
+    root = await fs.mkdtemp(path.join(os.tmpdir(), 'validate-agents-tests-'));
+  });
+
+  afterEach(async () => {
+    await fs.remove(root);
+  });
+
+  async function write(file: string, content = ''): Promise<void> {
+    await fs.outputFile(path.join(root, file), content);
+  }
+
+  it('flags a tree row whose test file was deleted', async () => {
+    await write('tests/unit/kept.test.ts');
+    await write(
+      'tests/AGENTS.md',
+      '├── kept.test.ts # here\n├── gone.test.ts # deleted\n'
+    );
+
+    expect(await checkTestFiles(root)).toEqual([
+      'tests/AGENTS.md tree lists a test file that does not exist: gone.test.ts',
+    ]);
+  });
+
+  it('passes rows for test files outside tests/unit', async () => {
+    await write('tests/unit/kept.test.ts');
+    await write('tests/e2e/smoke.test.ts');
+    await write('tests/unit/scripts/nested.test.ts');
+    await write(
+      'tests/AGENTS.md',
+      '├── kept.test.ts\n├── smoke.test.ts\n├── nested.test.ts\n'
+    );
+
+    expect(await checkTestFiles(root)).toEqual([]);
+  });
+
+  it('still flags a unit test file the tree does not list', async () => {
+    await write('tests/unit/kept.test.ts');
+    await write('tests/unit/unlisted.test.ts');
+    await write('tests/AGENTS.md', '├── kept.test.ts\n');
+
+    expect(await checkTestFiles(root)).toEqual([
+      'tests/AGENTS.md tree is missing test file: unlisted.test.ts',
+    ]);
+  });
+
+  it('is one of the checks validate:agents runs', () => {
+    expect(AGENTS_CHECKS.map((check) => check.fn)).toContain(checkTestFiles);
   });
 });
