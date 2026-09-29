@@ -387,8 +387,8 @@ export function findTestCountClaim(content: string): string | null {
  *
  * `existing` holds the basename of every test file under tests/, so a row
  * for a file in tests/e2e/ or a tests/unit/ subdirectory passes. A glob such
- * as `consumer-tsc-*.test.ts` names no single file and is skipped. Deleting a
- * test and leaving its row used to pass: the check only ran the other way.
+ * as `consumer-tsc-*.test.ts` names no single file and is skipped. Without
+ * this, a deleted test would leave its row behind unnoticed.
  * Pure, so the matcher is table-tested without touching disk.
  */
 export function findStaleTestRows(
@@ -452,7 +452,7 @@ export async function checkTestFiles(root = PROJECT_ROOT): Promise<string[]> {
   const existing = await collectTestFileNames(path.join(root, 'tests'));
   for (const file of findStaleTestRows(testsAgents, existing)) {
     errors.push(
-      `tests/AGENTS.md tree lists a test file that does not exist: ${file}`
+      `tests/AGENTS.md names a test file that does not exist: ${file}`
     );
   }
 

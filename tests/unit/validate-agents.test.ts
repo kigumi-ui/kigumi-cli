@@ -319,7 +319,7 @@ describe('checkTestFiles', () => {
     );
 
     expect(await checkTestFiles(root)).toEqual([
-      'tests/AGENTS.md tree lists a test file that does not exist: gone.test.ts',
+      'tests/AGENTS.md names a test file that does not exist: gone.test.ts',
     ]);
   });
 
