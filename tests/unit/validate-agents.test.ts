@@ -125,6 +125,12 @@ describe('findHistory', () => {
     expect(findHistory('_Last updated September 29 2026_')).toHaveLength(1);
   });
 
+  it('finds a date stamp after "on" or "as of"', () => {
+    expect(findHistory('Last Updated on 2026-09-29')).toHaveLength(1);
+    expect(findHistory('_Last updated as of Sep 29, 2026_')).toHaveLength(1);
+    expect(findHistory('Last updated on every merge')).toEqual([]);
+  });
+
   it('ignores "Last Updated" followed by a word, not a date', () => {
     expect(findHistory('Keep the Last Updated date out of it')).toEqual([]);
   });

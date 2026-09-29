@@ -305,11 +305,11 @@ async function checkTemplateGuideCounts(): Promise<string[]> {
 /**
  * A "Last Updated" date stamp: `**Last Updated:** 2026-09-28`, the older
  * `**Last Updated**: 2026-01-09`, and non-ISO forms such as `29/09/2026` or
- * `Sep 29, 2026`. Keyed on the date that follows, so prose that merely names
- * the rule ("no Last Updated date") does not match.
+ * `Sep 29, 2026`, also after `on` / `as of`. Keyed on the date that follows,
+ * so prose that merely names the rule ("no Last Updated date") does not match.
  */
 const DATE_STAMP =
-  /last updated\W{0,6}(?:\d|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d)/i;
+  /last updated\W{0,6}(?:(?:on|as of)\s+)?(?:\d|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d)/i;
 
 /** A heading that opens a changelog section. */
 const CHANGELOG_HEADING =
