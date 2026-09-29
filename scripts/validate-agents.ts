@@ -11,7 +11,8 @@
  * - Component counts match registry (root + src/AGENTS.md)
  * - Pro-only component list matches registry tier assignments
  * - Template diagram lists all frameworks with correct counts
- * - Every tests/unit test file is listed in tests/AGENTS.md, and no file count is stated
+ * - The tests/AGENTS.md tree has a row for every test file under tests/, each
+ *   row names a file that exists, and no file count is stated
  * - Component-count claims in templates/AGENTS.md prose match the registry
  * - No AGENTS.md or CLAUDE.md carries a "Last Updated" stamp or a changelog
  *
@@ -47,9 +48,11 @@ export interface ValidationResult {
 // Helpers
 // ---------------------------------------------------------------------------
 
-async function readAgentsFile(relativePath: string): Promise<string> {
-  const fullPath = path.join(PROJECT_ROOT, relativePath);
-  return fs.readFile(fullPath, 'utf-8');
+async function readAgentsFile(
+  relativePath: string,
+  root = PROJECT_ROOT
+): Promise<string> {
+  return fs.readFile(path.join(root, relativePath), 'utf-8');
 }
 
 // ---------------------------------------------------------------------------
@@ -373,7 +376,7 @@ export async function checkNoHistory(root = PROJECT_ROOT): Promise<string[]> {
  * PRs bumping 119 to 120 is the same edit on both sides, so git merged it
  * without a conflict to a number one too low (#154 and #161: 120 claimed,
  * 121 real), and main went red. The tree already lists every file, which is
- * what the check below holds, so the number carries nothing but that risk.
+ * what checkTestFiles() holds, so the number carries nothing but that risk.
  * Pure, so the matcher is table-tested without touching disk.
  */
 export function findTestCountClaim(content: string): string | null {
@@ -381,15 +384,152 @@ export function findTestCountClaim(content: string): string | null {
   return match ? match[0] : null;
 }
 
-async function checkTestFiles(): Promise<string[]> {
+/** A test file, by the extensions vitest picks up in this repo. */
+const TEST_FILE = /\.test\.(?:ts|tsx|js|jsx)$/;
+
+/** One tree entry: its `│   ` / `    ` indent, the branch, then its name. */
+const TREE_ENTRY = /^((?:│ {3}| {4})*)[├└]── (\S+)/;
+
+export interface TestTree {
+  /** Whether content holds a fenced block opening with `tests/`. */
+  found: boolean;
+  /** Every test-file row, as its path under tests/ (globs kept as written). */
+  rows: string[];
+  /** Tree lines that are not a readable entry, so their depth is unknown. */
+  unreadable: string[];
+}
+
+/**
+ * Reads the directory tree in tests/AGENTS.md: the fenced block whose first
+ * line is `tests/`. An entry's depth is its indent in 4-character steps, so
+ * a row's path is the directories open above it plus its own name. Only the
+ * tree is read; a test file named in prose elsewhere is not a row.
+ * Pure, so the parser is table-tested without touching disk.
+ */
+export function parseTestTree(content: string): TestTree {
+  const lines = content.split('\n');
+  const start = lines.findIndex(
+    (line, i) => line === 'tests/' && lines[i - 1]?.startsWith('```')
+  );
+  if (start === -1) return { found: false, rows: [], unreadable: [] };
+
+  const rows: string[] = [];
+  const unreadable: string[] = [];
+  const open: string[] = [];
+
+  for (const line of lines.slice(start + 1)) {
+    if (line.startsWith('```')) break;
+    if (line.trim() === '') continue;
+
+    const entry = TREE_ENTRY.exec(line);
+    if (!entry) {
+      unreadable.push(line);
+      continue;
+    }
+    const depth = entry[1].length / 4;
+    const name = entry[2];
+    open.length = depth;
+    if (name.endsWith('/')) {
+      open.push(name.slice(0, -1));
+    } else if (TEST_FILE.test(name)) {
+      rows.push([...open, name].join('/'));
+    }
+  }
+
+  return { found: true, rows, unreadable };
+}
+
+/** A row's file name as a pattern: `*`, `?` and `{a,b}` are globs. */
+function globToRegExp(glob: string): RegExp {
+  let source = '';
+  for (const char of glob) {
+    if (char === '*') source += '[^/]*';
+    else if (char === '?') source += '[^/]';
+    else if (char === '{') source += '(?:';
+    else if (char === '}') source += ')';
+    else if (char === ',') source += '|';
+    else source += char.replace(/[.+^$()|[\]\\]/g, '\\$&');
+  }
+  return new RegExp(`^${source}$`);
+}
+
+const GLOB_CHARS = /[*?{]/;
+
+/**
+ * Compares tree rows with the test files on disk, both as paths under
+ * tests/. Every file needs a row naming it exactly, or a glob row in its own
+ * directory matching it. Every exact row needs its file, and every glob row
+ * at least one match. Whole paths, so neither a longer name containing a
+ * shorter one nor a same-named file in another directory counts.
+ * Pure, so the comparison is table-tested without touching disk.
+ */
+export function findTestTreeDrift(rows: string[], files: string[]): string[] {
+  const exact = new Set(rows.filter((row) => !GLOB_CHARS.test(row)));
+  const globs = rows
+    .filter((row) => GLOB_CHARS.test(row))
+    .map((row) => ({
+      row,
+      dir: path.posix.dirname(row),
+      pattern: globToRegExp(path.posix.basename(row)),
+    }));
+
+  const matchesGlob = (file: string, glob: (typeof globs)[number]) =>
+    path.posix.dirname(file) === glob.dir &&
+    glob.pattern.test(path.posix.basename(file));
+
   const errors: string[] = [];
+  for (const file of [...files].sort()) {
+    if (!exact.has(file) && !globs.some((glob) => matchesGlob(file, glob))) {
+      errors.push(`tests/AGENTS.md tree has no row for tests/${file}`);
+    }
+  }
 
-  const testDir = path.join(PROJECT_ROOT, 'tests', 'unit');
-  const actualFiles = (await fs.readdir(testDir))
-    .filter((f) => f.endsWith('.test.ts'))
-    .sort();
+  const onDisk = new Set(files);
+  for (const row of exact) {
+    if (!onDisk.has(row)) {
+      errors.push(
+        `tests/AGENTS.md tree lists tests/${row}, which does not exist`
+      );
+    }
+  }
+  for (const glob of globs) {
+    if (!files.some((file) => matchesGlob(file, glob))) {
+      errors.push(
+        `tests/AGENTS.md tree lists tests/${glob.row}, which matches no test file`
+      );
+    }
+  }
 
-  const testsAgents = await readAgentsFile('tests/AGENTS.md');
+  return errors;
+}
+
+/**
+ * Test files under tests/, as paths below it: tracked ones and new ones not
+ * yet staged, never git-ignored scratch such as the `.tmp-e2e-*` projects.
+ * tests/fixtures holds recorded CLI output, not suites, so it is skipped.
+ */
+async function listTestFiles(root: string): Promise<string[]> {
+  const listed = execFileSync(
+    'git',
+    ['ls-files', '--cached', '--others', '--exclude-standard', '--', 'tests'],
+    { cwd: root, encoding: 'utf-8' }
+  )
+    .split('\n')
+    .filter((file) => TEST_FILE.test(file))
+    .map((file) => file.slice('tests/'.length))
+    .filter((file) => !file.startsWith('fixtures/'));
+
+  // A tracked file deleted but not yet staged is still in the index.
+  const present: string[] = [];
+  for (const file of listed) {
+    if (await fs.pathExists(path.join(root, 'tests', file))) present.push(file);
+  }
+  return present;
+}
+
+export async function checkTestFiles(root = PROJECT_ROOT): Promise<string[]> {
+  const errors: string[] = [];
+  const testsAgents = await readAgentsFile('tests/AGENTS.md', root);
 
   const countClaim = findTestCountClaim(testsAgents);
   if (countClaim) {
@@ -399,13 +539,22 @@ async function checkTestFiles(): Promise<string[]> {
     );
   }
 
-  // Check each file is listed in the tree
-  for (const file of actualFiles) {
-    if (!testsAgents.includes(file)) {
-      errors.push(`tests/AGENTS.md tree is missing test file: ${file}`);
-    }
+  const tree = parseTestTree(testsAgents);
+  if (!tree.found) {
+    return [
+      ...errors,
+      'tests/AGENTS.md has no fenced `tests/` tree, so no test file was checked',
+    ];
   }
+  for (const line of tree.unreadable) {
+    errors.push(
+      `tests/AGENTS.md tree line cannot be placed in the tree: "${line.trim()}"`
+    );
+  }
+  // Rows below an unreadable line sit at a guessed depth; report that first.
+  if (tree.unreadable.length > 0) return errors;
 
+  errors.push(...findTestTreeDrift(tree.rows, await listTestFiles(root)));
   return errors;
 }
 

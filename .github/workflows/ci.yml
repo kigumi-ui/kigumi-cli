@@ -34,7 +34,6 @@ jobs:
       starters: ${{ steps.filter.outputs.starters }}
       story: ${{ steps.filter.outputs.story }}
       deps: ${{ steps.filter.outputs.deps }}
-      integration_matrix: ${{ steps.matrix.outputs.integration }}
       starter_matrix: ${{ steps.matrix.outputs.starter }}
     steps:
       - uses: actions/checkout@v7
@@ -72,16 +71,15 @@ jobs:
               - 'docs/src/components/**'
               - 'docs/.storybook/**'
 
-      # Compute matrix sizes for Integration and Starter jobs.
-      # Full coverage (all 4 frameworks) only when:
+      # Compute the Starter matrix size.
+      # Full coverage (all 4 starters) only when:
       #   * `full-ci` label is on the PR, OR
       #   * branch is the changesets bot's `changeset-release/main` (pre-release gate), OR
-      #   * (starter only) templates or deps changed.
-      # Otherwise: drop react@18 from Integration; reduce Starter matrix to react only.
-      # Rationale: react@18-vs-19 differences are JSX-typing only and well-bounded;
-      # starter coverage for non-react frameworks is high-value only when templates
-      # or deps change. Bugs missed on a regular PR get caught at the next release PR
-      # (full-ci auto-fires on changeset-release/main) before publish.
+      #   * templates or deps changed.
+      # Otherwise: reduce the Starter matrix to react only.
+      # Rationale: starter coverage for non-react frameworks is high-value only when
+      # templates or deps change. Bugs missed on a regular PR get caught at the next
+      # release PR (full-ci auto-fires on changeset-release/main) before publish.
       - id: matrix
         env:
           FULL_CI_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'full-ci') }}
@@ -101,21 +99,13 @@ jobs:
             HEAVY=false
           fi
 
-          if [ "$FULL" = "true" ]; then
-            INTEGRATION='[{"framework":"react","version":"18"},{"framework":"react","version":"19"},{"framework":"vue","version":"3"},{"framework":"angular","version":"latest"}]'
-          else
-            INTEGRATION='[{"framework":"react","version":"19"},{"framework":"vue","version":"3"},{"framework":"angular","version":"latest"}]'
-          fi
-
           if [ "$FULL" = "true" ] || [ "$HEAVY" = "true" ]; then
             STARTERS='[{"framework":"react","framework_upper":"REACT","repo":"kigumi-ui/kigumi-react-starter"},{"framework":"vue","framework_upper":"VUE","repo":"kigumi-ui/kigumi-vue-starter"},{"framework":"angular","framework_upper":"ANGULAR","repo":"kigumi-ui/kigumi-angular-starter"},{"framework":"next","framework_upper":"NEXT","repo":"kigumi-ui/kigumi-next-starter"}]'
           else
             STARTERS='[{"framework":"react","framework_upper":"REACT","repo":"kigumi-ui/kigumi-react-starter"}]'
           fi
 
-          echo "integration=$INTEGRATION" >> "$GITHUB_OUTPUT"
           echo "starter=$STARTERS" >> "$GITHUB_OUTPUT"
-          echo "Integration matrix ($([ "$FULL" = "true" ] && echo full || echo reduced)): $INTEGRATION"
           echo "Starter matrix ($([ "$FULL" = "true" ] || [ "$HEAVY" = "true" ] && echo full || echo reduced)): $STARTERS"
 
   quality:
@@ -407,7 +397,7 @@ jobs:
         run: pnpm run build
 
   integration:
-    name: Integration Tests (${{ matrix.framework }}@${{ matrix.version }})
+    name: Integration Tests
     runs-on: ubuntu-latest
     needs: changes
     if: |
@@ -418,10 +408,6 @@ jobs:
       || needs.changes.outputs.deps == 'true'
       || contains(github.event.pull_request.labels.*.name, 'full-ci')
       || github.head_ref == 'changeset-release/main'
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJSON(needs.changes.outputs.integration_matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -444,9 +430,6 @@ jobs:
 
       - name: Integration tests
         run: pnpm run test:integration
-        env:
-          REACT_VERSION: ${{ matrix.framework == 'react' && matrix.version || '18' }}
-          KIGUMI_MATRIX_FRAMEWORK: ${{ matrix.framework }}
 
   e2e:
     name: E2E Tests

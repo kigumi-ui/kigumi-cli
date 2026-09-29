@@ -85,7 +85,7 @@ node dist/index.js add button --force
 | `tools/eslint-plugin-kigumi/` | Local ESLint plugin (plain directory, imported by relative path from `eslint.config.js`, not an npm package, no workspace). Rules are `.js` so `pnpm lint` needs no build step. Tested via RuleTester in `tests/unit/eslint-rules/` |
 | `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
 | `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
-| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (7 checks: version, component counts, pro list, template dirs, test files, prose count claims in `templates/AGENTS.md`, and no "Last Updated" stamp or changelog in any tracked AGENTS.md/CLAUDE.md) |
+| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (7 checks: version, component counts, pro list, template dirs, test files (the `tests/AGENTS.md` tree has a row for every test file under `tests/` outside `fixtures/`, matched by exact path or a glob row in the same directory, and every row names a file that exists), prose count claims in `templates/AGENTS.md`, and no "Last Updated" stamp or changelog in any tracked AGENTS.md/CLAUDE.md) |
 | `scripts/validate-cem-sync.ts` | `validate:cem-sync`. Two halves, reported separately: component presence (committed `COMPONENT_METADATA` vs. registry, always runs) and the manifest half (needs a complete CEM): prop-value drift (registry enums vs CEM attribute types), attribute-name drift (`checkAttributeDrift()`, #100), deprecation drift (`checkDeprecationDrift()`, `KIGUMI_DEPRECATIONS`, #133) and default drift (`checkDefaultDrift()`, #152). Only a run where both halves were verified prints a pass (#43, `docs/adr/0003`). The manifest half runs in CI's `freshness` job. |
 | `scripts/validate-changes.ts` | No manual-edit markers in generated files, no known anti-patterns. Template file completeness is `validate:templates`' job |
 | `scripts/validate-cache-keys.ts` | `validate:cache-keys`, CI: the Playwright browser cache key and path in `cache-warm.yml` (writer, on main) and `ci.yml` (reader, on PRs) must match. Drift is silent: CI passes but re-downloads the browsers every run |
@@ -780,7 +780,7 @@ START: Change affects tier detection or packages
 
 - [ ] **Updated tests**
   - Function: the React, Vue and Angular function harnesses (`*-function-harness-registry.test.ts`) prove every TypeScript Template from its metadata, and `validate:generated-fresh` Check C holds the `.jsx` / `.js.vue` to it; there is no per-Template test to write
-  - Integration: Compile-check test
+  - Types: `pnpm typecheck:templates` typechecks the committed Templates against the shims, and the consumer tsc suites (`tests/e2e/consumer-tsc-*.test.ts`) typecheck `init` + `add --all` output in a strict Free and Pro project (React against both React 19 and React 18 types)
   - Snapshot: Visual regression (if applicable)
 
 ### Checklist: Before Adding New Component
@@ -890,7 +890,8 @@ The code/registry side is guarded by validators (`validate:cem-sync`, `validate:
   - Look for: Wrong package imports (free vs pro)
 
 - [ ] **Check TypeScript compilation**
-  - Test: Run compile-check integration test
+  - Templates: `pnpm typecheck:templates`. `pnpm typecheck:templates:pro` checks only the Vue Templates, and only with the docs dependencies installed with the Pro token; without them every import fails with "Cannot find module", which is not a Template error
+  - Generated output: `pnpm build`, then `pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts` (or the `-vue` / `-angular` suite). The React suite includes the Next ambient pass and the React 18 pass. A Pro consumer reports NOT verified where this machine cannot install the pinned Pro package
   - Look for: Type errors in generated code
 
 - [ ] **Check runtime errors**
@@ -1038,7 +1039,7 @@ pnpm release
 **main** branch is protected:
 
 - Require PR before merging
-- Require CI status checks (`quality`, `test`, `pack-test` are the always-on baseline)
+- Require status checks: Quality Checks, Test, Detect changes, PR body and pr-log
 - Require conversation resolution
 - No force push allowed
 - No direct commits
@@ -1047,7 +1048,7 @@ pnpm release
 
 To stay inside the GitHub Actions allowance, `ci.yml` runs heavy jobs only when relevant paths change. The `changes` job (top of `ci.yml`) uses `dorny/paths-filter@v4` to compute outputs (`docs`, `src`, `templates`, `integration`, `e2e`, `starters`, `story`, `deps`), and each gated job's `if:` predicate references those outputs.
 
-**Always-on jobs:** `quality`, `test`, `pack-test`. These are the required status checks for branch protection.
+**Always-on jobs:** `quality`, `test`, `pack-test`. Branch protection requires `quality` and `test` (with `changes` and the `PR body` and `pr-log` checks), not `pack-test`.
 
 **Path-gated jobs:** `integration`, `e2e`, `starters`, `docs-typecheck`, `story-interactions`. Skipped if paths don't match.
 
@@ -1060,15 +1061,15 @@ To stay inside the GitHub Actions allowance, `ci.yml` runs heavy jobs only when 
 
 **`visual-test` label** is a separate, narrower override that forces the Chromatic job to run when no visual paths changed. It is unrelated to `full-ci`.
 
-**Dynamic matrix sizes (Integration + Starter):** beyond skipping jobs entirely, the `changes` job also computes the matrix size for the two matrix jobs and emits it as JSON outputs (`integration_matrix`, `starter_matrix`).
+**Dynamic matrix size (Starter):** beyond skipping jobs entirely, the `changes` job also computes the Starter job's matrix and emits it as a JSON output (`starter_matrix`). The Integration job is a single lane: its suites do not vary by framework.
 
-| Trigger | Integration matrix | Starter matrix |
-| --- | --- | --- |
-| `full-ci` label or `changeset-release/main` | 4 entries (react@18, react@19, vue@3, angular) | 4 entries (react, vue, angular, next) |
-| `templates` or `deps` changed | 3 entries (drop react@18) | 4 entries |
-| `src` (or `integration` / `starters` / `e2e`) only | 3 entries | 1 entry (react) |
+| Trigger | Starter matrix |
+| --- | --- |
+| `full-ci` label or `changeset-release/main` | 4 entries (react, vue, angular, next) |
+| `templates` or `deps` changed | 4 entries |
+| `src` (or `integration` / `starters` / `e2e`) only | 1 entry (react) |
 
-The reduction is safe because: (1) react@18-vs-19 differences are JSX-typing only and bounded; (2) starter coverage for non-react frameworks is high-value only when templates or deps change; (3) any regression missed on a regular PR is caught at the next release PR (full matrix auto-fires on `changeset-release/main`) before publish. To force the full matrix on a regular PR, add the `full-ci` label.
+The reduction is safe because: (1) starter coverage for non-react frameworks is high-value only when templates or deps change; (2) any regression missed on a regular PR is caught at the next release PR (full matrix auto-fires on `changeset-release/main`) before publish. To force the full matrix on a regular PR, add the `full-ci` label.
 
 ### Troubleshooting
 

@@ -12,10 +12,17 @@
  * `vite-env.d.ts`, and no `vite/client` types. There is no Next build and no
  * Next install. The Pages Router CSS strip is not covered here.
  *
+ * And a third time against React 18's types: `@types/react@18` and
+ * `@types/react-dom@18` swapped in, the same strict `tsc -b`, then React 19's
+ * types restored. Kigumi supports React 18, and this is the only check that
+ * holds the Templates to it. Types only: React 19 behaviour that shows at
+ * runtime alone, such as a callback ref returning a cleanup that React 18
+ * never calls, typechecks against both and is not covered here.
+ *
  * Run with: pnpm test:e2e
  */
 
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
@@ -23,9 +30,11 @@ import { readJSONWithComments } from '../../src/utils/json.js';
 import { generateNextEnvDts } from '../../src/utils/regenerate.js';
 import { CREATE_VITE_VERSION } from '../../src/constants.js';
 import {
+  SCAFFOLD_TIMEOUT_MS,
   TSC_TIMEOUT_MS,
   commandText,
   describeConsumers,
+  type Consumer,
   type PlantedError,
 } from './_helpers/consumer.js';
 
@@ -53,6 +62,53 @@ const VITE_ONLY_ERROR: PlantedError = {
  * pass is scoped to the declaration Kigumi writes, not to Next.
  */
 const NEXT_CSS_DECLARATION = "declare module '*.css' {}\n";
+
+/** The type packages the React 18 pass swaps, each to its React 18 major. */
+const REACT_TYPE_PACKAGES = ['@types/react', '@types/react-dom'] as const;
+
+/** Valid against React 19's types, an error against React 18's. */
+const REACT_19_ONLY_ERROR: PlantedError = {
+  file: 'planted-react-19-only.ts',
+  source:
+    "import { useActionState } from 'react';\n" +
+    'export const action = useActionState;\n',
+  diagnostics: ['error TS2305', "has no exported member 'useActionState'"],
+  failsBecause: "so React 19's types are still the ones compiled",
+};
+
+/** A Web Awesome element given a value its own declared type rejects. */
+const WA_ATTRIBUTE_ERROR: PlantedError = {
+  file: 'planted-wa-attribute.tsx',
+  source: 'export const button = <wa-button variant="not-a-variant" />;\n',
+  diagnostics: ['error TS2322', `Type '"not-a-variant"' is not assignable`],
+  failsBecause: 'so wa-* elements accept anything under these types',
+};
+
+/** The major of a package installed in the consumer, from its package.json. */
+async function installedMajor(
+  consumer: Consumer,
+  name: string
+): Promise<string> {
+  const { version } = (await fs.readJSON(
+    path.join(consumer.dir, 'node_modules', ...name.split('/'), 'package.json')
+  )) as { version: string };
+  return version.split('.')[0];
+}
+
+/** `pnpm add -D` in the consumer; a failed install fails the suite. */
+async function addDevDependencies(
+  consumer: Consumer,
+  specs: string[]
+): Promise<void> {
+  const result = await execa('pnpm', ['add', '-D', ...specs], {
+    cwd: consumer.dir,
+    reject: false,
+  });
+  expect(
+    result.exitCode,
+    commandText({ ...result, exitCode: result.exitCode ?? 1 })
+  ).toBe(0);
+}
 
 describeConsumers(
   {
@@ -189,6 +245,98 @@ describeConsumers(
           });
         },
         TSC_TIMEOUT_MS * 2
+      );
+    });
+
+    describe('against React 18 types', () => {
+      const majorsBefore: Record<string, string> = {};
+      let restoreSpecs: string[] = [];
+
+      beforeAll(async () => {
+        const packageJson = (await fs.readJSON(
+          path.join(consumer.dir, 'package.json')
+        )) as { devDependencies?: Record<string, string> };
+
+        for (const name of REACT_TYPE_PACKAGES) {
+          majorsBefore[name] = await installedMajor(consumer, name);
+        }
+        restoreSpecs = REACT_TYPE_PACKAGES.map(
+          (name) => `${name}@${packageJson.devDependencies?.[name]}`
+        );
+
+        // The plant must be valid under React 19's types, so its failure
+        // below comes from the swap and nothing else.
+        await consumer.withPlanted(REACT_19_ONLY_ERROR, async () => {
+          const react19 = await consumer.typecheck();
+          expect(react19.exitCode, commandText(react19)).toBe(0);
+        });
+
+        await addDevDependencies(
+          consumer,
+          REACT_TYPE_PACKAGES.map((name) => `${name}@18`)
+        );
+      }, SCAFFOLD_TIMEOUT_MS);
+
+      afterAll(async () => {
+        await addDevDependencies(consumer, restoreSpecs);
+      }, SCAFFOLD_TIMEOUT_MS);
+
+      it('swaps React 19 types for React 18 types', async () => {
+        for (const name of REACT_TYPE_PACKAGES) {
+          expect(majorsBefore[name], name).toBe('19');
+          expect(await installedMajor(consumer, name), name).toBe('18');
+        }
+      });
+
+      it(
+        'typechecks the same add-output',
+        async () => {
+          const result = await consumer.typecheck();
+          expect(result.exitCode, commandText(result)).toBe(0);
+        },
+        TSC_TIMEOUT_MS
+      );
+
+      it(
+        'is strict: rejects the strict-only error beside the Templates',
+        async () => {
+          await consumer.withPlanted(consumer.strictOnlyError, async () => {
+            consumer.expectRejected(
+              await consumer.typecheck(),
+              'tsc -b',
+              consumer.strictOnlyError
+            );
+          });
+        },
+        TSC_TIMEOUT_MS
+      );
+
+      it(
+        'types wa-* elements: rejects a value the element does not accept',
+        async () => {
+          await consumer.withPlanted(WA_ATTRIBUTE_ERROR, async () => {
+            consumer.expectRejected(
+              await consumer.typecheck(),
+              'tsc -b',
+              WA_ATTRIBUTE_ERROR
+            );
+          });
+        },
+        TSC_TIMEOUT_MS
+      );
+
+      it(
+        'rejects a React 19-only API that the React 19 types accept',
+        async () => {
+          await consumer.withPlanted(REACT_19_ONLY_ERROR, async () => {
+            consumer.expectRejected(
+              await consumer.typecheck(),
+              'tsc -b',
+              REACT_19_ONLY_ERROR
+            );
+          });
+        },
+        TSC_TIMEOUT_MS
       );
     });
   }
