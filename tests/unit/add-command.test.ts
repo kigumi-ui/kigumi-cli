@@ -348,39 +348,45 @@ import '../styles/layers.css';
       expect(content).toContain('wa-button');
     });
 
-    it('should generate test files by default', async () => {
-      await createConfig();
-      await setupProject();
+    // Function proof for a Template is the harness in this repo (issue #80),
+    // so a project with a test runner receives the Template and its CSS only.
+    it.each([
+      {
+        framework: 'react',
+        testingLibrary: '@testing-library/react',
+        files: ['Button.css', 'Button.tsx'],
+      },
+      {
+        framework: 'vue',
+        testingLibrary: '@testing-library/vue',
+        files: ['Button.css', 'Button.vue'],
+      },
+      {
+        framework: 'angular',
+        testingLibrary: null,
+        files: ['button.component.css', 'button.component.ts'],
+      },
+    ])(
+      'writes no test file for $framework, even with a test runner installed',
+      async ({ framework, testingLibrary, files }) => {
+        await createConfig({ framework });
+        await setupProject();
+        await fs.writeJSON(path.join(tempDir, 'package.json'), {
+          devDependencies: {
+            vitest: '^4.0.0',
+            ...(testingLibrary ? { [testingLibrary]: '^1.0.0' } : {}),
+          },
+        });
 
-      const { addCommand } = await import('../../src/commands/add/index.js');
+        const { addCommand } = await import('../../src/commands/add/index.js');
+        await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
-      // tests is true by default in the CLI
-      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
-
-      // Check for component directory - test files may or may not be generated
-      // depending on template availability. The key is that the component was created.
-      const componentDir = path.join(tempDir, 'src/components/Button');
-      expect(await fs.pathExists(componentDir)).toBe(true);
-    });
-
-    it('should skip test files with --no-tests', async () => {
-      await createConfig();
-      await setupProject();
-
-      const { addCommand } = await import('../../src/commands/add/index.js');
-
-      await addCommand(
-        ['button'],
-        createTestAddOptions({ cwd: tempDir, tests: false })
-      );
-
-      // Test file should not exist
-      const testFile = path.join(
-        tempDir,
-        'src/components/Button/Button.test.tsx'
-      );
-      expect(await fs.pathExists(testFile)).toBe(false);
-    });
+        const componentDir = path.join(tempDir, 'src/components/Button');
+        expect((await fs.readdir(componentDir)).sort()).toEqual(files);
+        const snapshotDir = path.join(tempDir, '.kigumi/snapshots/Button');
+        expect((await fs.readdir(snapshotDir)).sort()).toEqual(files);
+      }
+    );
   });
 
   describe('tier restrictions', () => {

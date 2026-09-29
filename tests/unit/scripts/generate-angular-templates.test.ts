@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  generateComponentTS,
-  generateSpec,
-} from '../../../scripts/generate-angular-templates.js';
+import { generateComponentTS } from '../../../scripts/generate-angular-templates.js';
 import {
   getComponent,
   type ComponentDefinition,
@@ -340,12 +337,6 @@ describe('consumer lint baseline (issue #136)', () => {
         `src/components/ui/${component.name}/${key}.component.ts`
       )
     ).toEqual([]);
-  });
-});
-
-describe('generateSpec', () => {
-  it('emits the Button spec stub', () => {
-    expect(generateSpec(BUTTON_FIXTURE)).toMatchSnapshot();
   });
 });
 

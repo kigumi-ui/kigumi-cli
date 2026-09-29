@@ -16,6 +16,8 @@ import {
   compareVueVariants,
   checkVueJsVariantSubset,
   checkReactJsVariantSubset,
+  diffTemplateTrees,
+  isGeneratedTemplateFile,
 } from '../../../scripts/check-generated-fresh.js';
 
 const REPO_ROOT = path.resolve(
@@ -733,4 +735,85 @@ describe('Check C on the committed Templates', () => {
       expect(pairs).toBe(Object.keys(LOCAL_REGISTRY).length);
     }
   );
+});
+
+// Check A compares whole trees, not just the files already committed: a
+// generator that writes a file nobody committed, or a committed file no
+// generator writes any more, is drift too. The second case is how a
+// per-Template test (issue #80) would come back unnoticed.
+describe('diffTemplateTrees', () => {
+  const tsx = 'templates/react/Button/Button.tsx';
+  const spec = 'templates/angular/Button/button.component.spec.ts';
+
+  it('finds nothing when both trees hold the same files byte for byte', () => {
+    const tree = new Map([[tsx, 'export {};\n']]);
+    expect(diffTemplateTrees(tree, new Map(tree))).toEqual([]);
+  });
+
+  it('reports a committed file that differs from the regenerated one', () => {
+    expect(
+      diffTemplateTrees(new Map([[tsx, 'old']]), new Map([[tsx, 'new']]))
+    ).toEqual([
+      {
+        check: 'A',
+        component: tsx,
+        message: 'committed template differs from freshly generated output',
+      },
+    ]);
+  });
+
+  it('reports a committed file no generator writes', () => {
+    expect(
+      diffTemplateTrees(
+        new Map([
+          [tsx, 'same'],
+          [spec, 'it()'],
+        ]),
+        new Map([[tsx, 'same']])
+      )
+    ).toEqual([
+      {
+        check: 'A',
+        component: spec,
+        message: 'committed template is not generated any more',
+      },
+    ]);
+  });
+
+  it('reports a generated file that is not committed', () => {
+    expect(
+      diffTemplateTrees(
+        new Map([[tsx, 'same']]),
+        new Map([
+          [tsx, 'same'],
+          [spec, 'it()'],
+        ])
+      )
+    ).toEqual([
+      {
+        check: 'A',
+        component: spec,
+        message: 'generator writes a template that is not committed',
+      },
+    ]);
+  });
+});
+
+describe('isGeneratedTemplateFile', () => {
+  it.each([
+    'Button.tsx',
+    'Button.css',
+    'Button.vue',
+    'Button.js.vue',
+    'button.component.ts',
+    'button.component.css',
+  ])('%s is generator output', (file) => {
+    expect(isGeneratedTemplateFile(file)).toBe(true);
+  });
+
+  // React's JavaScript variant is hand-maintained; Check C holds it to its
+  // .tsx instead.
+  it('Button.jsx is not', () => {
+    expect(isGeneratedTemplateFile('Button.jsx')).toBe(false);
+  });
 });

@@ -4,7 +4,7 @@
  * PURPOSE: Materializes per-component framework templates into project files.
  *
  * Templates on disk are real `.tsx` / `.jsx` / `.vue` / `.component.ts` /
- * `.test.*` files. The only runtime substitution is the tier swap from
+ * `.css` files. The only runtime substitution is the tier swap from
  * `@awesome.me/webawesome` to `@awesome.me/webawesome-pro`. See
  * `materializeTemplate` for the regex.
  *
@@ -14,13 +14,10 @@
  * - updateComponentIndex() - Update barrel export file
  * - generateComponentCSSContent() - Generate CSS content string
  * - generateComponentCSS() - Generate CSS file (content + write)
- * - generateComponentTestContent() - Generate test content string
- * - generateComponentTest() - Generate test file (content + write)
  * - getComponentCSSPath() - Get CSS file path for a component
- * - getComponentTestPath() - Get test file path for a component
  * - getComponentExtension() - Get component file extension for framework
- * - getTestExtension() - Get test file extension for framework
  * - getFileBaseName() - Get file base name (kebab for Angular, PascalCase otherwise)
+ * - getTemplateFileNames() - The files one committed Template directory holds
  *
  * @see AGENTS.md Rule #1 for templates-first development
  */
@@ -31,6 +28,7 @@ import { fileURLToPath } from 'url';
 import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
 import type { ComponentDefinition } from './registry.js';
 import type { KigumiConfig } from './config.js';
+import type { Framework } from '../schemas/config.js';
 import { InternalInvariantError } from '../errors/index.js';
 import type { Tier } from './tier.js';
 import { toKebabCase } from './naming.js';
@@ -115,22 +113,6 @@ export function getComponentExtension(
 }
 
 /**
- * Get test file extension based on framework and typescript setting
- */
-export function getTestExtension(
-  framework: string,
-  typescript: boolean
-): string {
-  if (framework === 'angular') {
-    return 'component.spec.ts';
-  }
-  if (framework === 'vue') {
-    return typescript ? 'test.ts' : 'test.js';
-  }
-  return typescript ? 'test.tsx' : 'test.jsx';
-}
-
-/**
  * Get the base file name for a component (Angular uses kebab-case, others use PascalCase)
  */
 export function getFileBaseName(
@@ -138,6 +120,32 @@ export function getFileBaseName(
   componentName: string
 ): string {
   return framework === 'angular' ? toKebabCase(componentName) : componentName;
+}
+
+/**
+ * The files one committed Template directory holds: the component in every
+ * language variant the framework ships (Angular is TypeScript-only) plus its
+ * CSS. `kigumi add` copies from this set and nothing else. There is no
+ * per-Template test: the function harness in this repo is the proof
+ * (issue #80), so a user's tests are their own.
+ */
+export function getTemplateFileNames(
+  framework: Framework,
+  componentName: string
+): string[] {
+  const baseName = getFileBaseName(framework, componentName);
+  const languages = framework === 'angular' ? [true] : [true, false];
+  const css =
+    framework === 'angular'
+      ? `${baseName}.component.css`
+      : `${componentName}.css`;
+  return [
+    ...languages.map(
+      (typescript) =>
+        `${baseName}.${getComponentExtension(framework, typescript)}`
+    ),
+    css,
+  ];
 }
 
 /**
@@ -334,134 +342,4 @@ export async function generateComponentCSS(
   await fs.ensureDir(path.dirname(cssPath));
   const cssContent = await generateComponentCSSContent(component, config);
   await fs.writeFile(cssPath, cssContent);
-}
-
-/**
- * Get the test file path for a component
- */
-export function getComponentTestPath(
-  component: ComponentDefinition,
-  config: KigumiConfig,
-  cwd: string
-): string {
-  const componentDir = path.join(cwd, config.componentsDir, component.name);
-  const ext = getTestExtension(config.framework, config.typescript);
-  const fileName =
-    config.framework === 'angular'
-      ? toKebabCase(component.name)
-      : component.name;
-  return path.join(componentDir, `${fileName}.${ext}`);
-}
-
-/**
- * Generate test content string for a component (without writing to disk)
- */
-export async function generateComponentTestContent(
-  component: ComponentDefinition,
-  config: KigumiConfig
-): Promise<string> {
-  const ext = getTestExtension(config.framework, config.typescript);
-
-  // Angular test templates are stored with kebab-case filenames
-  // (e.g. button-group.component.spec.ts) to mirror the component
-  // template convention. Without this branch the lookup hits a
-  // case-insensitive path only on macOS and silently falls back to the
-  // inline generator on Linux CI, producing different output per OS.
-  const testBaseName =
-    config.framework === 'angular'
-      ? toKebabCase(component.name)
-      : component.name;
-
-  const componentTestTemplatePath = path.join(
-    TEMPLATES_DIR,
-    config.framework,
-    component.name,
-    `${testBaseName}.${ext}`
-  );
-
-  if (await fs.pathExists(componentTestTemplatePath)) {
-    // Test templates carry no `importPath`, so the tier substitution is
-    // effectively a no-op; reading the file directly is sufficient.
-    return fs.readFile(componentTestTemplatePath, 'utf-8');
-  }
-
-  // Fallback to generic test
-  if (config.framework === 'angular') {
-    const kebabName = toKebabCase(component.name);
-    return `import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ${component.name}Component } from './${kebabName}.component';
-
-describe('${component.name}Component', () => {
-  let component: ${component.name}Component;
-  let fixture: ComponentFixture<${component.name}Component>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [${component.name}Component],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(${component.name}Component);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should render the web component', () => {
-    const el = fixture.nativeElement.querySelector('${component.tagName}');
-    expect(el).toBeTruthy();
-  });
-});
-`;
-  }
-
-  if (config.framework === 'vue') {
-    const vueExt = config.typescript ? '.vue' : '.js.vue';
-    return `import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
-import ${component.name} from './${component.name}${vueExt}';
-
-describe('${component.name}', () => {
-  it('renders without crashing', () => {
-    const { container } = mount(${component.name});
-    expect(container.querySelector('${component.tagName}')).toBeTruthy();
-  });
-});
-`;
-  }
-
-  return `import { render, screen } from '@testing-library/react';
-import { ${component.name} } from './${component.name}';
-
-describe('${component.name}', () => {
-  it('renders without crashing', () => {
-    render(<${component.name}>${component.name}</${component.name}>);
-    expect(screen.getByText('${component.name}')).toBeInTheDocument();
-  });
-
-  it('applies custom class', () => {
-    const { container } = render(
-      <${component.name} className="custom-class">Test</${component.name}>
-    );
-    const el = container.querySelector('${component.tagName}');
-    expect(el?.className).toContain('custom-class');
-  });
-});
-`;
-}
-
-/**
- * Generate unit test for component (generates content + writes to disk)
- */
-export async function generateComponentTest(
-  component: ComponentDefinition,
-  config: KigumiConfig,
-  cwd: string
-): Promise<void> {
-  const testPath = getComponentTestPath(component, config, cwd);
-  await fs.ensureDir(path.dirname(testPath));
-  const testContent = await generateComponentTestContent(component, config);
-  await fs.writeFile(testPath, testContent);
 }

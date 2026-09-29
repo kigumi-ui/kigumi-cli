@@ -70,13 +70,9 @@ Use this template to create implementation plans. Each phase should be achievabl
 - Create: `templates/react/{ComponentName}/{ComponentName}.tsx`
 - Create: `templates/react/{ComponentName}/{ComponentName}.jsx`
 - Create: `templates/react/{ComponentName}/{ComponentName}.css`
-- Create: `templates/react/{ComponentName}/{ComponentName}.test.tsx`
-- Create: `templates/react/{ComponentName}/{ComponentName}.test.jsx`
 - Create: `templates/vue/{ComponentName}/{ComponentName}.vue`
 - Create: `templates/vue/{ComponentName}/{ComponentName}.js.vue`
 - Create: `templates/vue/{ComponentName}/{ComponentName}.css`
-- Create: `templates/vue/{ComponentName}/{ComponentName}.test.ts`
-- Create: `templates/vue/{ComponentName}/{ComponentName}.test.js`
 - Regenerate Angular: `pnpm tsx scripts/generate-angular-templates.ts`
 
 **Tasks:**

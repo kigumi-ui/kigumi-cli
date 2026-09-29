@@ -1,33 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`generateTestJavascriptTemplate > emits the Button JS test stub 1`] = `
-"import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/vue';
-import Button from './Button.vue';
-
-describe('Button', () => {
-  it('renders without crashing', () => {
-    const { container } = render(Button);
-    expect(container.querySelector('wa-button')).toBeTruthy();
-  });
-});
-"
-`;
-
-exports[`generateTestTypescriptTemplate > emits the Button TS test stub 1`] = `
-"import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/vue';
-import Button from './Button.vue';
-
-describe('Button', () => {
-  it('renders without crashing', () => {
-    const { container } = render(Button);
-    expect(container.querySelector('wa-button')).toBeTruthy();
-  });
-});
-"
-`;
-
 exports[`generateVueJavascriptTemplate > emits the Badge JS wrapper (no events, no methods branch) 1`] = `
 "<script setup>
 import { ref, onMounted, useAttrs } from 'vue';

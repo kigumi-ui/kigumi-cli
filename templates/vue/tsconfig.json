@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "isolatedModules": true,
-    "types": ["vitest/globals"]
+    "types": []
   },
   "include": [
     "**/*.vue",

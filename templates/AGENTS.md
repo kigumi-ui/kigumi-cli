@@ -2,7 +2,9 @@
 
 > Component templates for the kigumi CLI - extends [root AGENTS.md](../AGENTS.md)
 
-Templates are real framework source files (`.tsx`, `.jsx`, `.vue`, `.component.ts`, `.test.*`). Editors / type-checkers / linters treat them like any other source. The CLI substitutes only one thing at runtime: the Free→Pro tier swap on the `@awesome.me/webawesome` import path. There is no Handlebars layer.
+Templates are real framework source files (`.tsx`, `.jsx`, `.vue`, `.component.ts`, `.css`). Editors / type-checkers / linters treat them like any other source. The CLI substitutes only one thing at runtime: the Free→Pro tier swap on the `@awesome.me/webawesome` import path. There is no Handlebars layer.
+
+A Template directory holds exactly the files below, as `getTemplateFileNames()` in `src/utils/template.ts` names them, and `pnpm validate:templates` fails on anything else (dotfiles such as `.DS_Store` aside). There is no per-Template test: the function harnesses in `tests/unit/` prove the TypeScript Templates against the CEM (see `docs/adr/0004`), and Check C of `validate:generated-fresh` holds each `.jsx` / `.js.vue` to its TypeScript sibling, so `kigumi add` ships no test file and a user's tests are their own (issue #80).
 
 ## Directory Structure
 
@@ -12,20 +14,15 @@ templates/
 │   └── {Component}/
 │       ├── {Component}.tsx        # TypeScript (with interfaces)
 │       ├── {Component}.jsx        # JavaScript (with JSDoc)
-│       ├── {Component}.test.tsx
-│       ├── {Component}.test.jsx
 │       └── {Component}.css
 ├── vue/
 │   └── {Component}/
 │       ├── {Component}.vue        # TypeScript (Composition API + defineModel)
 │       ├── {Component}.js.vue     # JavaScript (no types)
-│       ├── {Component}.test.ts
-│       ├── {Component}.test.js
 │       └── {Component}.css        # Identical content to react CSS file
 └── angular/
     └── {Component}/                 # PascalCase directory name
         ├── {kebab-name}.component.ts        # Always TypeScript
-        ├── {kebab-name}.component.spec.ts
         └── {kebab-name}.component.css
 ```
 
@@ -366,7 +363,7 @@ A Template is copied verbatim into a consumer project and linted there, and so i
 - **No empty object types.** A React wrapper that adds no props or events declares `export type XProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>`, not an empty `interface`. A Vue wrapper without props exports `type XProps = object` (the old empty interface's replacement, so imports keep working) and calls no `defineProps`: Vue's compiler rejects empty types such as `object` or `Record<string, never>` as its type argument. A Vue wrapper without events calls no `defineEmits`, since its `emit` would be unused.
 - **No unused variables**, under the rule's default options: no `_` prefix escape, which the repo allows itself outside `templates/`.
 
-`eslint.config.js` turns none of those rules off for `templates/**` except `no-undef`, whose result depends on which globals a project declares (DOM, vitest, Vue's compiler macros), not on the Template. typescript-eslint turns it off for `.ts`/`.tsx` anyway. `tests/unit/eslint-rules/templates-consumer-rules.test.ts` resolves the config for every Template file and fails on any other difference, or once the `no-undef` exception no longer excuses anything. The generator tests lint their output through `lintAsConsumer()`.
+`eslint.config.js` turns none of those rules off for `templates/**` except `no-undef`, whose result depends on which globals a project declares (DOM, Vue's compiler macros), not on the Template. typescript-eslint turns it off for `.ts`/`.tsx` anyway. `tests/unit/eslint-rules/templates-consumer-rules.test.ts` resolves the config for every Template file and fails on any other difference, or once the `no-undef` exception no longer excuses anything. The generator tests lint their output through `lintAsConsumer()`.
 
 `kigumi init` adds no lint ignore for `.kigumi/`: snapshots are the Templates as written, so they are clean exactly when the Templates are, and an ignore would hide a regression rather than stop it.
 
@@ -384,16 +381,14 @@ Framework plugins a consumer adds on top (`eslint-plugin-react-hooks`, `eslint-p
    React (`templates/react/{Name}/`):
    - `{Name}.tsx` (TypeScript)
    - `{Name}.jsx` (JavaScript)
-   - `{Name}.test.tsx`
-   - `{Name}.test.jsx`
    - `{Name}.css`
 
    Vue (`templates/vue/{Name}/`):
    - `{Name}.vue` (TypeScript)
    - `{Name}.js.vue` (JavaScript)
-   - `{Name}.test.ts`
-   - `{Name}.test.js`
    - `{Name}.css` (same content as React CSS file)
+
+   No test file: the function harnesses pick up a new registry component's TypeScript Templates from its metadata.
 
    Angular: **Do not create manually.** Run `npx tsx scripts/generate-angular-templates.ts` to regenerate all Angular templates from component metadata.
 

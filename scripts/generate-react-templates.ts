@@ -377,120 +377,14 @@ export function generateCSSTemplate(componentName: string): string {
 }
 
 /**
- * Realistic placeholder values for common required-string-prop names. Used
- * by both the JSX attribute emitter and the prop-reflection assertion so
- * the generated test communicates intent ("Test image", not "alt").
- */
-const STRING_PLACEHOLDER_BY_NAME: Record<string, string> = {
-  src: 'test.gif',
-  alt: 'Test image',
-  label: 'Test label',
-  image: '/avatar.jpg',
-  href: 'https://example.com',
-  value: 'test value',
-  name: 'test-name',
-  placeholder: 'placeholder text',
-};
-
-function stringPlaceholderFor(
-  prop: ComponentDefinition['props'][number]
-): string {
-  return STRING_PLACEHOLDER_BY_NAME[prop.name] ?? prop.name;
-}
-
-/**
- * Render a JSX attribute literal for a required prop, picking a placeholder
- * value that matches the prop's declared type. Returns an empty string for
- * shapes we don't auto-seed (function/event types).
- */
-function renderRequiredPropPlaceholder(
-  prop: ComponentDefinition['props'][number]
-): string {
-  // Boolean: presence-truthy by convention, emit explicit `={true}`.
-  if (prop.type === 'boolean') return ` ${prop.name}={true}`;
-  // Number: use 0 unless the prop has a non-zero default in the registry.
-  if (prop.type === 'number') return ` ${prop.name}={0}`;
-  // String: seed a realistic placeholder so the test name communicates intent.
-  if (prop.type === 'string')
-    return ` ${prop.name}="${stringPlaceholderFor(prop)}"`;
-  // Enum (string with `values`): pick the first allowed value.
-  if (prop.values && prop.values.length > 0)
-    return ` ${prop.name}="${prop.values[0]}"`;
-  // Anything else (function/event/object) is not auto-seedable; fall through.
-  return '';
-}
-
-/**
- * Generate TypeScript test template.
- *
- * Emits up to three `it` blocks matching the hand-maintained `.test.jsx`
- * pattern (renders / className passthrough / required-attribute reflection).
- * The reflection block is only emitted when there is at least one required
- * string-or-enum prop whose value can be asserted via `getAttribute`.
- */
-export function generateTestTypescriptTemplate(
-  componentName: string,
-  tagName: string,
-  props: ComponentDefinition['props']
-): string {
-  const requiredProps = props.filter((p) => p.required);
-  const jsxAttrs = requiredProps.map(renderRequiredPropPlaceholder).join('');
-
-  // Props we can meaningfully assert via getAttribute — strings + enums only.
-  // Boolean and number types reflect to the DOM as serialized strings, but
-  // the round-trip is brittle enough that we leave them out of the test.
-  const reflectableProps = requiredProps.filter(
-    (p) => p.type === 'string' || (p.values && p.values.length > 0)
-  );
-  const reflectionAssertions = reflectableProps
-    .map((p) => {
-      const value =
-        p.type === 'string'
-          ? stringPlaceholderFor(p)
-          : (p.values?.[0] ?? p.name);
-      return `    expect(element?.getAttribute('${p.name}')).toBe('${value}');`;
-    })
-    .join('\n');
-
-  const reflectionBlock =
-    reflectableProps.length > 0
-      ? `
-
-  it('forwards required attributes to the underlying ${tagName}', () => {
-    const { container } = render(<${componentName}${jsxAttrs} />);
-    const element = container.querySelector('${tagName}');
-${reflectionAssertions}
-  });`
-      : '';
-
-  return `import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
-import { ${componentName} } from './${componentName}';
-
-describe('${componentName}', () => {
-  it('renders without crashing', () => {
-    const { container } = render(<${componentName}${jsxAttrs} />);
-    expect(container.querySelector('${tagName}')).toBeTruthy();
-  });
-
-  it('applies custom className to the underlying ${tagName}', () => {
-    const { container } = render(<${componentName}${jsxAttrs} className="custom-class" />);
-    const element = container.querySelector('${tagName}');
-    expect(element?.getAttribute('class')).toContain('custom-class');
-  });${reflectionBlock}
-});
-`;
-}
-
-/**
  * Generate all templates for a component.
  *
- * NOTE: This generator only emits the TypeScript variants
- * (`<Name>.tsx` / `<Name>.css` / `<Name>.test.tsx`). The matching `.jsx` /
- * `.test.jsx` JavaScript variants are **hand-maintained** in
- * `templates/react/<Name>/` — they were never produced by this script (the
- * pre-Handlebars-removal version also only emitted `.tsx.hbs`). If you need
- * to update JS variants, edit the `.jsx` / `.test.jsx` files directly.
+ * NOTE: This generator only emits the TypeScript variant and its CSS
+ * (`<Name>.tsx` / `<Name>.css`). The matching `.jsx` JavaScript variant is
+ * **hand-maintained** in `templates/react/<Name>/`; it was never produced by
+ * this script (the pre-Handlebars-removal version also only emitted
+ * `.tsx.hbs`). If you need to update it, edit the `.jsx` file directly. No
+ * test file: the function harness proves Templates (issue #80).
  */
 export async function generateComponentTemplates(
   component: ComponentDefinition
@@ -507,17 +401,6 @@ export async function generateComponentTemplates(
 
   const css = generateCSSTemplate(component.name);
   await writeFormatted(path.join(componentDir, `${component.name}.css`), css);
-
-  // TypeScript test
-  const testTs = generateTestTypescriptTemplate(
-    component.name,
-    component.tagName,
-    component.props
-  );
-  await writeFormatted(
-    path.join(componentDir, `${component.name}.test.tsx`),
-    testTs
-  );
 
   console.log(`  ✓ Generated templates for ${component.name}`);
 }

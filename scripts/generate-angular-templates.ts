@@ -4,8 +4,9 @@
  * Angular Template Generator
  *
  * Generates Angular standalone component templates for all components in the registry.
- * TypeScript only (Angular is always TypeScript). Creates .component.ts, .component.css,
- * and .component.spec.ts files (real framework source files; no templating layer).
+ * TypeScript only (Angular is always TypeScript). Creates .component.ts and
+ * .component.css files (real framework source files; no templating layer). No
+ * spec file: the function harness proves Templates (issue #80).
  *
  * Key design decisions:
  * - Standalone components (Angular 17+ default, no NgModule)
@@ -509,37 +510,25 @@ export function generateCSS(
 }
 
 /**
- * Generate the Angular component spec template
+ * Write one component's Angular Template: the component and its CSS.
  */
-export function generateSpec(component: ComponentDefinition): string {
+export async function generateComponentTemplates(
+  component: ComponentDefinition,
+  componentKey: string
+): Promise<void> {
   const kebabName = toKebabCase(component.name);
-  return `import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ${component.name}Component } from './${kebabName}.component';
+  const componentDir = path.join(TEMPLATES_DIR, component.name);
 
-describe('${component.name}Component', () => {
-  let component: ${component.name}Component;
-  let fixture: ComponentFixture<${component.name}Component>;
+  await fs.ensureDir(componentDir);
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [${component.name}Component],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(${component.name}Component);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should render the web component', () => {
-    const el = fixture.nativeElement.querySelector('${component.tagName}');
-    expect(el).toBeTruthy();
-  });
-});
-`;
+  await writeFormatted(
+    path.join(componentDir, `${kebabName}.component.ts`),
+    generateComponentTS(component, componentKey)
+  );
+  await writeFormatted(
+    path.join(componentDir, `${kebabName}.component.css`),
+    generateCSS(component, componentKey)
+  );
 }
 
 /**
@@ -552,31 +541,7 @@ async function main() {
   let count = 0;
 
   for (const [key, component] of Object.entries(components)) {
-    const kebabName = toKebabCase(component.name);
-    const componentDir = path.join(TEMPLATES_DIR, component.name);
-
-    await fs.ensureDir(componentDir);
-
-    // Component TypeScript
-    const tsContent = generateComponentTS(component, key);
-    await writeFormatted(
-      path.join(componentDir, `${kebabName}.component.ts`),
-      tsContent
-    );
-
-    const cssContent = generateCSS(component, key);
-    await writeFormatted(
-      path.join(componentDir, `${kebabName}.component.css`),
-      cssContent
-    );
-
-    // Component spec
-    const specContent = generateSpec(component);
-    await writeFormatted(
-      path.join(componentDir, `${kebabName}.component.spec.ts`),
-      specContent
-    );
-
+    await generateComponentTemplates(component, key);
     count++;
     console.log(`  ${component.name} -> templates/angular/${component.name}/`);
   }

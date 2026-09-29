@@ -968,6 +968,12 @@ async function checkGeneratorFreshness(): Promise<{
     const run = (cmd: string) => execSync(cmd, { cwd: tmpDir, stdio: 'pipe' });
 
     run('pnpm generate:metadata');
+    // Clear the generators' own output first. Otherwise the copy keeps every
+    // committed Template, and one no generator writes any more (a
+    // per-Template test, issue #80) looks freshly generated.
+    for (const rel of (await readGeneratedTemplates(tmpDir)).keys()) {
+      await fs.remove(path.join(tmpDir, rel));
+    }
     run('pnpm generate:templates');
     run('pnpm generate:skill-refs');
     // After generate:metadata: the shim's method signatures come from it.
@@ -996,8 +1002,13 @@ async function checkGeneratorFreshness(): Promise<{
       }
     }
 
-    // Diff generated template files (NOT hand-maintained .jsx / .test.jsx).
-    findings.push(...(await diffGeneratedTemplates(tmpDir)));
+    // Diff generated template files (NOT hand-maintained .jsx).
+    findings.push(
+      ...diffTemplateTrees(
+        await readGeneratedTemplates(PROJECT_ROOT),
+        await readGeneratedTemplates(tmpDir)
+      )
+    );
 
     return { findings, cem };
   } finally {
@@ -1005,44 +1016,70 @@ async function checkGeneratorFreshness(): Promise<{
   }
 }
 
-async function diffGeneratedTemplates(tmpDir: string): Promise<Finding[]> {
-  const findings: Finding[] = [];
-  const templatesDir = path.join(PROJECT_ROOT, 'templates');
-  const frameworks = ['react', 'vue', 'angular'] as const;
+/**
+ * Whether a Template file is generator output. React's `.jsx` is the one
+ * hand-maintained kind; Check C holds it to its `.tsx` instead.
+ */
+export function isGeneratedTemplateFile(file: string): boolean {
+  if (file.endsWith('.jsx')) return false;
+  return /\.(tsx|ts|vue|css)$/.test(file);
+}
 
-  // Generated (diffed): .tsx/.ts/.vue/.css and their generated .test.tsx /
-  // .component.spec.ts. Hand-maintained (skipped): the JavaScript variants
-  // .jsx / .test.jsx, which legitimately differ from their .tsx siblings.
-  const isGenerated = (file: string): boolean => {
-    if (file.endsWith('.jsx')) return false;
-    if (file.endsWith('.test.jsx')) return false;
-    return /\.(tsx|ts|vue|css)$/.test(file);
-  };
-
-  for (const framework of frameworks) {
-    const fwDir = path.join(templatesDir, framework);
+/**
+ * Every generator-owned file under `templates/<framework>/<Component>/` of
+ * `root`, keyed by its path relative to `root`.
+ */
+async function readGeneratedTemplates(
+  root: string
+): Promise<Map<string, string>> {
+  const files = new Map<string, string>();
+  for (const framework of ['react', 'vue', 'angular'] as const) {
+    const fwDir = path.join(root, 'templates', framework);
     if (!(await fs.pathExists(fwDir))) continue;
-    const componentDirs = await fs.readdir(fwDir, { withFileTypes: true });
-    for (const comp of componentDirs) {
+    for (const comp of await fs.readdir(fwDir, { withFileTypes: true })) {
       if (!comp.isDirectory()) continue;
-      const compDir = path.join(fwDir, comp.name);
-      const files = await fs.readdir(compDir);
-      for (const file of files) {
-        if (!isGenerated(file)) continue;
+      for (const file of await fs.readdir(path.join(fwDir, comp.name))) {
+        if (!isGeneratedTemplateFile(file)) continue;
         const rel = path.join('templates', framework, comp.name, file);
-        const committed = path.join(PROJECT_ROOT, rel);
-        const regenerated = path.join(tmpDir, rel);
-        if (!(await fs.pathExists(regenerated))) continue;
-        const committedContent = await fs.readFile(committed, 'utf-8');
-        const regeneratedContent = await fs.readFile(regenerated, 'utf-8');
-        if (committedContent !== regeneratedContent) {
-          findings.push({
-            check: 'A',
-            component: rel,
-            message: `committed template differs from freshly generated output`,
-          });
-        }
+        files.set(rel, await fs.readFile(path.join(root, rel), 'utf-8'));
       }
+    }
+  }
+  return files;
+}
+
+/**
+ * Compare the committed Templates with a fresh generator run, in both
+ * directions: a file on one side only is drift as much as one that differs.
+ */
+export function diffTemplateTrees(
+  committed: ReadonlyMap<string, string>,
+  regenerated: ReadonlyMap<string, string>
+): Finding[] {
+  const findings: Finding[] = [];
+  for (const [rel, content] of committed) {
+    const fresh = regenerated.get(rel);
+    if (fresh === undefined) {
+      findings.push({
+        check: 'A',
+        component: rel,
+        message: 'committed template is not generated any more',
+      });
+    } else if (fresh !== content) {
+      findings.push({
+        check: 'A',
+        component: rel,
+        message: 'committed template differs from freshly generated output',
+      });
+    }
+  }
+  for (const rel of regenerated.keys()) {
+    if (!committed.has(rel)) {
+      findings.push({
+        check: 'A',
+        component: rel,
+        message: 'generator writes a template that is not committed',
+      });
     }
   }
   return findings;

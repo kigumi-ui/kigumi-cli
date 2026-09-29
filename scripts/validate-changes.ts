@@ -156,18 +156,8 @@ async function checkTemplateParity(): Promise<void> {
       // Check for TS/JS parity
       const requiredVariants =
         framework === 'react'
-          ? [
-              `${component.name}.tsx`,
-              `${component.name}.jsx`,
-              `${component.name}.test.tsx`,
-              `${component.name}.test.jsx`,
-            ]
-          : [
-              `${component.name}.vue`,
-              `${component.name}.js.vue`,
-              `${component.name}.test.ts`,
-              `${component.name}.test.js`,
-            ];
+          ? [`${component.name}.tsx`, `${component.name}.jsx`]
+          : [`${component.name}.vue`, `${component.name}.js.vue`];
 
       for (const variant of requiredVariants) {
         const variantPath = path.join(templateDir, variant);

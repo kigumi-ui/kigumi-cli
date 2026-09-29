@@ -2,15 +2,15 @@
  * Component Installer
  *
  * PURPOSE: Handles installation of Web Awesome components.
- * Generates component files, CSS, tests, and updates imports.
+ * Generates component files and CSS, and updates imports. No per-component
+ * test file: the function harness in this repo proves Templates (issue #80).
  * Detects local modifications before overwriting and prompts the user.
  *
  * EXPORTS:
  * - ComponentInstaller - Class that handles component installation
  * - InstallResult - Result type for installation operations
  *
- * @see AGENTS.md Rule #2 for templates-first development
- * @see AGENTS.md Rule #14 for conditional test file generation
+ * @see AGENTS.md Rule #1 for templates-first development
  */
 
 import fs from 'fs-extra';
@@ -24,18 +24,14 @@ import {
 import {
   generateComponent,
   generateComponentCSSContent,
-  generateComponentTestContent,
   getComponentCSSPath,
-  getComponentTestPath,
   getComponentExtension,
-  getTestExtension,
   getFileBaseName,
   updateComponentIndex,
 } from '../../utils/template.js';
 import {
   checkFileModification,
   getModifiedFiles,
-  type FileModificationCheck,
 } from '../../utils/file-diff.js';
 import { saveSnapshot } from '../../utils/snapshot.js';
 import { renderDiff } from '../../utils/diff-renderer.js';
@@ -160,17 +156,10 @@ export class ComponentInstaller {
     const componentPath = path.join(componentDir, `${fileName}.${ext}`);
     const cssPath = getComponentCSSPath(component, this.config, this.cwd);
 
-    const hasTestSetup = await this.checkTestSetup();
     const cssContent = await generateComponentCSSContent(
       component,
       this.config
     );
-    const testContent = hasTestSetup
-      ? await generateComponentTestContent(component, this.config)
-      : null;
-    const testPath = hasTestSetup
-      ? getComponentTestPath(component, this.config, this.cwd)
-      : null;
 
     // Check if component already exists
     const componentExists = await fs.pathExists(componentPath);
@@ -183,15 +172,10 @@ export class ComponentInstaller {
         return { name: component.name, success: true, skipped: true };
       }
 
-      const checks = await Promise.all(
-        [
-          checkFileModification(componentPath, componentContent),
-          checkFileModification(cssPath, cssContent),
-          testContent && testPath
-            ? checkFileModification(testPath, testContent)
-            : null,
-        ].filter((c): c is Promise<FileModificationCheck> => c !== null)
-      );
+      const checks = await Promise.all([
+        checkFileModification(componentPath, componentContent),
+        checkFileModification(cssPath, cssContent),
+      ]);
 
       const modified = getModifiedFiles(checks);
 
@@ -208,9 +192,6 @@ export class ComponentInstaller {
           [componentPath, componentContent],
           [cssPath, cssContent],
         ]);
-        if (testContent && testPath) {
-          contentByPath.set(testPath, testContent);
-        }
 
         // Show which files are modified vs unchanged, with diffs
         for (const check of checks) {
@@ -255,26 +236,14 @@ export class ComponentInstaller {
     // Create component directory (required before writing files to it)
     await fs.ensureDir(componentDir);
 
-    // PARALLELIZED FILE OPERATIONS
-    const parallelOps: Promise<void>[] = [
+    await Promise.all([
       fs.writeFile(componentPath, componentContent),
       fs.writeFile(cssPath, cssContent),
-    ];
-
-    if (testContent && testPath) {
-      parallelOps.push(fs.writeFile(testPath, testContent));
-    }
-
-    await Promise.all(parallelOps);
+    ]);
 
     // Save snapshot for three-way merge support (kigumi update)
     // Only for builtin template-generated components, not community --from installs
     if (!options.from) {
-      const testExt = getTestExtension(
-        this.config.framework,
-        this.config.typescript
-      );
-
       const snapshotFileName = getFileBaseName(
         this.config.framework,
         component.name
@@ -287,9 +256,6 @@ export class ComponentInstaller {
       await saveSnapshot(this.cwd, component.name, {
         [`${snapshotFileName}.${ext}`]: componentContent,
         [snapshotCSSName]: cssContent,
-        ...(testContent
-          ? { [`${snapshotFileName}.${testExt}`]: testContent }
-          : {}),
       });
     }
 
@@ -303,46 +269,6 @@ export class ComponentInstaller {
       success: true,
       modifiedFiles: modifiedFileNames,
     };
-  }
-
-  /**
-   * Check if project has test setup (Vitest or Jest)
-   */
-  private async checkTestSetup(): Promise<boolean> {
-    // Angular CLI always includes test infrastructure (Karma + Jasmine)
-    if (this.config.framework === 'angular') {
-      return true;
-    }
-
-    try {
-      const packageJsonPath = path.join(this.cwd, 'package.json');
-      if (!(await fs.pathExists(packageJsonPath))) {
-        return false;
-      }
-
-      const packageJson = await fs.readJSON(packageJsonPath);
-
-      // Check for Vitest or Jest
-      const hasVitest = !!(
-        packageJson.devDependencies?.vitest || packageJson.dependencies?.vitest
-      );
-
-      const hasJest = !!(
-        packageJson.devDependencies?.jest || packageJson.dependencies?.jest
-      );
-
-      // Check for testing-library
-      const hasTestingLibrary = !!(
-        packageJson.devDependencies?.['@testing-library/react'] ||
-        packageJson.dependencies?.['@testing-library/react'] ||
-        packageJson.devDependencies?.['@testing-library/vue'] ||
-        packageJson.dependencies?.['@testing-library/vue']
-      );
-
-      return (hasVitest || hasJest) && hasTestingLibrary;
-    } catch (_error) {
-      return false;
-    }
   }
 
   /**

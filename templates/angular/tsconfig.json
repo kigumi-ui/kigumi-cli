@@ -13,11 +13,7 @@
     "emitDecoratorMetadata": false,
     "useDefineForClassFields": false,
     "isolatedModules": true,
-    "types": ["vitest/globals"]
+    "types": []
   },
-  "include": [
-    "**/*.component.ts",
-    "**/*.spec.ts",
-    "../../typecheck-shims/wa-pro-paths.d.ts"
-  ]
+  "include": ["**/*.component.ts", "../../typecheck-shims/wa-pro-paths.d.ts"]
 }

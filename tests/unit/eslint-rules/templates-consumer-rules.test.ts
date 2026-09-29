@@ -28,16 +28,11 @@ const repoESLint = new ESLint({ cwd: ROOT });
 
 /** Every Template kind a consumer receives, keyed by its file suffix. */
 const KINDS: Record<string, RegExp> = {
-  'react .tsx': /\/react\/.*(?<!\.test)\.tsx$/,
-  'react .jsx': /\/react\/.*(?<!\.test)\.jsx$/,
-  'react .test.tsx': /\/react\/.*\.test\.tsx$/,
-  'react .test.jsx': /\/react\/.*\.test\.jsx$/,
+  'react .tsx': /\/react\/.*\.tsx$/,
+  'react .jsx': /\/react\/.*\.jsx$/,
   'vue .vue': /\/vue\/.*(?<!\.js)\.vue$/,
   'vue .js.vue': /\/vue\/.*\.js\.vue$/,
-  'vue .test.ts': /\/vue\/.*\.test\.ts$/,
-  'vue .test.js': /\/vue\/.*\.test\.js$/,
   'angular .component.ts': /\/angular\/.*\.component\.ts$/,
-  'angular .component.spec.ts': /\/angular\/.*\.component\.spec\.ts$/,
 };
 
 function templateFiles(): string[] {

@@ -50,7 +50,6 @@ describe('validators.add', () => {
     const result = validators.add({});
     expect(result.force).toBe(false);
     expect(result.all).toBe(false);
-    expect(result.tests).toBe(false);
   });
 
   it('validates --from option', () => {

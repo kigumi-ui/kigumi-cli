@@ -6,7 +6,6 @@ export function createTestAddOptions(
   return {
     force: false,
     all: false,
-    tests: true,
     crossFramework: false,
     ...overrides,
   };

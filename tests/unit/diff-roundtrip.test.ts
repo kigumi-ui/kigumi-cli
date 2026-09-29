@@ -81,18 +81,15 @@ describe('diff roundtrip', () => {
     // Spies for the residual seams. Modules must be dynamically imported AFTER
     // vi.resetModules() so the spy wraps the same instance the SUT will see on
     // its own dynamic import. The non-stubbed template helpers
-    // (getComponentExtension / getTestExtension / getFileBaseName) keep their
-    // real behavior; the React framework defaults match what the prior
-    // factory stub returned ('tsx' / 'test.tsx' / identity).
+    // (getComponentExtension / getFileBaseName) keep their real behavior; the
+    // React framework defaults match what the prior factory stub returned
+    // ('tsx' / identity).
     const template = await import('../../src/utils/template.js');
     generateComponentSpy = vi
       .spyOn(template, 'generateComponent')
       .mockResolvedValue('// generated component');
     vi.spyOn(template, 'generateComponentCSSContent').mockResolvedValue(
       '/* generated css */'
-    );
-    vi.spyOn(template, 'generateComponentTestContent').mockResolvedValue(
-      '// generated test'
     );
 
     const registry = await import('../../src/utils/registry.js');

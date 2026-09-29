@@ -6,8 +6,12 @@
  * PURPOSE: Validates that all templates are consistent and complete.
  *
  * CHECKS:
- * - Every registry component has the expected template files (React + Vue + Angular)
- * - TypeScript and JavaScript variants exist where required
+ * - Every registry component has exactly its Template files (React + Vue +
+ *   Angular), as `getTemplateFileNames()` names them: TypeScript and
+ *   JavaScript variants where the framework ships both, plus CSS
+ * - Nothing else sits in a Template directory. `kigumi add` would never copy
+ *   it, so it could only rot there; a per-Template test in particular is not
+ *   the function proof, the harness is (issue #80)
  * - PascalCase naming convention is followed
  * - No template file contains an unresolved Handlebars-style token
  *   (`{{...}}`). Templates are real framework source files; any token is
@@ -23,7 +27,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { getAllComponents } from '../src/utils/registry.js';
-import { toKebabCase } from '../src/utils/naming.js';
+import { getTemplateFileNames } from '../src/utils/template.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 type SupportedFramework = 'react' | 'vue' | 'angular';
 
@@ -45,59 +50,50 @@ interface ValidationResult {
     missingVueTS: number;
     missingVueJS: number;
     missingAngularTS: number;
-    missingTests: number;
     missingCSS: number;
+    unexpectedFiles: number;
   };
 }
 
 /**
- * Check if all required template files exist for a component
+ * Compare the entries of one Template directory with the files it must hold:
+ * each missing Template file, then each entry outside the set.
+ */
+export function findTemplateDirIssues(
+  framework: SupportedFramework,
+  componentName: string,
+  entries: readonly string[]
+): string[] {
+  const dir = `templates/${framework}/${componentName}`;
+  const expected = getTemplateFileNames(framework, componentName);
+  return [
+    ...expected
+      .filter((file) => !entries.includes(file))
+      .map((file) => `Missing file: ${dir}/${file}`),
+    ...entries
+      .filter((entry) => !expected.includes(entry))
+      .map((entry) => `Unexpected file: ${dir}/${entry}`),
+  ];
+}
+
+/**
+ * Check that a component's Template directory holds exactly its files
  */
 async function validateComponentTemplates(
   componentName: string,
   framework: SupportedFramework
 ): Promise<string[]> {
-  const errors: string[] = [];
   const componentDir = path.join(TEMPLATES_DIR, framework, componentName);
 
   if (!(await fs.pathExists(componentDir))) {
-    errors.push(`Missing directory: templates/${framework}/${componentName}`);
-    return errors;
+    return [`Missing directory: templates/${framework}/${componentName}`];
   }
 
-  const kebabName = toKebabCase(componentName);
-  const requiredFiles: Record<SupportedFramework, string[]> = {
-    react: [
-      `${componentName}.tsx`,
-      `${componentName}.jsx`,
-      `${componentName}.test.tsx`,
-      `${componentName}.test.jsx`,
-      `${componentName}.css`,
-    ],
-    vue: [
-      `${componentName}.vue`,
-      `${componentName}.js.vue`,
-      `${componentName}.test.ts`,
-      `${componentName}.test.js`,
-      `${componentName}.css`,
-    ],
-    angular: [
-      `${kebabName}.component.ts`,
-      `${kebabName}.component.spec.ts`,
-      `${kebabName}.component.css`,
-    ],
-  };
-
-  for (const file of requiredFiles[framework]) {
-    const filePath = path.join(componentDir, file);
-    if (!(await fs.pathExists(filePath))) {
-      errors.push(
-        `Missing file: templates/${framework}/${componentName}/${file}`
-      );
-    }
-  }
-
-  return errors;
+  return findTemplateDirIssues(
+    framework,
+    componentName,
+    await fs.readdir(componentDir)
+  );
 }
 
 /**
@@ -187,8 +183,8 @@ async function validateTemplates(): Promise<ValidationResult> {
       missingVueTS: 0,
       missingVueJS: 0,
       missingAngularTS: 0,
-      missingTests: 0,
       missingCSS: 0,
+      unexpectedFiles: 0,
     },
   };
 
@@ -222,16 +218,16 @@ async function validateTemplates(): Promise<ValidationResult> {
 
         // Track specific missing files
         for (const error of templateErrors) {
-          if (error.includes('.tsx') && !error.includes('.test.'))
-            result.stats.missingReactTS++;
-          if (error.includes('.jsx') && !error.includes('.test.'))
-            result.stats.missingReactJS++;
-          if (error.endsWith('.vue')) result.stats.missingVueTS++;
+          if (error.startsWith('Unexpected file: ')) {
+            result.stats.unexpectedFiles++;
+            continue;
+          }
+          if (error.endsWith('.tsx')) result.stats.missingReactTS++;
+          if (error.endsWith('.jsx')) result.stats.missingReactJS++;
+          if (error.endsWith('.vue') && !error.endsWith('.js.vue'))
+            result.stats.missingVueTS++;
           if (error.endsWith('.js.vue')) result.stats.missingVueJS++;
-          if (error.includes('.component.ts') && !error.includes('.spec.'))
-            result.stats.missingAngularTS++;
-          if (error.includes('.test.') || error.includes('.spec.'))
-            result.stats.missingTests++;
+          if (error.endsWith('.component.ts')) result.stats.missingAngularTS++;
           if (error.endsWith('.css')) result.stats.missingCSS++;
         }
       }
@@ -310,11 +306,20 @@ function printResults(result: ValidationResult): void {
       pc.yellow(`  Missing Angular:  ${result.stats.missingAngularTS}`)
     );
   }
-  if (result.stats.missingTests > 0) {
-    console.log(pc.yellow(`  Missing tests:    ${result.stats.missingTests}`));
-  }
   if (result.stats.missingCSS > 0) {
     console.log(pc.yellow(`  Missing CSS:      ${result.stats.missingCSS}`));
+  }
+  if (result.stats.unexpectedFiles > 0) {
+    console.log(
+      pc.yellow(`  Unexpected files: ${result.stats.unexpectedFiles}`)
+    );
+    console.log(
+      pc.dim(
+        '  A Template directory holds only getTemplateFileNames(); kigumi add\n' +
+          '  never copies anything else. Function proof is the harnesses in\n' +
+          '  tests/unit/, not a per-Template test (templates/AGENTS.md).'
+      )
+    );
   }
 
   if (result.warnings.length > 0) {
@@ -366,4 +371,6 @@ async function main() {
   }
 }
 
-main();
+if (isEntryPoint(import.meta.url)) {
+  void main();
+}

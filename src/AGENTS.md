@@ -53,7 +53,7 @@ src/
 │   ├── foreign-files-staging.ts # Stages source-framework files into .kigumi/foreign/<slug>/ with _meta.json for the kigumi-cross-framework skill (paired with kigumi add --cross-framework)
 │   ├── diff-renderer.ts  # Colored unified diff for terminal (node-diff3)
 │   ├── file-diff.ts      # Detect local modifications before overwriting
-│   ├── snapshot.ts       # Snapshot CRUD for .kigumi/snapshots/ (three-way merge base; also saved for community --from installs)
+│   ├── snapshot.ts       # Snapshot CRUD for .kigumi/snapshots/ (three-way merge base; also saved for community --from installs); a save replaces the component's snapshot with exactly the files given
 │   ├── three-way-merge.ts # Three-way merge logic using node-diff3
 │   ├── version-check.ts  # CLI vs project version compatibility check
 │   ├── version-map.ts    # Version history + breaking changes data (newest entry must match DEFAULT_WEBAWESOME_VERSION; see validate:wa-pins)
@@ -172,7 +172,7 @@ The fix steps' shell commands (`chmod u+r package.json`) use the relative path o
 
 The read goes through `readDependencies` (`src/utils/package-json.ts`), which returns `dependencies` and `devDependencies` merged. A missing file is an empty map, since every caller treats "no package.json" as "no dependencies". Project detection in `detect-framework.ts` uses the same reader. That matters because `init` and `upgrade` call `getProjectInfo` before `detectTier`, and its first read (`detectFramework`) used to let the raw error through. Project detection does not catch `PackageJsonInvalidError`: `init` and `upgrade` cannot continue with a broken `package.json`, so they report it (exit code 4).
 
-It is not the only reader of the file. `isNextProject` goes through it but swallows both errors on purpose and falls back to `next.config.*`. `status`, `init`'s `detectPreviousTier` / `checkDuplicatePackages`, the `add` installer's test-setup check and `cleanupOldPackage` read the file directly but catch the error, and `doctor`'s version check runs after its `detectTier` call, so none of them can surface a raw fs error today. A new reader that can run before tier detection should use the helper.
+It is not the only reader of the file. `isNextProject` goes through it but swallows both errors on purpose and falls back to `next.config.*`. `status`, `init`'s `detectPreviousTier` / `checkDuplicatePackages` and `cleanupOldPackage` read the file directly but catch the error, and `doctor`'s version check runs after its `detectTier` call, so none of them can surface a raw fs error today. A new reader that can run before tier detection should use the helper.
 
 **Detect before writing** (issue #121). A command that writes to the project resolves the tier (and, for `upgrade`, the project info) before its first write and passes it on. `regenerateKigumiSetup` and `generateComponent` take the tier as a required argument, and there is no `detectTierSync`, so no helper can detect behind a command's back after the command has written: the rule is enforced by the type checker, not by convention. `brand`, `palette`, `theme set`, `theme install`, `diff`, `update` and `add` detect up front with `detectTier`. A broken `package.json` then fails the command before anything changed. When `brand` and `theme install` left detection to `regenerateKigumiSetup`'s old `detectTierSync` fallback, they had already saved the config (and theme files) by the time it threw. Two related orderings follow the same rule: `upgrade` installs the new Web Awesome package before it saves the new version, so a failed install is retried on the next run instead of reported as "Already up to date", and `theme install` downloads every theme file before writing any.
 
@@ -305,8 +305,11 @@ Generators build their distinct handler names on these primitives rather than re
 Also exports shared file extension helpers used by all commands:
 
 - `getComponentExtension(framework, typescript)` - e.g. Angular: `component.ts`, Vue: `vue`, React: `tsx`
-- `getTestExtension(framework, typescript)` - e.g. Angular: `component.spec.ts`, Vue: `test.ts`, React: `test.tsx`
 - `getFileBaseName(framework, componentName)` - Angular: kebab-case, others: PascalCase
+
+`getTemplateFileNames(framework, componentName)` builds on them: the files one Template directory holds (each language variant plus CSS). No command imports it; `validate:templates` and `validate:registry` check `templates/` against it, and the generator output test holds each generator to it.
+
+There is no test-file helper. `add`, `diff` and `update` handle the component file and its CSS only: the function harnesses in this repo prove the TypeScript Templates, so the CLI ships no per-component test and leaves any test a user wrote alone, snapshot or not (issue #80). A snapshot holds only the files the CLI manages: `saveSnapshot` removes what a save omits, and `update` keeps an earlier entry only for a file it still manages, so a test copied into `.kigumi/snapshots/` before #80 goes the next time that component's snapshot is saved.
 
 **Next.js `'use client'` injection**: After `materializeTemplate()` resolves, `generateComponent` checks `isNextProject(cwd)` and prepends `'use client';\n\n` for React output. The 74 React templates stay framework-agnostic; the directive is a post-materialization transform, not a template concern (see `templates/AGENTS.md`).
 
