@@ -10,9 +10,13 @@
  * this repo changing, and no change-triggered check could have seen it coming.
  *
  * REPORTS (never fails the build):
- * - The pinned create-vite version (test scaffold fixture, issue #98)
- *   against the latest published release. Not in package.json — invoked
- *   via `pnpm create`, not installed — so Dependabot cannot see it.
+ * - The pinned scaffolder versions (`SCAFFOLD_PINS`: create-vite, issue #98,
+ *   and @angular/cli, issue #78) against the latest published release. They
+ *   are invoked via `pnpm create` / `pnpm dlx` rather than installed, so they
+ *   are not in package.json and Dependabot cannot see them. A held major is
+ *   suppressed here too.
+ * - A group whose registry lookup failed reads as not checked, never as
+ *   current (docs/adr/0003).
  * - The declared range for tracked toolchain packages against the latest
  *   published major, which is where the breaking changes live, EXCLUDING
  *   majors already recorded in `scripts/upstream-holds.json` — a major that
@@ -51,6 +55,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
+import { ANGULAR_CLI_VERSION, CREATE_VITE_VERSION } from '../src/constants.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const PROJECT_ROOT = path.dirname(path.dirname(__filename));
@@ -164,46 +169,96 @@ async function latestVersion(name: string): Promise<string | null> {
 }
 
 /**
- * Read the create-vite pin out of the constant that owns it (issue #98).
- * Not in package.json — `create-vite` is invoked via `pnpm create`, not
- * installed as a dependency — so Dependabot cannot see it; this weekly
- * report is the only drift signal for it.
+ * Scaffolders the e2e consumer suites run at an exact version rather than
+ * install (`pnpm create`, `pnpm dlx`). They are not in package.json, so
+ * Dependabot cannot see them; this weekly report is their only drift signal.
+ * The versions are imported, so renaming a pin is a type error, not a
+ * scaffolder that silently drops out of the report.
  */
-export function readCreateVitePin(source: string): string | null {
-  const match = /CREATE_VITE_VERSION\s*=\s*'([^']+)'/.exec(source);
-  return match ? match[1]! : null;
+export const SCAFFOLD_PINS: readonly { name: string; current: string }[] = [
+  { name: 'create-vite', current: CREATE_VITE_VERSION }, // issue #98
+  { name: '@angular/cli', current: ANGULAR_CLI_VERSION }, // issue #78
+];
+
+/**
+ * `current`: the pin is the latest release. `drift`: it is behind, and the
+ * report says so. `held`: a major bump a hold already covers, listed but not
+ * reported.
+ */
+export type ScaffoldResult =
+  { kind: 'current' } | { kind: 'drift' | 'held'; drift: VersionDrift };
+
+/**
+ * Where one scaffold pin lands in the report. Any difference from latest is
+ * drift, since the pin is exact. A hold only suppresses a major bump: it
+ * records a decision about a major, so a newer patch of the pinned major
+ * still reports.
+ */
+export function classifyScaffold(
+  name: string,
+  current: string,
+  latest: string,
+  hold: UpstreamHold | undefined
+): ScaffoldResult {
+  if (latest === current) {
+    return { kind: 'current' };
+  }
+  const majorBump = isMajorBump(current, latest);
+  const drift: VersionDrift = { name, current, latest, majorBump };
+  return {
+    kind: majorBump && isHeld(latest, hold) ? 'held' : 'drift',
+    drift,
+  };
 }
 
 export interface DriftReport {
-  createVite: VersionDrift | null;
+  /** Scaffold pins behind the latest release, by any distance. */
+  scaffolds: VersionDrift[];
   toolchain: VersionDrift[];
-  /** Toolchain majors that exist upstream but are suppressed by a hold. */
+  /** Majors that exist upstream but are suppressed by a hold. */
   held: VersionDrift[];
   unreachable: string[];
+}
+
+export type GroupStatus = 'drift' | 'current' | 'unchecked';
+
+/**
+ * How one group of the report reads. `current` needs every package in the
+ * group compared: one whose registry lookup failed makes the group
+ * `unchecked`, never current, since a check that did not run may not read
+ * as a pass (docs/adr/0003). Drift found in the rest still reports.
+ */
+export function groupStatus(
+  drift: readonly VersionDrift[],
+  names: readonly string[],
+  unreachable: readonly string[]
+): GroupStatus {
+  if (drift.length > 0) {
+    return 'drift';
+  }
+  return names.some((name) => unreachable.includes(name))
+    ? 'unchecked'
+    : 'current';
 }
 
 export async function checkUpstreamVersions(
   holds: UpstreamHolds = readHolds()
 ): Promise<DriftReport> {
   const unreachable: string[] = [];
+  const held: VersionDrift[] = [];
 
-  const constantsPath = path.join(PROJECT_ROOT, 'src', 'constants.ts');
-  const pinnedCreateVite = fs.existsSync(constantsPath)
-    ? readCreateVitePin(fs.readFileSync(constantsPath, 'utf8'))
-    : null;
-
-  let createVite: VersionDrift | null = null;
-  if (pinnedCreateVite) {
-    const latest = await latestVersion('create-vite');
+  const scaffolds: VersionDrift[] = [];
+  for (const { name, current } of SCAFFOLD_PINS) {
+    const latest = await latestVersion(name);
     if (latest === null) {
-      unreachable.push('create-vite');
-    } else if (latest !== pinnedCreateVite) {
-      createVite = {
-        name: 'create-vite',
-        current: pinnedCreateVite,
-        latest,
-        majorBump: isMajorBump(pinnedCreateVite, latest),
-      };
+      unreachable.push(name);
+      continue;
+    }
+    const result = classifyScaffold(name, current, latest, holds[name]);
+    if (result.kind === 'held') {
+      held.push(result.drift);
+    } else if (result.kind === 'drift') {
+      scaffolds.push(result.drift);
     }
   }
 
@@ -214,7 +269,6 @@ export async function checkUpstreamVersions(
   const declared = { ...pkg.dependencies, ...pkg.devDependencies };
 
   const toolchain: VersionDrift[] = [];
-  const held: VersionDrift[] = [];
   for (const name of TRACKED_PACKAGES) {
     const range = declared[name];
     if (!range) {
@@ -237,29 +291,45 @@ export async function checkUpstreamVersions(
     }
   }
 
-  return { createVite, toolchain, held, unreachable };
+  return { scaffolds, toolchain, held, unreachable };
 }
 
 function printReport(report: DriftReport): void {
   console.log(pc.cyan('\nComparing pinned versions against the registry...\n'));
 
-  if (report.createVite) {
-    const { current, latest, majorBump } = report.createVite;
-    const label = majorBump ? pc.yellow('major') : pc.dim('minor/patch');
+  const scaffolds = groupStatus(
+    report.scaffolds,
+    SCAFFOLD_PINS.map((pin) => pin.name),
+    report.unreachable
+  );
+  if (scaffolds === 'drift') {
+    console.log(pc.yellow('  Scaffolders behind the latest release:'));
+    for (const { name, current, latest, majorBump } of report.scaffolds) {
+      const label = majorBump ? pc.yellow('major') : pc.dim('minor/patch');
+      console.log(`    ${name}: ${current} -> ${latest}  (${label})`);
+    }
+  } else if (scaffolds === 'current') {
     console.log(
-      `  ${pc.yellow('create-vite')}  ${current} -> ${latest}  (${label})`
+      pc.green('  Scaffolders are on the latest published versions.')
     );
   } else {
-    console.log(pc.green('  create-vite is on the latest published version.'));
+    console.log(pc.yellow('  Scaffolders not checked: registry unreachable.'));
   }
 
-  if (report.toolchain.length > 0) {
+  const toolchain = groupStatus(
+    report.toolchain,
+    TRACKED_PACKAGES,
+    report.unreachable
+  );
+  if (toolchain === 'drift') {
     console.log(pc.yellow('\n  Toolchain majors available:'));
     for (const drift of report.toolchain) {
       console.log(`    ${drift.name}: ${drift.current} -> ${drift.latest}`);
     }
-  } else {
+  } else if (toolchain === 'current') {
     console.log(pc.green('  No new toolchain major bumps pending.'));
+  } else {
+    console.log(pc.yellow('  Toolchain not checked: registry unreachable.'));
   }
 
   if (report.held.length > 0) {
@@ -290,7 +360,7 @@ async function main(): Promise<void> {
     printReport(report);
 
     if (process.env.GITHUB_OUTPUT) {
-      const driftCount = (report.createVite ? 1 : 0) + report.toolchain.length;
+      const driftCount = report.scaffolds.length + report.toolchain.length;
       fs.appendFileSync(
         process.env.GITHUB_OUTPUT,
         `drift=${driftCount > 0 ? '1' : '0'}\n`

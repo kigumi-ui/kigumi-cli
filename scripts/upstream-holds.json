@@ -6,5 +6,9 @@
   "vitest": {
     "upTo": "5.0.2",
     "reason": "Vitest 5 drops mutation score from 86.67% to 4.44%; held pending upstream fix"
+  },
+  "@angular/cli": {
+    "upTo": "22.2.0",
+    "reason": "Angular 22 ships TypeScript 6, which rejects the @/ side-effect import in the kigumi.ts that init writes for Angular; the Angular consumer typecheck stays on 21 until #156"
   }
 }

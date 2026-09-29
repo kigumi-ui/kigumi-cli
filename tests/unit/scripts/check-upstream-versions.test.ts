@@ -1,20 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
+  classifyScaffold,
+  groupStatus,
   isHeld,
   isMajorBump,
   majorOf,
   parsePinned,
-  readCreateVitePin,
   readHolds,
   type UpstreamHold,
+  type VersionDrift,
 } from '../../../scripts/check-upstream-versions.js';
 
 /**
  * Internals exported for test coverage: `parsePinned`, `majorOf`,
- * `isMajorBump`, `readCreateVitePin`, `readHolds` and `isHeld` are the
- * version matchers, pulled out of the reporter so the major-boundary and
- * hold rules can be asserted without reaching the npm registry. Registered
- * in tests/AGENTS.md.
+ * `isMajorBump`, `classifyScaffold`, `groupStatus`, `readHolds` and `isHeld`
+ * are the version matchers, pulled out of the reporter so the
+ * major-boundary, hold and did-not-run rules can be asserted without
+ * reaching the npm registry. Registered in tests/AGENTS.md.
  */
 describe('check-upstream-versions matchers (test-only seams)', () => {
   describe('parsePinned', () => {
@@ -81,26 +83,6 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
     });
   });
 
-  describe('readCreateVitePin', () => {
-    it('reads the version out of the constant that owns it', () => {
-      const source = "export const CREATE_VITE_VERSION = '9.2.1';";
-      expect(readCreateVitePin(source)).toBe('9.2.1');
-    });
-
-    it('tolerates whitespace around the assignment', () => {
-      const source = "export const CREATE_VITE_VERSION   =   '9.2.1';";
-      expect(readCreateVitePin(source)).toBe('9.2.1');
-    });
-
-    it('returns null when the constant is absent', () => {
-      // Renaming the constant must surface as "cannot read", never as a
-      // silent comparison against the wrong value.
-      expect(readCreateVitePin('export const SOMETHING_ELSE = "9.2.1";')).toBe(
-        null
-      );
-    });
-  });
-
   describe('readHolds', () => {
     it('returns an empty object when the holds file does not exist', () => {
       expect(readHolds('/nonexistent/upstream-holds.json')).toEqual({});
@@ -140,6 +122,87 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
     it('stays quiet when either side is unparseable', () => {
       expect(isHeld('latest', held)).toBe(false);
       expect(isHeld('7.0.2', { upTo: 'next', reason: 'n/a' })).toBe(false);
+    });
+  });
+
+  describe('classifyScaffold', () => {
+    const angular22: UpstreamHold = {
+      upTo: '22.2.0',
+      reason: 'init output fails ngc on TypeScript 6',
+    };
+
+    it('is current when the pin is the latest release', () => {
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '21.2.24', undefined)
+      ).toEqual({ kind: 'current' });
+    });
+
+    it('reports a minor or patch release, since the pin is exact', () => {
+      expect(
+        classifyScaffold('create-vite', '9.2.1', '9.3.0', undefined)
+      ).toEqual({
+        kind: 'drift',
+        drift: {
+          name: 'create-vite',
+          current: '9.2.1',
+          latest: '9.3.0',
+          majorBump: false,
+        },
+      });
+    });
+
+    it('reports a major nobody has held', () => {
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '22.2.0', undefined)
+      ).toMatchObject({ kind: 'drift', drift: { majorBump: true } });
+    });
+
+    it('holds a major the holds file covers', () => {
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '22.3.1', angular22)
+      ).toMatchObject({ kind: 'held', drift: { latest: '22.3.1' } });
+    });
+
+    it('reports a major newer than the held one', () => {
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '23.0.0', angular22)
+      ).toMatchObject({ kind: 'drift', drift: { majorBump: true } });
+    });
+
+    it('never holds a release inside the pinned major', () => {
+      // A hold records a decision about a major. A newer patch of the
+      // pinned major is not that decision and still reports.
+      const held21: UpstreamHold = { upTo: '21.0.0', reason: 'n/a' };
+      expect(
+        classifyScaffold('@angular/cli', '21.2.24', '21.2.25', held21)
+      ).toMatchObject({ kind: 'drift', drift: { majorBump: false } });
+    });
+  });
+
+  describe('groupStatus', () => {
+    const scaffolds = ['create-vite', '@angular/cli'];
+    const drift: VersionDrift = {
+      name: 'create-vite',
+      current: '9.2.1',
+      latest: '9.3.0',
+      majorBump: false,
+    };
+
+    it('is current when every package was compared and none drifted', () => {
+      expect(groupStatus([], scaffolds, [])).toBe('current');
+    });
+
+    it('is unchecked, never current, when a lookup failed', () => {
+      // docs/adr/0003: a check that did not run may not read as a pass.
+      expect(groupStatus([], scaffolds, ['@angular/cli'])).toBe('unchecked');
+    });
+
+    it('ignores a failed lookup from another group', () => {
+      expect(groupStatus([], scaffolds, ['typescript'])).toBe('current');
+    });
+
+    it('reports drift found in the packages that were reached', () => {
+      expect(groupStatus([drift], scaffolds, ['@angular/cli'])).toBe('drift');
     });
   });
 });
