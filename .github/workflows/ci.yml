@@ -482,17 +482,19 @@ jobs:
       # The Pro consumer tsc suites (consumer-tsc-*.test.ts) install the Pro
       # package, which needs a Web Awesome Pro token. Fork and Dependabot pull
       # requests receive no secrets: the Free consumers still run there, and
-      # the Pro ones report did not run (docs/adr/0003), never a pass.
+      # the Pro ones report did not run (docs/adr/0003), never a pass. Any
+      # other pull request without the token is broken, so it gets no skip.
       - name: Check Pro registry access
         id: pro
         env:
           WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+          NO_SECRETS: ${{ github.event.pull_request.head.repo.full_name != github.repository || github.actor == 'dependabot[bot]' }}
         run: |
           if [ -n "$WA_TOKEN" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Pro consumer tsc NOT verified: no Web Awesome Pro token (expected for pull requests from forks)."
+          elif [ "$NO_SECRETS" = "true" ]; then
+            echo "allow_skip=1" >> "$GITHUB_OUTPUT"
+            echo "::notice::Pro consumer tsc NOT verified: no Web Awesome Pro token (a fork or Dependabot pull request receives no secrets)."
           fi
 
       # The global auth line a Pro user sets with `npm config set`: `init`
@@ -505,12 +507,11 @@ jobs:
           WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
         run: printf '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n' "$WA_TOKEN" >> ~/.npmrc
 
-      # A tokenless run may skip the Pro consumers only where the token is
-      # legitimately absent. With the token present, ALLOW_SKIP stays unset,
-      # so a Pro consumer that cannot run fails the job.
+      # Set only where the token is legitimately absent. Everywhere else it
+      # stays empty, so a Pro consumer that cannot run fails the job.
       - name: E2E tests
         env:
-          KIGUMI_FRESHNESS_ALLOW_SKIP: ${{ steps.pro.outputs.available != 'true' && '1' || '' }}
+          KIGUMI_FRESHNESS_ALLOW_SKIP: ${{ steps.pro.outputs.allow_skip }}
         run: pnpm run test:e2e
 
   pack-test:

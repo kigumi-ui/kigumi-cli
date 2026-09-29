@@ -22,6 +22,7 @@ tests/
 │   ├── config-checks.test.ts        # Config validation checks
 │   ├── config-error-surface.test.ts # Config error surface (cluster A: ConfigInvalidError vs TypeError)
 │   ├── config-schema.test.ts        # Zod config schema validation
+│   ├── consumer-premise.test.ts     # consumerPremise + reportNotRun: a tokenless Pro consumer tsc is skipped (locally, fork and Dependabot PRs) or failed (CI), never a pass; CI's e2e job never takes the failing branch unless broken, so this holds it (#79)
 │   ├── detect-framework.test.ts     # Framework/TS/PM detection
 │   ├── diff-command.test.ts         # Diff command (component comparison)
 │   ├── diff-renderer.test.ts        # Diff renderer terminal output
@@ -37,7 +38,6 @@ tests/
 │   ├── scripts/resolve-cem.test.ts  # resolveCem: tier preference, root-scoping, no worktree escape (#43), pinned-version selection (F-152)
 │   ├── scripts/cem-completeness.test.ts # Check A's all-or-nothing CEM gate (#43)
 │   ├── scripts/guard-outcome.test.ts    # Shared guard reporting: skip is never a pass (#43)
-│   ├── consumer-premise.test.ts     # A tokenless Pro consumer tsc is skipped (locally, fork PRs) or failed (CI), never a pass; the e2e job has the token, so only this holds those branches (#79)
 │   ├── scripts/is-entry-point.test.ts   # Entry-point check matches through a symlinked directory (#106)
 │   ├── scripts/check-starter-wa-version.test.ts # Starter job guard: a starter older than DEFAULT_WEBAWESOME_VERSION fails, numeric compare, missing install fails (#138)
 │   ├── parse-custom-elements-import.test.ts # Importing the parser never starts main() (#106)
@@ -192,7 +192,8 @@ tests/
 │   ├── consumer-tsc-angular.test.ts # Free and Pro: `ng new` init + add --all + `ngc` with strictTemplates (issues #78, #79)
 │   ├── _helpers/
 │   │   ├── consumer.ts              # describeConsumers(): the four checks every consumer suite shares, registered once per tier
-│   │   └── consumer-premise.ts      # consumerPremise(): whether a tier's consumer can run here; a tokenless Pro consumer did not run (docs/adr/0003)
+│   │   ├── consumer-premise.ts      # consumerPremise(): whether a tier's consumer can run here; reportNotRun(): a tokenless Pro consumer did not run (docs/adr/0003)
+│   │   └── free-tier-env.ts         # FREE_TIER_ENV: blanks both token sources so a global Pro token cannot move a Free suite onto Pro
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures, and no fixture without an emitted file (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
@@ -550,7 +551,7 @@ describe('smoke test', () => {
 
 The types seam of `docs/adr/0004`: each suite scaffolds a project with the framework's own tool, runs the real CLI (`init`, then `add --all`), and typechecks it with that project's own compiler. `describeConsumers()` in `tests/e2e/_helpers/consumer.ts` registers the same four checks for every framework, once for a Free and once for a Pro consumer, each on its own project: the tier's package at `DEFAULT_WEBAWESOME_VERSION` and the other tier's package in neither `package.json` nor `node_modules` (so a Template importing the wrong path cannot resolve), the tier's Templates (Free drops the Pro-only ones, Pro installs every one), a clean typecheck, and a planted strict-only error (`take(null)`, TS2345) reported as the compiler's own output. `add --all` is the only tier filter; the suites compare what landed with the registry. Every plant goes into the components directory beside the Templates (`withPlanted()`), so a rejected plant also shows that directory is in the compiled program; a clean typecheck alone would pass with the Templates excluded. `expectRejected()` is the one assertion for a plant: non-zero exit, the plant's path and each diagnostic in the output, and a message naming the command and the file when the compiler exits 0. A new framework supplies a `ConsumerSpec` rather than copying the checks, and gets both tiers.
 
-**The Pro consumer needs a Web Awesome Pro token**, found the way `init` finds one (`detectProTokenSync`: `WEBAWESOME_NPM_TOKEN`, then `~/.npmrc`). Without one it did not run: `consumerPremise()` registers a single `has the Pro package to typecheck against` test that is skipped as `NOT verified` where `skipPermitted()` allows it (outside CI, or with `KIGUMI_FRESHNESS_ALLOW_SKIP=1`) and fails as `could not run` everywhere else, in the `summarizeGuard()` wording of `docs/adr/0003`. A premise check, not the typecheck, is what catches a "Pro" consumer that installed Free: its typecheck passes. The install authenticates only through the `~/.npmrc` `_authToken` line; `WEBAWESOME_NPM_TOKEN` alone makes `init` choose Pro and then fail with a 401 (#160). CI's `e2e` job writes that line when the `WEBAWESOME_NPM_TOKEN` secret exists and sets `KIGUMI_FRESHNESS_ALLOW_SKIP` only when it does not (fork and Dependabot pull requests). Every other e2e suite blanks both token sources, so a global token does not move it onto Pro.
+**The Pro consumer needs a Web Awesome Pro token**, found the way `init` finds one: `detectProTokenSync` on the consumer's own directory, which reads `WEBAWESOME_NPM_TOKEN`, then `~/.npmrc`, then that directory's `.env` (which a fresh scaffold does not have). Without one it did not run: `consumerPremise()` and `reportNotRun()` register a single `has the Pro package to typecheck against` test that is skipped as `NOT verified` where `skipPermitted()` allows it (outside CI, or with `KIGUMI_FRESHNESS_ALLOW_SKIP=1`) and fails as `could not run` everywhere else, in the `summarizeGuard()` wording of `docs/adr/0003`. A premise check, not the typecheck, is what catches a "Pro" consumer that installed Free: its typecheck passes. The install authenticates only through the `~/.npmrc` `_authToken` line; `WEBAWESOME_NPM_TOKEN` alone makes `init` choose Pro and then fail with a 401 (#160), so the Pro consumer fails rather than skips there. CI's `e2e` job writes that line when the `WEBAWESOME_NPM_TOKEN` secret exists, and sets `KIGUMI_FRESHNESS_ALLOW_SKIP` only on the pull requests that receive no secrets (forks and Dependabot); a same-repo pull request without the token fails. Every other e2e suite spreads `FREE_TIER_ENV` into the CLI's environment, so a global token does not move it onto Pro.
 
 | Framework | Scaffold | Typecheck |
 | --- | --- | --- |

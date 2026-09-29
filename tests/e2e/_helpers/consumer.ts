@@ -34,11 +34,17 @@ import { getAllComponents } from '../../../src/utils/registry.js';
 import { DEFAULT_WEBAWESOME_VERSION } from '../../../src/constants.js';
 import { detectProTokenSync } from '../../../src/utils/token.js';
 import type { Tier } from '../../../src/utils/tier.js';
-import { consumerPremise } from './consumer-premise.js';
+import { consumerPremise, reportNotRun } from './consumer-premise.js';
+import { FREE_TIER_ENV } from './free-tier-env.js';
 
 export const CLI_PATH = path.resolve(__dirname, '../../../dist/index.js');
 
 const TIERS: readonly Tier[] = ['free', 'pro'];
+
+interface RegistryNames {
+  free: string[];
+  pro: string[];
+}
 
 interface TierFacts {
   /** Capitalised, for titles. */
@@ -48,7 +54,11 @@ interface TierFacts {
   /** The package it must not, so an import of it cannot resolve. */
   otherPackage: string;
   /** Environment for the CLI, on top of the test process's own. */
-  env: Record<string, string>;
+  env: Readonly<Record<string, string>>;
+  /** Title of the check comparing installed Templates with the registry. */
+  templatesTitle: string;
+  /** The registry components `add --all` must install on this tier, sorted. */
+  expectedTemplates: (names: RegistryNames) => string[];
 }
 
 const FREE_PACKAGE = '@awesome.me/webawesome';
@@ -59,9 +69,9 @@ const TIER_FACTS: Record<Tier, TierFacts> = {
     name: 'Free',
     packageName: FREE_PACKAGE,
     otherPackage: PRO_PACKAGE,
-    // Same isolation as smoke.test.ts: a developer's global Pro token must
-    // not switch this consumer onto the Pro package.
-    env: { WEBAWESOME_NPM_TOKEN: '', KIGUMI_SKIP_GLOBAL_NPMRC: 'true' },
+    env: FREE_TIER_ENV,
+    templatesTitle: 'installs Free Templates and drops Pro-only ones',
+    expectedTemplates: ({ free }) => free,
   },
   pro: {
     name: 'Pro',
@@ -70,6 +80,9 @@ const TIER_FACTS: Record<Tier, TierFacts> = {
     // Nothing added: the CLI inherits this environment and reads the same
     // ~/.npmrc, so it finds the token `consumerPremise` was given.
     env: {},
+    templatesTitle: 'installs every Template, Pro-only ones included',
+    expectedTemplates: ({ free, pro }) =>
+      [...free, ...pro].sort((a, b) => a.localeCompare(b)),
   },
 };
 
@@ -147,7 +160,6 @@ export interface ConsumerSpec {
 
 /** Handle the framework file uses to add checks on the same project. */
 export interface Consumer {
-  tier: Tier;
   /** The Web Awesome package this consumer installs and typechecks against. */
   packageName: string;
   dir: string;
@@ -176,7 +188,7 @@ interface ConsumerConfig {
   installedComponents?: Record<string, unknown>;
 }
 
-function registryNamesByTier(): { free: string[]; pro: string[] } {
+function registryNamesByTier(): RegistryNames {
   const free: string[] = [];
   const pro: string[] = [];
 
@@ -221,20 +233,14 @@ function describeConsumer(
 
   const premise = consumerPremise(tier, {
     label: title,
-    token: tier === 'pro' ? detectProTokenSync(dir) : null,
+    token: detectProTokenSync(dir),
   });
 
   if (!premise.run) {
     const { summary } = premise;
     describe(title, () => {
-      it(`has the ${facts.name} package to typecheck against`, (ctx) => {
-        const report = `${summary.headline}\n${summary.detail}`;
-        if (summary.exitCode !== 0) {
-          throw new Error(report);
-        }
-        console.error(report);
-        ctx.skip(summary.headline);
-      });
+      it(`has the ${facts.name} package to typecheck against`, (ctx) =>
+        reportNotRun(summary, (note) => ctx.skip(note)));
     });
     return;
   }
@@ -272,7 +278,6 @@ function describeConsumer(
   }
 
   const consumer: Consumer = {
-    tier,
     packageName: facts.packageName,
     dir,
     exec,
@@ -370,45 +375,37 @@ function describeConsumer(
       ).toBe(false);
     });
 
-    it(
-      tier === 'pro'
-        ? 'installs every Template, Pro-only ones included'
-        : 'installs Free Templates and drops Pro-only ones',
-      async () => {
-        const { free, pro } = registryNamesByTier();
-        expect(free.length).toBeGreaterThan(0);
-        expect(pro.length).toBeGreaterThan(0);
-        const expected =
-          tier === 'pro'
-            ? [...free, ...pro].sort((a, b) => a.localeCompare(b))
-            : free;
+    it(facts.templatesTitle, async () => {
+      const names = registryNamesByTier();
+      expect(names.free.length).toBeGreaterThan(0);
+      expect(names.pro.length).toBeGreaterThan(0);
+      const expected = facts.expectedTemplates(names);
 
-        const { componentsDir, installedComponents } = readConfig();
-        const installed = Object.keys(installedComponents ?? {}).sort((a, b) =>
-          a.localeCompare(b)
-        );
-        expect(installed).toEqual(expected);
+      const { componentsDir, installedComponents } = readConfig();
+      const installed = Object.keys(installedComponents ?? {}).sort((a, b) =>
+        a.localeCompare(b)
+      );
+      expect(installed).toEqual(expected);
 
-        const componentsPath = path.join(dir, componentsDir);
-        const entries = await fs.readdir(componentsPath, {
-          withFileTypes: true,
-        });
-        const onDisk = entries
-          .filter((entry) => entry.isDirectory())
-          .map((entry) => entry.name)
-          .sort((a, b) => a.localeCompare(b));
+      const componentsPath = path.join(dir, componentsDir);
+      const entries = await fs.readdir(componentsPath, {
+        withFileTypes: true,
+      });
+      const onDisk = entries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort((a, b) => a.localeCompare(b));
 
-        expect(onDisk).toEqual(expected);
-        for (const name of expected) {
-          expect(
-            await fs.pathExists(
-              path.join(componentsPath, name, spec.templateFile(name))
-            ),
-            name
-          ).toBe(true);
-        }
+      expect(onDisk).toEqual(expected);
+      for (const name of expected) {
+        expect(
+          await fs.pathExists(
+            path.join(componentsPath, name, spec.templateFile(name))
+          ),
+          name
+        ).toBe(true);
       }
-    );
+    });
 
     it(
       'typechecks with the consumer compiler',

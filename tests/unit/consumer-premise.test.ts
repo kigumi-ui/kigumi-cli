@@ -8,12 +8,17 @@
  * legitimate (a local Free machine, a fork pull request), failed everywhere
  * else, and never a pass.
  *
- * CI has the token, so the e2e job only ever takes the run branch. These
- * assertions are what hold the other two.
+ * CI's e2e job takes the run branch on this repository's pull requests and
+ * the skip branch on fork and Dependabot ones; the could-not-run branch only
+ * runs when something is broken. These assertions hold all three on every
+ * run, and `reportNotRun` is what turns the last two into a skip or a failure.
  */
 
-import { describe, it, expect } from 'vitest';
-import { consumerPremise } from '../e2e/_helpers/consumer-premise.js';
+import { describe, it, expect, vi } from 'vitest';
+import {
+  consumerPremise,
+  reportNotRun,
+} from '../e2e/_helpers/consumer-premise.js';
 
 const LABEL = 'Pro consumer tsc: React';
 const TOKEN = 'a'.repeat(32);
@@ -86,5 +91,41 @@ describe('consumerPremise', () => {
       expect(summary.verified).toBe(false);
       expect(summary.headline).not.toMatch(/pass/i);
     }
+  });
+});
+
+describe('reportNotRun', () => {
+  const SKIPPED = new Error('skip called');
+
+  function skipSpy() {
+    const notes: string[] = [];
+    const skip = (note: string): never => {
+      notes.push(note);
+      throw SKIPPED;
+    };
+    return { notes, skip };
+  }
+
+  it('skips with the headline where the skip is permitted', () => {
+    const summary = unrun(LOCAL);
+    const { notes, skip } = skipSpy();
+    const printed = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => reportNotRun(summary, skip)).toThrow(SKIPPED);
+    expect(notes).toEqual([summary.headline]);
+    expect(printed).toHaveBeenCalledWith(
+      `${summary.headline}\n${summary.detail}`
+    );
+    printed.mockRestore();
+  });
+
+  it('fails with the headline and the fix where it is not, never skipping', () => {
+    const summary = unrun(CI);
+    const { notes, skip } = skipSpy();
+
+    expect(() => reportNotRun(summary, skip)).toThrow(
+      `${summary.headline}\n${summary.detail}`
+    );
+    expect(notes).toEqual([]);
   });
 });

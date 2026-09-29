@@ -64,3 +64,20 @@ export function consumerPremise(
     ),
   };
 }
+
+/**
+ * Settle a consumer that did not run: skip it where `summary` permits a skip,
+ * printing the report first, and fail it with the report everywhere else.
+ * `skip` is the test's own `ctx.skip`, which throws.
+ */
+export function reportNotRun(
+  summary: GuardSummary,
+  skip: (note: string) => never
+): never {
+  const report = `${summary.headline}\n${summary.detail}`;
+  if (summary.exitCode !== 0) {
+    throw new Error(report);
+  }
+  console.error(report);
+  return skip(summary.headline);
+}
