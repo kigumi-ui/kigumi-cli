@@ -119,11 +119,22 @@ describe('findHistory', () => {
     expect(findHistory('**Last Updated**: 2026-01-09')).toHaveLength(1);
   });
 
+  it('finds non-ISO date stamps', () => {
+    expect(findHistory('Last updated: 29/09/2026')).toHaveLength(1);
+    expect(findHistory('**Last Updated:** Sep 29, 2026')).toHaveLength(1);
+    expect(findHistory('_Last updated September 29 2026_')).toHaveLength(1);
+  });
+
+  it('ignores "Last Updated" followed by a word, not a date', () => {
+    expect(findHistory('Keep the Last Updated date out of it')).toEqual([]);
+  });
+
   it('finds a changelog heading at any level', () => {
     expect(findHistory('## Changelog')).toHaveLength(1);
     expect(findHistory('### Change log')).toHaveLength(1);
     expect(findHistory('#### Recent changes')).toHaveLength(1);
     expect(findHistory('## History')).toHaveLength(1);
+    expect(findHistory('### Update log')).toHaveLength(1);
   });
 
   it('ignores prose that names the rule', () => {

@@ -303,15 +303,17 @@ async function checkTemplateGuideCounts(): Promise<string[]> {
 // ---------------------------------------------------------------------------
 
 /**
- * A "Last Updated" date stamp: `**Last Updated:** 2026-09-28` and the older
- * `**Last Updated**: 2026-01-09`. Keyed on the date, so prose that merely
- * names the rule ("no Last Updated date") does not match.
+ * A "Last Updated" date stamp: `**Last Updated:** 2026-09-28`, the older
+ * `**Last Updated**: 2026-01-09`, and non-ISO forms such as `29/09/2026` or
+ * `Sep 29, 2026`. Keyed on the date that follows, so prose that merely names
+ * the rule ("no Last Updated date") does not match.
  */
-const DATE_STAMP = /last updated\W{0,6}\d{4}-\d{2}-\d{2}/i;
+const DATE_STAMP =
+  /last updated\W{0,6}(?:\d|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d)/i;
 
 /** A heading that opens a changelog section. */
 const CHANGELOG_HEADING =
-  /^#{1,6}\s+(change\s*log|history|recent changes|revision history)\b/i;
+  /^#{1,6}\s+(change\s*log|update\s*log|history|recent changes|revision history)\b/i;
 
 /**
  * Finds history in an agent context file, as `line N: text` entries.

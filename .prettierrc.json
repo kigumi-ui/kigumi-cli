@@ -9,7 +9,7 @@
   "endOfLine": "lf",
   "overrides": [
     {
-      "files": "**/AGENTS.md",
+      "files": ["**/AGENTS.md", "**/CLAUDE.md"],
       "options": {
         "proseWrap": "never"
       }
