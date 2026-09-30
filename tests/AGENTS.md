@@ -747,7 +747,7 @@ describe('myFeature', () => {
 
 ### Angular Starter Testing
 
-Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
+A manual check of skill output, separate from the Starter fixtures and the Starter job. Validate it in a local clone of `kigumi-ui/kigumi-angular-starter`:
 
 1. Generate example component from skill output
 2. Add to `src/app/` or `src/components/`
