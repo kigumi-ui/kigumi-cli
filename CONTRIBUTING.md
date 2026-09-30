@@ -118,6 +118,10 @@ Web Awesome components are mirrored into Kigumi through the registry in `src/uti
 per-framework templates. The `generate-component-wrapper` workflow described in `templates/AGENTS.md`
 walks through the full checklist, including metadata, stories, and docs wrappers.
 
+A new Template is proven by the function harnesses (`pnpm test`) and the consumer typecheck
+(`pnpm build && pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts`, and the `-vue` and `-angular`
+suites). Starter fixtures are not part of it, and the docs wrapper and story are a showcase, not proof.
+
 ## Reporting Bugs
 
 Open an issue using the bug report template. The single most useful thing you can include is the exact

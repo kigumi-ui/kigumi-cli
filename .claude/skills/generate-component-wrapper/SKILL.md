@@ -236,8 +236,11 @@ Check that generated templates:
 - [ ] Forward refs correctly
 - [ ] Import Web Component JS file using the canonical free-tier path (`@awesome.me/webawesome/dist/components/{slug}/{slug}.js`); CLI rewrites to Pro at install time
 - [ ] Event listeners have cleanup in useEffect
-- [ ] No TypeScript errors
+- [ ] No TypeScript errors (`pnpm typecheck:templates`; `pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts`, and `-vue`, `-angular`, typecheck the `init` + `add --all` output)
+- [ ] Function harnesses pass (`pnpm test`)
 - [ ] Follow AGENTS.md patterns
+
+Starter fixtures are not part of this: do not add the component to the Starter set or regenerate `tests/fixtures/starter-snapshots/` (`docs/adr/0004`). A docs wrapper and story are a showcase, not proof the Template works.
 
 ## Template Generation Helpers
 
@@ -336,9 +339,10 @@ When complete, show:
 
 Next steps:
 1. Build CLI: pnpm build
-2. Test React: kigumi add component-name --framework=react
-3. Test Vue: kigumi add component-name --framework=vue
-4. Docs site & agent surfaces (hand-maintained, easy to miss — see the
+2. Template proof: pnpm typecheck:templates && pnpm test (function harnesses),
+   then pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts (and -vue, -angular)
+3. Optional smoke: kigumi add component-name --framework=react (or vue)
+4. Docs showcase (hand-maintained, easy to miss, not Template proof — see the
    "Before Adding New Component" checklist in AGENTS.md):
    - docs/src/components/ui/ComponentName/ wrapper + index.ts export
    - docs/src/stories/ComponentName.stories.tsx (argTypes, ChromaticOnly,
