@@ -493,9 +493,10 @@ jobs:
             echo "::notice::Pro consumer tsc NOT verified: no Web Awesome Pro token (a fork or Dependabot pull request receives no secrets)."
           fi
 
-      # The global auth line a Pro user sets with `npm config set`: `init`
-      # detects the token there and the package manager installs with it.
-      # WEBAWESOME_NPM_TOKEN alone selects Pro but cannot install it (#160).
+      # The user npmrc auth line a Pro user sets with `npm config set`: `init`
+      # finds the token there, writes a registry-only .npmrc, and the package
+      # manager installs with the user line. The WEBAWESOME_NPM_TOKEN-only
+      # setup is covered by tests/integration/init.test.ts (#160).
       - name: Configure Pro registry auth
         if: steps.pro.outputs.available == 'true'
         env:

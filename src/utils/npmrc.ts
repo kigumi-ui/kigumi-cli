@@ -17,7 +17,8 @@
  * - userNpmrcPath() / readUserNpmrc() / readUserNpmrcSync() - the user config
  *   npm and pnpm read
  * - mergeProjectNpmrc() - project `.npmrc` text with Kigumi's lines applied
- * - writeProjectNpmrc() - apply that to the project, deciding the reference
+ * - projectNpmrcFor() - the same, deciding the reference from the user npmrc
+ * - writeProjectNpmrc() - write projectNpmrcFor() to the project
  *
  * @see src/AGENTS.md "Pro Authentication"
  */
@@ -270,11 +271,22 @@ export interface ProjectNpmrcResult {
 }
 
 /**
- * Write the project `.npmrc` for `tier`, keeping the lines Kigumi does not
- * own. On Pro the token reference goes in unless the user npmrc already
- * gives npm the Pro token: a project line takes precedence over it, so with
- * the variable unset npm would send the literal reference (401) and pnpm
- * would skip the whole project `.npmrc` (404 from the public registry).
+ * The project `.npmrc` Kigumi wants for `tier`, from its current text. On Pro
+ * the token reference goes in unless the user npmrc already gives npm the
+ * Pro token: a project line takes precedence over it, so with the variable
+ * unset npm would send the literal reference (401) and pnpm would skip the
+ * whole project `.npmrc` (404 from the public registry).
+ */
+export function projectNpmrcFor(existing: string, tier: Tier): string {
+  const referenceToken =
+    tier === 'pro' &&
+    proRegistryToken(readUserNpmrcSync(), process.env) === null;
+  return mergeProjectNpmrc(existing, tier, referenceToken);
+}
+
+/**
+ * Write the project `.npmrc` for `tier` (projectNpmrcFor), keeping the lines
+ * Kigumi does not own.
  */
 export async function writeProjectNpmrc(
   cwd: string,
@@ -284,11 +296,8 @@ export async function writeProjectNpmrc(
   const existing = (await fs.pathExists(npmrcPath))
     ? await fs.readFile(npmrcPath, 'utf-8')
     : '';
-  const referenceToken =
-    tier === 'pro' &&
-    proRegistryToken(await readUserNpmrc(), process.env) === null;
 
-  const next = mergeProjectNpmrc(existing, tier, referenceToken);
+  const next = projectNpmrcFor(existing, tier);
   const changed = next !== existing;
   if (changed) await fs.writeFile(npmrcPath, next);
 
