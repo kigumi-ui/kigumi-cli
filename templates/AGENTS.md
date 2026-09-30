@@ -401,9 +401,11 @@ Framework plugins a consumer adds on top (`eslint-plugin-react-hooks`, `eslint-p
    pnpm build
    node dist/index.js add {name} --force
    pnpm typecheck:templates
+   pnpm test
+   pnpm test:e2e tests/e2e/consumer-tsc-react.test.ts   # and -vue, -angular
    ```
 
-   Function and types are proven by the function harnesses (`pnpm test`) and the consumer tsc suites (`tests/e2e/consumer-tsc-*.test.ts`), not by Starter fixtures: do not add the component to the Starter set or regenerate `tests/fixtures/starter-snapshots/` (`docs/adr/0004`). The docs wrapper and story are a showcase, not Template proof.
+   Function and types are proven by the function harnesses (`pnpm test`) and the consumer tsc suites (`pnpm test:e2e`), not by Starter fixtures: do not add the component to the Starter set or regenerate `tests/fixtures/starter-snapshots/` (`docs/adr/0004`). The docs wrapper and story are a showcase, not Template proof.
 
 ---
 
