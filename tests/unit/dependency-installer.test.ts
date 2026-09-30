@@ -740,6 +740,42 @@ describe('installDependencies', () => {
       expect(guidance).not.toMatch(/\.env file/);
     });
 
+    // With the reference unfilled, pnpm skips the whole project .npmrc and
+    // asks the public registry, which answers 404, not 401.
+    it('shows the token guidance when pnpm cannot fill the reference', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+
+      mockExeca.mockRejectedValueOnce(
+        Object.assign(new Error('not found'), {
+          exitCode: 1,
+          stderr:
+            ' WARN  Issue while reading "/p/.npmrc". Failed to replace env in config: ${WEBAWESOME_NPM_TOKEN}\n' +
+            ' ERR_PNPM_FETCH_404  GET https://registry.npmjs.org/@awesome.me%2Fwebawesome-pro: Not Found - 404',
+          stdout: '',
+        })
+      );
+
+      await expect(
+        installDependencies({
+          cwd: tempDir,
+          config: createConfig(),
+          tier: 'pro',
+          packageManager: 'pnpm',
+          output: mockOutput,
+        })
+      ).rejects.toThrow();
+
+      expect(mockOutput.error).toHaveBeenCalledWith(
+        'Authentication failed for Pro package'
+      );
+      // No token was found anywhere: the note says so first.
+      expect(mockOutput.note).toHaveBeenCalledWith(
+        'Pro token required',
+        expect.stringContaining('Kigumi found no Pro token')
+      );
+    });
+
     it('should not show pro token guidance for 401 on free tier', async () => {
       const { installDependencies } =
         await import('../../src/utils/dependency-installer.js');
@@ -928,6 +964,71 @@ describe('installDependencies', () => {
         const options = call[2] as ExecaOptions;
         expect(options.env?.WEBAWESOME_NPM_TOKEN).toBe('test-pro-token-value');
       }
+    });
+
+    // init's --token (or prompt) is the token the user just gave: it wins
+    // over one Kigumi finds in the environment, the user npmrc or .env.
+    it('hands an explicit token to the package manager over a detected one', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      const tokenModule = await import('../../src/utils/token.js');
+      const detectProTokenSyncMock =
+        tokenModule.detectProTokenSync as ReturnType<typeof vi.fn>;
+      detectProTokenSyncMock.mockReturnValue('stale-detected-token');
+
+      try {
+        await installDependencies({
+          cwd: tempDir,
+          config: createConfig(),
+          tier: 'pro',
+          packageManager: 'npm',
+          output: mockOutput,
+          token: 'explicit-flag-token',
+        });
+      } finally {
+        detectProTokenSyncMock.mockReturnValue(null);
+      }
+
+      for (const call of mockExeca.mock.calls) {
+        const options = call[2] as ExecaOptions;
+        expect(options.env?.WEBAWESOME_NPM_TOKEN).toBe('explicit-flag-token');
+      }
+    });
+
+    // The install Kigumi runs gets the token; the user's own do not. Said
+    // once, after any Pro install (init, its reinstall path, upgrade).
+    it('warns when .npmrc reads WEBAWESOME_NPM_TOKEN and it is unset', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      delete process.env.WEBAWESOME_NPM_TOKEN;
+
+      await installDependencies({
+        cwd: tempDir,
+        config: createConfig(),
+        tier: 'pro',
+        packageManager: 'npm',
+        output: mockOutput,
+      });
+
+      expect(mockOutput.warn).toHaveBeenCalledWith(
+        expect.stringContaining('WEBAWESOME_NPM_TOKEN')
+      );
+    });
+
+    it('does not warn when WEBAWESOME_NPM_TOKEN is set', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      process.env.WEBAWESOME_NPM_TOKEN = 'env-token-1234567890';
+
+      await installDependencies({
+        cwd: tempDir,
+        config: createConfig(),
+        tier: 'pro',
+        packageManager: 'npm',
+        output: mockOutput,
+      });
+
+      expect(mockOutput.warn).not.toHaveBeenCalled();
     });
 
     it('leaves the token out of a Free install', async () => {

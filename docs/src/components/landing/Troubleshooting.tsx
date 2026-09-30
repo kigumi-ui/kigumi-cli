@@ -125,9 +125,9 @@ const FAQ_ITEMS: FaqItem[] = [
             Failed to replace env in config: {'${WEBAWESOME_NPM_TOKEN}'}
           </code>{' '}
           means the variable is unset. If an older Kigumi set up your project,
-          run <code>npx kigumi upgrade</code> or re-run{' '}
-          <code>npx kigumi init</code> to update a registry-only{' '}
-          <code>.npmrc</code>.
+          re-run <code>npx kigumi init</code> to update a registry-only{' '}
+          <code>.npmrc</code> (<code>npx kigumi upgrade</code> does too when it
+          installs a new Web Awesome version).
         </p>
       </div>
     ),

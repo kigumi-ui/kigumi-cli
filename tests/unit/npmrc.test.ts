@@ -283,6 +283,14 @@ describe('mergeProjectNpmrc', () => {
       ).toBe(`${FREE_REGISTRY_LINE}\n`);
     });
 
+    it('drops the reference written without the trailing slash too', () => {
+      const noSlash =
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro:_authToken=${WEBAWESOME_NPM_TOKEN}';
+      expect(mergeProjectNpmrc(`${noSlash}\n`, 'free', true)).toBe(
+        `${FREE_REGISTRY_LINE}\n`
+      );
+    });
+
     it('keeps a Pro auth line the user wrote with their own value', () => {
       const own =
         '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${MY_OWN_VAR}';
@@ -369,12 +377,12 @@ describe('writeProjectNpmrc', () => {
   it('references WEBAWESOME_NPM_TOKEN when the user config has no Pro token', async () => {
     process.env.WEBAWESOME_NPM_TOKEN = 'env-token-123456';
 
-    const result = await writeProjectNpmrc(projectDir, 'pro');
+    const changed = await writeProjectNpmrc(projectDir, 'pro');
 
     expect(await readProjectNpmrc()).toBe(
       `${PRO_REGISTRY_LINE}\n${REFERENCE_LINE}\n`
     );
-    expect(result).toEqual({ changed: true, readsTokenFromEnv: true });
+    expect(changed).toBe(true);
   });
 
   it('writes the registry only when the user config already holds the Pro token', async () => {
@@ -385,10 +393,10 @@ describe('writeProjectNpmrc', () => {
       '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=user-token-123456\n'
     );
 
-    const result = await writeProjectNpmrc(projectDir, 'pro');
+    const changed = await writeProjectNpmrc(projectDir, 'pro');
 
     expect(await readProjectNpmrc()).toBe(`${PRO_REGISTRY_LINE}\n`);
-    expect(result).toEqual({ changed: true, readsTokenFromEnv: false });
+    expect(changed).toBe(true);
   });
 
   it('references WEBAWESOME_NPM_TOKEN when no token is found anywhere', async () => {
@@ -403,9 +411,9 @@ describe('writeProjectNpmrc', () => {
     await fs.writeFile(path.join(projectDir, '.npmrc'), content);
     const before = (await fs.stat(path.join(projectDir, '.npmrc'))).mtimeMs;
 
-    const result = await writeProjectNpmrc(projectDir, 'pro');
+    const changed = await writeProjectNpmrc(projectDir, 'pro');
 
-    expect(result).toEqual({ changed: false, readsTokenFromEnv: true });
+    expect(changed).toBe(false);
     expect(await readProjectNpmrc()).toBe(content);
     expect((await fs.stat(path.join(projectDir, '.npmrc'))).mtimeMs).toBe(
       before
@@ -413,9 +421,9 @@ describe('writeProjectNpmrc', () => {
   });
 
   it('writes the public registry on Free and never a reference', async () => {
-    const result = await writeProjectNpmrc(projectDir, 'free');
+    const changed = await writeProjectNpmrc(projectDir, 'free');
     expect(await readProjectNpmrc()).toBe(`${FREE_REGISTRY_LINE}\n`);
-    expect(result).toEqual({ changed: true, readsTokenFromEnv: false });
+    expect(changed).toBe(true);
   });
 });
 

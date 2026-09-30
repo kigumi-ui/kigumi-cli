@@ -94,7 +94,7 @@ npx kigumi init --token YOUR_TOKEN
 
 `init` selects the Pro tier when it finds a token in the environment variable, in your user npmrc (`~/.npmrc`, or the file `npm_config_userconfig` names), or in the project `.env`. It also writes the project `.npmrc`: the Pro registry, plus a `${WEBAWESOME_NPM_TOKEN}` reference unless your user npmrc already holds the token. That file holds no secret, so commit it. Kigumi merges into an existing `.npmrc` and keeps every other line.
 
-- npm and pnpm read the token only from an npmrc. They never read `.env`, so a token in `.env` alone does not authenticate your own installs. The installs Kigumi runs (`init`, `upgrade`) pass on whatever token they found.
+- npm and pnpm read the token only from an npmrc. They never read `.env`, so a token in `.env` alone does not authenticate your own installs. The installs Kigumi runs (`init`, `upgrade`) pass on the token they found, and warn when your own installs would not have it.
 - With option 3, Kigumi saves the token to the project `.env` (and makes sure `.env` is gitignored) and references the variable from `.npmrc`. The install `init` runs works. For your own `npm install` and for CI, set `WEBAWESOME_NPM_TOKEN`.
 - If the project `.npmrc` already reads `${WEBAWESOME_NPM_TOKEN}` (a teammate or CI set it up), a token in your user npmrc is not used there. Set the variable instead.
 - To move an existing Free project to Pro, run `npx kigumi init` and enter the token when it asks, or pass `--token`. A token set elsewhere does not switch a project that already has the Free package installed.
@@ -491,7 +491,7 @@ If `npm install` or `pnpm install` fails with a 401:
 
 **Using pnpm?** If pnpm prints `Failed to replace env in config: ${WEBAWESOME_NPM_TOKEN}` and then fails with a 404 for `@awesome.me/webawesome-pro`, the variable is unset. pnpm ignores the whole project `.npmrc` when a reference in it cannot be resolved, so set `WEBAWESOME_NPM_TOKEN` in the shell that runs the install.
 
-A project that an older Kigumi set up has a registry-only `.npmrc`. `npx kigumi upgrade` or re-running `npx kigumi init` brings it in line.
+A project that an older Kigumi set up has a registry-only `.npmrc`. Re-running `npx kigumi init` brings it in line, and so does `npx kigumi upgrade` when it installs a new Web Awesome version.
 
 ### Component styles not loading
 

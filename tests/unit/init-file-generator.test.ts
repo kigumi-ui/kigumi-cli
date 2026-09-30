@@ -158,6 +158,26 @@ describe('generateProjectFiles', () => {
       );
     });
 
+    it('replaces a stale token in an existing .env and keeps its other lines', async () => {
+      await fs.writeFile(
+        path.join(tempDir, '.env'),
+        'API_URL=https://api.example\nWEBAWESOME_NPM_TOKEN=stale-token-123456\n'
+      );
+
+      await generateProjectFiles({
+        cwd: tempDir,
+        config: createTestKigumiConfig({ framework: 'react' }),
+        tier: 'pro',
+        proToken: 'fresh-token-123456',
+        output,
+        projectInfo: makeProjectInfo(),
+      });
+
+      expect(await fs.readFile(path.join(tempDir, '.env'), 'utf-8')).toBe(
+        'API_URL=https://api.example\nWEBAWESOME_NPM_TOKEN=fresh-token-123456\n'
+      );
+    });
+
     it('points .npmrc at the Pro registry only when the user npmrc holds the token', async () => {
       await fs.writeFile(
         userconfig,

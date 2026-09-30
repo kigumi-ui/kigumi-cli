@@ -76,10 +76,13 @@ export const NPM_PRO_REGISTRY =
   'https://npm.cloudsmith.io/fortawesome/webawesome-pro';
 
 /**
- * The npmrc key for the Pro registry token: the registry as npm keys its
- * auth (no protocol, trailing slash) plus `:_authToken`.
+ * The Pro registry as npm keys its auth in an npmrc (a "nerf dart"): no
+ * protocol, trailing slash.
  */
-export const NPM_PRO_AUTH_TOKEN_KEY = `${NPM_PRO_REGISTRY.replace(/^https?:/, '')}/:_authToken`;
+export const NPM_PRO_REGISTRY_DART = `${NPM_PRO_REGISTRY.replace(/^https?:/, '')}/`;
+
+/** The npmrc key for the Pro registry token. */
+export const NPM_PRO_AUTH_TOKEN_KEY = `${NPM_PRO_REGISTRY_DART}:_authToken`;
 
 /**
  * `${WEBAWESOME_NPM_TOKEN}`, the value Kigumi writes for that key: npm and

@@ -233,7 +233,8 @@ export async function initCommand(options: InitOptions = {}) {
       configResult.newTier,
       context.projectInfo.isNext,
       context.projectInfo.nextRouter,
-      await tokenReferenceUnset(cwd)
+      // After an install, installDependencies has already said it.
+      !depsInstalled && (await tokenReferenceUnset(cwd))
     );
   } catch (error) {
     handleError(error, output);
@@ -515,13 +516,15 @@ async function handleDependencies(
     return false;
   }
 
-  // Install dependencies
+  // Install dependencies. A token the user just gave wins over one found
+  // elsewhere.
   await installDependencies({
     cwd,
     config,
     tier: newTier,
     packageManager: projectInfo.packageManager,
     output,
+    token: configResult.proToken,
   });
 
   // Clean up old package after migration
@@ -573,16 +576,16 @@ export function showPostInstallInstructions(
   tier: Tier,
   isNext: boolean = false,
   nextRouter?: import('../../utils/detect-framework.js').NextRouter,
-  tokenEnvUnset: boolean = false
+  tokenReferenceUnset: boolean = false
 ): void {
   output.info('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
   let stepNum = 1;
 
   // Step: The project .npmrc reads the Pro token from WEBAWESOME_NPM_TOKEN and
-  // this shell does not set it. Init's own install passed on the token it
-  // found (user npmrc, .env, --token); the user's installs will not (#160).
-  if (tier === 'pro' && tokenEnvUnset) {
+  // this shell does not set it. Kigumi's installs pass on the token it found
+  // (user npmrc, .env, --token); the user's own installs will not (#160).
+  if (tier === 'pro' && tokenReferenceUnset) {
     output.info(
       pc.bold(
         pc.cyan(`${stepNum}. Set ${ENV_TOKEN_KEY} in your environment:\n`)

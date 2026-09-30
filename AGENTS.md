@@ -645,7 +645,7 @@ flowchart LR
 | Version mismatch | `kigumiVersion` in config? | Run `kigumi upgrade` |
 | JSON parse fails | File has comments? | Use `readJSONWithComments()` |
 | 401 in docs/ | `docs/.npmrc` present? | Run `pnpm run setup:npmrc` |
-| 401 installing Pro in a user project | `.npmrc` reads `${WEBAWESOME_NPM_TOKEN}`, is it set in the shell? Else does the user npmrc hold the token? | Set the variable, or run `kigumi upgrade` / `kigumi init` to bring an old registry-only `.npmrc` in line |
+| 401 installing Pro in a user project | `.npmrc` reads `${WEBAWESOME_NPM_TOKEN}`, is it set in the shell? Else does the user npmrc hold the token? | Set the variable, or re-run `kigumi init` to bring an old registry-only `.npmrc` in line (`kigumi upgrade` does too when it installs a new Web Awesome version) |
 | Broken error URLs | `https://https://` prefix? | Use constants from `src/constants.ts` (`GITHUB_ISSUES_URL`, `GITHUB_REPO_URL`) |
 | Unhandled error | `catch {}` swallows error? | Always capture: `catch (_error) {}` with descriptive comment |
 | Config validation | Generic `Error` thrown? | Use `ConfigInvalidError` from `src/errors/config.ts` |

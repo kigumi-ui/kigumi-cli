@@ -26,7 +26,7 @@ import {
 } from '../constants.js';
 import type { OutputInterface } from '../output/types.js';
 import type { KigumiConfig } from '../schemas/index.js';
-import { writeProjectNpmrc } from './npmrc.js';
+import { tokenReferenceUnset, writeProjectNpmrc } from './npmrc.js';
 import type { Tier } from './tier.js';
 import { getWebAwesomePackage } from './tier.js';
 import {
@@ -42,6 +42,11 @@ export interface InstallOptions {
   tier: Tier;
   packageManager: string;
   output: OutputInterface;
+  /**
+   * The token the user just gave (init's --token or prompt). It wins over
+   * one Kigumi detects in the environment, the user npmrc or .env.
+   */
+  token?: string;
 }
 
 type PackageManager = 'npm' | 'pnpm' | 'yarn';
@@ -221,11 +226,17 @@ async function restoreManifest(
 function packageManagerEnv(
   cwd: string,
   tier: Tier,
-  output: OutputInterface
+  output: OutputInterface,
+  explicitToken?: string
 ): NodeJS.ProcessEnv {
   const env = { ...process.env };
   if (tier !== 'pro') return env;
 
+  if (explicitToken) {
+    env[ENV_TOKEN_KEY] = explicitToken;
+    output.debug('[DEBUG] Pro token from --token or the init prompt');
+    return env;
+  }
   const token = detectProTokenSync(cwd);
   if (token) {
     env[ENV_TOKEN_KEY] = token;
@@ -237,12 +248,27 @@ function packageManagerEnv(
 }
 
 /**
- * The note shown when the Pro registry answers 401. The two setups it offers
- * are the ones npm and pnpm read; `.env` is not one of them (issue #160).
+ * Whether a failed Pro install failed for want of a working token: a 401, or
+ * pnpm skipping the project .npmrc because it could not fill the reference,
+ * then asking the public registry for the Pro package (404).
  */
-function proTokenGuidance(): string {
+function isProAuthFailure(output: string): boolean {
   return (
-    'The Pro package requires a valid Web Awesome Pro token.\n\n' +
+    output.includes('401') ||
+    output.includes('Unauthorized') ||
+    output.includes(`Failed to replace env in config: ${ENV_TOKEN_REFERENCE}`)
+  );
+}
+
+/**
+ * The note shown when a Pro install cannot authenticate. The two setups it
+ * offers are the ones npm and pnpm read; `.env` is not one of them (#160).
+ */
+function proTokenGuidance(tokenFound: boolean): string {
+  return (
+    (tokenFound
+      ? 'The Pro package requires a valid Web Awesome Pro token.\n\n'
+      : 'Kigumi found no Pro token (environment variable, user npmrc or .env).\n\n') +
     'npm and pnpm read it from an npmrc. Setup options (choose one):\n\n' +
     `1. Set ${ENV_TOKEN_KEY} in your environment (shell profile, CI secret).\n` +
     '   The project .npmrc reads it through this line:\n' +
@@ -269,13 +295,12 @@ export async function installDependencies(
 ): Promise<void> {
   const { cwd, config, tier, packageManager, output } = options;
 
-  const npmrc = await writeProjectNpmrc(cwd, tier);
-  if (npmrc.changed) {
+  if (await writeProjectNpmrc(cwd, tier)) {
     output.info(
       `Updated .npmrc for the ${tier === 'pro' ? 'Pro' : 'Free'} registry`
     );
   }
-  const env = packageManagerEnv(cwd, tier, output);
+  const env = packageManagerEnv(cwd, tier, output, options.token);
 
   // Check lockfile compatibility before installation
   const lockfileCheck = await checkLockfileCompatibility(
@@ -386,6 +411,15 @@ export async function installDependencies(
     }
 
     spinner.stop('Dependencies installed');
+
+    // This install had the token; the user's own installs and CI will not.
+    if (tier === 'pro' && (await tokenReferenceUnset(cwd))) {
+      output.warn(
+        `.npmrc reads the Pro token from ${ENV_TOKEN_KEY}, which is not set here. ` +
+          `Kigumi passed its token to this install; set ${ENV_TOKEN_KEY} ` +
+          '(shell profile, CI secret) for your own installs.'
+      );
+    }
   } catch (error) {
     spinner.error('Installation failed');
 
@@ -457,14 +491,12 @@ export async function installDependencies(
         );
       }
 
-      // Enhanced 401 error handling (Phase 3)
-      const is401Error =
-        stderr.includes('401') || stderr.includes('Unauthorized');
-
-      if (is401Error && tier === 'pro') {
-        // Context-aware error message for Pro tier
+      if (tier === 'pro' && isProAuthFailure(errorOutput)) {
         output.error('Authentication failed for Pro package');
-        output.note('Pro token required', proTokenGuidance());
+        output.note(
+          'Pro token required',
+          proTokenGuidance(Boolean(env[ENV_TOKEN_KEY]))
+        );
       }
 
       throw new DependencyInstallError(

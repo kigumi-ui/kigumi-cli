@@ -277,7 +277,8 @@ export function KigumiProvider({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Ensure .env file has the Pro token (append if exists, create if not)
+ * Ensure .env file has the Pro token (append if exists, create if not). A
+ * different token already there is replaced: the one just given wins.
  * @internal
  */
 async function ensureEnvFile(
@@ -297,8 +298,19 @@ async function ensureEnvFile(
     const match = content.match(ENV_TOKEN_REGEX);
 
     if (match) {
-      // Token exists - don't overwrite
-      output.debug(`[DEBUG] ${ENV_TOKEN_KEY} already set in .env`);
+      if (match[1] === token) {
+        output.debug(`[DEBUG] ${ENV_TOKEN_KEY} already set in .env`);
+        return;
+      }
+      output.debug(`[DEBUG] Replacing ${ENV_TOKEN_KEY} in .env`);
+      // Line-bounded: ENV_TOKEN_REGEX's \s* would also take the newline.
+      await fs.writeFile(
+        envPath,
+        content.replace(
+          new RegExp(`^[ \\t]*${ENV_TOKEN_KEY}[ \\t]*=.*$`, 'm'),
+          `${ENV_TOKEN_KEY}=${token}`
+        )
+      );
       return;
     }
 

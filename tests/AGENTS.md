@@ -52,7 +52,7 @@ tests/
 │   ├── init-file-generator.test.ts  # Init file generator (per-framework setup file emission)
 │   ├── init-post-install-instructions.test.ts # showPostInstallInstructions: Vite vs Pro vs Vue, Next App vs Pages Router with custom dirs, the install step only when dependencies were not installed, and the WEBAWESOME_NPM_TOKEN step when .npmrc reads the variable and the shell does not set it
 │   ├── init-tier-migration.test.ts  # handleTierMigration dispatch (Free <-> Pro) with the migration helpers spied, plus confirmMigration / confirmInstallation
-│   ├── init-token-prompt.test.ts    # The Pro token prompt is masked (`password`), and skipped when the user has no token
+│   ├── init-pro-token.test.ts       # The Pro token prompt is masked (`password`) and skipped without a token; `init --token` hands its token to the install over one found elsewhere
 │   ├── dependency-installer.test.ts # npm/pnpm install + package cleanup, the project .npmrc brought in line before an install, and the Pro token handed to every package manager call as WEBAWESOME_NPM_TOKEN (#160)
 │   ├── init-validate-and-prepare.test.ts # Init pre-flight validation + prep
 │   ├── json.test.ts                 # JSON with comments parsing

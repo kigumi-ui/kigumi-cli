@@ -31,19 +31,20 @@ import {
   MIN_TOKEN_LENGTH,
   NPM_PRO_AUTH_TOKEN_KEY,
   NPM_PRO_REGISTRY,
+  NPM_PRO_REGISTRY_DART,
   NPM_PUBLIC_REGISTRY,
   NPMRC_FILE_NAME,
   WEB_AWESOME_SCOPE,
 } from '../constants.js';
 import type { Tier } from './tier.js';
 
-/** The Pro registry as an npmrc auth key prefix ("nerf dart"). */
-const PRO_REGISTRY_DART = NPM_PRO_REGISTRY.replace(/^https?:/, '').replace(
-  /\/?$/,
-  '/'
-);
-
 const SCOPE_REGISTRY_KEY = `${WEB_AWESOME_SCOPE}:registry`;
+
+/** The reference Kigumi writes, keyed with or without the trailing slash. */
+const REFERENCE_KEYS = [
+  NPM_PRO_AUTH_TOKEN_KEY,
+  NPM_PRO_AUTH_TOKEN_KEY.replace('/:_authToken', ':_authToken'),
+];
 
 /** Any of these on a key means "auth for this registry path" to npm. */
 const AUTH_FIELDS = [
@@ -62,7 +63,7 @@ const AUTH_FIELDS = [
  */
 const PRO_REGISTRY_DARTS: readonly string[] = (() => {
   const darts: string[] = [];
-  let dart = PRO_REGISTRY_DART;
+  let dart = NPM_PRO_REGISTRY_DART;
   while (dart.length > '//'.length) {
     darts.push(dart);
     dart = dart.replace(/([^/]+|\/)$/, '');
@@ -224,7 +225,7 @@ export function mergeProjectNpmrc(
     if (entry && coversProRegistry(entry.key)) {
       if (
         tier === 'free' &&
-        entry.key === NPM_PRO_AUTH_TOKEN_KEY &&
+        REFERENCE_KEYS.includes(entry.key) &&
         entry.value === ENV_TOKEN_REFERENCE
       ) {
         continue;
@@ -263,13 +264,6 @@ export async function tokenReferenceUnset(
   return readsTokenFromEnv(content) && proRegistryToken(content, env) === null;
 }
 
-export interface ProjectNpmrcResult {
-  /** Whether the file on disk changed. */
-  changed: boolean;
-  /** Whether the project now reads the Pro token from WEBAWESOME_NPM_TOKEN. */
-  readsTokenFromEnv: boolean;
-}
-
 /**
  * The project `.npmrc` Kigumi wants for `tier`, from its current text. On Pro
  * the token reference goes in unless the user npmrc already gives npm the
@@ -287,11 +281,13 @@ export function projectNpmrcFor(existing: string, tier: Tier): string {
 /**
  * Write the project `.npmrc` for `tier` (projectNpmrcFor), keeping the lines
  * Kigumi does not own.
+ *
+ * @returns Whether the file on disk changed
  */
 export async function writeProjectNpmrc(
   cwd: string,
   tier: Tier
-): Promise<ProjectNpmrcResult> {
+): Promise<boolean> {
   const npmrcPath = path.join(cwd, NPMRC_FILE_NAME);
   const existing = (await fs.pathExists(npmrcPath))
     ? await fs.readFile(npmrcPath, 'utf-8')
@@ -300,6 +296,5 @@ export async function writeProjectNpmrc(
   const next = projectNpmrcFor(existing, tier);
   const changed = next !== existing;
   if (changed) await fs.writeFile(npmrcPath, next);
-
-  return { changed, readsTokenFromEnv: readsTokenFromEnv(next) };
+  return changed;
 }
