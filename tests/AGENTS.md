@@ -50,9 +50,10 @@ tests/
 │   ├── init-config-preservation.test.ts # Init with config preservation scenarios
 │   ├── init-existing-config.test.ts # Init with existing project
 │   ├── init-file-generator.test.ts  # Init file generator (per-framework setup file emission)
-│   ├── init-post-install-instructions.test.ts # showPostInstallInstructions: Vite vs Pro vs Vue, Next App vs Pages Router with custom dirs, and the install + Pro-token steps only when dependencies were installed
+│   ├── init-post-install-instructions.test.ts # showPostInstallInstructions: Vite vs Pro vs Vue, Next App vs Pages Router with custom dirs, the install step only when dependencies were not installed, and the WEBAWESOME_NPM_TOKEN step when .npmrc reads the variable and the shell does not set it
 │   ├── init-tier-migration.test.ts  # handleTierMigration dispatch (Free <-> Pro) with the migration helpers spied, plus confirmMigration / confirmInstallation
-│   ├── dependency-installer.test.ts # npm/pnpm install + package cleanup
+│   ├── init-pro-token.test.ts       # The Pro token prompt is masked (`password`) and skipped without a token; `init --token` hands its token to the install over one found elsewhere
+│   ├── dependency-installer.test.ts # npm/pnpm install + package cleanup, the project .npmrc brought in line before an install, and the Pro token handed to every package manager call as WEBAWESOME_NPM_TOKEN (#160)
 │   ├── init-validate-and-prepare.test.ts # Init pre-flight validation + prep
 │   ├── json.test.ts                 # JSON with comments parsing
 │   ├── list.test.ts                 # List command
@@ -61,6 +62,7 @@ tests/
 │   ├── network-errors.test.ts       # Network error classes
 │   ├── next-support.test.ts         # Next.js detection + 'use client' + suppressHydrationWarning + layers.css emission (App + Pages)
 │   ├── no-handlebars-tokens.test.ts # Regression guard: no `{{...}}` tokens in any template
+│   ├── npmrc.test.ts                # src/utils/npmrc.ts: npm's auth lookup for the Pro registry, the project .npmrc merge rule, the user npmrc path (#160)
 │   ├── options-schema.test.ts       # Command options schemas
 │   ├── package-json.test.ts         # readDependencies contract (missing, unreadable, not a JSON object) + what each detection caller does with each error (issue #99)
 │   ├── package-json-read-error.test.ts # PackageJsonReadError / PackageJsonInvalidError + what `kigumi list`, `init`, `upgrade`, `brand`, `theme install` and `diff` print for a broken package.json, and that the writing commands changed nothing (issues #99, #121)
@@ -104,7 +106,7 @@ tests/
 │   ├── tier.test.ts                 # Tier detection
 │   ├── tier-consistency.test.ts     # Registry/tier consistency validation
 │   ├── tier-restrictions.test.ts    # Tier restriction logic
-│   ├── token.test.ts                # Token handling
+│   ├── token.test.ts                # Token detection chain: env var, user npmrc (incl. `npm_config_userconfig`, `${VAR}` values, commented lines), `.env`
 │   ├── type-installation.test.ts    # TypeScript type installation
 │   ├── update-check.test.ts         # CLI update notification check
 │   ├── update-command.test.ts       # Update command (three-way merge)
@@ -269,7 +271,7 @@ Sibling modules shared across unit tests. Prefer these over per-file `vi.mock` f
 | --- | --- |
 | `createTestOutput()` (from `_helpers/output.ts`) | You only need a satisfies-the-interface output that records via `vi.fn()` and lets you assert with `vi.mocked(output.success).toHaveBeenCalledWith(...)`. The 4 init-family tests still use this shape. |
 | `createRecordingOutput()` (from `_helpers/output.ts`) | You want a `RecordingOutput` with a typed `calls` array. Assert via `expect(output.calls).toContainEqual({ method: 'note', args: ['Settings', expect.stringContaining('awesome')] })`. Pair with `setOutputForTesting(output)`. |
-| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`) | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`. |
+| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`) | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `password`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`. |
 | `writeTierFixture(dir, 'free' \| 'pro')` (from `_helpers/tier.ts`) | You need `detectTier()` to read a real `package.json` instead of mocking `src/utils/tier.js`. Call after `mkdtemp` + `chdir(testDir)`; production code reads the dependencies map and returns the requested tier. |
 | `createTestKigumiConfig(overrides)` (from `_helpers/kigumi-config.ts`) | You need a fully-typed `KigumiConfig` for `parseKigumiConfig()` callers. |
 | `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`) | You need a fully-typed `AddOptions` for command tests. |
@@ -576,7 +578,7 @@ describe('smoke test', () => {
 
 The types seam of `docs/adr/0004`: each suite scaffolds a project with the framework's own tool, runs the real CLI (`init`, then `add --all`), and typechecks it with that project's own compiler. `describeConsumers()` in `tests/e2e/_helpers/consumer.ts` registers the same four checks for every framework, once for a Free and once for a Pro consumer, each on its own project: the tier's package at `DEFAULT_WEBAWESOME_VERSION` and the other tier's package in neither `package.json` nor `node_modules` (so a Template importing the wrong path cannot resolve), the tier's Templates (Free drops the Pro-only ones, Pro installs every one), a clean typecheck, and a planted strict-only error (`take(null)`, TS2345) reported as the compiler's own output. `add --all` is the only tier filter; the suites compare what landed with the registry. Every plant goes into the components directory beside the Templates (`withPlanted()`), so a rejected plant also shows that directory is in the compiled program; a clean typecheck alone would pass with the Templates excluded. `expectRejected()` is the one assertion for a plant: non-zero exit, the plant's path and each diagnostic in the output, and a message naming the command and the file when the compiler exits 0. A new framework supplies a `ConsumerSpec` rather than copying the checks, and gets both tiers.
 
-**The Pro consumer needs the pinned Pro package.** `resolveProPackage()` reports whether this machine can install it the way the consumer's `init` will: a token `init` finds (`detectProTokenSync` on the consumer's own directory, which reads `WEBAWESOME_NPM_TOKEN`, then `~/.npmrc`, then that directory's `.env`, which a fresh scaffold does not have), and a registry that serves the package with this machine's auth (`probeProPackage()`, an `npm view` of the pinned version against the Pro registry). npm and pnpm authenticate that registry only from the `~/.npmrc` `_authToken` line, never from `WEBAWESOME_NPM_TOKEN` (#160), so a machine with only the variable fails the probe instead of the install. `consumerPremise()` turns an unusable package into skipped (`NOT verified`, where `skipPermitted()` allows it: outside CI, or with `KIGUMI_FRESHNESS_ALLOW_SKIP=1`) or failed (`could not run`, everywhere else), in the `summarizeGuard()` wording of `docs/adr/0003`. `describeConsumer()` then registers a single `has the Pro package to typecheck against` test, which `reportNotRun()` settles as that skip or failure. The `installs the pinned Pro Web Awesome package only` check, not the typecheck, is what catches a "Pro" consumer that installed Free: its typecheck passes.
+**The Pro consumer needs the pinned Pro package.** `resolveProPackage()` reports whether this machine can install it the way the consumer's `init` will: a token `init` finds (`detectProTokenSync` on the consumer's own directory, which reads `WEBAWESOME_NPM_TOKEN`, then `~/.npmrc`, then that directory's `.env`, which a fresh scaffold does not have), and a registry that serves the package with this machine's auth (`probeProPackage()`, an `npm view` of the pinned version). The probe authenticates the way the consumer's install does: it runs from a temp directory holding the `.npmrc` `init` writes (`projectNpmrcFor()`, which references `WEBAWESOME_NPM_TOKEN` unless the user npmrc holds the token), with the token it found as `WEBAWESOME_NPM_TOKEN`, which is what `init` hands its package manager (#160). A machine the probe fails on would fail the consumer's install too. CI gives the Pro consumer the `~/.npmrc` auth line; the variable-only setup is covered by `tests/unit/npmrc.test.ts` and `tests/integration/init.test.ts` ("Pro token wiring"). `consumerPremise()` turns an unusable package into skipped (`NOT verified`, where `skipPermitted()` allows it: outside CI, or with `KIGUMI_FRESHNESS_ALLOW_SKIP=1`) or failed (`could not run`, everywhere else), in the `summarizeGuard()` wording of `docs/adr/0003`. `describeConsumer()` then registers a single `has the Pro package to typecheck against` test, which `reportNotRun()` settles as that skip or failure. The `installs the pinned Pro Web Awesome package only` check, not the typecheck, is what catches a "Pro" consumer that installed Free: its typecheck passes.
 
 **CI scopes the token to the Pro consumers.** `KIGUMI_CONSUMER_TIER` (`free` or `pro`) narrows `describeConsumers()` to one tier; unset, both register. The `e2e` job first runs every suite with `KIGUMI_CONSUMER_TIER=free` and no token on the runner, then writes the `~/.npmrc` auth line (only when the `WEBAWESOME_NPM_TOKEN` secret exists), then runs `tests/e2e/consumer-tsc-*` with `KIGUMI_CONSUMER_TIER=pro` and `npm_config_ignore_scripts=true`, so no dependency's install script runs while the token is on disk. `KIGUMI_FRESHNESS_ALLOW_SKIP` is set only on runs that receive no secrets (fork and Dependabot pull requests); a same-repo pull request without the token fails. `ci-e2e-pro-step.test.ts` executes that decision and pins the step order. Every other integration and e2e suite spreads `FREE_TIER_ENV` (`tests/_helpers/free-tier-env.ts`) into the CLI's environment, so a developer's global token does not move it onto Pro either.
 
@@ -701,8 +703,7 @@ npm create vite@latest tests/test-migration -- --template react-ts
 # Test Free→Pro
 cd tests/test-migration
 node ../../dist/index.js init --framework=react --theme=awesome --yes
-echo "WEBAWESOME_NPM_TOKEN=your_token" > .env
-node ../../dist/index.js init --framework=react --theme=brutalist
+node ../../dist/index.js init --framework=react --theme=brutalist --token your_token
 
 # Verify: Only @awesome.me/webawesome-pro in package.json
 grep webawesome package.json

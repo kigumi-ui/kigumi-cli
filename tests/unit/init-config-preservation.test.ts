@@ -236,6 +236,7 @@ describe('config preservation during re-init', () => {
           'src/components/ui',
           'src/components/ui',
         ],
+        password: ['test-pro-token-123456'],
       });
       await registerPromptsSeam(interactivePrompts);
     });

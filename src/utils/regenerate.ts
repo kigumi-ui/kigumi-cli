@@ -492,7 +492,47 @@ export async function generateThemeCSS(): Promise<string> {
 }
 
 /**
+ * Whether a .gitignore pattern (without its `!`) matches the file `.env` at
+ * the repository root. Only patterns that can reach the root count: a slash
+ * other than a leading `/` or `**\/` anchors the pattern to a subdirectory,
+ * and a trailing slash matches directories only.
+ */
+function patternMatchesRootDotEnv(pattern: string): boolean {
+  if (pattern.endsWith('/')) return false;
+  const rooted = pattern.replace(/^\/|^\*\*\//, '');
+  if (rooted.includes('/')) return false;
+  const source = rooted
+    .split('')
+    .map((char) => {
+      if (char === '*') return '[^/]*';
+      if (char === '?') return '[^/]';
+      return char.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+    })
+    .join('');
+  return new RegExp(`^${source}$`).test('.env');
+}
+
+/**
+ * Whether this .gitignore keeps a root `.env` out of git. The last matching
+ * pattern wins, and a `!` pattern un-ignores, as in git.
+ */
+function ignoresRootDotEnv(content: string): boolean {
+  let ignored = false;
+  for (const raw of content.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (line === '' || line.startsWith('#')) continue;
+    const negated = line.startsWith('!');
+    if (patternMatchesRootDotEnv(negated ? line.slice(1) : line)) {
+      ignored = !negated;
+    }
+  }
+  return ignored;
+}
+
+/**
  * Generate or update .gitignore
+ *
+ * `.env` must end up ignored: `init --token` writes the Pro token into it.
  */
 export async function generateGitIgnore(cwd: string): Promise<void> {
   const gitignorePath = path.join(cwd, '.gitignore');
@@ -528,9 +568,18 @@ export async function generateGitIgnore(cwd: string): Promise<void> {
   // Update existing .gitignore
   let content = await fs.readFile(gitignorePath, 'utf-8');
 
-  // Add .env if not present
-  if (!content.includes('.env')) {
-    content += '\n# Environment variables\n.env\n.env.local\n.env.*.local\n';
+  // Add .env unless the file already ignores it. The other two entries are
+  // added alongside, unless the file already has them.
+  if (!ignoresRootDotEnv(content)) {
+    const lines = new Set(content.split(/\r?\n/).map((line) => line.trim()));
+    const missing = ['.env.local', '.env.*.local'].filter(
+      (entry) => !lines.has(entry)
+    );
+    if (!content.endsWith('\n')) {
+      content += '\n';
+    }
+    content +=
+      ['\n# Environment variables', '.env', ...missing].join('\n') + '\n';
   }
 
   // Add .kigumi/foreign/ if not present

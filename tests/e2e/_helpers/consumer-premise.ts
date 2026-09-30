@@ -15,8 +15,10 @@
  * `consumerPremise` is the policy; `reportNotRun` settles the test.
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
+import fs from 'node:fs';
 import os from 'node:os';
+import path from 'node:path';
 import {
   skipPermitted,
   summarizeGuard,
@@ -24,10 +26,10 @@ import {
 } from '../../../scripts/guard-outcome.js';
 import type { CemVerdict } from '../../../scripts/find-cem.js';
 import {
-  NPM_PRO_REGISTRY,
+  ENV_TOKEN_KEY,
   WEB_AWESOME_PRO_PACKAGE,
-  WEB_AWESOME_SCOPE,
 } from '../../../src/constants.js';
+import { projectNpmrcFor } from '../../../src/utils/npmrc.js';
 
 export type ConsumerPremise =
   { run: true } | { run: false; summary: GuardSummary };
@@ -80,24 +82,34 @@ export function resolveProPackage({
 }
 
 /**
- * `npm view` of the pinned Pro package, against the registry `init` points
- * the project at, with this machine's user config. npm and pnpm both
- * authenticate that registry from the `_authToken` line in `~/.npmrc`, and
- * neither reads WEBAWESOME_NPM_TOKEN (#160), so a machine this probe fails on
- * would fail the consumer's install too. Runs from the temp directory so no
- * project `.npmrc` takes part.
+ * `npm view` of the pinned Pro package, authenticated the way the Pro
+ * consumer's install is: from a directory holding the `.npmrc` `init` writes
+ * (`projectNpmrcFor`), with `token` as WEBAWESOME_NPM_TOKEN, which is what
+ * `init` hands its package manager. That `.npmrc` reads the variable unless
+ * the user npmrc holds the token (#160), so a machine this probe fails on
+ * would fail the consumer's install too.
  */
-export function probeProPackage(version: string): ProPackageProbe {
-  const result = spawnSync(
-    'npm',
-    [
-      'view',
-      `${WEB_AWESOME_PRO_PACKAGE}@${version}`,
-      'version',
-      `--${WEB_AWESOME_SCOPE}:registry=${NPM_PRO_REGISTRY}`,
-    ],
-    { cwd: os.tmpdir(), encoding: 'utf8', timeout: 60_000 }
-  );
+export function probeProPackage(
+  version: string,
+  token: string
+): ProPackageProbe {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kigumi-pro-probe-'));
+  let result: SpawnSyncReturns<string>;
+  try {
+    fs.writeFileSync(path.join(dir, '.npmrc'), projectNpmrcFor('', 'pro'));
+    result = spawnSync(
+      'npm',
+      ['view', `${WEB_AWESOME_PRO_PACKAGE}@${version}`, 'version'],
+      {
+        cwd: dir,
+        encoding: 'utf8',
+        timeout: 60_000,
+        env: { ...process.env, [ENV_TOKEN_KEY]: token },
+      }
+    );
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 
   if (result.error) {
     return { ok: false, detail: `npm view: ${result.error.message}` };
@@ -113,13 +125,12 @@ export function probeProPackage(version: string): ProPackageProbe {
   };
 }
 
-// `init` detects a token in WEBAWESOME_NPM_TOKEN too, but only this line
-// authenticates the install (#160).
 const PRO_FIX_HINT =
-  'Give this machine a Web Awesome Pro token where `init` reads it and the\n' +
-  'package manager can install with it:\n' +
+  'Give this machine a Web Awesome Pro token `init` finds and can install with:\n' +
+  '  export WEBAWESOME_NPM_TOKEN=<token>\n' +
+  'or, once per machine:\n' +
   '  npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken <token>\n' +
-  '(or `pnpm setup:npmrc`, which writes that line from .env).';
+  '(`pnpm setup:npmrc` writes that line from .env).';
 
 /** Run the Pro consumer, or report that it did not run and why. */
 export function consumerPremise(

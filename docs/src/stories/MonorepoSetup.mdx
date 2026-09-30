@@ -182,8 +182,10 @@ export const themeImport = `@import '@repo/theme/theme.css';
           <h4 className="wa-heading-m">.npmrc</h4>
           <p className="wa-caption-m">
             Each workspace gets its own <code>.npmrc</code> from <code>kigumi init</code>.
-            For Pro tier, configure your token globally in <code>~/.npmrc</code> instead
-            of per-workspace.
+            It holds no secret. For Pro tier it reads the token from <code>WEBAWESOME_NPM_TOKEN</code>,
+            unless your user <code>~/.npmrc</code> already holds the token. Set the variable once
+            (shell profile, CI secret) or add the token to <code>~/.npmrc</code>; no workspace needs
+            its own copy of the token.
           </p>
         </div>
         <div className="wa-stack wa-gap-s">

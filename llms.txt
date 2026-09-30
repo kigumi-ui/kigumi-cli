@@ -55,8 +55,10 @@ Check installed components by listing subdirectories of `componentsDir`.
 
 | Tier | Package | Detection |
 |------|---------|-----------|
-| Free | @awesome.me/webawesome | No token in .env |
-| Pro  | @awesome.me/webawesome-pro | WEBAWESOME_NPM_TOKEN in .env |
+| Free | @awesome.me/webawesome | Free package in package.json, or no Pro token found |
+| Pro  | @awesome.me/webawesome-pro | Pro package in package.json, or a token in `WEBAWESOME_NPM_TOKEN`, the user npmrc (`~/.npmrc`) or the project `.env` |
+
+An installed package wins over a token. npm and pnpm read the Pro token only from an npmrc, never from `.env`: `kigumi init` writes a project `.npmrc` that references `WEBAWESOME_NPM_TOKEN` (unless the user npmrc already holds the token). To move a Free project to Pro, run `npx kigumi init --token YOUR_TOKEN`.
 
 Pro-only components: Page, Chart, BarChart, LineChart, BubbleChart, DoughnutChart, PieChart, PolarAreaChart, RadarChart, ScatterChart, Combobox, FileInput, NumberInput, Sparkline, Toast, ToastItem
 

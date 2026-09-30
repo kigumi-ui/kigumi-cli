@@ -295,10 +295,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
 /**
  * Run kigumi CLI command in a directory
+ *
+ * The CLI runs on the Free tier unless `env` says otherwise: `env` overrides
+ * FREE_TIER_ENV, so a test can hand it a Pro token where it wants one.
  */
 export async function runKigumi(
   cwd: string,
-  args: string[] = []
+  args: string[] = [],
+  env: Record<string, string> = {}
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   try {
     const result = await execa('node', [CLI_PATH, ...args], {
@@ -309,6 +313,7 @@ export async function runKigumi(
         CI: 'true',
         ...FREE_TIER_ENV,
         NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+        ...env,
       },
     });
     return {

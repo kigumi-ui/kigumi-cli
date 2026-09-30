@@ -213,11 +213,11 @@ describe('Error Classes', () => {
       expect(suggestions).toContain('webawesome.com/pro');
     });
 
-    it('should reference the current env var name, not the old WA_TOKEN', () => {
+    it('should point the upgrade at kigumi init, not the old WA_TOKEN', () => {
       const error = new TierRestrictionError('feature', 'pro', 'free');
       const suggestions = error.formatSuggestions();
 
-      expect(suggestions).toContain('WEBAWESOME_NPM_TOKEN');
+      expect(suggestions).toContain('kigumi init');
       expect(suggestions).not.toContain('WA_TOKEN=');
     });
   });
@@ -236,12 +236,13 @@ describe('Error Classes', () => {
       expect(suggestions).toContain('dusk');
     });
 
-    it('should reference current env var and config file names', () => {
+    // Tier is detected, never configured: no step edits kigumi.config.json.
+    it('should point the upgrade at kigumi init, not old names or a config tier', () => {
       const error = new ProThemeRequiredError('mercury', ['awesome']);
       const suggestions = error.formatSuggestions();
 
-      expect(suggestions).toContain('WEBAWESOME_NPM_TOKEN');
-      expect(suggestions).toContain('kigumi.config.json');
+      expect(suggestions).toContain('kigumi init');
+      expect(suggestions).not.toContain('kigumi.config.json');
       expect(suggestions).not.toContain('WA_TOKEN=');
       expect(suggestions).not.toContain('kigumi-components.json');
     });

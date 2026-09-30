@@ -31,8 +31,12 @@ describe('token detection', () => {
     // Save original env
     originalEnv = { ...process.env };
 
-    // Clear token from env and skip global npmrc for isolated tests
+    // Clear token from env and skip global npmrc for isolated tests. `npm
+    // exec` exports npm_config_userconfig, which would point the lookup back
+    // at the developer's real ~/.npmrc.
     delete process.env.WEBAWESOME_NPM_TOKEN;
+    delete process.env.npm_config_userconfig;
+    delete process.env.NPM_CONFIG_USERCONFIG;
     process.env.KIGUMI_SKIP_GLOBAL_NPMRC = '1';
   });
 
@@ -169,6 +173,47 @@ describe('token detection', () => {
 
       const token = await detectProToken(testDir);
       expect(token).toBeNull();
+    });
+
+    // The user config the package manager reads, not always ~/.npmrc: CI
+    // actions point NPM_CONFIG_USERCONFIG at a file of their own.
+    it('should read the file NPM_CONFIG_USERCONFIG names instead of ~/.npmrc', async () => {
+      await fs.writeFile(
+        path.join(homeDir, '.npmrc'),
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=home-token-abcdef\n'
+      );
+      const userconfig = path.join(homeDir, 'ci.npmrc');
+      await fs.writeFile(
+        userconfig,
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=ci-token-abcdef\n'
+      );
+      process.env.NPM_CONFIG_USERCONFIG = userconfig;
+
+      expect(await detectProToken(testDir)).toBe('ci-token-abcdef');
+      expect(detectProTokenSync(testDir)).toBe('ci-token-abcdef');
+    });
+
+    it('should resolve a ${VAR} reference in ~/.npmrc from the environment', async () => {
+      await fs.writeFile(
+        path.join(homeDir, '.npmrc'),
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${CI_WA_TOKEN}\n'
+      );
+
+      expect(await detectProToken(testDir)).toBeNull();
+
+      process.env.CI_WA_TOKEN = 'referenced-token-abcdef';
+      expect(await detectProToken(testDir)).toBe('referenced-token-abcdef');
+      expect(await getTokenSource(testDir)).toBe('npmrc');
+    });
+
+    it('should not take a commented-out ~/.npmrc line for a token', async () => {
+      await fs.writeFile(
+        path.join(homeDir, '.npmrc'),
+        '# //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=npmrc-token-abcdef\n'
+      );
+
+      expect(await detectProToken(testDir)).toBeNull();
+      expect(detectProTokenSync(testDir)).toBeNull();
     });
   });
 

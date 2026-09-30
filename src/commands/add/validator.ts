@@ -54,10 +54,10 @@ export async function validateComponents(
     // Phase 6: Show warning before error (let npm handle 401)
     _output.warning(
       `Pro-only component(s) detected: ${componentList}\n\n` +
-        `These components require a Web Awesome Pro token.\n` +
-        `The installation will fail without a valid token.\n\n` +
+        `These components require Web Awesome Pro.\n\n` +
         `Get your token from: https://webawesome.com/login\n` +
-        `Add to your .env file: WEBAWESOME_NPM_TOKEN=your_token_here`
+        `Then run kigumi init and enter the token when it asks (or pass\n` +
+        `--token): it moves the project to the Pro package.`
     );
 
     throw new TierRestrictionError(componentList, 'pro', tier);

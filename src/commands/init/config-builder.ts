@@ -313,10 +313,10 @@ export async function buildConfigInteractive(
     const wantsPro = ensureBoolean(wantsProResult);
 
     if (wantsPro) {
-      const tokenResult = await p.text({
+      // Masked: the token is a secret and must not land on screen.
+      const tokenResult = await p.password({
         message:
           'Enter your Web Awesome Pro token (Get one at https://webawesome.com/pro)',
-        placeholder: 'Your pro token here',
         validate: (value) => {
           if (!value || value.trim().length === 0) {
             return 'Token is required for Pro tier';

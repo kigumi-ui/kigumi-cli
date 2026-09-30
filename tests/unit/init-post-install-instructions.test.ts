@@ -4,7 +4,9 @@
  * Unit-tests the post-install instructions branch in src/commands/init/index.ts:
  * - Vite default vs Pro vs Vue
  * - Next.js App Router vs Pages Router (with custom utilsDir / stylesDir)
- * - depsInstalled flag controls whether install + Pro-token steps appear
+ * - depsInstalled flag controls whether the install step appears
+ * - the WEBAWESOME_NPM_TOKEN step appears when .npmrc reads the variable and
+ *   it is unset
  *
  * No @clack/prompts mock needed: this function is purely informational.
  */
@@ -61,34 +63,86 @@ describe('showPostInstallInstructions', () => {
         false
       );
       // No Pro-token step in free tier.
-      expect(
-        messages.some((m) =>
-          m.includes('Ensure Pro token is configured globally')
-        )
-      ).toBe(false);
+      expect(messages.some((m) => m.includes('WEBAWESOME_NPM_TOKEN'))).toBe(
+        false
+      );
     });
   });
 
   describe('Vite + pro + react + ts', () => {
-    it('emits the Pro-token step before the install step when deps are not installed', () => {
+    // The project .npmrc reads the token from WEBAWESOME_NPM_TOKEN and this
+    // shell does not set it: init's own install passed the token on, the
+    // user's installs will not (issue #160).
+    it('emits the WEBAWESOME_NPM_TOKEN step before the install step', () => {
       const config = createTestKigumiConfig({
         framework: 'react',
         typescript: true,
       });
 
-      showPostInstallInstructions(output, config, 'npm', false, 'pro');
+      showPostInstallInstructions(
+        output,
+        config,
+        'npm',
+        false,
+        'pro',
+        false,
+        undefined,
+        true
+      );
 
       const messages = collectMessages(output);
-      const proTokenIdx = messages.findIndex((m) =>
-        m.includes('Ensure Pro token is configured globally')
+      const tokenIdx = messages.findIndex((m) =>
+        m.includes('Set WEBAWESOME_NPM_TOKEN in your environment')
       );
       const installIdx = messages.findIndex((m) =>
         m.includes('Install dependencies')
       );
 
-      expect(proTokenIdx).toBeGreaterThanOrEqual(0);
-      expect(installIdx).toBeGreaterThanOrEqual(0);
-      expect(proTokenIdx).toBeLessThan(installIdx);
+      expect(tokenIdx).toBeGreaterThanOrEqual(0);
+      expect(installIdx).toBeGreaterThan(tokenIdx);
+      expect(messages).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('export WEBAWESOME_NPM_TOKEN=YOUR_TOKEN'),
+        ])
+      );
+    });
+
+    it('emits the WEBAWESOME_NPM_TOKEN step after an install too', () => {
+      const config = createTestKigumiConfig({ framework: 'react' });
+
+      showPostInstallInstructions(
+        output,
+        config,
+        'npm',
+        true,
+        'pro',
+        false,
+        undefined,
+        true
+      );
+
+      expect(
+        collectMessages(output).some((m) =>
+          m.includes('Set WEBAWESOME_NPM_TOKEN in your environment')
+        )
+      ).toBe(true);
+    });
+
+    it('has no token step when the installs can already authenticate', () => {
+      // The variable is set, or the user npmrc holds the token and .npmrc
+      // does not reference it.
+      const config = createTestKigumiConfig({ framework: 'react' });
+
+      showPostInstallInstructions(output, config, 'npm', false, 'pro');
+
+      const messages = collectMessages(output);
+      expect(messages.some((m) => m.includes('WEBAWESOME_NPM_TOKEN'))).toBe(
+        false
+      );
+      expect(messages.some((m) => m.includes('npm config set'))).toBe(false);
+      expect(messages.some((m) => m.includes('Install dependencies'))).toBe(
+        true
+      );
     });
   });
 
@@ -188,17 +242,12 @@ describe('showPostInstallInstructions', () => {
   });
 
   describe('depsInstalled = true', () => {
-    it('omits the Pro-token-setup step and the "Install dependencies" step', () => {
+    it('omits the "Install dependencies" step', () => {
       const config = createTestKigumiConfig({ framework: 'react' });
 
       showPostInstallInstructions(output, config, 'npm', true, 'pro');
 
       const messages = collectMessages(output);
-      expect(
-        messages.some((m) =>
-          m.includes('Ensure Pro token is configured globally')
-        )
-      ).toBe(false);
       expect(messages.some((m) => m.includes('Install dependencies:'))).toBe(
         false
       );
