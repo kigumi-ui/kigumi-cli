@@ -22,6 +22,7 @@ import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
   CLI_VERSION,
+  ENV_TOKEN_KEY,
 } from '../../constants.js';
 import { getOutput } from '../../output/index.js';
 import { CheckRunner, PackageJsonExistsCheck } from '../../checks/index.js';
@@ -46,6 +47,7 @@ import { generateProjectFiles } from './file-generator.js';
 import { getProjectInfo } from '../../utils/detect-framework.js';
 import { loadConfig } from '../../utils/config.js';
 import { detectTier, type Tier } from '../../utils/tier.js';
+import { tokenReferenceUnset } from '../../utils/npmrc.js';
 import {
   migratePackageReferences,
   reverseMigratePackageReferences,
@@ -214,7 +216,7 @@ export async function initCommand(options: InitOptions = {}) {
 
     // Phase 5: Handle dependencies (skip if --no-install)
     const skipInstall = options.install === false;
-    await handleDependencies(
+    const depsInstalled = await handleDependencies(
       context,
       configResult,
       migrationResult,
@@ -227,10 +229,11 @@ export async function initCommand(options: InitOptions = {}) {
       output,
       configResult.config,
       context.projectInfo.packageManager,
-      true, // Always true if we reach here without errors
+      depsInstalled,
       configResult.newTier,
       context.projectInfo.isNext,
-      context.projectInfo.nextRouter
+      context.projectInfo.nextRouter,
+      await tokenReferenceUnset(cwd)
     );
   } catch (error) {
     handleError(error, output);
@@ -486,6 +489,8 @@ async function saveAndGenerate(
 /**
  * Install dependencies and clean up old packages
  *
+ * @returns Whether dependencies were installed (false for --no-install or a
+ *   declined prompt)
  * @internal
  */
 async function handleDependencies(
@@ -493,7 +498,7 @@ async function handleDependencies(
   configResult: ConfigResult,
   migrationResult: MigrationResult,
   skipInstall = false
-): Promise<void> {
+): Promise<boolean> {
   const { cwd, output, isNonInteractive, projectInfo } = context;
   const { config, newTier } = configResult;
   const { didMigrate } = migrationResult;
@@ -501,13 +506,13 @@ async function handleDependencies(
   // Skip installation if --no-install flag was passed
   if (skipInstall) {
     output.info('Skipping dependency installation (--no-install)');
-    return;
+    return false;
   }
 
   // Ask about installation
   const shouldInstall = await confirmInstallation(isNonInteractive);
   if (!shouldInstall) {
-    return;
+    return false;
   }
 
   // Install dependencies
@@ -533,6 +538,7 @@ async function handleDependencies(
 
   // Check for duplicate packages
   await checkDuplicatePackages(cwd, output);
+  return true;
 }
 
 /**
@@ -566,24 +572,31 @@ export function showPostInstallInstructions(
   depsInstalled: boolean,
   tier: Tier,
   isNext: boolean = false,
-  nextRouter?: import('../../utils/detect-framework.js').NextRouter
+  nextRouter?: import('../../utils/detect-framework.js').NextRouter,
+  tokenEnvUnset: boolean = false
 ): void {
   output.info('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
   let stepNum = 1;
 
-  // Step: Configure Pro token globally (if Pro tier and token not already global)
-  // Only show this if user might need to set up global token for npm install
-  if (tier === 'pro' && !depsInstalled) {
+  // Step: The project .npmrc reads the Pro token from WEBAWESOME_NPM_TOKEN and
+  // this shell does not set it. Init's own install passed on the token it
+  // found (user npmrc, .env, --token); the user's installs will not (#160).
+  if (tier === 'pro' && tokenEnvUnset) {
     output.info(
-      pc.bold(pc.cyan(`${stepNum}. Ensure Pro token is configured globally:\n`))
-    );
-    output.info(pc.dim('\tFor npm install to work, run once per machine:\n'));
-    output.info(
-      pc.green(
-        '\tnpm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN\n'
+      pc.bold(
+        pc.cyan(`${stepNum}. Set ${ENV_TOKEN_KEY} in your environment:\n`)
       )
     );
+    output.info(
+      pc.dim(
+        '\t.npmrc reads the Pro token from it; npm and pnpm never read .env.\n'
+      )
+    );
+    output.info(
+      pc.dim('\tAdd it to your shell profile, and as a secret in CI:\n')
+    );
+    output.info(pc.green(`\texport ${ENV_TOKEN_KEY}=YOUR_TOKEN\n`));
     output.info(pc.dim('\tGet token: https://webawesome.com/login\n'));
     stepNum++;
   }

@@ -43,6 +43,7 @@ function buildAdapter(overrides: Partial<PromptsAdapter> = {}): PromptsAdapter {
     },
     select: vi.fn(async () => 'value') as unknown as PromptsAdapter['select'],
     text: vi.fn(async () => 'typed'),
+    password: vi.fn(async () => 'secret'),
     multiselect: vi.fn(async () => [
       'a',
     ]) as unknown as PromptsAdapter['multiselect'],
@@ -61,13 +62,14 @@ describe('prompts wrapper', () => {
     resetPromptsForTesting();
   });
 
-  it('routes confirm/select/text/multiselect through the registered adapter', async () => {
+  it('routes confirm/select/text/password/multiselect through the registered adapter', async () => {
     const adapter = buildAdapter();
     setPromptsForTesting(adapter);
 
     await p.confirm({ message: 'ok?' });
     await p.select({ message: 'pick', options: [{ value: 'a', label: 'A' }] });
     await p.text({ message: 'type' });
+    await p.password({ message: 'secret' });
     await p.multiselect({
       message: 'pick',
       options: [{ value: 'a', label: 'A' }],
@@ -76,6 +78,7 @@ describe('prompts wrapper', () => {
     expect(adapter.confirm).toHaveBeenCalledWith({ message: 'ok?' });
     expect(adapter.select).toHaveBeenCalled();
     expect(adapter.text).toHaveBeenCalled();
+    expect(adapter.password).toHaveBeenCalledWith({ message: 'secret' });
     expect(adapter.multiselect).toHaveBeenCalled();
   });
 

@@ -14,9 +14,6 @@ import {
   ENV_FILE_NAME,
   ENV_TOKEN_KEY,
   ENV_TOKEN_REGEX,
-  NPM_PRO_REGISTRY,
-  NPM_PUBLIC_REGISTRY,
-  WEB_AWESOME_SCOPE,
 } from '../../constants.js';
 import { getWebAwesomePackage } from '../../utils/tier.js';
 import {
@@ -27,6 +24,7 @@ import {
   generateGitIgnore,
 } from '../../utils/regenerate.js';
 import type { ProjectInfo } from '../../utils/detect-framework.js';
+import { writeProjectNpmrc } from '../../utils/npmrc.js';
 import fs from 'fs-extra';
 import path from 'path';
 
@@ -146,10 +144,11 @@ export async function generateProjectFiles(
       output.debug(`[DEBUG] ✓ .env updated`);
     }
 
-    // 8. Generate .npmrc (both tiers need it to override global config)
+    // 8. Generate .npmrc (both tiers need it to override global config;
+    // on Pro it also tells the package manager where the token comes from)
     spinner.message('Generating .npmrc...');
     output.debug(`[DEBUG] Generating .npmrc`);
-    await generateNpmrc(cwd, tier);
+    await writeProjectNpmrc(cwd, tier);
     output.debug(`[DEBUG] ✓ .npmrc generated`);
 
     // 9. Configure path aliases and TypeScript compatibility
@@ -317,36 +316,4 @@ ${ENV_TOKEN_KEY}=${token}
 `;
 
   await fs.writeFile(envPath, envContent);
-}
-
-/**
- * Generate .npmrc file
- *
- * WHY: Both tiers need .npmrc to override potential global ~/.npmrc
- *
- * - Pro tier: Points to private Cloudsmith registry (token in global ~/.npmrc)
- * - Free tier: Explicitly use public npm registry (overrides global config)
- *
- * NOTE: Token is NOT stored in project .npmrc - user configures it globally via:
- *   npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken TOKEN
- *
- * @internal
- */
-async function generateNpmrc(cwd: string, tier: Tier): Promise<void> {
-  const npmrcPath = path.join(cwd, '.npmrc');
-
-  let npmrcContent: string;
-
-  if (tier === 'pro') {
-    // Only registry URL - token is configured globally in ~/.npmrc
-    npmrcContent = `${WEB_AWESOME_SCOPE}:registry=${NPM_PRO_REGISTRY}
-`;
-  } else {
-    // Free tier: Explicitly point to public npm registry
-    // This overrides any global ~/.npmrc that might point to Pro registry
-    npmrcContent = `${WEB_AWESOME_SCOPE}:registry=${NPM_PUBLIC_REGISTRY}
-`;
-  }
-
-  await fs.writeFile(npmrcPath, npmrcContent);
 }

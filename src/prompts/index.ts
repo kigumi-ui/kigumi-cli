@@ -2,7 +2,7 @@
  * Prompts Wrapper
  *
  * Re-exports the @clack/prompts surface the CLI uses (confirm, intro,
- * outro, note, log, select, text, multiselect, spinner, isCancel) through
+ * outro, note, log, select, text, password, multiselect, spinner, isCancel) through
  * a single registration hook so tests can swap in a scripted or recording
  * adapter via setPromptsForTesting().
  *
@@ -77,6 +77,10 @@ export const select: PromptsAdapter['select'] = (opts) =>
 export const text: PromptsAdapter['text'] = (
   ...args: Parameters<PromptsAdapter['text']>
 ) => getPrompts().text(...args);
+
+export const password: PromptsAdapter['password'] = (
+  ...args: Parameters<PromptsAdapter['password']>
+) => getPrompts().password(...args);
 
 export const multiselect: PromptsAdapter['multiselect'] = (opts) =>
   getPrompts().multiselect(opts);

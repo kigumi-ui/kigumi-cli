@@ -5,6 +5,8 @@
  * No mocks - actual filesystem operations.
  */
 
+import fs from 'fs-extra';
+import path from 'path';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
   cleanup,
@@ -20,7 +22,6 @@ describe('kigumi init', () => {
 
   // Ensure CLI is built before running integration tests
   beforeAll(async () => {
-    const fs = await import('fs-extra');
     const cliExists = await fs.pathExists('dist/index.js');
     if (!cliExists) {
       throw new Error(
@@ -369,6 +370,72 @@ describe('kigumi init', () => {
       const npmrcContent = await readFile(testDir, '.npmrc');
       expect(npmrcContent).toContain('registry.npmjs.org');
       expect(npmrcContent).not.toContain('cloudsmith');
+    });
+  });
+
+  // Where the Pro token lives decides what .npmrc says, since npm and pnpm
+  // read it from an npmrc only (issue #160).
+  describe('Pro token wiring', () => {
+    const PRO_REGISTRY_LINE =
+      '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n';
+    const REFERENCE_LINE =
+      '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}\n';
+    const TOKEN_STEP = 'Set WEBAWESOME_NPM_TOKEN in your environment';
+
+    it('references WEBAWESOME_NPM_TOKEN when the token is only in the variable', async () => {
+      testDir = await createTempProject('react-vite');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y'], {
+        WEBAWESOME_NPM_TOKEN: 'env-only-token-1234567890',
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(await readFile(testDir, '.npmrc')).toBe(
+        PRO_REGISTRY_LINE + REFERENCE_LINE
+      );
+      // The variable is set, so the user's own installs read it too.
+      expect(result.stdout).not.toContain(TOKEN_STEP);
+      expect(result.stdout).toContain('Install dependencies');
+    });
+
+    it('references WEBAWESOME_NPM_TOKEN for --token and asks the user to set it', async () => {
+      testDir = await createTempProject('react-vite');
+
+      const result = await runKigumi(testDir, [
+        'init',
+        '--no-install',
+        '-y',
+        '--token',
+        'flag-token-1234567890',
+      ]);
+
+      expect(result.exitCode).toBe(0);
+      expect(await readFile(testDir, '.npmrc')).toBe(
+        PRO_REGISTRY_LINE + REFERENCE_LINE
+      );
+      expect(await readFile(testDir, '.env')).toContain(
+        'WEBAWESOME_NPM_TOKEN=flag-token-1234567890'
+      );
+      expect(result.stdout).toContain(TOKEN_STEP);
+    });
+
+    it('writes the registry only when the user npmrc holds the token', async () => {
+      testDir = await createTempProject('react-vite');
+      const userconfig = path.join(testDir, 'user.npmrc');
+      await fs.writeFile(
+        userconfig,
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=user-token-1234567890\n'
+      );
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y'], {
+        KIGUMI_SKIP_GLOBAL_NPMRC: '',
+        npm_config_userconfig: userconfig,
+        NPM_CONFIG_USERCONFIG: userconfig,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(await readFile(testDir, '.npmrc')).toBe(PRO_REGISTRY_LINE);
+      expect(result.stdout).not.toContain(TOKEN_STEP);
     });
   });
 });

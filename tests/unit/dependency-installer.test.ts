@@ -70,11 +70,18 @@ describe('installDependencies', () => {
   let mockOutput: OutputInterface;
   let mockExeca: ReturnType<typeof vi.fn>;
 
+  let originalEnv: NodeJS.ProcessEnv;
+
   beforeEach(async () => {
     tempDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'kigumi-installer-test-')
     );
     mockOutput = createMockOutput();
+
+    // Pro installs write the project .npmrc, which depends on the user
+    // npmrc: keep the developer's ~/.npmrc out of it.
+    originalEnv = { ...process.env };
+    process.env.KIGUMI_SKIP_GLOBAL_NPMRC = '1';
 
     // Get the mocked execa
     const execaModule = await import('execa');
@@ -86,6 +93,7 @@ describe('installDependencies', () => {
   });
 
   afterEach(async () => {
+    process.env = originalEnv;
     await fs.remove(tempDir);
     vi.restoreAllMocks();
   });
@@ -717,6 +725,19 @@ describe('installDependencies', () => {
         'Pro token required',
         expect.stringContaining('WEBAWESOME_NPM_TOKEN')
       );
+
+      // Both setups that authenticate, and not .env, which npm and pnpm never
+      // read (issue #160).
+      const guidance = (mockOutput.note as ReturnType<typeof vi.fn>).mock
+        .calls[0][1] as string;
+      expect(guidance).toContain(
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}'
+      );
+      expect(guidance).toContain(
+        'npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN'
+      );
+      expect(guidance).not.toMatch(/WEBAWESOME_NPM_TOKEN=your/);
+      expect(guidance).not.toMatch(/\.env file/);
     });
 
     it('should not show pro token guidance for 401 on free tier', async () => {
@@ -875,40 +896,121 @@ describe('installDependencies', () => {
   });
 
   describe('pro tier token handling', () => {
-    it('should set env token when pro tier and token available', async () => {
+    type ExecaOptions = { env?: Record<string, string | undefined> };
+
+    it('hands the token to every package manager call as WEBAWESOME_NPM_TOKEN', async () => {
       const { installDependencies } =
         await import('../../src/utils/dependency-installer.js');
       const tokenModule = await import('../../src/utils/token.js');
       const detectProTokenSyncMock =
         tokenModule.detectProTokenSync as ReturnType<typeof vi.fn>;
       detectProTokenSyncMock.mockReturnValue('test-pro-token-value');
+      delete process.env.WEBAWESOME_NPM_TOKEN;
+
+      // A lockfile makes the pre-check run a real install too.
+      await fs.writeFile(path.join(tempDir, 'pnpm-lock.yaml'), 'lockfile: 1');
+
+      try {
+        await installDependencies({
+          cwd: tempDir,
+          config: createConfig(),
+          tier: 'pro',
+          packageManager: 'pnpm',
+          output: mockOutput,
+        });
+      } finally {
+        detectProTokenSyncMock.mockReturnValue(null);
+      }
+
+      // Lockfile check, dependencies, devDependencies.
+      expect(mockExeca).toHaveBeenCalledTimes(3);
+      for (const call of mockExeca.mock.calls) {
+        const options = call[2] as ExecaOptions;
+        expect(options.env?.WEBAWESOME_NPM_TOKEN).toBe('test-pro-token-value');
+      }
+    });
+
+    it('leaves the token out of a Free install', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      const tokenModule = await import('../../src/utils/token.js');
+      const detectProTokenSyncMock =
+        tokenModule.detectProTokenSync as ReturnType<typeof vi.fn>;
+      detectProTokenSyncMock.mockReturnValue('test-pro-token-value');
+      delete process.env.WEBAWESOME_NPM_TOKEN;
+
+      try {
+        await installDependencies({
+          cwd: tempDir,
+          config: createConfig(),
+          tier: 'free',
+          packageManager: 'pnpm',
+          output: mockOutput,
+        });
+      } finally {
+        detectProTokenSyncMock.mockReturnValue(null);
+      }
+
+      for (const call of mockExeca.mock.calls) {
+        const options = call[2] as ExecaOptions;
+        expect(options.env?.WEBAWESOME_NPM_TOKEN).toBeUndefined();
+      }
+    });
+
+    // `upgrade` and init's reinstall path install into a project whose
+    // .npmrc an older Kigumi wrote registry-only (issue #160).
+    it('gives the project .npmrc the token reference before the package manager runs', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      await fs.writeFile(
+        path.join(tempDir, '.npmrc'),
+        'engine-strict=true\n@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n'
+      );
+
+      const seen: string[] = [];
+      mockExeca.mockImplementation(async () => {
+        seen.push(await fs.readFile(path.join(tempDir, '.npmrc'), 'utf-8'));
+        return { stdout: '', stderr: '', exitCode: 0 };
+      });
 
       await installDependencies({
         cwd: tempDir,
         config: createConfig(),
         tier: 'pro',
-        packageManager: 'pnpm',
+        packageManager: 'npm',
         output: mockOutput,
       });
 
-      // Find the main install call (not the lockfile check)
-      const installCalls = mockExeca.mock.calls.filter(
-        (call: unknown[]) =>
-          call[0] === 'pnpm' &&
-          Array.isArray(call[1]) &&
-          (call[1] as string[])[0] === 'add'
+      expect(seen[0]).toBe(
+        'engine-strict=true\n' +
+          '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n' +
+          '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}\n'
+      );
+      expect(mockOutput.info).toHaveBeenCalledWith(
+        expect.stringContaining('.npmrc')
+      );
+    });
+
+    it('says nothing about .npmrc when it is already right', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      await fs.writeFile(
+        path.join(tempDir, '.npmrc'),
+        '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n' +
+          '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}\n'
       );
 
-      expect(installCalls.length).toBeGreaterThanOrEqual(1);
-      const execaOptions = installCalls[0][2] as {
-        env: Record<string, string>;
-      };
-      expect(execaOptions.env.WEBAWESOME_NPM_TOKEN).toBe(
-        'test-pro-token-value'
-      );
+      await installDependencies({
+        cwd: tempDir,
+        config: createConfig(),
+        tier: 'pro',
+        packageManager: 'npm',
+        output: mockOutput,
+      });
 
-      // Restore
-      detectProTokenSyncMock.mockReturnValue(null);
+      expect(mockOutput.info).not.toHaveBeenCalledWith(
+        expect.stringContaining('.npmrc')
+      );
     });
   });
 });
@@ -985,6 +1087,43 @@ describe('cleanupOldPackage', () => {
       'pnpm',
       ['remove', '@awesome.me/webawesome'],
       expect.objectContaining({ cwd: tempDir })
+    );
+  });
+
+  // Removing Free after a move to Pro runs against the Pro .npmrc: with the
+  // reference unfilled pnpm would skip the whole file.
+  it('hands the token to the removal of the Free package', async () => {
+    const { cleanupOldPackage } =
+      await import('../../src/utils/dependency-installer.js');
+    const tokenModule = await import('../../src/utils/token.js');
+    const detectProTokenSyncMock = tokenModule.detectProTokenSync as ReturnType<
+      typeof vi.fn
+    >;
+    detectProTokenSyncMock.mockReturnValue('test-pro-token-value');
+
+    await fs.writeJSON(path.join(tempDir, 'package.json'), {
+      dependencies: { '@awesome.me/webawesome': '^3.2.1' },
+    });
+
+    try {
+      await cleanupOldPackage(
+        tempDir,
+        '@awesome.me/webawesome',
+        'pnpm',
+        mockOutput
+      );
+    } finally {
+      detectProTokenSyncMock.mockReturnValue(null);
+    }
+
+    expect(mockExeca).toHaveBeenCalledWith(
+      'pnpm',
+      ['remove', '@awesome.me/webawesome'],
+      expect.objectContaining({
+        env: expect.objectContaining({
+          WEBAWESOME_NPM_TOKEN: 'test-pro-token-value',
+        }),
+      })
     );
   });
 

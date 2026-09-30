@@ -5,8 +5,12 @@
  *
  * FALLBACK CHAIN (in priority order):
  * 1. Environment Variable: $WEBAWESOME_NPM_TOKEN (for CI/CD)
- * 2. Global ~/.npmrc (recommended for local development)
+ * 2. User npmrc: ~/.npmrc, or the file npm_config_userconfig names
  * 3. Project .env file (backwards compatible)
+ *
+ * Finding a token here selects Pro; it does not authenticate an install. The
+ * package manager reads the token from an npmrc only, see src/utils/npmrc.ts
+ * (issue #160).
  *
  * EXPORTS:
  * - detectProToken() - Get token from any source
@@ -17,15 +21,14 @@
  */
 
 import fs from 'fs-extra';
-import os from 'os';
 import path from 'path';
 import {
   ENV_FILE_NAME,
   ENV_TOKEN_KEY,
   ENV_TOKEN_REGEX,
   MIN_TOKEN_LENGTH,
-  NPM_PRO_REGISTRY,
 } from '../constants.js';
+import { proRegistryToken, readUserNpmrc, readUserNpmrcSync } from './npmrc.js';
 
 export type TokenSource = 'env' | 'npmrc' | 'dotenv' | null;
 
@@ -89,12 +92,10 @@ async function detectProTokenWithSource(cwd: string): Promise<TokenResult> {
     return { token: envToken, source: 'env' };
   }
 
-  // 2. Check global ~/.npmrc (skip in tests if env var set)
-  if (!process.env.KIGUMI_SKIP_GLOBAL_NPMRC) {
-    const npmrcToken = await getTokenFromGlobalNpmrc();
-    if (npmrcToken) {
-      return { token: npmrcToken, source: 'npmrc' };
-    }
+  // 2. Check the user npmrc (KIGUMI_SKIP_GLOBAL_NPMRC skips it in tests)
+  const npmrcToken = proRegistryToken(await readUserNpmrc(), process.env);
+  if (npmrcToken) {
+    return { token: npmrcToken, source: 'npmrc' };
   }
 
   // 3. Check project .env file (backwards compatible)
@@ -116,12 +117,10 @@ function detectProTokenWithSourceSync(cwd: string): TokenResult {
     return { token: envToken, source: 'env' };
   }
 
-  // 2. Check global ~/.npmrc (skip in tests if env var set)
-  if (!process.env.KIGUMI_SKIP_GLOBAL_NPMRC) {
-    const npmrcToken = getTokenFromGlobalNpmrcSync();
-    if (npmrcToken) {
-      return { token: npmrcToken, source: 'npmrc' };
-    }
+  // 2. Check the user npmrc
+  const npmrcToken = proRegistryToken(readUserNpmrcSync(), process.env);
+  if (npmrcToken) {
+    return { token: npmrcToken, source: 'npmrc' };
   }
 
   // 3. Check project .env file
@@ -141,67 +140,6 @@ function getTokenFromEnvVar(): string | null {
   if (token && token.length >= MIN_TOKEN_LENGTH) {
     return token.trim();
   }
-  return null;
-}
-
-/**
- * Get token from global ~/.npmrc (async)
- *
- * Looks for: //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=TOKEN
- */
-async function getTokenFromGlobalNpmrc(): Promise<string | null> {
-  const npmrcPath = path.join(os.homedir(), '.npmrc');
-
-  if (!(await fs.pathExists(npmrcPath))) {
-    return null;
-  }
-
-  const content = await fs.readFile(npmrcPath, 'utf-8');
-  return extractTokenFromNpmrc(content);
-}
-
-/**
- * Get token from global ~/.npmrc (sync)
- */
-function getTokenFromGlobalNpmrcSync(): string | null {
-  const npmrcPath = path.join(os.homedir(), '.npmrc');
-
-  if (!fs.existsSync(npmrcPath)) {
-    return null;
-  }
-
-  const content = fs.readFileSync(npmrcPath, 'utf-8');
-  return extractTokenFromNpmrc(content);
-}
-
-/**
- * Extract auth token from npmrc content
- *
- * Matches patterns like:
- * - //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=TOKEN
- * - //npm.cloudsmith.io/fortawesome/webawesome-pro:_authToken=TOKEN
- */
-function extractTokenFromNpmrc(content: string): string | null {
-  // Extract registry host from NPM_PRO_REGISTRY (remove https://)
-  const registryHost = NPM_PRO_REGISTRY.replace('https://', '');
-
-  // Match auth token for the Pro registry
-  // Supports both //:_authToken and :_authToken patterns
-  const patterns = [
-    new RegExp(`//${registryHost}/?:_authToken=(.+)`, 'm'),
-    new RegExp(`${registryHost}/?:_authToken=(.+)`, 'm'),
-  ];
-
-  for (const pattern of patterns) {
-    const match = content.match(pattern);
-    if (match && match[1]) {
-      const token = match[1].trim();
-      if (token.length >= MIN_TOKEN_LENGTH) {
-        return token;
-      }
-    }
-  }
-
   return null;
 }
 

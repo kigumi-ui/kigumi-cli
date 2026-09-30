@@ -17,6 +17,7 @@ export interface PromptsAdapter {
   log: typeof clack.log;
   select: typeof clack.select;
   text: typeof clack.text;
+  password: typeof clack.password;
   multiselect: typeof clack.multiselect;
   spinner: typeof clack.spinner;
   isCancel: typeof clack.isCancel;

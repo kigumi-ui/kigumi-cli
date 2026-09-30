@@ -52,6 +52,21 @@ describe('DependencyInstallError', () => {
     expect(err.suggestions[0].title).toBe('Authentication required');
   });
 
+  it('names the setups npm and pnpm read the token from, not .env', () => {
+    const err = new DependencyInstallError(
+      '@awesome.me/webawesome-pro',
+      'npm',
+      undefined,
+      401
+    );
+    const steps = err.suggestions[0].steps.join('\n');
+    expect(steps).toContain('WEBAWESOME_NPM_TOKEN');
+    expect(steps).toContain(
+      'npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken'
+    );
+    expect(steps).not.toContain('.env');
+  });
+
   it('creates error for 403 auth error', () => {
     const err = new DependencyInstallError('pkg', 'npm', undefined, 403);
     expect(err.suggestions[0].title).toBe('Authentication required');
