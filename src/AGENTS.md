@@ -45,7 +45,7 @@ src/
 │   ├── tier.ts           # Tier detection (package.json priority, token fallback)
 │   ├── tier-restrictions.ts
 │   ├── config.ts         # kigumi.config.json handling
-│   ├── dependency-installer.ts # npm/pnpm install + old-package cleanup (shared by init and upgrade); writes the exact Web Awesome version over an existing range first, since pnpm keeps a `^` despite --save-exact
+│   ├── dependency-installer.ts # npm/pnpm install + old-package cleanup (shared by init and upgrade); on Pro it brings .npmrc in line first and passes the token it found to the package manager as WEBAWESOME_NPM_TOKEN; writes the exact Web Awesome version over an existing range first, since pnpm keeps a `^` despite --save-exact
 │   ├── template.ts       # Template materialization (read + tier-swap)
 │   ├── regenerate.ts     # Auto-generate kigumi.ts, theme.css
 │   ├── json.ts           # JSON with comments support
@@ -67,7 +67,8 @@ src/
 │   ├── component-metadata.ts # Auto-generated component metadata (attributes, events, slots, methods) — data only; types live in metadata-types.ts
 │   ├── detect-framework.ts # Framework, TypeScript, package manager, Next router, source-layout detection
 │   ├── package-json.ts   # readDependencies: merged dependency map from the user's package.json for tier and project detection (missing -> {}, unreadable -> PackageJsonReadError, not a JSON object -> PackageJsonInvalidError)
-│   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
+│   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, user npmrc, .env): selects the tier, does not authenticate installs
+│   ├── npmrc.ts          # Where npm and pnpm find the Pro token (user npmrc path, npm's auth-key walk, `${VAR}` expansion) and Kigumi's lines in the project .npmrc: writeProjectNpmrc() merges them and decides the ${WEBAWESOME_NPM_TOKEN} reference (issue #160)
 │   ├── update-check.ts   # CLI update notification
 │   └── registry/
 │       └── types.ts      # Registry type definitions
@@ -162,7 +163,7 @@ export async function detectTier(cwd: string): Promise<Tier> {
     if (!(error instanceof PackageJsonInvalidError)) throw error;
   }
 
-  // 2. Fallback to token detection ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
+  // 2. Fallback to token detection ($WEBAWESOME_NPM_TOKEN, user npmrc, .env)
   const token = await detectProToken(cwd);
   return token ? 'pro' : 'free';
 }
@@ -180,27 +181,36 @@ It is not the only reader of the file. `isNextProject` goes through it but swall
 
 ### Pro Authentication
 
-**Design Decision:** Pro tokens are stored in global `~/.npmrc`, not per-project.
+**Design Decision:** the project `.npmrc` declares how the package manager gets the Pro token and never holds a secret. `.env` selects the tier for Kigumi only.
 
-| File                | Purpose                                        |
-| ------------------- | ---------------------------------------------- |
-| `.npmrc` (project)  | Registry URL only (can be committed to git)    |
-| `~/.npmrc` (global) | Auth token (user configures once)              |
-| `.env` (project)    | `WEBAWESOME_NPM_TOKEN` for tier detection only |
+npm and pnpm read the token from an npmrc. They never read `.env`, and a variable reaches them only through a reference in an npmrc. `utils/token.ts` finds a token to select the tier; `utils/npmrc.ts` knows where npm and pnpm look and owns Kigumi's lines in the project `.npmrc`.
+
+| File | Purpose |
+| --- | --- |
+| `.npmrc` (project) | Registry line, plus on Pro a `//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}` reference. No secret: commit it |
+| `~/.npmrc` (or the file `npm_config_userconfig` names) | Auth token, when the user configured it there once |
+| `.env` (project) | `WEBAWESOME_NPM_TOKEN` for tier detection only; `init --token` writes it |
+
+**The reference rule.** `writeProjectNpmrc()` merges Kigumi's lines into the project `.npmrc` and keeps every other line. On Pro it adds the reference unless the user npmrc already gives npm the Pro token. It never replaces an auth line for the Pro registry that the project already has, and on Free it removes the reference it wrote. The reference is left out when the user npmrc holds the token because a project `_authToken` line takes precedence over the user npmrc. With the variable unset, npm would then send the literal `${WEBAWESOME_NPM_TOKEN}` (401), and pnpm would ignore the whole project `.npmrc` (`WARN Issue while reading ".../.npmrc". Failed to replace env in config: ${WEBAWESOME_NPM_TOKEN}`) and get a 404 from the public registry.
+
+**Kigumi's own installs** (`init`, `upgrade`, init's reinstall) go through `installDependencies`. It brings `.npmrc` in line with the rule first, so `upgrade` also repairs a registry-only `.npmrc` an older Kigumi wrote, and on Pro it passes the token it found to the package manager as `WEBAWESOME_NPM_TOKEN`. Those installs authenticate whether the token came from the environment, the user npmrc or `.env`. The user's own installs and CI get no such help: after `init`, when `.npmrc` reads the variable and the shell does not set it, Next Steps tells the user to set it.
+
+`init --token`, or the (masked) interactive prompt, saves the token to the project `.env` and references the variable from `.npmrc`. `generateGitIgnore` makes sure `.env` is ignored.
 
 **Exception:** `docs/` has no committed `.npmrc`, so `docs/.npmrc` (gitignored, written by `pnpm run setup:npmrc`) carries its Pro registry line and the token; CI's docs jobs write only this file. Pnpm reads the global `~/.npmrc` auth line like npm does (checked with pnpm 10: a fresh Pro install succeeds with only that line and gets a 401 without it).
-
-**Why global:**
-
-- Token not exposed in project repository
-- Configure once, works for all projects
-- Standard npm/pnpm best practice
 
 **User Setup:**
 
 ```bash
+# Environment variable (recommended for shared projects and CI):
+# shell profile, plus a CI secret
+export WEBAWESOME_NPM_TOKEN=TOKEN
+
+# Or the user npmrc, once per machine
 npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken TOKEN
 ```
+
+If the project `.npmrc` already reads `${WEBAWESOME_NPM_TOKEN}` (a teammate or CI set it up), the user npmrc token is not used there: set the variable.
 
 ### `utils/config.ts` - Config Management
 
@@ -335,7 +345,7 @@ Consumers:
 - `file-generator.ts` — skips `configureVitePathAliases` for Next; writes `providers.tsx` next to `app/` (either `app/providers.tsx` or `src/app/providers.tsx` depending on layout) **only** when `nextRouter !== 'pages'`. Pages Router projects get a post-install instruction pointing at `pages/_app.tsx` instead — their `_app.tsx` is user-owned.
 - `config-builder.ts` — `getLayoutDefaults(projectInfo)` returns `componentsDir` / `utilsDir` / `stylesDir` matched to `sourceLayout`, so `create-next-app` without `--src-dir` gets `components/ui` / `lib` / `styles` at the repo root and the user's default `@/*: ['./*']` alias keeps working.
 - `init/index.ts` — `showPostInstallInstructions` branches on `nextRouter`: App Router prints the `<KigumiProvider>` wrap snippet; Pages Router prints the `pages/_app.tsx` side-effect import; `'unknown'` falls through to App Router (modern Next default).
-- `regenerate.ts` (`generateGitIgnore`) — adds `.kigumi/cache/` in addition to `.kigumi/foreign/`. `.kigumi/snapshots/` stays tracked because three-way merge depends on it. `.npmrc` is safe to commit (registry URL only, no token).
+- `regenerate.ts` (`generateGitIgnore`) — adds `.kigumi/cache/` in addition to `.kigumi/foreign/`. `.kigumi/snapshots/` stays tracked because three-way merge depends on it. `.npmrc` is safe to commit: it holds no secret (see "Pro Authentication"). It also keeps `.env` ignored, because `init --token` writes the token there. The check follows gitignore semantics (the last matching pattern wins, `!` un-ignores), so a `.gitignore` that lists only `.env.local` does not count.
 
 **Hydration contract**: all React templates emit `suppressHydrationWarning` on their `<wa-*>` host element. Lit reflects default attributes to the DOM during `connectedCallback`, producing a host-attribute delta on every component. `suppressHydrationWarning` is the documented React API for elements whose attributes mutate after hydration via a runtime (custom elements, date formatters, etc.). It suppresses one level only — children are still hydration-checked. In non-SSR contexts (Vite SPA) the attribute is a no-op, so shipping it uniformly is safe.
 

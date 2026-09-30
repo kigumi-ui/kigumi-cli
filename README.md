@@ -78,21 +78,26 @@ override that per directory.
 
 **Own Web Awesome Pro license?**
 
-To unlock premium themes and Pro-only components, you need a Web Awesome Pro account. [Get your token](https://webawesome.com/login) and configure it:
+To unlock premium themes and Pro-only components, you need a Web Awesome Pro account. [Get your token](https://webawesome.com/login) and set it up in one of these ways:
 
 ```bash
-# Option 1: During `init` command (recommended)
-npx kigumi init --token YOUR_TOKEN
+# Option 1: Environment variable (recommended for shared projects and CI)
+# Add it to your shell profile and to your CI secrets, then run `npx kigumi init`
+export WEBAWESOME_NPM_TOKEN=your_token
 
-# Option 2: Set it globally (once per machine)
+# Option 2: User npmrc (once per machine)
 npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
 
-# Option 3: In project .env file
-echo "WEBAWESOME_NPM_TOKEN=your_token" > .env
-
-# Option 4: Environment variable (CI/CD)
-export WEBAWESOME_NPM_TOKEN=your_token
+# Option 3: During `init` (or answer its prompt)
+npx kigumi init --token YOUR_TOKEN
 ```
+
+`init` selects the Pro tier when it finds a token in the environment variable, in your user npmrc (`~/.npmrc`, or the file `npm_config_userconfig` names), or in the project `.env`. It also writes the project `.npmrc`: the Pro registry, plus a `${WEBAWESOME_NPM_TOKEN}` reference unless your user npmrc already holds the token. That file holds no secret, so commit it. Kigumi merges into an existing `.npmrc` and keeps every other line.
+
+- npm and pnpm read the token only from an npmrc. They never read `.env`, so a token in `.env` alone does not authenticate your own installs. The installs Kigumi runs (`init`, `upgrade`) pass on whatever token they found.
+- With option 3, Kigumi saves the token to the project `.env` (and makes sure `.env` is gitignored) and references the variable from `.npmrc`. The install `init` runs works. For your own `npm install` and for CI, set `WEBAWESOME_NPM_TOKEN`.
+- If the project `.npmrc` already reads `${WEBAWESOME_NPM_TOKEN}` (a teammate or CI set it up), a token in your user npmrc is not used there. Set the variable instead.
+- To move an existing Free project to Pro, run `npx kigumi init` and enter the token when it asks, or pass `--token`. A token set elsewhere does not switch a project that already has the Free package installed.
 
 ### `add`
 
@@ -466,23 +471,27 @@ export default defineConfig({
 
 ### Pro token authentication fails
 
-If `npm install` fails with 401 errors:
+If `npm install` or `pnpm install` fails with a 401:
 
-1. Configure your token globally:
+1. Check that your token is still valid at [https://webawesome.com/login](https://webawesome.com/login).
+
+2. If your project `.npmrc` has a `${WEBAWESOME_NPM_TOKEN}` line, check that the variable is set in the shell that runs the install:
 
    ```bash
-   npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
+   echo $WEBAWESOME_NPM_TOKEN
    ```
 
-2. Verify it's configured:
+3. Otherwise, check your user npmrc. npm 9 and later print `(protected)` for a token that is set, and `undefined` when there is none:
 
    ```bash
    npm config get //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken
    ```
 
-3. Check your token is valid at [https://webawesome.com/login](https://webawesome.com/login)
+   To set it: `npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN`.
 
-**Using pnpm?** pnpm reads the same global `~/.npmrc` auth line as npm (checked with pnpm 10). If 401 persists, add the token to your project `.npmrc` or use `npx kigumi init --token YOUR_TOKEN`.
+**Using pnpm?** If pnpm prints `Failed to replace env in config: ${WEBAWESOME_NPM_TOKEN}` and then fails with a 404 for `@awesome.me/webawesome-pro`, the variable is unset. pnpm ignores the whole project `.npmrc` when a reference in it cannot be resolved, so set `WEBAWESOME_NPM_TOKEN` in the shell that runs the install.
+
+A project that an older Kigumi set up has a registry-only `.npmrc`. `npx kigumi upgrade` or re-running `npx kigumi init` brings it in line.
 
 ### Component styles not loading
 
