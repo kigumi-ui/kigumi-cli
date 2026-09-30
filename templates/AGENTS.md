@@ -396,10 +396,14 @@ Framework plugins a consumer adds on top (`eslint-plugin-react-hooks`, `eslint-p
    Inside each file, write the canonical free-tier import path verbatim — `@awesome.me/webawesome/dist/components/{slug}/{slug}.js`. The CLI rewrites it to the Pro package at `kigumi add` time when the project is on Pro.
 
 5. **Build and test:**
+
    ```bash
    pnpm build
    node dist/index.js add {name} --force
+   pnpm typecheck:templates
    ```
+
+   Function and types are proven by the function harnesses (`pnpm test`) and the consumer tsc suites (`tests/e2e/consumer-tsc-*.test.ts`), not by Starter fixtures: do not add the component to the Starter set or regenerate `tests/fixtures/starter-snapshots/` (`docs/adr/0004`). The docs wrapper and story are a showcase, not Template proof.
 
 ---
 

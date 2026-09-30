@@ -781,6 +781,7 @@ START: Change affects tier detection or packages
 - [ ] **Updated tests**
   - Function: the React, Vue and Angular function harnesses (`*-function-harness-registry.test.ts`) prove every TypeScript Template from its metadata, and `validate:generated-fresh` Check C holds the `.jsx` / `.js.vue` to it; there is no per-Template test to write
   - Types: `pnpm typecheck:templates` typechecks the committed Templates against the shims, and the consumer tsc suites (`tests/e2e/consumer-tsc-*.test.ts`) typecheck `init` + `add --all` output in a strict Free and Pro project (React against both React 19 and React 18 types)
+  - Starter fixtures: unchanged by a Template edit, unless `kigumi add` output for one of the nine starter components changed (then `pnpm run update:starter-snapshots`, see the Starters step of the Web Awesome bump checklist)
   - Snapshot: Visual regression (if applicable)
 
 ### Checklist: Before Adding New Component
@@ -811,12 +812,18 @@ START: Change affects tier detection or packages
   - `templates/angular/{ComponentName}/{kebab-name}.component.css`
   - Nothing else: `pnpm validate:templates` fails on any other file, a per-Template test included (issue #80)
 
-- [ ] **Validation passed**
+- [ ] **Validation passed** (this is the Template proof, `docs/adr/0004`)
   - `pnpm validate:registry` → ✅
   - `pnpm validate:templates` → ✅
-  - `pnpm test` → ✅
+  - `pnpm test` → ✅ (includes the React, Vue and Angular function harnesses, which pick the new component up from its metadata)
+  - `pnpm typecheck:templates` → ✅ (committed Templates against the shims)
+  - `pnpm build`, then the consumer tsc suites (`tests/e2e/consumer-tsc-{react,vue,angular}.test.ts`): `init` + `add --all` typechecks strictly, so the new Template is covered without editing them. A Pro component's Pro consumer reports NOT verified where the Pro package cannot be installed; that is not a pass
 
-- [ ] **Docs site & agent surfaces (hand-maintained — no validator catches these)**
+- [ ] **Starter fixtures: nothing to do**
+  - Do not add the component to the Starter job or regenerate `tests/fixtures/starter-snapshots/`. They are install smoke for a fixed nine-component set with the starter repositories, not a catalogue of Templates (`docs/adr/0004`)
+
+- [ ] **Docs showcase (hand-maintained — no validator catches these; not Template proof)**
+  - The items below show the component to users. Passing them says nothing about whether the Template is correct; the harnesses and consumer tsc above do
   - `docs/src/components/ui/{ComponentName}/` wrapper + export in `docs/src/components/ui/index.ts`
   - `docs/src/stories/{ComponentName}.stories.tsx` with argTypes, a `ChromaticOnly` story, and (if the component emits events) an `interaction`-tagged `Default` story with a `play` function
   - Interaction-test lane registration: add the story file to BOTH `docs/.storybook-test/main.ts` (`stories`) and `docs/vitest.storybook.config.ts` (`server.warmup.clientFiles`)

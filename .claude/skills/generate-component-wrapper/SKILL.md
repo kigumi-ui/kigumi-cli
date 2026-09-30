@@ -236,8 +236,11 @@ Check that generated templates:
 - [ ] Forward refs correctly
 - [ ] Import Web Component JS file using the canonical free-tier path (`@awesome.me/webawesome/dist/components/{slug}/{slug}.js`); CLI rewrites to Pro at install time
 - [ ] Event listeners have cleanup in useEffect
-- [ ] No TypeScript errors
+- [ ] No TypeScript errors (`pnpm typecheck:templates`; the consumer tsc suites in `tests/e2e/consumer-tsc-*.test.ts` typecheck the `init` + `add --all` output)
+- [ ] Function harnesses pass (`pnpm test`)
 - [ ] Follow AGENTS.md patterns
+
+Starter fixtures are not part of this: do not add the component to the Starter set or regenerate `tests/fixtures/starter-snapshots/` (`docs/adr/0004`). A docs wrapper and story are a showcase, not proof the Template works.
 
 ## Template Generation Helpers
 

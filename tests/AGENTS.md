@@ -220,7 +220,7 @@ tests/
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures, and no fixture without an emitted file (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
-│   └── starter-snapshots/{react,vue,angular,next}/  # Per-starter `kigumi add` output (regen via `pnpm update:starter-snapshots`)
+│   └── starter-snapshots/{react,vue,angular,next}/  # Per-starter `kigumi add` output: install smoke for a fixed nine-component set, not Template proof and not grown per new Template (docs/adr/0004; regen via `pnpm update:starter-snapshots`)
 └── .tmp-e2e-*/              # Temporary test projects (gitignored; see E2E Test Projects)
 ```
 
