@@ -39,6 +39,7 @@ tests/
 │   ├── scripts/resolve-cem.test.ts  # resolveCem: tier preference, root-scoping, no worktree escape (#43), pinned-version selection (F-152)
 │   ├── scripts/cem-completeness.test.ts # Check A's all-or-nothing CEM gate (#43)
 │   ├── scripts/guard-outcome.test.ts    # Shared guard reporting: skip is never a pass (#43)
+│   ├── scripts/gha-workflows.test.ts    # The GHA validators' shared workflow loader and inspectionGap; validate:gha-permissions fails an empty inspection on a temp dir (#147)
 │   ├── scripts/is-entry-point.test.ts   # Entry-point check matches through a symlinked directory (#106)
 │   ├── scripts/check-starter-wa-version.test.ts # Starter job guard: a starter older than DEFAULT_WEBAWESOME_VERSION fails, numeric compare, missing install fails (#138)
 │   ├── parse-custom-elements-import.test.ts # Importing the parser never starts main() (#106)
@@ -126,6 +127,7 @@ tests/
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
 │   ├── validate-agents.test.ts      # Pure matchers for templates/AGENTS.md count claims, for history (date stamp, changelog heading) in agent context files, and the tests/ tree (parseTestTree: rows as paths; findTestTreeDrift: both directions, exact paths and glob rows); checkNoHistory() and checkTestFiles() on a temp git repo
 │   ├── validate-gha-permissions.test.ts # Pure matcher for GHA job-level permissions vs actions/checkout (cluster V)
+│   ├── validate-gha-issue-writes.test.ts # `gh issue` writes in PR-triggered workflows: trigger forms, read vs write subcommands, which `if:` shapes gate off pull_request with `&&` binding tighter than `||`, the fix hint naming every reachable event, the guard outcome (an empty inspection could not run), and the validator on temp workflow dirs (issue #147)
 │   ├── pre-tool-guardrails.test.ts  # Drives the PreToolUse hook end-to-end against real throwaway git repos: default-branch guard, worktree exemption, escape hatch (cluster T)
 │   ├── validate-story-lanes.test.ts # Matchers for the interaction-lane story list vs the `interaction` tags on disk (cluster O)
 │   ├── validate-fixture-exclusions.test.ts # Matchers for the three ignore lists that must all skip tests/fixtures/starter-snapshots (cluster X)

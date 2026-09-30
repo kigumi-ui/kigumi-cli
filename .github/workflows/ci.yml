@@ -200,6 +200,13 @@ jobs:
         # breaks actions/checkout, which is how PR #173 regressed.
         run: pnpm run validate:gha-permissions
 
+      - name: Validate GHA issue writes
+        # A step that comments on an issue from a pull_request-triggered
+        # workflow posts once per push to every matching PR, not once per
+        # finding. maintenance.yml's reports put 40 identical comments on
+        # #108 that way (#147).
+        run: pnpm run validate:gha-issue-writes
+
       - name: Validate story interaction lanes
         # The lane's story subset is shared by .storybook-test/main.ts and
         # vitest.storybook.config.ts. This checks it against the stories

@@ -20,7 +20,9 @@
  * The Pro consumer tsc suites (tests/e2e/_helpers/consumer-premise.ts) report
  * through the same summary. Their missing input is the Pro package rather
  * than a manifest, which is also what ships the complete one, so they pass a
- * verdict for that package as `cem`.
+ * verdict for that package as `cem`. validate-gha-issue-writes.ts does the same
+ * with the workflow files it read: a run that found no issue-writing step is
+ * reported as not run.
  *
  * Deciding what absence *means* stays with the caller (see `SummarizeOptions`).
  * A resolver reports facts; policy differs per guard, because the operations
