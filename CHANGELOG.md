@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-10-06
+
+### Added
+
+- **Slider**: Expose `min-value` and `max-value`, so a `range` slider can start its two thumbs where you want them, plus `indicator-offset` (the value the filled track starts from), `tooltip-placement` and `tooltip-distance`. Run `kigumi update` to pick up new props in installed components.
+- **QrCode**: Expose `image`, `image-background` and `image-coverage`, for a logo in the centre of the code.
+- **Popup**: Expose `boundary` (`viewport` | `scroll`), the area flip, shift and auto-size keep the popup inside, and `hover-bridge`, which lets the pointer cross the gap between anchor and popup.
+- **CopyButton**: Expose `tooltip` (`full` | `copy` | `none`), to show the tooltip only after copying, or never.
+- **NumberInput**: Expose `pill`, matching Input and TimeInput.
+- **TimeInput**: Expose `distance`, the gap between the input and its dropdown.
+- **IntersectionObserver**: Expose `root`, the ID of the element whose bounds count as the viewport.
+- **Rating**: Expose `default-value`, the value a form reset restores.
+- **Stepper, Step**: Free wrappers for Web Awesome 3.14.0's new stepper (experimental upstream), with React/Vue/Angular templates, docs stories, and the compose-form wizard pattern. Stepper exposes `goTo()` / `next()` / `previous()` and `onBeforeStepChange` / `onStepChange`.
+- **Combobox**: Server mode from Web Awesome 3.14.0: `server`, `loading` and `filter-debounce` props, `onOptionsRequest` / `onOptionsError` events, and a `reload()` method.
+- **Divider**: Children render as a label on the line, placed with the new `label-placement` prop.
+- **Page**: `nonce` prop for the injected media-query style tag under a Content Security Policy.
+- **ZoomableFrame**: `allow`, `name` and `label` props for the embedded frame.
+
+### Changed
+
+- **add**: `kigumi add` no longer writes a test file next to each component. Projects with Vitest or Jest plus Testing Library got one, and Angular projects always did, but the stub only checked that the Web Awesome element rendered. Kigumi's own test suite now checks every component against Web Awesome's manifest instead. Test files you already have stay where they are and are yours to keep or delete.
+- **diff / update**: Test files are no longer compared or merged. `kigumi diff` stops reporting a missing `Button.test.tsx` in projects that never had one, and `kigumi update --force` no longer overwrites a test you wrote. A copy of the old test file in `.kigumi/snapshots/` is removed the next time `add` or `update` saves that component's snapshot.
+- **Web Awesome**: `kigumi add`, `init` and `upgrade` now install Web Awesome 3.14.0.
+- **Method signatures**: Wrapper methods now mark a parameter optional exactly where Web Awesome does, in React, Vue and Angular alike. React and Vue no longer require arguments Web Awesome treats as optional (`focus()`, `Carousel.next()`). Angular now requires the ones it needs: a call such as `stepper.goTo()` or `toast.create()` without an argument no longer compiles, where it used to reach Web Awesome as `undefined`.
+
+### Fixed
+
+- **Pro install**: `kigumi init` no longer fails with a 401 when your Web Awesome Pro token is only in `WEBAWESOME_NPM_TOKEN`, in the project `.env`, or passed with `--token`. The project `.npmrc` now reads the token through `//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}`, which holds no secret and is safe to commit, and Kigumi hands the token it found to the package manager. If your token is in `~/.npmrc`, `.npmrc` stays registry-only, because a project line would take precedence over yours. Re-running `kigumi init` updates an older `.npmrc`, and so does `kigumi upgrade` when it installs a new Web Awesome version. A token you pass with `--token` or at the prompt is the one `init` installs with, and replaces an older one in `.env`.
+- **.npmrc**: `kigumi init` keeps the lines of an existing `.npmrc` instead of overwriting the file, and never replaces an auth line you wrote.
+- **Pro token detection**: Kigumi reads the user npmrc that npm and pnpm read (`npm_config_userconfig` when set), resolves `${VAR}` values in it, and no longer takes a commented-out line for a token.
+- **Pro guidance**: The 401 note names the two setups npm and pnpm authenticate from (the variable, or `npm config set` once per machine) instead of `.env`, which they never read. The Pro upgrade hints point at `kigumi init` instead of `.env` or a `tier` key in `kigumi.config.json`. When pnpm cannot fill the reference and fails with a 404, the same guidance shows. After a Pro install, Kigumi warns when `.npmrc` reads `WEBAWESOME_NPM_TOKEN` and your shell does not set it (with `--no-install`, Next Steps says so), and `init --no-install` shows the install step again.
+- **Vue (JavaScript)**: Components no longer write Kigumi's documented defaults onto the Web Awesome element when a prop is unset, so they render like the React, Vue TypeScript and Angular components. In JavaScript Vue projects this means Button uses Web Awesome's `accent` appearance instead of `filled`, Slider hides its tooltip until you set `with-tooltip`, SplitPanel no longer pins its start panel, Sparkline draws `solid` / `linear` by default, an unnamed RadioGroup is no longer submitted as `option`, and the console no longer warns that `size="medium"` is deprecated. Run `kigumi update` to pick it up in installed components.
+- **Docs and skills**: The documented defaults now match Web Awesome's: `size` defaults to `m`, Button `appearance` to `accent`, Slider `with-tooltip` to off, Sparkline `appearance` / `curve` to `solid` / `linear`, and SplitPanel `primary`, Callout `appearance` and RadioGroup `name` have none.
+
+### Security
+
+- **Pro token**: The token prompt in `kigumi init` is masked. `init` also makes sure `.gitignore` keeps `.env`, where it saves the token, out of git: a `.gitignore` that listed only `.env.local` or `!.env.example` used to count as ignoring it.
+
 ## [1.2.0] - 2026-09-28
 
 ### Added
