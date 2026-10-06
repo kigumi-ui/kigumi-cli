@@ -38,9 +38,23 @@ function makeProjectInfo(overrides: Partial<ProjectInfo> = {}): ProjectInfo {
 describe('generateProjectFiles', () => {
   let tempDir: string;
   let output: OutputInterface;
+  let userconfig: string;
+  let originalEnv: NodeJS.ProcessEnv;
 
   beforeEach(async () => {
     vi.clearAllMocks();
+
+    // The Pro .npmrc depends on whether the user npmrc holds the token: point
+    // it at a file this test owns instead of the developer's ~/.npmrc.
+    originalEnv = { ...process.env };
+    userconfig = path.join(
+      os.tmpdir(),
+      `kigumi-file-gen-userconfig-${process.pid}-${Date.now()}`
+    );
+    delete process.env.KIGUMI_SKIP_GLOBAL_NPMRC;
+    delete process.env.npm_config_userconfig;
+    delete process.env.WEBAWESOME_NPM_TOKEN;
+    process.env.NPM_CONFIG_USERCONFIG = userconfig;
 
     vi.spyOn(projectConfig, 'configureVitePathAliases').mockResolvedValue(true);
     vi.spyOn(projectConfig, 'configureTSConfig').mockResolvedValue(true);
@@ -62,7 +76,9 @@ describe('generateProjectFiles', () => {
   });
 
   afterEach(async () => {
+    process.env = originalEnv;
     await fs.remove(tempDir);
+    await fs.remove(userconfig);
     vi.restoreAllMocks();
   });
 
@@ -133,9 +149,77 @@ describe('generateProjectFiles', () => {
       const env = await fs.readFile(path.join(tempDir, '.env'), 'utf-8');
       expect(env).toContain('WEBAWESOME_NPM_TOKEN=wa_test_token');
 
+      // The package manager does not read .env: the token reaches it through
+      // the reference, which init's install fills from .env (issue #160).
       const npmrc = await fs.readFile(path.join(tempDir, '.npmrc'), 'utf-8');
-      expect(npmrc).toContain(
-        '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro'
+      expect(npmrc).toBe(
+        '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n' +
+          '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}\n'
+      );
+    });
+
+    it('replaces a stale token in an existing .env and keeps its other lines', async () => {
+      await fs.writeFile(
+        path.join(tempDir, '.env'),
+        'API_URL=https://api.example\nWEBAWESOME_NPM_TOKEN=stale-token-123456\n'
+      );
+
+      await generateProjectFiles({
+        cwd: tempDir,
+        config: createTestKigumiConfig({ framework: 'react' }),
+        tier: 'pro',
+        proToken: 'fresh-token-123456',
+        output,
+        projectInfo: makeProjectInfo(),
+      });
+
+      expect(await fs.readFile(path.join(tempDir, '.env'), 'utf-8')).toBe(
+        'API_URL=https://api.example\nWEBAWESOME_NPM_TOKEN=fresh-token-123456\n'
+      );
+    });
+
+    it('points .npmrc at the Pro registry only when the user npmrc holds the token', async () => {
+      await fs.writeFile(
+        userconfig,
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=user-token-123456\n'
+      );
+
+      await generateProjectFiles({
+        cwd: tempDir,
+        config: createTestKigumiConfig({ framework: 'react' }),
+        tier: 'pro',
+        proToken: undefined,
+        output,
+        projectInfo: makeProjectInfo(),
+      });
+
+      const npmrc = await fs.readFile(path.join(tempDir, '.npmrc'), 'utf-8');
+      expect(npmrc).toBe(
+        '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n'
+      );
+    });
+
+    it('keeps the lines of an existing .npmrc that Kigumi does not own', async () => {
+      await fs.writeFile(
+        path.join(tempDir, '.npmrc'),
+        'engine-strict=true\n@acme:registry=https://npm.acme.example/\n'
+      );
+
+      await generateProjectFiles({
+        cwd: tempDir,
+        config: createTestKigumiConfig({ framework: 'react' }),
+        tier: 'pro',
+        proToken: undefined,
+        output,
+        projectInfo: makeProjectInfo(),
+      });
+
+      const npmrc = await fs.readFile(path.join(tempDir, '.npmrc'), 'utf-8');
+      expect(npmrc).toBe(
+        'engine-strict=true\n' +
+          '@acme:registry=https://npm.acme.example/\n' +
+          '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n' +
+          '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}\n'
       );
     });
   });

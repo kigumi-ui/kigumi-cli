@@ -7,6 +7,16 @@
 import { KigumiError, ErrorCode, type ErrorSuggestion } from './base.js';
 
 /**
+ * How a project moves to Pro. Tier is detected, never configured, and an
+ * installed Free package wins over a token found elsewhere, so the token
+ * has to go through `kigumi init`, which switches the package and .npmrc.
+ */
+const PRO_UPGRADE_STEPS = [
+  'Get a Pro token: https://webawesome.com/pro',
+  'Run: kigumi init, and enter the token when it asks (or pass --token)',
+];
+
+/**
  * Generic tier restriction error
  */
 export class TierRestrictionError extends KigumiError {
@@ -18,13 +28,7 @@ export class TierRestrictionError extends KigumiError {
     const suggestions: ErrorSuggestion[] = [
       {
         title: 'Upgrade to Pro tier',
-        steps: [
-          `"${feature}" requires Web Awesome Pro`,
-          'Visit: https://webawesome.com/pro',
-          'Sign up for a Pro account',
-          'Update your configuration: tier: "pro"',
-          'Add your Pro token to .env: WEBAWESOME_NPM_TOKEN=your-token',
-        ],
+        steps: [`"${feature}" requires Web Awesome Pro`, ...PRO_UPGRADE_STEPS],
       },
       {
         title: 'Or use a free alternative',
@@ -54,10 +58,7 @@ export class ProThemeRequiredError extends KigumiError {
         title: 'Upgrade to Pro tier',
         steps: [
           `Theme "${themeName}" requires Web Awesome Pro`,
-          'Visit: https://webawesome.com/pro',
-          'Sign up for a Pro account',
-          'Update kigumi.config.json: "tier": "pro"',
-          'Add your Pro token to .env: WEBAWESOME_NPM_TOKEN=your-token',
+          ...PRO_UPGRADE_STEPS,
         ],
       },
       {

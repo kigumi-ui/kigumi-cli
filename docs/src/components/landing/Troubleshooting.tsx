@@ -38,7 +38,7 @@ const FAQ_ITEMS: FaqItem[] = [
     id: 'pro-token-401',
     summary: 'Pro token authentication fails (401 error)',
     searchText:
-      'pro token 401 authentication npm install pnpm fail webawesome cloudsmith .env CI GitHub Actions',
+      'pro token 401 404 authentication npm install pnpm fail webawesome cloudsmith npmrc WEBAWESOME_NPM_TOKEN environment variable CI GitHub Actions',
     content: (
       <div className="wa-stack wa-gap-m">
         <p>
@@ -51,34 +51,84 @@ const FAQ_ITEMS: FaqItem[] = [
           >
             get your token here
           </a>
-          , then choose one of the following options:
+          , then choose one of the following setups. npm and pnpm read the token
+          only from an npmrc, so a token in <code>.env</code> alone does not
+          authenticate your own installs.
         </p>
         <p>
-          <strong>Option 1: Pass token during init (recommended)</strong>
-        </p>
-        <CodeBlock value="npx kigumi init --token YOUR_TOKEN" />
-        <p>
-          <strong>Option 2: Set globally (once per machine)</strong>
-        </p>
-        <CodeBlock value="npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN" />
-        <p>
-          <strong>Option 3: In project .env file</strong>
+          <strong>
+            Option 1: Environment variable (recommended for shared projects and
+            CI)
+          </strong>
         </p>
         <p>
-          Add to your project's <code>.env</code> file:
+          Set <code>WEBAWESOME_NPM_TOKEN</code> in your shell profile and as a
+          CI secret, and commit the <code>.npmrc</code> that{' '}
+          <code>kigumi init</code> writes. It holds no secret: it reads the
+          token from that variable.
         </p>
-        <CodeBlock value="WEBAWESOME_NPM_TOKEN=your_token_here" />
-        <p>
-          <strong>Option 4: CI/CD environments</strong>
-        </p>
-        <p>Set the environment variable in your CI/CD config:</p>
-        <CodeBlock value="WEBAWESOME_NPM_TOKEN=your_token_here" />
-        <p>GitHub Actions example:</p>
+        <CodeBlock value="export WEBAWESOME_NPM_TOKEN=your_token_here" />
+        <p>GitHub Actions example, on the install step:</p>
         <CodeBlock
           multiline
           value={`env:\n  WEBAWESOME_NPM_TOKEN: \${{ secrets.WEBAWESOME_NPM_TOKEN }}`}
           copyValue="env:\n  WEBAWESOME_NPM_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}"
         />
+        <p>
+          <strong>Option 2: User npmrc (once per machine)</strong>
+        </p>
+        <CodeBlock value="npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN" />
+        <p>
+          <code>kigumi init</code> then writes a registry-only{' '}
+          <code>.npmrc</code> for the project. If the project{' '}
+          <code>.npmrc</code> already reads{' '}
+          <code>{'${WEBAWESOME_NPM_TOKEN}'}</code> (a teammate or CI set it up),
+          the user-level token is not used there. Set the variable instead.
+        </p>
+        <p>
+          <strong>Option 3: Pass the token to init</strong>
+        </p>
+        <CodeBlock value="npx kigumi init --token YOUR_TOKEN" />
+        <p>
+          Kigumi saves the token to your project <code>.env</code> and
+          references the variable from <code>.npmrc</code>. The install that{' '}
+          <code>init</code> runs works. For your own installs and for CI, set{' '}
+          <code>WEBAWESOME_NPM_TOKEN</code>.
+        </p>
+        <p>
+          <strong>Still failing?</strong>
+        </p>
+        <p>
+          Check that the token is still valid at{' '}
+          <a
+            href="https://webawesome.com/login"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            webawesome.com/login
+          </a>
+          . If your <code>.npmrc</code> has the{' '}
+          <code>{'${WEBAWESOME_NPM_TOKEN}'}</code> line, check that the variable
+          is set in the shell that runs the install:
+        </p>
+        <CodeBlock value="echo $WEBAWESOME_NPM_TOKEN" />
+        <p>
+          Otherwise, check your user npmrc. npm 9 and later print{' '}
+          <code>(protected)</code> for a token that is set, and{' '}
+          <code>undefined</code> when there is none:
+        </p>
+        <CodeBlock value="npm config get //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken" />
+        <p>
+          With pnpm, a 404 for <code>@awesome.me/webawesome-pro</code> that
+          follows the warning{' '}
+          <code>
+            Failed to replace env in config: {'${WEBAWESOME_NPM_TOKEN}'}
+          </code>{' '}
+          means the variable is unset. If an older Kigumi set up your project,
+          re-run <code>npx kigumi init</code> to update a registry-only{' '}
+          <code>.npmrc</code> (<code>npx kigumi upgrade</code> does too when it
+          installs a new Web Awesome version).
+        </p>
       </div>
     ),
   },
@@ -147,21 +197,24 @@ const FAQ_ITEMS: FaqItem[] = [
     id: 'tier-restriction',
     summary: 'Tried to add a component but got a tier restriction error',
     searchText:
-      'tier restriction pro feature requires toast data-grid date-picker WEBAWESOME_NPM_TOKEN',
+      'tier restriction pro feature requires toast data-grid date-picker WEBAWESOME_NPM_TOKEN token init',
     content: (
       <div className="wa-stack wa-gap-m">
         <p>
           Some components (like <code>toast</code>, <code>data-grid</code>,{' '}
           <code>date-picker</code>) require Web Awesome Pro. If you see{' '}
-          <em>"Feature requires Pro tier"</em>, you need to set up your Pro
-          token:
+          <em>"Feature requires Pro tier"</em>, your project is on the Free
+          tier. Run <code>kigumi init</code> with your Pro token to switch it:
         </p>
         <p>
-          <strong>
-            1. Add your token to <code>.env</code>:
-          </strong>
+          <strong>1. Run init with your token:</strong>
         </p>
-        <CodeBlock value="WEBAWESOME_NPM_TOKEN=your_token_here" />
+        <CodeBlock value="npx kigumi init --token YOUR_TOKEN" />
+        <p>
+          You can also run <code>npx kigumi init</code> and enter the token when
+          it asks. A token set elsewhere does not switch a project that already
+          has the Free package installed.
+        </p>
         <p>
           <strong>2. Re-run the add command:</strong>
         </p>

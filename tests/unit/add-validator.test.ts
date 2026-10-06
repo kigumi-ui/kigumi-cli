@@ -4,7 +4,7 @@
  * Tests for src/commands/add/validator.ts
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { validateComponents } from '../../src/commands/add/validator.js';
 import { getOutput } from '../../src/output/index.js';
 import { ValidationError } from '../../src/errors/validation.js';
@@ -108,6 +108,21 @@ describe('add validator', () => {
         await expect(
           validateComponents([component], 'pro', output)
         ).resolves.not.toThrow();
+      }
+    });
+
+    it('points the Pro warning at kigumi init, not .env', async () => {
+      const warning = vi.spyOn(output, 'warning');
+      try {
+        await expect(
+          validateComponents(['combobox'], 'free', output)
+        ).rejects.toThrow(TierRestrictionError);
+
+        const text = String(warning.mock.calls[0]?.[0]);
+        expect(text).toContain('kigumi init');
+        expect(text).not.toContain('.env');
+      } finally {
+        warning.mockRestore();
       }
     });
 

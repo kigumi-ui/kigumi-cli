@@ -44,4 +44,26 @@ describe('Tier errors', () => {
     const err = new ProThemeRequiredError('sleek', ['awesome', 'default']);
     expect(err.code).toBe(ErrorCode.PRO_THEME_REQUIRED);
   });
+
+  // Tier is detected, never configured, and an installed Free package wins
+  // over a token in .env: `kigumi init` with the token is what moves a
+  // project to Pro.
+  it.each([
+    [
+      'TierRestrictionError',
+      new TierRestrictionError('Combobox', 'pro', 'free'),
+    ],
+    [
+      'ProThemeRequiredError',
+      new ProThemeRequiredError('sleek', ['awesome', 'default']),
+    ],
+  ])(
+    '%s points the upgrade at kigumi init, not .env or config',
+    (_name, err) => {
+      const upgrade = err.suggestions[0].steps.join('\n');
+      expect(upgrade).toContain('kigumi init');
+      expect(upgrade).not.toContain('.env');
+      expect(upgrade).not.toMatch(/"tier"|tier:/);
+    }
+  );
 });

@@ -100,14 +100,16 @@ const TIER_FACTS: Record<Tier, TierFacts> = {
     templatesTitle: 'installs every Template, Pro-only ones included',
     expectedTemplates: ({ free, pro }) =>
       [...free, ...pro].sort((a, b) => a.localeCompare(b)),
-    premise: (label, dir) =>
-      consumerPremise(
+    premise: (label, dir) => {
+      const token = detectProTokenSync(dir);
+      return consumerPremise(
         resolveProPackage({
-          token: detectProTokenSync(dir),
-          probe: () => probeProPackage(DEFAULT_WEBAWESOME_VERSION),
+          token,
+          probe: () => probeProPackage(DEFAULT_WEBAWESOME_VERSION, token ?? ''),
         }),
         { label }
-      ),
+      );
+    },
   },
 };
 

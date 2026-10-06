@@ -4,6 +4,7 @@ export interface PromptScripts {
   confirm?: Array<boolean | symbol>;
   select?: Array<unknown>;
   text?: Array<string | symbol>;
+  password?: Array<string | symbol>;
   multiselect?: Array<unknown>;
   /**
    * Optional symbol that isCancel() should treat as a cancellation. When
@@ -14,7 +15,7 @@ export interface PromptScripts {
 
 /**
  * Returns a PromptsAdapter that:
- * - returns scripted answers for confirm/select/text/multiselect in the
+ * - returns scripted answers for confirm/select/text/password/multiselect in the
  *   order the test provided them,
  * - throws "Unexpected prompt: <method>(<arg-summary>)" when a script is
  *   exhausted or a method is called without a script (so missing scripts
@@ -30,6 +31,7 @@ export function createTestPrompts(scripts: PromptScripts): PromptsAdapter {
     confirm: [...(scripts.confirm ?? [])],
     select: [...(scripts.select ?? [])],
     text: [...(scripts.text ?? [])],
+    password: [...(scripts.password ?? [])],
     multiselect: [...(scripts.multiselect ?? [])],
   };
 
@@ -70,6 +72,11 @@ export function createTestPrompts(scripts: PromptScripts): PromptsAdapter {
         'text',
         JSON.stringify(opts.message ?? '')
       )) as PromptsAdapter['text'],
+    password: (async (opts: { message?: string }) =>
+      take(
+        'password',
+        JSON.stringify(opts.message ?? '')
+      )) as PromptsAdapter['password'],
     multiselect: (async (opts: { message?: string }) =>
       take(
         'multiselect',

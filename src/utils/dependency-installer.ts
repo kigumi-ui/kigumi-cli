@@ -18,9 +18,15 @@
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
-import { ENV_TOKEN_KEY } from '../constants.js';
+import {
+  ENV_TOKEN_KEY,
+  ENV_TOKEN_REFERENCE,
+  NPM_PRO_AUTH_TOKEN_KEY,
+  WEB_AWESOME_FREE_PACKAGE,
+} from '../constants.js';
 import type { OutputInterface } from '../output/types.js';
 import type { KigumiConfig } from '../schemas/index.js';
+import { tokenReferenceUnset, writeProjectNpmrc } from './npmrc.js';
 import type { Tier } from './tier.js';
 import { getWebAwesomePackage } from './tier.js';
 import {
@@ -36,6 +42,11 @@ export interface InstallOptions {
   tier: Tier;
   packageManager: string;
   output: OutputInterface;
+  /**
+   * The token the user just gave (init's --token or prompt). It wins over
+   * one Kigumi detects in the environment, the user npmrc or .env.
+   */
+  token?: string;
 }
 
 type PackageManager = 'npm' | 'pnpm' | 'yarn';
@@ -53,7 +64,8 @@ interface LockfileCheckResult {
  */
 async function checkLockfileCompatibility(
   cwd: string,
-  packageManager: string
+  packageManager: string,
+  env: NodeJS.ProcessEnv
 ): Promise<LockfileCheckResult> {
   const lockfiles: Record<string, string> = {
     npm: 'package-lock.json',
@@ -77,7 +89,7 @@ async function checkLockfileCompatibility(
     const result = await execa(
       packageManager,
       ['install', '--frozen-lockfile'],
-      { cwd, reject: false, timeout: 5000, stdio: 'pipe' }
+      { cwd, reject: false, timeout: 5000, stdio: 'pipe', env }
     );
 
     // Check for incompatible lockfile warnings
@@ -205,7 +217,76 @@ async function restoreManifest(
 }
 
 /**
+ * The environment for a package manager child. On Pro it carries the token
+ * Kigumi found as WEBAWESOME_NPM_TOKEN, which the project .npmrc reference
+ * reads, so the install authenticates whether the token came from the
+ * environment, the user npmrc or the project .env. A Free install gets no
+ * token it does not need: every install script can read the environment.
+ */
+function packageManagerEnv(
+  cwd: string,
+  tier: Tier,
+  output: OutputInterface,
+  explicitToken?: string
+): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  if (tier !== 'pro') return env;
+
+  if (explicitToken) {
+    env[ENV_TOKEN_KEY] = explicitToken;
+    output.debug('[DEBUG] Pro token from --token or the init prompt');
+    return env;
+  }
+  const token = detectProTokenSync(cwd);
+  if (token) {
+    env[ENV_TOKEN_KEY] = token;
+    output.debug(
+      `[DEBUG] Pro token loaded from ${describeTokenSource(getTokenSourceSync(cwd))}`
+    );
+  }
+  return env;
+}
+
+/**
+ * Whether a failed Pro install failed for want of a working token: a 401, or
+ * pnpm skipping the project .npmrc because it could not fill the reference,
+ * then asking the public registry for the Pro package (404).
+ */
+function isProAuthFailure(output: string): boolean {
+  return (
+    output.includes('401') ||
+    output.includes('Unauthorized') ||
+    output.includes(`Failed to replace env in config: ${ENV_TOKEN_REFERENCE}`)
+  );
+}
+
+/**
+ * The note shown when a Pro install cannot authenticate. The two setups it
+ * offers are the ones npm and pnpm read; `.env` is not one of them (#160).
+ */
+function proTokenGuidance(tokenFound: boolean): string {
+  return (
+    (tokenFound
+      ? 'The Pro package requires a valid Web Awesome Pro token.\n\n'
+      : 'Kigumi found no Pro token (environment variable, user npmrc or .env).\n\n') +
+    'npm and pnpm read it from an npmrc. Setup options (choose one):\n\n' +
+    `1. Set ${ENV_TOKEN_KEY} in your environment (shell profile, CI secret).\n` +
+    '   The project .npmrc reads it through this line:\n' +
+    `   ${NPM_PRO_AUTH_TOKEN_KEY}=${ENV_TOKEN_REFERENCE}\n\n` +
+    '2. Store it in your user ~/.npmrc, once per machine:\n' +
+    `   npm config set ${NPM_PRO_AUTH_TOKEN_KEY} YOUR_TOKEN\n` +
+    '   An _authToken line in the project .npmrc takes precedence over it.\n\n' +
+    'A token in the project .env selects Pro for Kigumi, but npm and pnpm never read it.\n\n' +
+    'Get your token at: https://webawesome.com/login\n' +
+    'Then run the command again.'
+  );
+}
+
+/**
  * Install project dependencies
+ *
+ * Brings the project .npmrc in line with the tier first, so `upgrade` and a
+ * reinstall authenticate against a .npmrc an older Kigumi wrote.
  *
  * @param options - Installation options
  */
@@ -214,8 +295,19 @@ export async function installDependencies(
 ): Promise<void> {
   const { cwd, config, tier, packageManager, output } = options;
 
+  if (await writeProjectNpmrc(cwd, tier)) {
+    output.info(
+      `Updated .npmrc for the ${tier === 'pro' ? 'Pro' : 'Free'} registry`
+    );
+  }
+  const env = packageManagerEnv(cwd, tier, output, options.token);
+
   // Check lockfile compatibility before installation
-  const lockfileCheck = await checkLockfileCompatibility(cwd, packageManager);
+  const lockfileCheck = await checkLockfileCompatibility(
+    cwd,
+    packageManager,
+    env
+  );
 
   if (!lockfileCheck.compatible && lockfileCheck.lockfilePath) {
     output.warn('Incompatible lockfile detected');
@@ -250,19 +342,6 @@ export async function installDependencies(
     const devDependencies: string[] = [];
     if (config.framework === 'react' && config.typescript) {
       devDependencies.push('@types/react', '@types/react-dom');
-    }
-
-    // For Pro tier, load token from fallback chain
-    const env = { ...process.env };
-    if (tier === 'pro') {
-      const token = detectProTokenSync(cwd);
-      if (token) {
-        env[ENV_TOKEN_KEY] = token;
-        const source = getTokenSourceSync(cwd);
-        output.debug(
-          `[DEBUG] Pro token loaded from ${describeTokenSource(source)}`
-        );
-      }
     }
 
     const installCmd = packageManager === 'npm' ? 'install' : 'add';
@@ -332,6 +411,15 @@ export async function installDependencies(
     }
 
     spinner.stop('Dependencies installed');
+
+    // This install had the token; the user's own installs and CI will not.
+    if (tier === 'pro' && (await tokenReferenceUnset(cwd))) {
+      output.warn(
+        `.npmrc reads the Pro token from ${ENV_TOKEN_KEY}, which is not set here. ` +
+          `Kigumi passed its token to this install; set ${ENV_TOKEN_KEY} ` +
+          '(shell profile, CI secret) for your own installs.'
+      );
+    }
   } catch (error) {
     spinner.error('Installation failed');
 
@@ -403,25 +491,11 @@ export async function installDependencies(
         );
       }
 
-      // Enhanced 401 error handling (Phase 3)
-      const is401Error =
-        stderr.includes('401') || stderr.includes('Unauthorized');
-
-      if (is401Error && tier === 'pro') {
-        // Context-aware error message for Pro tier
+      if (tier === 'pro' && isProAuthFailure(errorOutput)) {
         output.error('Authentication failed for Pro package');
         output.note(
           'Pro token required',
-          'The Pro package requires a valid Web Awesome Pro token.\n\n' +
-            'Setup options (choose one):\n\n' +
-            '1. Local development (recommended):\n' +
-            '   npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN\n\n' +
-            '2. CI/CD environments:\n' +
-            `   Set ${ENV_TOKEN_KEY} environment variable\n\n` +
-            '3. Project-specific (.env file):\n' +
-            `   ${ENV_TOKEN_KEY}=your_token_here\n\n` +
-            'Get your token at: https://webawesome.com/login\n' +
-            'Then run kigumi init again.'
+          proTokenGuidance(Boolean(env[ENV_TOKEN_KEY]))
         );
       }
 
@@ -467,12 +541,21 @@ export async function cleanupOldPackage(
 
     const spinner = output.spinner(`Removing old package: ${oldPackage}`);
 
+    // Removing Free means the project moved to Pro: the package manager
+    // reads the Pro .npmrc, whose token reference needs the token.
+    const env = packageManagerEnv(
+      cwd,
+      oldPackage === WEB_AWESOME_FREE_PACKAGE ? 'pro' : 'free',
+      output
+    );
+
     try {
       // Uninstall old package
       const uninstallCmd = packageManager === 'npm' ? 'uninstall' : 'remove';
       await execa(packageManager, [uninstallCmd, oldPackage], {
         cwd,
         stdio: 'pipe',
+        env,
       });
 
       spinner.stop(`Removed old package: ${oldPackage}`);

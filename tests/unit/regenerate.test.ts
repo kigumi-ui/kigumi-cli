@@ -385,6 +385,57 @@ describe('regenerate utilities', () => {
       expect(envMatches).toHaveLength(1);
     });
 
+    // `init --token` writes the Pro token into .env. The check used to be a
+    // substring test, so `.env.local` or `!.env.example` alone left .env
+    // committable.
+    it.each([
+      ['.env.local only', 'node_modules/\n.env.local\n'],
+      ['a negated example file', 'node_modules/\n!.env.example\n'],
+      ['a nested path', 'config/.env\n'],
+      ['a directory-only pattern', '.env/\n'],
+      ['.env un-ignored again', '.env\n!.env\n'],
+      ['a commented-out entry', '# .env\n'],
+    ])(
+      'should add .env when the .gitignore has %s',
+      async (_label, existing) => {
+        const gitignorePath = path.join(testDir, '.gitignore');
+        await fs.writeFile(gitignorePath, existing);
+
+        await generateGitIgnore(testDir);
+
+        const content = await fs.readFile(gitignorePath, 'utf-8');
+        expect(content.startsWith(existing)).toBe(true);
+        const added = content.slice(existing.length).split('\n');
+        expect(added).toContain('.env');
+        // The companion entries the file already has are not added twice.
+        for (const entry of ['.env.local', '.env.*.local']) {
+          if (existing.split('\n').includes(entry)) {
+            expect(added).not.toContain(entry);
+          }
+        }
+      }
+    );
+
+    it.each([
+      ['.env', '.env\n'],
+      ['/.env', '/.env\n'],
+      ['.env*', '.env*\n'],
+      ['*.env', '*.env\n'],
+      ['**/.env', '**/.env\n'],
+      ['.env with a later unrelated negation', '.env\n!.env.example\n'],
+    ])(
+      'should not add .env when %s already ignores it',
+      async (_label, existing) => {
+        const gitignorePath = path.join(testDir, '.gitignore');
+        await fs.writeFile(gitignorePath, existing);
+
+        await generateGitIgnore(testDir);
+
+        const content = await fs.readFile(gitignorePath, 'utf-8');
+        expect(content.slice(existing.length)).not.toMatch(/^\.env$/m);
+      }
+    );
+
     it('should ignore .kigumi/foreign/ in a fresh .gitignore', async () => {
       await generateGitIgnore(testDir);
       const content = await fs.readFile(

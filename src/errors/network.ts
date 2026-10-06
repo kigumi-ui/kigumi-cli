@@ -4,6 +4,11 @@
  * Errors related to package installation, network requests, and registries
  */
 
+import {
+  ENV_TOKEN_KEY,
+  ENV_TOKEN_REFERENCE,
+  NPM_PRO_AUTH_TOKEN_KEY,
+} from '../constants.js';
 import { KigumiError, ErrorCode, type ErrorSuggestion } from './base.js';
 
 /**
@@ -47,10 +52,10 @@ export class DependencyInstallError extends KigumiError {
         title: 'Authentication required',
         steps: [
           `Failed to install ${packageName} - authentication failed`,
-          'This package requires a Pro tier token',
-          'Get your token from: https://webawesome.com/pro',
-          'Add to .env file: WEBAWESOME_NPM_TOKEN=your-token-here',
-          'The .npmrc file is already configured for you',
+          'This package requires a Web Awesome Pro token',
+          'Get your token from: https://webawesome.com/login',
+          `Set ${ENV_TOKEN_KEY} in your environment; the project .npmrc reads it via ${NPM_PRO_AUTH_TOKEN_KEY}=${ENV_TOKEN_REFERENCE}`,
+          `Or, once per machine: npm config set ${NPM_PRO_AUTH_TOKEN_KEY} YOUR_TOKEN`,
         ],
       });
     } else if (isNotFoundError) {
