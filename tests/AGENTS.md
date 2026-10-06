@@ -15,8 +15,8 @@ tests/
 │   ├── check-runner.test.ts         # Pre-flight check runner
 │   ├── component-installer.test.ts  # Component installer logic
 │   ├── community-registry.test.ts   # Registry schema, URL parsing, deps
-│   ├── concurrency.test.ts          # Cluster T: saveConfig load-modify-write race + write-failure propagation
-│   ├── failure-modes.test.ts        # Cluster T: disk (ENOSPC/EACCES) + GitHub fetcher (401/403/429/404) + network (ECONNREFUSED)
+│   ├── concurrency.test.ts          # Cluster T: overlapping saveConfig calls both fulfil and never tear or empty the file, last write wins (#171); write-failure propagation
+│   ├── failure-modes.test.ts        # Cluster T: disk (ENOSPC/EACCES part-way through a save leaves the config and package.json as they were, #171) + GitHub fetcher (401/403/429/404) + network (ECONNREFUSED)
 │   ├── component-selector.test.ts   # buildSelectorChoices + selectComponents dispatch
 │   ├── config.test.ts               # Config loading/saving
 │   ├── config-checks.test.ts        # Config validation checks
@@ -431,9 +431,9 @@ Cluster T (PR-T3) ships this section. New tests added in cluster T are noted as 
 | `loadConfig` / `getConfig` | trailing-comma JSON | throws | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when JSON has a trailing comma` |
 | `loadConfig` / `getConfig` | truncated mid-write | throws | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when the config file was truncated` |
 | `loadConfig` / `getConfig` | wrong type per required field | `ConfigInvalidError` | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `rejects $field set to a wrong-type value via ConfigInvalidError` |
-| `saveConfig` | concurrent disjoint patches (race) | at-least-one-fulfils | `tests/unit/concurrency.test.ts` [T3] | `leaves disk in a valid JSON state and at least one patch fulfils` |
-| `saveConfig` | mid-write `loadConfig` race | `ConfigNotFoundError` on B | `tests/unit/concurrency.test.ts` [T3] | `exposes the load-modify-write race` |
-| `saveConfig` | `fs.writeJson` rejects (ENOSPC / EACCES) | propagates with code | `tests/unit/failure-modes.test.ts` [T3] | `saveConfig propagates ENOSPC ... with code preserved` |
+| `saveConfig` | concurrent disjoint patches (race) | both fulfil, valid JSON | `tests/unit/concurrency.test.ts` [T3] | `leaves disk in a valid JSON state and both patches fulfil` |
+| `saveConfig` | a save overlapping one mid-write | reads the previous config, later rename wins | `tests/unit/concurrency.test.ts` [T3] | `never empties the config mid-save` |
+| `saveConfig` | write fails part-way (ENOSPC / EACCES) | propagates with code, file as it was | `tests/unit/failure-modes.test.ts` [T3] | `saveConfig propagates ENOSPC with code preserved` |
 
 ---
 
