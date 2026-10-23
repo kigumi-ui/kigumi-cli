@@ -38,3 +38,6 @@ public/llms.txt
 
 *storybook.log
 storybook-static
+
+# trigger.dev CLI build output
+.trigger

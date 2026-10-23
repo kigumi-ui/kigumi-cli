@@ -671,7 +671,7 @@ jobs:
         run: pnpm run build
 
   docs-typecheck:
-    name: Type-check docs
+    name: Type-check and unit-test docs
     runs-on: ubuntu-latest
     needs: changes
     if: |
@@ -733,6 +733,20 @@ jobs:
         if: steps.pro.outputs.available == 'true'
         working-directory: docs
         run: pnpm exec tsc -p tsconfig.app.json
+
+      # The Vercel Function (docs/api) and the trigger.dev task (docs/trigger)
+      # run on Node and are compiled by the node project, not the app one.
+      - name: Type-check docs server code
+        if: steps.pro.outputs.available == 'true'
+        working-directory: docs
+        run: pnpm exec tsc -p tsconfig.node.json
+
+      # Studio lib tests and the Theme Agent access gate. Root vitest
+      # excludes docs/, so nothing else runs them.
+      - name: Unit-test docs
+        if: steps.pro.outputs.available == 'true'
+        working-directory: docs
+        run: pnpm test
 
   story-interactions:
     name: Story Interactions (Storybook Vitest)
