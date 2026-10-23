@@ -30,9 +30,9 @@
   color: var(--wa-color-text-quiet);
 }
 
+/* Surface, border and radius come from Card's appearance. */
 .theme-agent__message {
-  padding: var(--wa-space-xs) var(--wa-space-s);
-  border-radius: var(--wa-border-radius-m);
+  --spacing: var(--wa-space-s);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -40,12 +40,6 @@
 .theme-agent__message--user {
   align-self: flex-end;
   max-width: 85%;
-  background: var(--wa-color-brand-fill-quiet);
-  color: var(--wa-color-brand-on-quiet);
-}
-
-.theme-agent__message--assistant {
-  background: var(--wa-color-surface-lowered);
 }
 
 .theme-agent__pending {

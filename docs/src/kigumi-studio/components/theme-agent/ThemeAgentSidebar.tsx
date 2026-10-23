@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import {
   Button,
   Callout,
+  Card,
   Icon,
   Spinner,
   Textarea,
@@ -122,8 +123,9 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
           </p>
         )}
         {messages.map((message) => (
-          <div
+          <Card
             key={message.id}
+            appearance={message.role === 'user' ? 'filled' : 'outlined'}
             className={clsx(
               'theme-agent__message',
               `theme-agent__message--${message.role}`
@@ -133,7 +135,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
               {message.role === 'user' ? 'You:' : 'Theme Agent:'}
             </span>
             {messageText(message)}
-          </div>
+          </Card>
         ))}
         {status === 'submitted' && (
           <div className="wa-cluster wa-gap-xs theme-agent__pending">
