@@ -108,6 +108,27 @@ describe('Theme Agent access gate', () => {
     expect(sessions.start).not.toHaveBeenCalled();
   });
 
+  it('reports a refused trigger.dev call as 502 with its reason', async () => {
+    const sessions = stubSessions();
+    sessions.start.mockRejectedValue(new Error('403: key not allowed'));
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await handleThemeAgentSession(
+      sessionRequest(
+        { intent: 'start', chatId: 'chat-1' },
+        `kigumi-theme-agent=${ACCESS_KEY}`
+      ),
+      { accessKey: ACCESS_KEY, sessions }
+    );
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({
+      error: 'trigger.dev refused the request: 403: key not allowed',
+    });
+    expect(log).toHaveBeenCalled();
+    log.mockRestore();
+  });
+
   it.each([
     ['a body that is not JSON', 'not json'],
     [

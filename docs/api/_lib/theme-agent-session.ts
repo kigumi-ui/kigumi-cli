@@ -88,9 +88,20 @@ export async function handleThemeAgentSession(
   }
 
   const body = parsed.data;
-  const publicAccessToken =
-    body.intent === 'refresh'
-      ? await sessions.refreshToken(body.chatId)
-      : (await sessions.start(body.chatId)).publicAccessToken;
-  return Response.json({ publicAccessToken });
+  try {
+    const publicAccessToken =
+      body.intent === 'refresh'
+        ? await sessions.refreshToken(body.chatId)
+        : (await sessions.start(body.chatId)).publicAccessToken;
+    return Response.json({ publicAccessToken });
+  } catch (error) {
+    // Only a caller holding the access key gets this far, so the reason is
+    // safe to return; it is also logged for the Vercel function logs.
+    const reason = error instanceof Error ? error.message : String(error);
+    console.error(`Theme Agent ${body.intent} failed:`, error);
+    return Response.json(
+      { error: `trigger.dev refused the request: ${reason}` },
+      { status: 502 }
+    );
+  }
 }

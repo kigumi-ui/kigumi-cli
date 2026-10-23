@@ -20,7 +20,12 @@ export async function requestThemeAgentToken(
     throw new Error('The Theme Agent access cookie was refused.');
   }
   if (!response.ok) {
-    throw new Error(`The Theme Agent could not start (${response.status}).`);
+    const { error } = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    throw new Error(
+      `The Theme Agent could not start (${response.status})${error ? `: ${error}` : '.'}`
+    );
   }
   const { publicAccessToken } = (await response.json()) as {
     publicAccessToken: string;
