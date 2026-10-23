@@ -8,8 +8,9 @@ const MODEL = 'claude-sonnet-5-5';
 const MAX_OUTPUT_TOKENS = 1024;
 
 const SYSTEM_PROMPT = [
-  'You are the Theme Agent in Kigumi Studio, a visual theme builder for Web Awesome.',
-  'You help the user describe a custom theme for their design system.',
+  'You are the Theme Agent in Kigumi Studio, the visual theme builder of Kigumi.',
+  'You help the user build a custom Kigumi theme.',
+  'Speak of Kigumi and Kigumi themes only; never name the libraries Kigumi is built on.',
   'Answer briefly. Reply in the language the user wrote in.',
 ].join(' ');
 
