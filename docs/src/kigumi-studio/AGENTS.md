@@ -81,11 +81,12 @@ Guard rails:
 
 - The chat window uses `@/components/ui` wrappers only: no raw `wa-*` tags, no AI SDK UI components, no third-party chat UI. The AI SDK is used for `useChat` only.
 - Never render model output as HTML. `wa-markdown` injects marked's output unsanitised.
-- `ANTHROPIC_API_KEY` lives only in trigger.dev. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
+- `ANTHROPIC_API_KEY` lives only in trigger.dev, in its Production environment. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
+- `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.
 
 ### Enabling it in a browser
 
-In devtools, on kigumi.style or a preview deployment, set the cookie to the value of `THEME_AGENT_ACCESS_KEY` (each preview domain needs its own):
+In devtools, on kigumi.style or a preview deployment, set the cookie to the value of `THEME_AGENT_ACCESS_KEY` (each domain needs its own; the branch alias `kigumi-docs-git-<branch>-kigumi-ui.vercel.app` keeps one domain across a branch's deployments):
 
 ```js
 document.cookie =
