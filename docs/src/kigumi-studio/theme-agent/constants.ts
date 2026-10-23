@@ -13,3 +13,11 @@ export const THEME_AGENT_TASK_ID = 'theme-agent';
 
 /** The Vercel Function that starts chat sessions and mints their tokens. */
 export const THEME_AGENT_ENDPOINT = '/api/theme-agent';
+
+/** The tool the Theme Agent proposes a custom theme with. */
+export const THEME_AGENT_PROPOSE_TOOL = 'propose_theme';
+
+/** Status steps the task streams while it works, shown in the chat. */
+export const THEME_AGENT_STATUS = {
+  drafting: 'Drafting…',
+} as const;

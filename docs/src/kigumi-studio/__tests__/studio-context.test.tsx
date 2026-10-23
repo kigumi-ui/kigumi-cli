@@ -5,6 +5,7 @@ import { renderHook, act } from '@testing-library/react';
 import { StudioProvider, useStudio } from '../contexts/StudioContext';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
+import { useThemeAgentStudio } from '../theme-agent/use-theme-agent-studio';
 
 function wrapper({ children }: { children: ReactNode }) {
   return <StudioProvider>{children}</StudioProvider>;
@@ -315,5 +316,55 @@ describe('useStudio - shadow and custom CSS', () => {
       result.current.setSelectedPreset('midnight-blue');
     });
     expect(result.current.selectedPreset).toBe('midnight-blue');
+  });
+});
+
+describe('Theme Agent adapter', () => {
+  function useBoth() {
+    return { studio: useStudio(), agent: useThemeAgentStudio() };
+  }
+
+  it('reads a sidebar edit into the custom theme it hands the Theme Agent', () => {
+    const { result } = renderHook(useBoth, { wrapper });
+    act(() => {
+      result.current.studio.setProperty(
+        '--wa-color-surface-default',
+        '#202020'
+      );
+      result.current.studio.setShadowComponents(['Card']);
+    });
+
+    const theme = result.current.agent.currentTheme();
+    expect(theme.dark['--wa-color-surface-default']).toBe('#202020');
+    expect(theme.light['--wa-color-surface-default']).toBe('#ffffff');
+    expect(theme.shadowComponents).toEqual(['Card']);
+  });
+
+  it('applies a custom theme to the editor values in both modes', () => {
+    const { result } = renderHook(useBoth, { wrapper });
+    const theme = result.current.agent.currentTheme();
+    theme.light['--wa-color-brand'] = '#0891b2';
+    theme.dark['--wa-color-brand'] = '#0891b2';
+    theme.light['--wa-color-surface-default'] = '#f8fafc';
+    theme.dark['--wa-color-surface-default'] = '#0f172a';
+    theme.dark['--wa-transition-fast'] = '100';
+    theme.shadowComponents = ['Button'];
+
+    act(() => {
+      result.current.agent.applyTheme(theme);
+    });
+
+    const { values, shadowComponents, getStyleObject } = result.current.studio;
+    expect(values['--wa-color-brand']).toEqual({
+      light: '#0891b2',
+      dark: '#0891b2',
+    });
+    expect(values['--wa-color-surface-default']).toEqual({
+      light: '#f8fafc',
+      dark: '#0f172a',
+    });
+    expect(shadowComponents).toEqual(['Button']);
+    // The preview reads the same values.
+    expect(getStyleObject('dark')['--wa-transition-fast']).toBe('100ms');
   });
 });

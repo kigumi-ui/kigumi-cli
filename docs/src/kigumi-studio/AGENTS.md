@@ -72,15 +72,23 @@ Browser (useChat + useTriggerChatTransport)
 
 | File | Purpose |
 | --- | --- |
-| `theme-agent/constants.ts` | Cookie name, task id, endpoint; shared by browser, function and task |
+| `theme-agent/constants.ts` | Cookie name, task id, endpoint, tool name, status steps; shared by browser, function and task |
+| `theme-agent/custom-theme.ts` | The custom theme and the snapshot every message carries (types + Zod schema); shared with the task |
+| `theme-agent/proposal.ts` | Proposal shape and `validateProposal()`: Studio properties, Studio's font and shadow lists, values the sidebar offers. Shared with the task |
+| `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply, undo. No React, no network, no model |
+| `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme, apply one |
 | `components/theme-agent/ThemeAgentSidebar.tsx` | The chat, lazy-loaded only when the cookie is present |
 | `../../api/_lib/theme-agent-session.ts` | Access gate + request handling, tested with real `Request`s |
-| `../../trigger/theme-agent.ts` | The `chat.agent` task: limits, model, prompt |
+| `../../trigger/theme-agent.ts` | The `chat.agent` task: limits, model, snapshot schema, status step |
+| `../../trigger/theme-agent-turn.ts` | One answer: prompt, the `propose_theme` tool, reject-and-retry loop |
 
 Guard rails:
 
 - The chat window uses `@/components/ui` wrappers only: no raw `wa-*` tags, no AI SDK UI components, no third-party chat UI. The AI SDK is used for `useChat` only.
 - Never render model output as HTML. `wa-markdown` injects marked's output unsanitised.
+- The model changes the theme only through the `propose_theme` tool, never through its reply text. The task validates every call with `validateProposal()` and sends the errors back for another attempt (at most 3 per answer). The browser validates again in the conversation module and never applies a proposal it refuses. Proposals have no custom CSS.
+- Colours in a proposal are `#rrggbb`: the sidebar's picker, the brand palette and the shadow colour only work with that.
+- Every message carries a snapshot of the custom theme as the sidebar has it (`sendMessage` `metadata`, the task's `clientDataSchema`). The task builds its prompt from the snapshot, never from earlier turns, so hand edits between messages are seen.
 - `ANTHROPIC_API_KEY` lives only in trigger.dev, in its Production environment. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
 - `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.
 
@@ -106,10 +114,10 @@ pnpm exec trigger whoami       # confirm the account
 pnpm exec trigger deploy --prod
 ```
 
-The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with the normal docs deployment. Cost ceilings: the Anthropic monthly spend limit (Console), `maxOutputTokens` per answer and `concurrency: { total: 1 }` in the task, and trigger.dev's free credit, which stops runs once spent.
+The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with the normal docs deployment. Cost ceilings: the Anthropic monthly spend limit (Console), `maxOutputTokens` per step and at most 4 steps per answer, and `concurrency: { total: 1 }` in the task, and trigger.dev's free credit, which stops runs once spent.
 
 ## Testing
 
 ```bash
-cd docs && pnpm test   # Studio lib tests + the Theme Agent access gate
+cd docs && pnpm test   # Studio lib tests, the Theme Agent conversation module, access gate and agent turn (mock model)
 ```
