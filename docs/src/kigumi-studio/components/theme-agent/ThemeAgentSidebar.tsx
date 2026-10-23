@@ -102,8 +102,10 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     onData: (part) => {
       if (part.type === 'data-status') setStatusStep(part.data.step);
     },
-    onFinish: ({ message }) => {
+    onFinish: ({ message, isAbort, isDisconnect, isError }) => {
       setStatusStep(null);
+      // Only a finished answer is applied, never part of one.
+      if (isAbort || isDisconnect || isError) return;
       const proposal = acceptedProposal(message);
       if (!proposal) return;
       // Validated again here: an invalid proposal is never applied.
