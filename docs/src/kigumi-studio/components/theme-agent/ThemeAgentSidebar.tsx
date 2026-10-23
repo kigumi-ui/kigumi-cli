@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useChat } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import { useTriggerChatTransport } from '@trigger.dev/sdk/chat/react';
@@ -84,7 +79,11 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) {
+    if (
+      event.key !== 'Enter' ||
+      event.shiftKey ||
+      event.nativeEvent.isComposing
+    ) {
       return;
     }
     event.preventDefault();
@@ -112,7 +111,10 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
         </Button>
       </div>
 
-      <div ref={messagesRef} className="theme-agent__messages wa-stack wa-gap-s">
+      <div
+        ref={messagesRef}
+        className="theme-agent__messages wa-stack wa-gap-s"
+      >
         {messages.length === 0 && (
           <p className="theme-agent__empty">
             Describe the theme you want, for example “calm fintech, brand
@@ -165,12 +167,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
           }
           onKeyDown={handleKeyDown}
         />
-        <Button
-          variant="brand"
-          size="small"
-          loading={running}
-          onClick={send}
-        >
+        <Button variant="brand" size="small" loading={running} onClick={send}>
           <Icon slot="start" name="paper-plane" />
           Send
         </Button>

@@ -61,7 +61,10 @@ describe('Theme Agent access gate', () => {
     const sessions = stubSessions();
 
     const response = await handleThemeAgentSession(
-      sessionRequest({ intent: 'start', chatId: 'chat-1' }, 'kigumi-theme-agent='),
+      sessionRequest(
+        { intent: 'start', chatId: 'chat-1' },
+        'kigumi-theme-agent='
+      ),
       { accessKey: undefined, sessions }
     );
 
@@ -107,23 +110,32 @@ describe('Theme Agent access gate', () => {
 
   it.each([
     ['a body that is not JSON', 'not json'],
-    ['an unknown intent', JSON.stringify({ intent: 'delete', chatId: 'chat-1' })],
+    [
+      'an unknown intent',
+      JSON.stringify({ intent: 'delete', chatId: 'chat-1' }),
+    ],
     ['a missing chat id', JSON.stringify({ intent: 'start' })],
-    ['a chat id with a path in it', JSON.stringify({ intent: 'start', chatId: '../runs' })],
-  ])('rejects %s with the right cookie and starts nothing', async (_label, body) => {
-    const sessions = stubSessions();
+    [
+      'a chat id with a path in it',
+      JSON.stringify({ intent: 'start', chatId: '../runs' }),
+    ],
+  ])(
+    'rejects %s with the right cookie and starts nothing',
+    async (_label, body) => {
+      const sessions = stubSessions();
 
-    const response = await handleThemeAgentSession(
-      new Request('https://kigumi.style/api/theme-agent', {
-        method: 'POST',
-        headers: { cookie: `kigumi-theme-agent=${ACCESS_KEY}` },
-        body,
-      }),
-      { accessKey: ACCESS_KEY, sessions }
-    );
+      const response = await handleThemeAgentSession(
+        new Request('https://kigumi.style/api/theme-agent', {
+          method: 'POST',
+          headers: { cookie: `kigumi-theme-agent=${ACCESS_KEY}` },
+          body,
+        }),
+        { accessKey: ACCESS_KEY, sessions }
+      );
 
-    expect(response.status).toBe(400);
-    expect(sessions.start).not.toHaveBeenCalled();
-    expect(sessions.refreshToken).not.toHaveBeenCalled();
-  });
+      expect(response.status).toBe(400);
+      expect(sessions.start).not.toHaveBeenCalled();
+      expect(sessions.refreshToken).not.toHaveBeenCalled();
+    }
+  );
 });

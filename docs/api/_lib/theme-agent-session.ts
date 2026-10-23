@@ -67,7 +67,11 @@ export async function handleThemeAgentSession(
   { accessKey, sessions }: ThemeAgentSessionDeps
 ): Promise<Response> {
   const cookie = readCookie(request, THEME_AGENT_COOKIE);
-  if (!accessKey || cookie === undefined || !matchesAccessKey(cookie, accessKey)) {
+  if (
+    !accessKey ||
+    cookie === undefined ||
+    !matchesAccessKey(cookie, accessKey)
+  ) {
     return unauthorized();
   }
 
