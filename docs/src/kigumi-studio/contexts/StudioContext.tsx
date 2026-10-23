@@ -535,8 +535,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   // Keep a ref to the latest persistState so the unmount cleanup always
   // calls the most recent version (not the one captured at mount time).
+  // Updated after commit: assigning during render is unsafe under React 19.
   const persistRef = useRef(persistState);
-  persistRef.current = persistState;
+  useEffect(() => {
+    persistRef.current = persistState;
+  }, [persistState]);
 
   // Flush pending state to localStorage on unmount
   useEffect(() => {

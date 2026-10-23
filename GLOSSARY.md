@@ -88,3 +88,42 @@ _Avoid_: event mapping (ambiguous with the type rule below)
 Deciding which TypeScript type a handler receives for a given event. Depends
 only on the event, never on the framework.
 _Avoid_: event mapping
+
+### Kigumi Studio
+
+**Built-in theme**:
+One of the themes Web Awesome ships, chosen per project. Kigumi selects it but
+does not author it.
+_Avoid_: base theme, preset
+
+**Custom theme**:
+The user's own set of `--wa-*` values for light and dark mode, built in Kigumi
+Studio and pasted into the project's `theme.css`. Overrides the built-in theme.
+_Avoid_: preset (that is only a starting point), Studio theme
+
+**Preset**:
+A finished custom theme that ships with Kigumi Studio as a starting point.
+Loading one replaces the custom theme being edited.
+_Avoid_: template, theme
+
+**Theme Agent**:
+The AI assistant in Kigumi Studio that builds and refines a custom theme from
+text instructions, in conversation with the user.
+_Avoid_: preset agent, theme generator
+
+**Hand-set value**:
+A value in the custom theme, for one mode, that the user changed in the Studio
+sidebar since the Theme Agent last answered, or since the conversation began.
+Values the user set before the conversation are not hand-set. The Theme Agent
+never changes a hand-set value on its own.
+_Avoid_: locked value, pinned value, manual override
+
+**Change request**:
+The Theme Agent's proposal to change a hand-set value, with its reason. The
+user keeps or overwrites the value; until then nothing changes. A kept value
+is not asked about again in that conversation unless the user brings it up.
+_Avoid_: suggestion, approval
+
+**Auto mode**:
+A per-conversation switch, off by default. When on, the Theme Agent treats
+hand-set values like any other value and raises no change requests.
