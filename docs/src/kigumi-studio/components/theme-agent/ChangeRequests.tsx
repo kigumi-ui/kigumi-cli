@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Button,
   ButtonGroup,
@@ -23,7 +23,61 @@ const RESOLVED_TEXT: Record<Exclude<ChangeRequestStatus, 'open'>, string> = {
 const NO_REASON =
   'The Theme Agent gave no reason for this value; its answer above explains the change.';
 
-interface ChangeRequestsProps {
+/** The id of a request's reason, shared by the callout and its buttons. */
+function reasonId(request: ChangeRequest): string {
+  return `theme-agent-reason-${request.id.replace(/[^\w-]/g, '_')}`;
+}
+
+/**
+ * What an answer would change among the values set by hand, each with the
+ * agent's reason. Information only: the question sits below the callouts,
+ * in `ChangeRequestActions`, like the answer's Undo.
+ */
+export function ChangeRequestsCallout({
+  requests,
+}: {
+  requests: ChangeRequest[];
+}) {
+  return (
+    <Callout variant="brand" size="small">
+      <Icon slot="icon" name="hand" />
+      <div className="wa-stack wa-gap-s">
+        <span>
+          {requests.length === 1
+            ? 'The Theme Agent would change a value you set by hand:'
+            : 'The Theme Agent would change values you set by hand:'}
+        </span>
+        {requests.map((request) => {
+          const { label, current, proposed } = describeChangeRequest(request);
+          return (
+            <div
+              key={request.id}
+              className="theme-agent__request wa-stack wa-gap-2xs"
+            >
+              <span className="theme-agent__request-target">{label}</span>
+              <span className="theme-agent__request-change">
+                {current} → {proposed}
+              </span>
+              <span
+                id={reasonId(request)}
+                className="theme-agent__request-reason"
+              >
+                {request.reason ?? NO_REASON}
+              </span>
+              {request.status !== 'open' && (
+                <span className="theme-agent__outcome-text">
+                  {RESOLVED_TEXT[request.status]}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Callout>
+  );
+}
+
+interface ChangeRequestActionsProps {
   requests: ChangeRequest[];
   onKeep: (request: ChangeRequest) => void;
   onOverwrite: (request: ChangeRequest) => void;
@@ -34,19 +88,18 @@ interface ChangeRequestsProps {
 }
 
 /**
- * The hand-set values an answer would change, each with the agent's reason
- * and keep or overwrite; "all" variants from two open requests on. After a
- * request is resolved, focus moves to the next open one.
+ * Keep or overwrite, one row per open change request, and "all" from two
+ * open requests on. After a request is resolved, focus moves to the next
+ * open one.
  */
-export function ChangeRequests({
+export function ChangeRequestActions({
   requests,
   onKeep,
   onOverwrite,
   onKeepAll,
   onOverwriteAll,
   onAllResolved,
-}: ChangeRequestsProps) {
-  const idPrefix = useId();
+}: ChangeRequestActionsProps) {
   const keepButtons = useRef(new Map<string, ButtonRef>());
   // Set by a click; the buttons it came from are gone after the re-render
   // the click causes, so focus moves on once that render has committed.
@@ -66,63 +119,50 @@ export function ChangeRequests({
     action();
   };
 
+  if (open.length === 0) return null;
   return (
-    <Callout variant="brand" size="small" className="theme-agent__outcome">
-      <Icon slot="icon" name="hand" />
-      <div className="wa-stack wa-gap-s">
-        <span>
-          {requests.length === 1
-            ? 'The Theme Agent would change a value you set by hand:'
-            : 'The Theme Agent would change values you set by hand:'}
-        </span>
-        {requests.map((request, index) => {
-          const { label, current, proposed } = describeChangeRequest(request);
-          const reasonId = `${idPrefix}-reason-${index}`;
-          return (
-            <div
-              key={request.id}
-              className="theme-agent__request wa-stack wa-gap-2xs"
+    <div className="wa-stack wa-gap-xs">
+      {open.map((request) => {
+        const { label, current, proposed } = describeChangeRequest(request);
+        return (
+          <div
+            key={request.id}
+            className="wa-cluster wa-gap-xs wa-align-items-center"
+          >
+            <span className="theme-agent__outcome-text">
+              Keep or overwrite {label}?
+            </span>
+            <ButtonGroup
+              label={`${label}: ${current} to ${proposed}`}
+              aria-describedby={reasonId(request)}
             >
-              <span className="theme-agent__request-target">{label}</span>
-              <span className="theme-agent__request-change">
-                {current} → {proposed}
-              </span>
-              <span id={reasonId} className="theme-agent__request-reason">
-                {request.reason ?? NO_REASON}
-              </span>
-              {request.status === 'open' ? (
-                <ButtonGroup
-                  label={`${label}: ${current} to ${proposed}`}
-                  aria-describedby={reasonId}
-                >
-                  <Button
-                    ref={(button) => {
-                      if (button) keepButtons.current.set(request.id, button);
-                      else keepButtons.current.delete(request.id);
-                    }}
-                    size="small"
-                    appearance="outlined"
-                    onClick={resolve(() => onKeep(request))}
-                  >
-                    Keep
-                  </Button>
-                  <Button
-                    size="small"
-                    appearance="outlined"
-                    onClick={resolve(() => onOverwrite(request))}
-                  >
-                    Overwrite
-                  </Button>
-                </ButtonGroup>
-              ) : (
-                <span className="theme-agent__outcome-text">
-                  {RESOLVED_TEXT[request.status]}
-                </span>
-              )}
-            </div>
-          );
-        })}
-        {open.length >= 2 && (
+              <Button
+                ref={(button) => {
+                  if (button) keepButtons.current.set(request.id, button);
+                  else keepButtons.current.delete(request.id);
+                }}
+                size="small"
+                appearance="outlined"
+                onClick={resolve(() => onKeep(request))}
+              >
+                Keep
+              </Button>
+              <Button
+                size="small"
+                appearance="outlined"
+                onClick={resolve(() => onOverwrite(request))}
+              >
+                Overwrite
+              </Button>
+            </ButtonGroup>
+          </div>
+        );
+      })}
+      {open.length >= 2 && (
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <span className="theme-agent__outcome-text">
+            All {open.length} values:
+          </span>
           <ButtonGroup label="All change requests">
             <Button
               size="small"
@@ -139,8 +179,8 @@ export function ChangeRequests({
               Overwrite all
             </Button>
           </ButtonGroup>
-        )}
-      </div>
-    </Callout>
+        </div>
+      )}
+    </div>
   );
 }

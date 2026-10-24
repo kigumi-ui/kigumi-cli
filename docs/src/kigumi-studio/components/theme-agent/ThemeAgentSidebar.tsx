@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type ReactNode,
 } from 'react';
 import { useChat } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
@@ -37,7 +38,7 @@ import type {
 import { requestThemeAgentToken } from '../../theme-agent/session-client';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
 import { describeChangeRequest } from '../../theme-agent/describe-change-request';
-import { ChangeRequests } from './ChangeRequests';
+import { ChangeRequestActions, ChangeRequestsCallout } from './ChangeRequests';
 import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
@@ -331,16 +332,21 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                   }
                   onUndo={() => undo(message.id)}
                   hasRequests={requests.length > 0}
-                />
-              )}
-              {requests.length > 0 && (
-                <ChangeRequests
-                  requests={requests}
-                  onKeep={keep}
-                  onOverwrite={overwrite}
-                  onKeepAll={keepAll}
-                  onOverwriteAll={overwriteAll}
-                  onAllResolved={focusMessage}
+                  requestsCallout={
+                    requests.length > 0 && (
+                      <ChangeRequestsCallout requests={requests} />
+                    )
+                  }
+                  requestActions={
+                    <ChangeRequestActions
+                      requests={requests}
+                      onKeep={keep}
+                      onOverwrite={overwrite}
+                      onKeepAll={keepAll}
+                      onOverwriteAll={overwriteAll}
+                      onAllResolved={focusMessage}
+                    />
+                  }
                 />
               )}
             </Card>
@@ -425,15 +431,24 @@ interface AnswerOutcomeProps {
   violations: ContrastViolation[];
   onUndo: () => void;
   hasRequests: boolean;
+  /** What the answer would change among hand-set values, below its warning. */
+  requestsCallout: ReactNode;
+  /** Keep or overwrite, below the callouts like Undo. */
+  requestActions: ReactNode;
 }
 
-/** An answer's outcome, and its undo. */
+/**
+ * An answer's outcome: its callouts first (accessibility warning, change
+ * requests), then the plain rows to act on, Undo and keep or overwrite.
+ */
 function AnswerOutcome({
   outcome,
   reasons,
   violations,
   onUndo,
   hasRequests,
+  requestsCallout,
+  requestActions,
 }: AnswerOutcomeProps) {
   switch (outcome) {
     case 'applied':
@@ -458,6 +473,7 @@ function AnswerOutcome({
               </ul>
             </Callout>
           )}
+          {requestsCallout}
           <div className="wa-cluster wa-gap-xs wa-align-items-center">
             <span className="theme-agent__outcome-text">
               Applied to the theme
@@ -467,14 +483,17 @@ function AnswerOutcome({
               Undo
             </Button>
           </div>
+          {requestActions}
         </div>
       );
     case 'unchanged':
       return (
-        <div className="theme-agent__outcome">
+        <div className="theme-agent__outcome wa-stack wa-gap-xs">
+          {requestsCallout}
           <span className="theme-agent__outcome-text">
             {hasRequests ? 'Nothing applied yet' : 'No change to the theme'}
           </span>
+          {requestActions}
         </div>
       );
     case 'undone':
