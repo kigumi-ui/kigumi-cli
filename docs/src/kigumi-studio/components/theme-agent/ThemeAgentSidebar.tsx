@@ -29,6 +29,7 @@ import {
 import {
   createThemeAgentConversation,
   type AnswerStatus,
+  type ChangeRequest,
 } from '../../theme-agent/conversation';
 import type {
   ProposeThemeOutput,
@@ -36,6 +37,11 @@ import type {
 } from '../../theme-agent/proposal';
 import { requestThemeAgentToken } from '../../theme-agent/session-client';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
+import {
+  changeRequestLabel,
+  OPEN_REQUEST_CLASS,
+} from '../../theme-agent/change-request-label';
+import { ChangeRequests } from './ChangeRequests';
 import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
@@ -117,7 +123,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
   const [conversation] = useState(createThemeAgentConversation);
-  const { currentTheme, applyTheme } = useThemeAgentStudio();
+  const { currentTheme, applyTheme } = useThemeAgentStudio(conversation);
   // The conversation module is plain state; re-render after each event.
   const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
@@ -162,17 +168,16 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   // Empty while a reply streams, so the polite live region announces the
   // finished reply once instead of every token.
   const lastMessage = messages.at(-1);
+  const lastStatus = lastMessage && conversation.answerStatus(lastMessage.id);
   const lastWarnings = lastMessage
     ? conversation.answerViolations(lastMessage.id).length
     : 0;
+  const lastRequests = lastMessage
+    ? conversation.changeRequests(lastMessage.id).length
+    : 0;
   const lastOutcome =
-    lastMessage && conversation.answerStatus(lastMessage.id) === 'applied'
-      ? lastWarnings > 0
-        ? ` Applied to the theme with ${lastWarnings} accessibility ${
-            lastWarnings === 1 ? 'warning' : 'warnings'
-          }.`
-        : ' Applied to the theme.'
-      : '';
+    (lastStatus === 'applied' ? appliedAnnouncement(lastWarnings) : '') +
+    requestsAnnouncement(lastRequests);
   const announcement = notice
     ? notice
     : status === 'error'
@@ -200,9 +205,49 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     setStatusStep(null);
     void sendMessage(
       { text },
-      { metadata: conversation.messageSent(currentTheme()) }
+      { metadata: conversation.messageSent(currentTheme(), text) }
     );
+    conversationChanged();
     setDraft('');
+  };
+
+  // The buttons that were clicked go away. Once they have, focus moves to
+  // the next open change request, or back to the message field.
+  const [focusAfterResolve, setFocusAfterResolve] = useState(0);
+  useEffect(() => {
+    if (focusAfterResolve === 0) return;
+    const next = messagesRef.current?.querySelector<HTMLElement>(
+      `.${OPEN_REQUEST_CLASS} .Button`
+    );
+    (next ?? textareaRef.current)?.focus({ preventScroll: true });
+  }, [focusAfterResolve]);
+
+  const resolved = (message: string) => {
+    conversationChanged();
+    setNotice(message);
+    setFocusAfterResolve((n) => n + 1);
+  };
+
+  const keep = (request: ChangeRequest) => {
+    conversation.keep(request.id);
+    resolved(`Kept ${changeRequestLabel(request)}.`);
+  };
+
+  const overwrite = (request: ChangeRequest) => {
+    const next = conversation.overwrite(request.id, currentTheme());
+    if (next) applyTheme(next);
+    resolved(`Overwrote ${changeRequestLabel(request)}.`);
+  };
+
+  const keepAll = () => {
+    conversation.keepAll();
+    resolved('Kept every value you set by hand.');
+  };
+
+  const overwriteAll = () => {
+    const next = conversation.overwriteAll(currentTheme());
+    if (next) applyTheme(next);
+    resolved('Overwrote every value the Theme Agent asked about.');
   };
 
   const undo = (answerId: string) => {
@@ -268,6 +313,8 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                   !running || message.id !== lastMessage?.id
                 )
               : undefined;
+          const requests =
+            outcome === 'undone' ? [] : conversation.changeRequests(message.id);
           // An answer that has only started streaming shows nothing yet;
           // the status step below says the Theme Agent is working.
           if (!text && !outcome) return null;
@@ -294,6 +341,16 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                       : []
                   }
                   onUndo={() => undo(message.id)}
+                  hasRequests={requests.length > 0}
+                />
+              )}
+              {requests.length > 0 && (
+                <ChangeRequests
+                  requests={requests}
+                  onKeep={keep}
+                  onOverwrite={overwrite}
+                  onKeepAll={keepAll}
+                  onOverwriteAll={overwriteAll}
                 />
               )}
             </Card>
@@ -340,6 +397,21 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   );
 }
 
+function appliedAnnouncement(warnings: number): string {
+  if (warnings === 0) return ' Applied to the theme.';
+  return ` Applied to the theme with ${warnings} accessibility ${
+    warnings === 1 ? 'warning' : 'warnings'
+  }.`;
+}
+
+function requestsAnnouncement(count: number): string {
+  if (count === 0) return '';
+  if (count === 1) {
+    return ' It would change a value you set by hand; keep or overwrite it.';
+  }
+  return ` It would change ${count} values you set by hand; keep or overwrite them.`;
+}
+
 type AnswerOutcomeKind = AnswerStatus | 'refused';
 
 /**
@@ -362,6 +434,7 @@ interface AnswerOutcomeProps {
   reasons: string[];
   violations: ContrastViolation[];
   onUndo: () => void;
+  hasRequests: boolean;
 }
 
 /** An answer's outcome, and its undo. */
@@ -370,6 +443,7 @@ function AnswerOutcome({
   reasons,
   violations,
   onUndo,
+  hasRequests,
 }: AnswerOutcomeProps) {
   switch (outcome) {
     case 'applied':
@@ -403,6 +477,14 @@ function AnswerOutcome({
               Undo
             </Button>
           </div>
+        </div>
+      );
+    case 'unchanged':
+      return (
+        <div className="theme-agent__outcome">
+          <span className="theme-agent__outcome-text">
+            {hasRequests ? 'Nothing applied yet' : 'No change to the theme'}
+          </span>
         </div>
       );
     case 'undone':

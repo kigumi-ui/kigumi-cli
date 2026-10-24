@@ -15,14 +15,23 @@ import {
   checkContrast,
   violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast.js';
-import type { ThemeAgentSnapshot } from '../src/kigumi-studio/theme-agent/custom-theme.js';
+import {
+  THEME_AGENT_MODES,
+  type ThemeAgentSnapshot,
+  type ThemeValueSet,
+} from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
   applyProposal,
+  missingReasons,
+  SHADOW_COMPONENTS_KEY,
   themeProposalSchema,
   validateProposal,
   type ProposeThemeOutput,
 } from '../src/kigumi-studio/theme-agent/proposal.js';
-import { PROPERTY_DEFINITIONS } from '../src/kigumi-studio/lib/property-definitions.js';
+import {
+  PROPERTIES_BY_VAR,
+  PROPERTY_DEFINITIONS,
+} from '../src/kigumi-studio/lib/property-definitions.js';
 import { AVAILABLE_FONTS } from '../src/kigumi-studio/lib/font-definitions.js';
 import { SHADOW_COMPONENTS } from '../src/kigumi-studio/lib/shadow-components.js';
 
@@ -81,11 +90,14 @@ function proposeThemeTool(
         };
       }
       const validation = validateProposal(input);
-      if (!validation.valid) {
+      const errors = validation.valid
+        ? missingReasons(validation.proposal, snapshot)
+        : validation.errors;
+      if (!validation.valid || errors.length > 0) {
         rejections += 1;
         return {
           accepted: false,
-          errors: validation.errors,
+          errors,
           contrast: [],
           correctContrast: false,
         };
@@ -109,6 +121,25 @@ function proposeThemeTool(
     rejections >= MAX_PROPOSAL_ATTEMPTS;
 
   return { proposeTheme, outOfAttempts };
+}
+
+/**
+ * One line per value: `dark --wa-…` for a mode-dependent value, the bare
+ * custom property for one that is the same in both modes.
+ */
+function valueSetLines(set: ThemeValueSet): string[] {
+  const lines = new Set<string>();
+  for (const mode of THEME_AGENT_MODES) {
+    for (const cssVar of set[mode]) {
+      lines.add(
+        PROPERTIES_BY_VAR.get(cssVar)?.modeDependent
+          ? `- ${mode} ${cssVar}`
+          : `- ${cssVar}`
+      );
+    }
+  }
+  if (set.shadowComponents) lines.add(`- ${SHADOW_COMPONENTS_KEY}`);
+  return lines.size > 0 ? [...lines] : ['- none'];
 }
 
 function propertyLine(property: (typeof PROPERTY_DEFINITIONS)[number]): string {
@@ -157,6 +188,12 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     '- If the message needs no change to the theme, answer without calling the tool.',
     '- Reply in the language the user wrote in.',
     '- The current custom theme below is the truth. It may contain edits the user made by hand since your last answer; never rely on values from earlier in the conversation.',
+    '',
+    `Hand-set values (the user set these by hand in this conversation; Studio never applies your change to one, it asks the user. Propose one only when the request needs it, and give one short sentence in reasons for each):`,
+    ...valueSetLines(snapshot.handSet),
+    '',
+    'Kept values (the user kept these when you asked; do not propose them unless the latest message asks for them):',
+    ...valueSetLines(snapshot.kept),
     '',
     'Values you may set (nothing else, no custom CSS):',
     ...PROPERTY_DEFINITIONS.map(propertyLine),

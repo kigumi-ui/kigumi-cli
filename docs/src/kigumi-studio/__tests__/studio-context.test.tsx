@@ -6,6 +6,10 @@ import { StudioProvider, useStudio } from '../contexts/StudioContext';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
 import { useThemeAgentStudio } from '../theme-agent/use-theme-agent-studio';
+import {
+  createThemeAgentConversation,
+  type ThemeAgentConversation,
+} from '../theme-agent/conversation';
 
 function wrapper({ children }: { children: ReactNode }) {
   return <StudioProvider>{children}</StudioProvider>;
@@ -349,9 +353,80 @@ describe('useStudio - shadow and custom CSS', () => {
 });
 
 describe('Theme Agent adapter', () => {
+  let conversation: ThemeAgentConversation;
+  beforeEach(() => {
+    conversation = createThemeAgentConversation();
+  });
+
   function useBoth() {
-    return { studio: useStudio(), agent: useThemeAgentStudio() };
+    return {
+      studio: useStudio(),
+      agent: useThemeAgentStudio(conversation),
+    };
   }
+
+  it('reports a sidebar edit to the conversation as a hand-set value', () => {
+    const { result } = renderHook(useBoth, { wrapper });
+    conversation.messageSent(
+      result.current.agent.currentTheme(),
+      'Calm fintech theme'
+    );
+
+    act(() => {
+      result.current.studio.setProperty(
+        '--wa-color-surface-default',
+        '#202020'
+      );
+    });
+    act(() => {
+      result.current.studio.setShadowComponents(['Card']);
+    });
+
+    const snapshot = conversation.messageSent(
+      result.current.agent.currentTheme(),
+      'Warmer'
+    );
+    expect(snapshot.handSet).toEqual({
+      light: [],
+      dark: ['--wa-color-surface-default'],
+      shadowComponents: true,
+    });
+  });
+
+  it('an applied answer changes the values without making them hand-set', () => {
+    const { result } = renderHook(useBoth, { wrapper });
+    const theme = result.current.agent.currentTheme();
+    conversation.messageSent(theme, 'Calm fintech theme');
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: { '--wa-color-brand': '#0891b2' },
+          dark: { '--wa-color-surface-default': '#0f172a' },
+          shadowComponents: ['Card'],
+        },
+      ],
+      theme
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+
+    act(() => {
+      result.current.agent.applyTheme(outcome.theme);
+    });
+
+    expect(result.current.studio.values['--wa-color-brand'].dark).toBe(
+      '#0891b2'
+    );
+    const snapshot = conversation.messageSent(
+      result.current.agent.currentTheme(),
+      'Warmer'
+    );
+    expect(snapshot.handSet).toEqual({
+      light: [],
+      dark: [],
+      shadowComponents: false,
+    });
+  });
 
   it('reads a sidebar edit into the custom theme it hands the Theme Agent', () => {
     const { result } = renderHook(useBoth, { wrapper });
