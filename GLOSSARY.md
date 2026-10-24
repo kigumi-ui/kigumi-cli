@@ -97,9 +97,17 @@ does not author it.
 _Avoid_: base theme, preset
 
 **Custom theme**:
-The user's own set of `--wa-*` values for light and dark mode, built in Kigumi
-Studio and pasted into the project's `theme.css`. Overrides the built-in theme.
+The user's own theme, built in Kigumi Studio: `--wa-*` values for light and
+dark mode, the components that get a shadow, and its custom CSS. Overrides the
+built-in theme.
 _Avoid_: preset (that is only a starting point), Studio theme
+
+**Custom CSS**:
+The free-form CSS rules of a custom theme, for what its `--wa-*` values and
+shadow components cannot express. One set of rules for both modes; dark-mode
+rules are written under `.wa-dark`. Kept apart from the rest of the theme, so
+it always takes precedence over it.
+_Avoid_: overrides, custom styles
 
 **Preset**:
 A finished custom theme that ships with Kigumi Studio as a starting point.
