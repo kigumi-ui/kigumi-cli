@@ -61,6 +61,20 @@ function messageText(message: ThemeAgentMessage): string {
  * The proposal the task accepted last in this answer, `null` when every
  * proposal was refused, `undefined` when the answer made none.
  */
+/** Why the task refused the proposals in this answer, last attempt first. */
+function refusalReasons(message: ThemeAgentMessage): string[] {
+  for (const part of [...message.parts].reverse()) {
+    if (part.type !== `tool-${THEME_AGENT_PROPOSE_TOOL}`) continue;
+    if (part.state === 'output-error') return [part.errorText];
+    if (part.state === 'output-available' && !part.output.accepted) {
+      return part.output.errors;
+    }
+    // A call that never finished, for example one cut off mid-input.
+    return [`The proposal ended in state "${part.state}".`];
+  }
+  return [];
+}
+
 function acceptedProposal(
   message: ThemeAgentMessage
 ): ThemeProposalInput | null | undefined {
@@ -323,10 +337,18 @@ function AnswerOutcome({
     );
   }
   if (finished && acceptedProposal(message) === null) {
+    const reasons = refusalReasons(message);
     return (
       <Callout variant="warning" size="small" className="theme-agent__outcome">
         <Icon slot="icon" name="triangle-exclamation" />
         No valid theme came back. Nothing was applied.
+        {reasons.length > 0 && (
+          <ul className="theme-agent__reasons">
+            {reasons.map((reason, index) => (
+              <li key={index}>{reason}</li>
+            ))}
+          </ul>
+        )}
       </Callout>
     );
   }
