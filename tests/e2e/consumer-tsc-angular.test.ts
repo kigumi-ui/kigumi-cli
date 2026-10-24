@@ -17,6 +17,7 @@
  */
 
 import { execa } from 'execa';
+import fs from 'fs-extra';
 import path from 'path';
 import { ANGULAR_CLI_VERSION } from '../../src/constants.js';
 import { toKebabCase } from '../../src/utils/naming.js';
@@ -37,6 +38,7 @@ describeConsumers({
         '--defaults',
         '--interactive=false',
         '--skip-git',
+        '--skip-install',
         '--skip-tests',
         '--style=css',
         '--ssr=false',
@@ -48,6 +50,13 @@ describeConsumers({
         env: { ...process.env, NG_CLI_ANALYTICS: 'false' },
       }
     );
+    // The project sits inside this repository, so pnpm would install it as
+    // part of the repository's workspace: no `node_modules` and no
+    // `pnpm-lock.yaml` of its own, after which `init` finds no lockfile and
+    // runs npm. Its own workspace file makes it a standalone project, as a
+    // user's would be.
+    await fs.writeFile(path.join(dir, 'pnpm-workspace.yaml'), '');
+    await execa('pnpm', ['install'], { cwd: dir });
   },
   initArgs: ['--framework=angular', '--theme=awesome', '--yes'],
   typecheck: ['ngc', '-p', 'tsconfig.app.json', '--noEmit'],
