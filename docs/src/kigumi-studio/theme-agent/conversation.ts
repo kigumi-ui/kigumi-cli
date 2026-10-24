@@ -3,14 +3,25 @@ import {
   type CustomTheme,
   type ThemeAgentSnapshot,
 } from './custom-theme';
-import { validateProposal } from './proposal';
+import { checkContrast, type ContrastViolation } from './contrast';
+import {
+  applyProposal,
+  validateProposal,
+  type ThemeProposal,
+} from './proposal';
 
 // The Theme Agent conversation: the single home of what an answer may do to
 // the custom theme. No React, no network, no model. Studio stays the source
 // of truth for the custom theme and passes it in with every event.
 
 export type AnswerOutcome =
-  { applied: true; theme: CustomTheme } | { applied: false; errors: string[] };
+  | {
+      applied: true;
+      theme: CustomTheme;
+      /** WCAG 2.1 AA contrast the applied theme still fails, both modes. */
+      violations: ContrastViolation[];
+    }
+  | { applied: false; errors: string[] };
 
 export type AnswerStatus = 'applied' | 'undone' | 'rejected';
 
@@ -18,14 +29,16 @@ export interface ThemeAgentConversation {
   /** The snapshot that travels with a message, taken from `theme` as it is now. */
   messageSent(theme: CustomTheme): ThemeAgentSnapshot;
   /**
-   * Validate an answer's proposal and, if it is valid, return the custom
-   * theme to apply: `current` with the proposal on top. An invalid proposal
-   * is never applied. Receiving the same answer again returns the first
-   * outcome and records nothing new.
+   * Validate an answer's proposals and, if every one is valid, return the
+   * custom theme to apply: `current` with the proposals on top, in order (a
+   * contrast correction names only the values it fixes), and the contrast
+   * violations that theme still has. It is applied with them; an invalid
+   * proposal is never applied. Receiving the same answer again returns the
+   * first outcome and records nothing new.
    */
   answerReceived(
     answerId: string,
-    proposal: unknown,
+    proposals: unknown[],
     current: CustomTheme
   ): AnswerOutcome;
   /**
@@ -35,6 +48,8 @@ export interface ThemeAgentConversation {
    */
   undo(answerId: string): CustomTheme | undefined;
   answerStatus(answerId: string): AnswerStatus | undefined;
+  /** The contrast violations an applied answer left; none once it is undone. */
+  answerViolations(answerId: string): ContrastViolation[];
 }
 
 interface AnswerRecord {
@@ -43,23 +58,6 @@ interface AnswerRecord {
   before: CustomTheme | undefined;
   outcome: AnswerOutcome;
   undone: boolean;
-}
-
-function applyProposal(
-  current: CustomTheme,
-  proposal: {
-    light: Record<string, string>;
-    dark: Record<string, string>;
-    shadowComponents?: string[];
-  }
-): CustomTheme {
-  const next = cloneTheme(current);
-  Object.assign(next.light, proposal.light);
-  Object.assign(next.dark, proposal.dark);
-  if (proposal.shadowComponents) {
-    next.shadowComponents = [...proposal.shadowComponents];
-  }
-  return next;
 }
 
 export function createThemeAgentConversation(): ThemeAgentConversation {
@@ -71,17 +69,29 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       return { theme: cloneTheme(theme) };
     },
 
-    answerReceived(answerId, proposal, current) {
+    answerReceived(answerId, proposals, current) {
       const known = find(answerId);
       if (known) return known.outcome;
 
-      const validation = validateProposal(proposal);
-      const outcome: AnswerOutcome = validation.valid
-        ? { applied: true, theme: applyProposal(current, validation.proposal) }
-        : { applied: false, errors: validation.errors };
+      const valid: ThemeProposal[] = [];
+      const errors: string[] = [];
+      for (const proposal of proposals) {
+        const validation = validateProposal(proposal);
+        if (validation.valid) valid.push(validation.proposal);
+        else errors.push(...validation.errors);
+      }
+      if (proposals.length === 0) errors.push('proposal: none in the answer');
+
+      let outcome: AnswerOutcome;
+      if (errors.length > 0) {
+        outcome = { applied: false, errors };
+      } else {
+        const theme = valid.reduce(applyProposal, current);
+        outcome = { applied: true, theme, violations: checkContrast(theme) };
+      }
       answers.push({
         id: answerId,
-        before: validation.valid ? cloneTheme(current) : undefined,
+        before: outcome.applied ? cloneTheme(current) : undefined,
         outcome,
         undone: false,
       });
@@ -101,6 +111,12 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       if (!answer) return undefined;
       if (!answer.outcome.applied) return 'rejected';
       return answer.undone ? 'undone' : 'applied';
+    },
+
+    answerViolations(answerId) {
+      const answer = find(answerId);
+      if (!answer || answer.undone || !answer.outcome.applied) return [];
+      return answer.outcome.violations;
     },
   };
 }

@@ -4,6 +4,7 @@ import {
   type PropertyDefinition,
 } from '../lib/property-definitions';
 import { SHADOW_COMPONENTS } from '../lib/shadow-components';
+import { cloneTheme, type CustomTheme } from './custom-theme';
 
 // Shared by the browser and the trigger.dev task (docs/trigger): the task
 // rejects an invalid proposal and lets the model retry, the browser checks
@@ -183,8 +184,27 @@ export function validateProposal(input: unknown): ProposalValidation {
   };
 }
 
+/** `theme` with a validated proposal on top; `theme` itself is left as it is. */
+export function applyProposal(
+  theme: CustomTheme,
+  proposal: ThemeProposal
+): CustomTheme {
+  const next = cloneTheme(theme);
+  Object.assign(next.light, proposal.light);
+  Object.assign(next.dark, proposal.dark);
+  if (proposal.shadowComponents) {
+    next.shadowComponents = [...proposal.shadowComponents];
+  }
+  return next;
+}
+
 /** What the task's `propose_theme` tool returns to the model and the browser. */
 export interface ProposeThemeOutput {
   accepted: boolean;
+  /** Why the proposal was refused. */
   errors: string[];
+  /** Contrast pairs the theme fails with this proposal applied, one per line. */
+  contrast: string[];
+  /** `true` while the model is to correct `contrast` and propose again. */
+  correctContrast: boolean;
 }

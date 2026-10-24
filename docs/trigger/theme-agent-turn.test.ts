@@ -1,8 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { simulateReadableStream, streamText, type ModelMessage } from 'ai';
 import { MockLanguageModelV4 } from 'ai/test';
-import { themeAgentTurn, MAX_PROPOSAL_ATTEMPTS } from './theme-agent-turn';
-import { THEME_AGENT_PROPOSE_TOOL } from '../src/kigumi-studio/theme-agent/constants';
+import {
+  themeAgentTurn,
+  MAX_CONTRAST_CORRECTIONS,
+  MAX_PROPOSAL_ATTEMPTS,
+} from './theme-agent-turn';
+import {
+  THEME_AGENT_PROPOSE_TOOL,
+  THEME_AGENT_STATUS,
+} from '../src/kigumi-studio/theme-agent/constants';
 import type { ThemeAgentSnapshot } from '../src/kigumi-studio/theme-agent/custom-theme';
 
 type StreamResult = Extract<
@@ -164,5 +171,132 @@ describe('Theme Agent turn', () => {
     const prompt = JSON.stringify(model.doStreamCalls[0].prompt);
     expect(prompt).toContain('#1c1917');
     expect(prompt).toContain('#fafaf9');
+  });
+});
+
+/** Every value the contrast check reads, readable in both modes. */
+const readableProposal = {
+  light: {
+    '--wa-color-brand': '#7c3aed',
+    '--wa-color-surface-raised': '#fdfdfd',
+    '--wa-color-surface-default': '#fafafa',
+    '--wa-color-surface-lowered': '#f2f2f2',
+    '--wa-color-text-normal': '#1a1a1a',
+    '--wa-color-text-quiet': '#595959',
+    '--wa-color-text-link': '#0050b3',
+    '--wa-form-control-background-color': '#fdfdfd',
+    '--wa-form-control-border-color': '#767676',
+  },
+  dark: {
+    '--wa-color-surface-raised': '#1e1e1e',
+    '--wa-color-surface-default': '#181818',
+    '--wa-color-surface-lowered': '#101010',
+    '--wa-color-text-normal': '#f0f0f0',
+    '--wa-color-text-quiet': '#b0b0b0',
+    '--wa-color-text-link': '#8cb4ff',
+    '--wa-form-control-background-color': '#181818',
+    '--wa-form-control-border-color': '#8a8a8a',
+  },
+};
+
+/** The same, with quiet text at 2.3:1 on the light surfaces. */
+const unreadableProposal = {
+  light: { ...readableProposal.light, '--wa-color-text-quiet': '#aaaaaa' },
+  dark: readableProposal.dark,
+};
+
+type ProposeOutput = {
+  accepted: boolean;
+  contrast: string[];
+  correctContrast: boolean;
+};
+
+describe('Theme Agent turn: contrast', () => {
+  it('accepts a readable proposal without a correction round', async () => {
+    const steps: string[] = [];
+    const model = new MockLanguageModelV4({
+      doStream: [proposalStep('call-1', readableProposal), textStep('Done.')],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot,
+      onStatus: (step) => steps.push(step),
+    });
+    await result.consumeStream();
+
+    expect(model.doStreamCalls).toHaveLength(2);
+    expect(toolResults(model)).toEqual([
+      expect.objectContaining({
+        value: expect.objectContaining({ accepted: true, contrast: [] }),
+      }),
+    ]);
+    expect(steps).toContain(THEME_AGENT_STATUS.checking);
+    expect(steps).not.toContain(THEME_AGENT_STATUS.fixing);
+  });
+
+  it('sends contrast violations back and takes the correction', async () => {
+    const steps: string[] = [];
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', unreadableProposal),
+        proposalStep('call-2', {
+          light: { '--wa-color-text-quiet': '#595959' },
+          dark: {},
+        }),
+        textStep('Darker quiet text.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot,
+      onStatus: (step) => steps.push(step),
+    });
+    await result.consumeStream();
+
+    const [first, second] = toolResults(model).map(
+      (output) => (output as { value: ProposeOutput }).value
+    );
+    expect(first.correctContrast).toBe(true);
+    expect(first.contrast.join('\n')).toContain(
+      'Light mode, quiet text on the raised surface: 2.'
+    );
+    // The correction is checked on top of the first proposal.
+    expect(second).toMatchObject({ contrast: [], correctContrast: false });
+    expect(steps).toContain(THEME_AGENT_STATUS.fixing);
+  });
+
+  it(`stops correcting after ${MAX_CONTRAST_CORRECTIONS} rounds and returns the violations`, async () => {
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', unreadableProposal),
+        proposalStep('call-2', unreadableProposal),
+        proposalStep('call-3', unreadableProposal),
+        textStep('Quiet text is still too light.'),
+      ],
+    });
+
+    const result = themeAgentTurn({ streamText, model, messages, snapshot });
+    await result.consumeStream();
+
+    const outputs = toolResults(model).map(
+      (output) => (output as { value: ProposeOutput }).value
+    );
+    expect(outputs.map((output) => output.correctContrast)).toEqual([
+      true,
+      true,
+      false,
+    ]);
+    const last = outputs.at(-1);
+    expect(last?.accepted).toBe(true);
+    expect(last?.contrast.join('\n')).toContain(
+      'quiet text on the raised surface'
+    );
+    expect(await result.text).toContain('still too light');
   });
 });

@@ -156,6 +156,15 @@ export function hexToOklch(hex: string): [number, number, number] {
   return oklabToOklch(L, a, bv);
 }
 
+/** OKLCH to gamma-encoded sRGB channels, 0 to 1, not clipped to the gamut. */
+export function oklchToSrgb(
+  L: number,
+  C: number,
+  h: number
+): [number, number, number] {
+  return oklabToSrgb(...oklchToOklab(L, C, h));
+}
+
 function oklchToHex(L: number, C: number, h: number): string {
   const [labL, labA, labB] = oklchToOklab(L, C, h);
   const [r, g, b] = oklabToSrgb(labL, labA, labB);
@@ -467,7 +476,7 @@ export function generateTextVariables(
 /**
  * WCAG 2.1 relative luminance from sRGB [0-1] values.
  */
-function relativeLuminance(r: number, g: number, b: number): number {
+export function relativeLuminance(r: number, g: number, b: number): number {
   const lr = srgbToLinear(r);
   const lg = srgbToLinear(g);
   const lb = srgbToLinear(b);
