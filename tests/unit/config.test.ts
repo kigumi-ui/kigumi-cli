@@ -255,6 +255,67 @@ describe('config management', () => {
         saveConfig({ kigumiVersion: '0.20.0' }, testDir)
       ).rejects.toBeInstanceOf(ConfigNotFoundError);
     });
+
+    describe('replacing the file in one step (#171)', () => {
+      it('writes exactly what fs.writeJson with 2 spaces wrote: the JSON plus a final newline', async () => {
+        const filepath = path.join(testDir, 'kigumi.config.json');
+        await fs.writeJson(filepath, baseConfig);
+
+        await saveConfig({ kigumiVersion: '0.20.0' }, testDir);
+
+        expect(await fs.readFile(filepath, 'utf-8')).toBe(
+          `${JSON.stringify({ ...baseConfig, kigumiVersion: '0.20.0' }, null, 2)}\n`
+        );
+      });
+
+      it('leaves no temporary file behind', async () => {
+        await fs.writeJson(
+          path.join(testDir, 'kigumi.config.json'),
+          baseConfig
+        );
+
+        await saveConfig({ kigumiVersion: '0.20.0' }, testDir);
+
+        expect(await fs.readdir(testDir)).toEqual(['kigumi.config.json']);
+      });
+
+      // 0o600 must not widen to the default mode; 0o666 must not narrow to
+      // what the umask leaves of it.
+      it.skipIf(process.platform === 'win32').each([0o600, 0o666])(
+        "keeps the config file's permission bits (%o)",
+        async (mode) => {
+          const filepath = path.join(testDir, 'kigumi.config.json');
+          await fs.writeJson(filepath, baseConfig);
+          await fs.chmod(filepath, mode);
+
+          await saveConfig({ kigumiVersion: '0.20.0' }, testDir);
+
+          expect((await fs.stat(filepath)).mode & 0o777).toBe(mode);
+        }
+      );
+
+      it.skipIf(process.platform === 'win32')(
+        'writes through a symlinked config to its target and keeps the link',
+        async () => {
+          const shared = path.join(testDir, 'shared');
+          await fs.ensureDir(shared);
+          const target = path.join(shared, 'kigumi.config.json');
+          await fs.writeJson(target, baseConfig);
+          const project = path.join(testDir, 'project');
+          await fs.ensureDir(project);
+          const link = path.join(project, 'kigumi.config.json');
+          await fs.symlink(target, link);
+
+          await saveConfig({ kigumiVersion: '0.20.0' }, project);
+
+          expect((await fs.lstat(link)).isSymbolicLink()).toBe(true);
+          expect(
+            ((await fs.readJson(target)) as DiskConfig).kigumiVersion
+          ).toBe('0.20.0');
+          expect(await fs.readdir(project)).toEqual(['kigumi.config.json']);
+        }
+      );
+    });
   });
 
   describe('getConfig', () => {

@@ -12,7 +12,7 @@
  *     everywhere.
  *   - saveConfig: patch primitive. Reads the on-disk file, merges the patch
  *     keys top-level (with one-level spread for `theme` and `webAwesome`),
- *     writes back to the same filepath cosmiconfig discovered. Throws
+ *     replaces the same filepath cosmiconfig discovered in one step. Throws
  *     ConfigNotFoundError when there is nothing to save back to.
  *
  * @internal - Utility module for internal CLI use
@@ -137,6 +137,45 @@ function mergePatch(
   return next;
 }
 
+/** JSON as `fs.writeJson(file, value, { spaces: 2 })` writes it. */
+function formatJson(value: unknown): string {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+let tempFileSequence = 0;
+
+/**
+ * Replace an existing file with `content` in one step: write a temporary file
+ * beside it, then rename that over it. A reader, or a save racing this one,
+ * sees the old file or the new one, never an empty or partly written one
+ * (#171). A symlink is written through to its target, the target's permission
+ * bits are kept, and the temporary file is removed when anything fails.
+ */
+async function replaceFile(filepath: string, content: string): Promise<void> {
+  const target = await fs.realpath(filepath);
+  const mode = (await fs.stat(target)).mode & 0o777;
+  tempFileSequence += 1;
+  const tempFile = path.join(
+    path.dirname(target),
+    `.${path.basename(target)}.${process.pid}.${tempFileSequence}.tmp`
+  );
+
+  try {
+    await fs.writeFile(tempFile, content, { mode });
+    // The mode given to writeFile is narrowed by the umask.
+    await fs.chmod(tempFile, mode);
+    await fs.rename(tempFile, target);
+  } catch (error) {
+    try {
+      await fs.remove(tempFile);
+    } catch (_cleanupError) {
+      // The write already failed; that error is the one to report, and a
+      // leftover temporary file next to the config does no harm.
+    }
+    throw error;
+  }
+}
+
 /**
  * Write a top-level key into a `package.json` while preserving sibling keys.
  */
@@ -147,7 +186,7 @@ async function writePackageJsonKey(
 ): Promise<void> {
   const pkg = (await fs.readJson(filepath)) as Record<string, unknown>;
   pkg[key] = value;
-  await fs.writeJson(filepath, pkg, { spaces: 2 });
+  await replaceFile(filepath, formatJson(pkg));
 }
 
 /**
@@ -165,6 +204,10 @@ async function writePackageJsonKey(
  * `getConfig` calls still succeed because `mergeWithDefaults` re-fills the
  * defaults, but the on-disk artefact would be lossy. Pass concrete fields,
  * not empty objects.
+ *
+ * The file is replaced in one step (`replaceFile`), so it is never empty or
+ * half-written. Two overlapping saves still lose an update: both read the
+ * same file, and the one that finishes last wins.
  *
  * Throws ConfigNotFoundError when there is no on-disk file to patch (init
  * bypasses this and writes a fresh kigumi.config.json directly).
@@ -186,6 +229,6 @@ export async function saveConfig(
   if (path.basename(loaded.filepath) === 'package.json') {
     await writePackageJsonKey(loaded.filepath, 'kigumi', next);
   } else {
-    await fs.writeJson(loaded.filepath, next, { spaces: 2 });
+    await replaceFile(loaded.filepath, formatJson(next));
   }
 }

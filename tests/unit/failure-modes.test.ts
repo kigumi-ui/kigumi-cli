@@ -4,8 +4,9 @@
  * Three families of unit-tier failure injection, each scoped per test
  * with `vi.spyOn` and restored in `afterEach` via `vi.restoreAllMocks()`:
  *
- *   1. Disk failures: ENOSPC / EACCES on `fs.writeJson` propagate as
- *      thrown errors with the original `code` preserved. No type
+ *   1. Disk failures: ENOSPC / EACCES part-way through `saveConfig`'s
+ *      write propagate as thrown errors with the original `code`
+ *      preserved, and leave the config file as it was (#171). No type
  *      promotion (cluster A did not promote these to a typed error
  *      class; T pins current behavior).
  *   2. GitHub fetcher 401/403/429: `fetchFile` throws a plain `Error`
@@ -23,6 +24,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fsExtra from 'fs-extra';
+import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { saveConfig } from '../../src/utils/config.js';
@@ -58,39 +60,63 @@ afterEach(async () => {
   await fsExtra.remove(testDir);
 });
 
+/**
+ * Fail the next `fs.writeFile` part-way, the way a full disk does: the first
+ * bytes reach the file it was given, then the write rejects with `code`.
+ * `writeFile` from `node:fs/promises` is not the spied function, so the
+ * partial bytes really land.
+ */
+function failNextWritePartWay(code: string, message: string): void {
+  const ioErr = Object.assign(new Error(`${code}: ${message}`), { code });
+  vi.spyOn(fsExtra, 'writeFile').mockImplementationOnce(
+    async (...args: unknown[]): Promise<void> => {
+      const [file, data] = args as [string, string];
+      await writeFile(file, data.slice(0, 40));
+      throw ioErr;
+    }
+  );
+}
+
 describe('failure-modes: disk', () => {
-  it('saveConfig propagates ENOSPC from writeJson with code preserved', async () => {
-    const ioErr = Object.assign(new Error('ENOSPC: no space left on device'), {
-      code: 'ENOSPC',
-    });
-    vi.spyOn(fsExtra, 'writeJson').mockRejectedValueOnce(ioErr);
+  it.each([
+    ['ENOSPC', 'no space left on device'],
+    ['EACCES', 'permission denied'],
+  ])(
+    'saveConfig propagates %s with code preserved and leaves kigumi.config.json as it was',
+    async (code, message) => {
+      failNextWritePartWay(code, message);
 
-    let caught: unknown;
-    try {
-      await saveConfig({ theme: { selected: 'brutalist' } }, testDir);
-    } catch (err) {
-      caught = err;
+      let caught: unknown;
+      try {
+        await saveConfig({ theme: { selected: 'brutalist' } }, testDir);
+      } catch (err) {
+        caught = err;
+      }
+      expect(caught).toBeInstanceOf(Error);
+      expect((caught as NodeJS.ErrnoException).code).toBe(code);
+      expect((caught as Error).message).toMatch(new RegExp(code));
+
+      expect(
+        await fsExtra.readJson(path.join(testDir, 'kigumi.config.json'))
+      ).toEqual(baseConfig);
+      expect(await fsExtra.readdir(testDir)).toEqual(['kigumi.config.json']);
     }
-    expect(caught).toBeInstanceOf(Error);
-    expect((caught as NodeJS.ErrnoException).code).toBe('ENOSPC');
-    expect((caught as Error).message).toMatch(/ENOSPC/);
-  });
+  );
 
-  it('saveConfig propagates EACCES from writeJson with code preserved', async () => {
-    const ioErr = Object.assign(new Error('EACCES: permission denied'), {
-      code: 'EACCES',
-    });
-    vi.spyOn(fsExtra, 'writeJson').mockRejectedValueOnce(ioErr);
+  it('saveConfig into package.json#kigumi leaves package.json as it was when the write fails part-way', async () => {
+    await fsExtra.remove(path.join(testDir, 'kigumi.config.json'));
+    const packageJson = { name: 'host-project', kigumi: baseConfig };
+    await fsExtra.writeJson(path.join(testDir, 'package.json'), packageJson);
+    failNextWritePartWay('ENOSPC', 'no space left on device');
 
-    let caught: unknown;
-    try {
-      await saveConfig({ theme: { selected: 'brutalist' } }, testDir);
-    } catch (err) {
-      caught = err;
-    }
-    expect(caught).toBeInstanceOf(Error);
-    expect((caught as NodeJS.ErrnoException).code).toBe('EACCES');
-    expect((caught as Error).message).toMatch(/EACCES/);
+    await expect(
+      saveConfig({ theme: { selected: 'brutalist' } }, testDir)
+    ).rejects.toMatchObject({ code: 'ENOSPC' });
+
+    expect(await fsExtra.readJson(path.join(testDir, 'package.json'))).toEqual(
+      packageJson
+    );
+    expect(await fsExtra.readdir(testDir)).toEqual(['package.json']);
   });
 });
 

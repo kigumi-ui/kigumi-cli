@@ -1,21 +1,24 @@
 /**
- * Concurrency behavior pin (F-X8).
+ * Concurrency behavior pin (F-X8, #171).
  *
  * `saveConfig` is a `load -> merge -> write` sequence in
- * `src/utils/config.ts:174-191`. It is NOT an atomic-rename primitive.
- * These tests pin the current behavior so a future atomic-rename change
- * has a baseline:
+ * `src/utils/config.ts`. The write goes to a temporary file in the same
+ * directory, which is then renamed over the config, so the config on disk
+ * is always one whole file. These tests pin what that does and does not
+ * buy:
  *
  *   1. Two parallel `saveConfig` calls patching disjoint nested keys both
  *      load the same on-disk state, both merge their patch onto it, both
- *      write. The on-disk file ends up valid JSON, but only one patch
- *      survives (last-write-wins). `loadConfig` after the dust settles
- *      sees the surviving patch.
- *   2. While `fs.writeJson` is in-flight (spy delays one tick),
- *      `loadConfig` returns either the prior valid state or null
- *      depending on what cosmiconfig sees: never partial JSON.
- *   3. `saveConfig` propagates a rejected `fs.writeJson` as a thrown
- *      error; no `process.exit`, no silent swallow.
+ *      write. Both fulfil, the file ends up valid JSON, but only one patch
+ *      survives (last-write-wins). Before #171 the writes went into the
+ *      file in place, and two of them could leave the tail of the longer
+ *      payload behind the shorter one.
+ *   2. While one save is writing, the config is never empty: an
+ *      overlapping save reads the previous config and succeeds, and the
+ *      later rename wins.
+ *   3. `loadConfig` during an in-flight save returns the prior valid state.
+ *   4. `saveConfig` propagates a rejected write as a thrown error; no
+ *      `process.exit`, no silent swallow.
  *
  * `vi.spyOn` only; no module-replacement mocks. Restored in `afterEach`
  * via `vi.restoreAllMocks()` so leakage cannot bleed across tests.
@@ -23,10 +26,10 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fsExtra from 'fs-extra';
+import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { loadConfig, saveConfig } from '../../src/utils/config.js';
-import { ConfigNotFoundError } from '../../src/errors/config.js';
 
 let testDir: string;
 
@@ -56,46 +59,43 @@ afterEach(async () => {
 });
 
 describe('saveConfig: concurrent disjoint patches', () => {
-  it('leaves disk in a valid JSON state and at least one patch fulfils', async () => {
-    // Pin the non-atomic load -> merge -> write semantics. Two patches
-    // race; `fs.writeJson` opens the file with O_TRUNC, so the second
-    // saveConfig's `loadConfig` may hit the file while it's empty and
-    // throw `ConfigNotFoundError`. Both fulfilling is also valid (when
-    // the first writeFile completes before the second loadConfig runs).
-    // Either way: at least one fulfils and the disk file is valid JSON.
-    const results = await Promise.allSettled([
-      saveConfig({ theme: { selected: 'brutalist' } }, testDir),
-      saveConfig({ webAwesome: { version: '4.0.0' } }, testDir),
-    ]);
+  it('leaves disk in a valid JSON state and both patches fulfil', async () => {
+    // Both saves load the original before either writes, so both fulfil
+    // and the later rename wins. The race is real I/O, not a spy, so the
+    // pair runs several times: an in-place write tears the file or empties
+    // it under a reader on a share of runs, never on all of them.
+    for (let run = 0; run < 25; run++) {
+      await fsExtra.writeJson(
+        path.join(testDir, 'kigumi.config.json'),
+        baseConfig
+      );
 
-    expect(results.some((r) => r.status === 'fulfilled')).toBe(true);
+      const results = await Promise.allSettled([
+        saveConfig({ theme: { selected: 'brutalist' } }, testDir),
+        saveConfig({ webAwesome: { version: '4.0.0' } }, testDir),
+      ]);
 
-    const final = (await fsExtra.readJson(
-      path.join(testDir, 'kigumi.config.json')
-    )) as Record<string, unknown>;
-    expect(final.framework).toBe('react');
-    // At least one patch landed.
-    const themeChanged =
-      (final.theme as { selected: string }).selected === 'brutalist';
-    const waChanged =
-      (final.webAwesome as { version: string } | undefined)?.version ===
-      '4.0.0';
-    expect(themeChanged || waChanged).toBe(true);
+      expect(results.map((r) => r.status)).toEqual(['fulfilled', 'fulfilled']);
+
+      const final = (await fsExtra.readJson(
+        path.join(testDir, 'kigumi.config.json')
+      )) as Record<string, unknown>;
+      expect(final.framework).toBe('react');
+      // At least one patch landed.
+      const themeChanged =
+        (final.theme as { selected: string }).selected === 'brutalist';
+      const waChanged =
+        (final.webAwesome as { version: string } | undefined)?.version ===
+        '4.0.0';
+      expect(themeChanged || waChanged).toBe(true);
+    }
   });
 
-  it('exposes the load-modify-write race: a mid-write loadConfig can return null', async () => {
-    // Force the race deterministically: spy on the writeJson used by
-    // saveConfig A so it holds the file truncated. saveConfig B's loadConfig
-    // then runs while the file is empty, observes "no config found", and
-    // throws ConfigNotFoundError. This pins the current load-modify-write
-    // contract; a future atomic-rename change would flip this to "both
-    // fulfil" and update the assertion.
-    //
-    // The `truncated` gate makes the ordering deterministic: B is only
-    // started once A has actually emptied the file on disk. Without it, B's
-    // loadConfig and A's truncating writeFile are two independent async I/O
-    // operations whose completion order is not guaranteed under load, which
-    // made this test flaky in CI.
+  it('never empties the config mid-save: an overlapping save reads the previous config, and the later rename wins', async () => {
+    // Hold save A inside its write. The spy first empties the file it was
+    // given, as `open(O_TRUNC)` does, so a save that writes into the config
+    // in place would leave the config empty for B to find. Saving through a
+    // temporary file means A only ever empties its own temporary file.
     let releaseA!: () => void;
     const gateA = new Promise<void>((r) => {
       releaseA = r;
@@ -106,54 +106,53 @@ describe('saveConfig: concurrent disjoint patches', () => {
     });
     const file = path.join(testDir, 'kigumi.config.json');
     const spy = vi
-      .spyOn(fsExtra, 'writeJson')
+      .spyOn(fsExtra, 'writeFile')
       .mockImplementationOnce(async (...args: unknown[]): Promise<void> => {
-        // Truncate the file to simulate the open(O_TRUNC) -> write window.
-        await fsExtra.writeFile(file, '');
+        const [target, data] = args as [string, string];
+        await writeFile(target, '');
         signalTruncated();
         await gateA;
-        // Then write the intended payload.
-        const [target, value, opts] = args as [
-          string,
-          unknown,
-          { spaces?: number } | undefined,
-        ];
-        await fsExtra.writeFile(
-          target,
-          JSON.stringify(value, null, opts?.spaces ?? 2)
-        );
+        await writeFile(target, data);
       });
 
     const aPromise = saveConfig({ theme: { selected: 'brutalist' } }, testDir);
 
-    // Wait until A has emptied the file before B reads it.
+    // Wait until A has emptied the file it writes before B reads the config.
     await truncated;
 
-    let bError: unknown;
-    try {
-      await saveConfig({ webAwesome: { version: '4.0.0' } }, testDir);
-    } catch (err) {
-      bError = err;
-    }
-    expect(bError).toBeInstanceOf(ConfigNotFoundError);
+    await saveConfig({ webAwesome: { version: '4.0.0' } }, testDir);
+    expect(
+      ((await fsExtra.readJson(file)) as { webAwesome?: unknown }).webAwesome
+    ).toEqual({ version: '4.0.0' });
 
     releaseA();
     await aPromise;
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(2);
+
+    // A loaded the config before B saved, so its rename drops B's patch:
+    // overlapping saves still lose updates, they no longer tear the file.
+    const final = (await fsExtra.readJson(file)) as {
+      theme: { selected: string };
+      webAwesome?: unknown;
+    };
+    expect(final.theme.selected).toBe('brutalist');
+    expect(final.webAwesome).toBeUndefined();
   });
 });
 
 describe('saveConfig: loadConfig race against in-flight write', () => {
-  it('loadConfig sees a valid prior state while saveConfig is awaiting fs.writeJson', async () => {
-    // Hold writeJson open for two ticks so loadConfig can run in the gap.
+  it('loadConfig sees a valid prior state while saveConfig is writing', async () => {
+    // Hold the write open so loadConfig can run in the gap.
     let release!: () => void;
     const gate = new Promise<void>((r) => {
       release = r;
     });
     const writeSpy = vi
-      .spyOn(fsExtra, 'writeJson')
-      .mockImplementationOnce(async (..._args: unknown[]): Promise<void> => {
+      .spyOn(fsExtra, 'writeFile')
+      .mockImplementationOnce(async (...args: unknown[]): Promise<void> => {
+        const [target, data] = args as [string, string];
         await gate;
+        await writeFile(target, data);
       });
 
     const savePromise = saveConfig(
@@ -161,7 +160,7 @@ describe('saveConfig: loadConfig race against in-flight write', () => {
       testDir
     );
 
-    // Concurrent loadConfig while writeJson is still gated.
+    // Concurrent loadConfig while the write is still gated.
     const midFlight = loadConfig(testDir);
     expect(midFlight).not.toBeNull();
     // Pre-write disk state still has the original theme.
@@ -176,7 +175,7 @@ describe('saveConfig: loadConfig race against in-flight write', () => {
 });
 
 describe('saveConfig: write failure propagates', () => {
-  it('throws when fs.writeJson rejects (no process.exit, no silent swallow)', async () => {
+  it('throws when the write rejects (no process.exit, no silent swallow)', async () => {
     const exitSpy = vi
       .spyOn(process, 'exit')
       .mockImplementation(
@@ -187,7 +186,7 @@ describe('saveConfig: write failure propagates', () => {
     const ioErr = Object.assign(new Error('ENOSPC: no space left on device'), {
       code: 'ENOSPC',
     });
-    vi.spyOn(fsExtra, 'writeJson').mockRejectedValueOnce(ioErr);
+    vi.spyOn(fsExtra, 'writeFile').mockRejectedValueOnce(ioErr);
 
     await expect(
       saveConfig({ theme: { selected: 'brutalist' } }, testDir)
