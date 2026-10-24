@@ -13,7 +13,7 @@ import {
 } from '../src/kigumi-studio/theme-agent/constants.js';
 import {
   checkContrast,
-  describeViolation,
+  violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast.js';
 import type { ThemeAgentSnapshot } from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
@@ -31,6 +31,12 @@ export const MAX_PROPOSAL_ATTEMPTS = 3;
 
 /** Rounds in which the model corrects contrast violations, per answer. */
 export const MAX_CONTRAST_CORRECTIONS = 2;
+
+/**
+ * Steps per answer: every invalid attempt, the first accepted proposal, its
+ * corrections, and one step to explain.
+ */
+export const MAX_STEPS = MAX_PROPOSAL_ATTEMPTS + MAX_CONTRAST_CORRECTIONS + 2;
 
 /** Per-step output ceiling, one of the Theme Agent's cost limits. */
 export const MAX_OUTPUT_TOKENS = 4096;
@@ -86,7 +92,7 @@ function proposeThemeTool(
       }
       onStatus(THEME_AGENT_STATUS.checking);
       theme = applyProposal(theme, validation.proposal);
-      const contrast = checkContrast(theme).map(describeViolation);
+      const contrast = checkContrast(theme).map(violationFeedback);
       const correctContrast =
         contrast.length > 0 && corrections < MAX_CONTRAST_CORRECTIONS;
       if (correctContrast) {
@@ -200,12 +206,7 @@ export function themeAgentTurn({
     system: themeAgentSystemPrompt(snapshot),
     messages,
     tools: { [THEME_AGENT_PROPOSE_TOOL]: proposeTheme },
-    // Each proposal is a step: the invalid attempts, the first accepted one
-    // and its corrections, then one step to explain.
-    stopWhen: [
-      stepCountIs(MAX_PROPOSAL_ATTEMPTS + MAX_CONTRAST_CORRECTIONS + 2),
-      outOfAttempts,
-    ],
+    stopWhen: [stepCountIs(MAX_STEPS), outOfAttempts],
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     abortSignal,
   });

@@ -1,5 +1,5 @@
 import { PROPERTY_DEFINITIONS } from './property-definitions';
-import { DEFAULT_VALUES, type ThemeValue } from './defaults';
+import { DEFAULT_VALUES, type ThemeMode, type ThemeValue } from './defaults';
 import {
   generateBrandVariables,
   generateSemanticVariables,
@@ -17,9 +17,19 @@ import {
  */
 export function buildPreviewStyle(
   values: Record<string, ThemeValue>,
-  mode: 'light' | 'dark'
+  mode: ThemeMode
 ): Record<string, string> {
   const style: Record<string, string> = {};
+  // A derived value replaces a sidebar value only while it is at its default.
+  const setUnlessUserModified = (derived: Record<string, string>) => {
+    for (const [key, val] of Object.entries(derived)) {
+      const current = values[key];
+      const defaults = DEFAULT_VALUES[key];
+      const isUserModified =
+        current && defaults && current[mode] !== defaults[mode];
+      if (!isUserModified) style[key] = val;
+    }
+  };
   for (const prop of PROPERTY_DEFINITIONS) {
     const raw = values[prop.cssVar]?.[mode] ?? prop.defaultLight;
     // Append unit suffix (e.g. "ms") for properties that have one
@@ -62,31 +72,14 @@ export function buildPreviewStyle(
   // Only inject if user hasn't manually set them (compare against defaults).
   const neutralValue = style['--wa-color-neutral'];
   if (neutralValue) {
-    const surfaceVars = generateSurfaceVariables(neutralValue, mode);
-    for (const [key, val] of Object.entries(surfaceVars)) {
-      const current = values[key];
-      const defaults = DEFAULT_VALUES[key];
-      const isUserModified =
-        current && defaults && current[mode] !== defaults[mode];
-      if (!isUserModified) {
-        style[key] = val;
-      }
-    }
+    setUnlessUserModified(generateSurfaceVariables(neutralValue, mode));
 
     const textVars = generateTextVariables(
       neutralValue,
       brandValue ?? style['--wa-color-brand'],
       mode
     );
-    for (const [key, val] of Object.entries(textVars)) {
-      const current = values[key];
-      const defaults = DEFAULT_VALUES[key];
-      const isUserModified =
-        current && defaults && current[mode] !== defaults[mode];
-      if (!isUserModified) {
-        style[key] = val;
-      }
-    }
+    setUnlessUserModified(textVars);
   }
 
   // Post-processing: combine shadow color + opacity into a single value.

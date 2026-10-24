@@ -89,6 +89,29 @@ describe('Theme Agent contrast check', () => {
     expect(checkContrast(theme)).toEqual([]);
   });
 
+  it('reads every CSS hue unit in oklch colours', () => {
+    const ratioFor = (link: string) => {
+      const theme = readableTheme();
+      theme.light['--wa-color-surface-raised'] = '#ffffff';
+      theme.light['--wa-color-text-link'] = link;
+      return checkContrast(theme).find(
+        (v) =>
+          v.foreground === '--wa-color-text-link' &&
+          v.background === '--wa-color-surface-raised'
+      )?.ratio;
+    };
+    // A light green, hue 140deg: it fails on white, at the same ratio in
+    // every unit that names that hue.
+    const expected = ratioFor('oklch(0.8 0.15 140deg)');
+    expect(expected).toBeLessThan(4.5);
+    expect(ratioFor('oklch(0.8 0.15 140)')).toBeCloseTo(expected!, 6);
+    expect(ratioFor('oklch(0.8 0.15 0.388889turn)')).toBeCloseTo(expected!, 3);
+    expect(ratioFor('oklch(0.8 0.15 2.443461rad)')).toBeCloseTo(expected!, 3);
+    expect(ratioFor('oklch(0.8 0.15 155.5556grad)')).toBeCloseTo(expected!, 3);
+    // An unknown unit is not guessed at.
+    expect(ratioFor('oklch(0.8 0.15 140foo)')).toBeNull();
+  });
+
   it('holds the form control border to 3:1 against its background', () => {
     const theme = readableTheme();
     // #8f8f8f on #fdfdfd is 3.2:1, enough for a border, not for text.

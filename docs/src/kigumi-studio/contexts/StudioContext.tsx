@@ -14,7 +14,11 @@ import {
   PROPERTIES_BY_VAR,
   type PropertyGroup,
 } from '../lib/property-definitions';
-import { DEFAULT_VALUES, type ThemeValue } from '../lib/defaults';
+import {
+  DEFAULT_VALUES,
+  type ThemeMode,
+  type ThemeValue,
+} from '../lib/defaults';
 import { AVAILABLE_FONTS } from '../lib/font-definitions';
 import { buildPreviewStyle } from '../lib/preview-style';
 import {
@@ -42,8 +46,6 @@ interface PersistedState {
   selectedPreset: string | null;
   timestamp: number;
 }
-
-type ThemeMode = 'light' | 'dark';
 
 interface StudioContextType {
   values: Record<string, ThemeValue>;

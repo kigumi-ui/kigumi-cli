@@ -5,6 +5,8 @@ export interface ThemeValue {
   dark: string;
 }
 
+export type ThemeMode = keyof ThemeValue;
+
 /**
  * Build default values from property definitions.
  * Returns a Record keyed by CSS variable name with light/dark values.

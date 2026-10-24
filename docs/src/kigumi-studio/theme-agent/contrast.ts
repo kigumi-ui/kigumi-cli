@@ -1,13 +1,15 @@
 import { hexToRgb, oklchToSrgb, relativeLuminance } from '../lib/color-utils';
-import { DEFAULT_VALUES, type ThemeValue } from '../lib/defaults';
+import {
+  DEFAULT_VALUES,
+  type ThemeMode,
+  type ThemeValue,
+} from '../lib/defaults';
 import { buildPreviewStyle } from '../lib/preview-style';
 import type { CustomTheme } from './custom-theme';
 
 // Shared by the browser and the trigger.dev task (docs/trigger): the task
 // sends violations back to the model to correct, the browser checks what it
 // applies again and reports what is left. WCAG 2.1 AA, both modes.
-
-type Mode = 'light' | 'dark';
 
 interface ContrastPair {
   foreground: string;
@@ -61,7 +63,7 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
 ];
 
 export interface ContrastViolation {
-  mode: Mode;
+  mode: ThemeMode;
   foreground: string;
   background: string;
   label: string;
@@ -84,11 +86,28 @@ const NAMED: Record<string, Rgba> = {
   black: { rgb: [0, 0, 0], alpha: 1 },
 };
 
-/** A CSS number, a percentage of `percentOf`, or `none`. */
-function component(token: string, percentOf: number): number {
+/** A colour channel: a CSS number, a percentage of `percentOf`, or `none`. */
+function parseChannel(token: string, percentOf: number): number {
   if (token === 'none') return 0;
-  if (token.endsWith('%')) return (parseFloat(token) / 100) * percentOf;
-  return parseFloat(token.replace(/deg$/, ''));
+  if (token.endsWith('%'))
+    return (Number(token.slice(0, -1)) / 100) * percentOf;
+  // Number(), not parseFloat(): "12px" is NaN, not 12.
+  return Number(token);
+}
+
+const DEGREES_PER_UNIT: Record<string, number> = {
+  deg: 1,
+  grad: 0.9,
+  rad: 180 / Math.PI,
+  turn: 360,
+};
+
+/** A CSS hue in degrees: a number, `none`, or a number with an angle unit. */
+function parseHue(token: string): number {
+  if (token === 'none') return 0;
+  const angle = /^([-+]?[\d.]+(?:e[-+]?\d+)?)(deg|grad|rad|turn)?$/.exec(token);
+  if (!angle) return NaN;
+  return Number(angle[1]) * DEGREES_PER_UNIT[angle[2] ?? 'deg'];
 }
 
 /** `(a b c / d)` or `(a, b, c, d)` into its channels and alpha. */
@@ -136,9 +155,11 @@ function parseColor(
   let rgb: [number, number, number];
   if (fn[1] === 'oklch') {
     const [l, c, h] = channels;
-    rgb = oklchToSrgb(component(l, 1), component(c, 0.4), component(h, 1));
+    rgb = oklchToSrgb(parseChannel(l, 1), parseChannel(c, 0.4), parseHue(h));
   } else {
-    const [r, g, b] = channels.map((channel) => component(channel, 255) / 255);
+    const [r, g, b] = channels.map(
+      (channel) => parseChannel(channel, 255) / 255
+    );
     rgb = [r, g, b];
   }
   const result: Rgba = {
@@ -148,7 +169,7 @@ function parseColor(
       number,
       number,
     ],
-    alpha: Math.min(1, Math.max(0, component(alpha, 1))),
+    alpha: Math.min(1, Math.max(0, parseChannel(alpha, 1))),
   };
   return result.rgb.every(Number.isFinite) && Number.isFinite(result.alpha)
     ? result
@@ -220,11 +241,12 @@ export function formatRatio(ratio: number): string {
 }
 
 /**
- * One violation in a sentence, for the model and for the chat, e.g. "Dark
- * mode, quiet text on the lowered surface: 3.20:1, needs 4.5:1
- * (--wa-color-text-quiet #8a8a8a on --wa-color-surface-lowered #2a2a2a)".
+ * One violation as the model is told it: the chat's summary plus the tokens
+ * and colours to fix, e.g. "Dark mode, quiet text on the lowered surface:
+ * 3.20:1, needs 4.5:1 (--wa-color-text-quiet #8a8a8a on
+ * --wa-color-surface-lowered #2a2a2a)".
  */
-export function describeViolation(violation: ContrastViolation): string {
+export function violationFeedback(violation: ContrastViolation): string {
   const colours = `${violation.foreground} ${violation.foregroundColor} on ${violation.background} ${violation.backgroundColor}`;
   const setBy = violation.setBy ? `, set by ${violation.setBy}` : '';
   return `${summarizeViolation(violation)} (${colours}${setBy})`;
