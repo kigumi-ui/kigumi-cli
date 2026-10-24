@@ -61,3 +61,19 @@
       var(--wa-color-surface-border);
   }
 }
+
+.theme-agent__outcome {
+  margin-top: var(--wa-space-s);
+  white-space: normal;
+}
+
+.theme-agent__outcome-text {
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+}
+
+.theme-agent__reasons {
+  margin: var(--wa-space-2xs) 0 0;
+  padding-inline-start: var(--wa-space-m);
+  overflow-wrap: anywhere;
+}

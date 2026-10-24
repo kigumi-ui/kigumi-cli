@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
 import { useChat } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import { useTriggerChatTransport } from '@trigger.dev/sdk/chat/react';
@@ -12,8 +18,20 @@ import {
   Textarea,
   type TextareaRef,
 } from '@/components/ui';
-import { THEME_AGENT_TASK_ID } from '../../theme-agent/constants';
+import {
+  THEME_AGENT_PROPOSE_TOOL,
+  THEME_AGENT_TASK_ID,
+} from '../../theme-agent/constants';
+import {
+  createThemeAgentConversation,
+  type AnswerStatus,
+} from '../../theme-agent/conversation';
+import type {
+  ProposeThemeOutput,
+  ThemeProposalInput,
+} from '../../theme-agent/proposal';
 import { requestThemeAgentToken } from '../../theme-agent/session-client';
+import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
 import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
@@ -21,10 +39,59 @@ interface ThemeAgentSidebarProps {
   onClose: () => void;
 }
 
-function messageText(message: UIMessage): string {
+type ThemeAgentMessage = UIMessage<
+  unknown,
+  { status: { step: string } },
+  {
+    [THEME_AGENT_PROPOSE_TOOL]: {
+      input: ThemeProposalInput;
+      output: ProposeThemeOutput;
+    };
+  }
+>;
+
+function messageText(message: ThemeAgentMessage): string {
   return message.parts
-    .map((part) => (part.type === 'text' ? part.text : ''))
-    .join('');
+    .map((part) => (part.type === 'text' ? part.text.trim() : ''))
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+/**
+ * The proposal the task accepted last in this answer, `null` when every
+ * proposal was refused, `undefined` when the answer made none.
+ */
+/** Why no proposal in this answer was accepted, from its last attempt. */
+function refusalReasons(message: ThemeAgentMessage, cutOff: boolean): string[] {
+  if (cutOff) {
+    return [
+      'The answer hit its length limit before the proposal was complete.',
+    ];
+  }
+  for (const part of [...message.parts].reverse()) {
+    if (part.type !== `tool-${THEME_AGENT_PROPOSE_TOOL}`) continue;
+    if (part.state === 'output-error') return [part.errorText];
+    if (part.state === 'output-available' && !part.output.accepted) {
+      return part.output.errors;
+    }
+    // A call that never finished, for example one cut off mid-input.
+    return [`The proposal ended in state "${part.state}".`];
+  }
+  return [];
+}
+
+function acceptedProposal(
+  message: ThemeAgentMessage
+): ThemeProposalInput | null | undefined {
+  let found: ThemeProposalInput | null | undefined;
+  for (const part of message.parts) {
+    if (part.type !== `tool-${THEME_AGENT_PROPOSE_TOOL}`) continue;
+    found =
+      part.state === 'output-available' && part.output.accepted
+        ? part.input
+        : (found ?? null);
+  }
+  return found;
 }
 
 /**
@@ -41,9 +108,40 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     }),
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
-  const { messages, sendMessage, status, error } = useChat({
+  const [conversation] = useState(createThemeAgentConversation);
+  const { currentTheme, applyTheme } = useThemeAgentStudio();
+  // The conversation module is plain state; re-render after each event.
+  const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
+  const [statusStep, setStatusStep] = useState<string | null>(null);
+  const [notice, setNotice] = useState('');
+  // Answers that hit the per-step output limit.
+  const [cutOff, setCutOff] = useState<ReadonlySet<string>>(() => new Set());
+
+  const { messages, sendMessage, status, error } = useChat<ThemeAgentMessage>({
     id: chatId,
     transport,
+    onData: (part) => {
+      if (part.type === 'data-status') setStatusStep(part.data.step);
+    },
+    onFinish: ({ message, isAbort, isDisconnect, isError, finishReason }) => {
+      setStatusStep(null);
+      if (finishReason === 'length') {
+        setCutOff((ids) => new Set(ids).add(message.id));
+      }
+      // Only a finished answer is applied, never part of one.
+      if (isAbort || isDisconnect || isError) return;
+      const proposal = acceptedProposal(message);
+      if (!proposal) return;
+      // Validated again here: an invalid proposal is never applied.
+      const outcome = conversation.answerReceived(
+        message.id,
+        proposal,
+        currentTheme()
+      );
+      if (outcome.applied) applyTheme(outcome.theme);
+      conversationChanged();
+    },
+    onError: () => setStatusStep(null),
   });
 
   const [draft, setDraft] = useState('');
@@ -55,12 +153,19 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   // Empty while a reply streams, so the polite live region announces the
   // finished reply once instead of every token.
   const lastMessage = messages.at(-1);
-  const announcement =
-    status === 'error'
+  const lastOutcome =
+    lastMessage && conversation.answerStatus(lastMessage.id) === 'applied'
+      ? ' Applied to the theme.'
+      : '';
+  const announcement = notice
+    ? notice
+    : status === 'error'
       ? 'The Theme Agent could not answer.'
       : status === 'ready' && lastMessage?.role === 'assistant'
-        ? `Theme Agent: ${messageText(lastMessage)}`
-        : '';
+        ? `Theme Agent: ${messageText(lastMessage)}${lastOutcome}`
+        : running
+          ? (statusStep ?? '')
+          : '';
 
   // Keep the newest text in view without moving focus.
   useEffect(() => {
@@ -75,8 +180,23 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   const send = () => {
     const text = draft.trim();
     if (!text || running) return;
-    void sendMessage({ text });
+    setNotice('');
+    setStatusStep(null);
+    void sendMessage(
+      { text },
+      { metadata: conversation.messageSent(currentTheme()) }
+    );
     setDraft('');
+  };
+
+  const undo = (answerId: string) => {
+    const before = conversation.undo(answerId);
+    if (!before) return;
+    applyTheme(before);
+    conversationChanged();
+    setNotice('Undone. The theme is back to how it was before that answer.');
+    // The Undo button goes away; keep focus in the chat.
+    textareaRef.current?.focus({ preventScroll: true });
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
@@ -122,25 +242,50 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
             #0891b2, rounded”.
           </p>
         )}
-        {messages.map((message) => (
-          <Card
-            key={message.id}
-            appearance={message.role === 'user' ? 'filled' : 'outlined'}
-            className={clsx(
-              'theme-agent__message',
-              `theme-agent__message--${message.role}`
-            )}
-          >
-            <span className="wa-visually-hidden">
-              {message.role === 'user' ? 'You:' : 'Theme Agent:'}
-            </span>
-            {messageText(message)}
-          </Card>
-        ))}
-        {status === 'submitted' && (
+        {messages.map((message) => {
+          const text = messageText(message);
+          const outcome =
+            message.role === 'assistant'
+              ? answerOutcome(
+                  message,
+                  conversation.answerStatus(message.id),
+                  !running || message.id !== lastMessage?.id
+                )
+              : undefined;
+          // An answer that has only started streaming shows nothing yet;
+          // the status step below says the Theme Agent is working.
+          if (!text && !outcome) return null;
+          return (
+            <Card
+              key={message.id}
+              appearance={message.role === 'user' ? 'filled' : 'outlined'}
+              className={clsx(
+                'theme-agent__message',
+                `theme-agent__message--${message.role}`
+              )}
+            >
+              <span className="wa-visually-hidden">
+                {message.role === 'user' ? 'You:' : 'Theme Agent:'}
+              </span>
+              {text}
+              {outcome && (
+                <AnswerOutcome
+                  outcome={outcome}
+                  reasons={
+                    outcome === 'refused'
+                      ? refusalReasons(message, cutOff.has(message.id))
+                      : []
+                  }
+                  onUndo={() => undo(message.id)}
+                />
+              )}
+            </Card>
+          );
+        })}
+        {running && (
           <div className="wa-cluster wa-gap-xs theme-agent__pending">
             <Spinner />
-            Thinking…
+            {statusStep ?? 'Thinking…'}
           </div>
         )}
         {error && (
@@ -176,4 +321,76 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
       </div>
     </aside>
   );
+}
+
+type AnswerOutcomeKind = AnswerStatus | 'refused';
+
+/**
+ * What an answer did to the custom theme: applied, undone, refused by the
+ * browser (`rejected`) or by the task (`refused`, every attempt failed), or
+ * nothing to show yet.
+ */
+function answerOutcome(
+  message: ThemeAgentMessage,
+  status: AnswerStatus | undefined,
+  finished: boolean
+): AnswerOutcomeKind | undefined {
+  if (status) return status;
+  if (finished && acceptedProposal(message) === null) return 'refused';
+  return undefined;
+}
+
+interface AnswerOutcomeProps {
+  outcome: AnswerOutcomeKind;
+  reasons: string[];
+  onUndo: () => void;
+}
+
+/** An answer's outcome, and its undo. */
+function AnswerOutcome({ outcome, reasons, onUndo }: AnswerOutcomeProps) {
+  switch (outcome) {
+    case 'applied':
+      return (
+        <div className="theme-agent__outcome wa-cluster wa-gap-xs wa-align-items-center">
+          <span className="theme-agent__outcome-text">
+            Applied to the theme
+          </span>
+          <Button size="small" appearance="outlined" onClick={onUndo}>
+            <Icon slot="start" name="arrow-rotate-left" />
+            Undo
+          </Button>
+        </div>
+      );
+    case 'undone':
+      return (
+        <div className="theme-agent__outcome">
+          <span className="theme-agent__outcome-text">Undone</span>
+        </div>
+      );
+    case 'rejected':
+      return (
+        <Callout variant="danger" size="small" className="theme-agent__outcome">
+          <Icon slot="icon" name="circle-exclamation" />
+          Studio refused this proposal. Nothing was applied.
+        </Callout>
+      );
+    case 'refused':
+      return (
+        <Callout
+          variant="warning"
+          size="small"
+          className="theme-agent__outcome"
+        >
+          <Icon slot="icon" name="triangle-exclamation" />
+          No valid theme came back. Nothing was applied.
+          {reasons.length > 0 && (
+            <ul className="theme-agent__reasons">
+              {reasons.map((reason, index) => (
+                <li key={index}>{reason}</li>
+              ))}
+            </ul>
+          )}
+        </Callout>
+      );
+  }
 }

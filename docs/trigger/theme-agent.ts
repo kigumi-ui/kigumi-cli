@@ -1,18 +1,13 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { chat } from '@trigger.dev/sdk/ai';
-import { THEME_AGENT_TASK_ID } from '../src/kigumi-studio/theme-agent/constants.js';
+import {
+  THEME_AGENT_STATUS,
+  THEME_AGENT_TASK_ID,
+} from '../src/kigumi-studio/theme-agent/constants.js';
+import { themeAgentClientDataSchema } from '../src/kigumi-studio/theme-agent/custom-theme.js';
+import { themeAgentTurn } from './theme-agent-turn.js';
 
 const MODEL = 'claude-sonnet-5-5';
-
-/** Per-answer output ceiling, one of the Theme Agent's cost limits. */
-const MAX_OUTPUT_TOKENS = 1024;
-
-const SYSTEM_PROMPT = [
-  'You are the Theme Agent in Kigumi Studio, the visual theme builder of Kigumi.',
-  'You help the user build a custom Kigumi theme.',
-  'Speak of Kigumi and Kigumi themes only; never name the libraries Kigumi is built on.',
-  'Answer briefly. Reply in the language the user wrote in.',
-].join(' ');
 
 /**
  * The Theme Agent conversation. One durable run per chat: each user message
@@ -29,12 +24,23 @@ export const themeAgent = chat.agent({
   idleTimeoutInSeconds: 0,
   // An abandoned conversation ends after an hour without messages.
   turnTimeout: '1h',
-  run: async ({ messages, signal, streamText }) =>
-    streamText({
+  // Every message carries the custom theme as it is in the browser.
+  clientDataSchema: themeAgentClientDataSchema,
+  run: async ({ messages, clientData, signal, streamText }) => {
+    if (!clientData) {
+      throw new Error('A Theme Agent message arrived without its snapshot.');
+    }
+    chat.response.write({
+      type: 'data-status',
+      data: { step: THEME_AGENT_STATUS.drafting },
+      transient: true,
+    });
+    return themeAgentTurn({
+      streamText,
       model: anthropic(MODEL),
-      system: SYSTEM_PROMPT,
       messages,
-      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      snapshot: clientData,
       abortSignal: signal,
-    }),
+    });
+  },
 });
