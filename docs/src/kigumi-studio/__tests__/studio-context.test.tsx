@@ -66,10 +66,14 @@ describe('useStudio - setProperty', () => {
   it('updates a property value for the current edit mode (dark)', () => {
     const { result } = renderHook(() => useStudio(), { wrapper });
     act(() => {
-      result.current.setProperty('--wa-color-brand', '#ff0000');
+      result.current.setProperty('--wa-color-surface-default', '#202020');
     });
-    expect(result.current.values['--wa-color-brand'].dark).toBe('#ff0000');
-    expect(result.current.values['--wa-color-brand'].light).toBe('#0071ec');
+    expect(result.current.values['--wa-color-surface-default'].dark).toBe(
+      '#202020'
+    );
+    expect(result.current.values['--wa-color-surface-default'].light).toBe(
+      '#ffffff'
+    );
   });
 
   it('updates light mode when editMode is light', () => {
@@ -78,10 +82,35 @@ describe('useStudio - setProperty', () => {
       result.current.setEditMode('light');
     });
     act(() => {
-      result.current.setProperty('--wa-color-brand', '#00ff00');
+      result.current.setProperty('--wa-color-surface-default', '#fafafa');
     });
-    expect(result.current.values['--wa-color-brand'].light).toBe('#00ff00');
-    expect(result.current.values['--wa-color-brand'].dark).toBe('#0071ec');
+    expect(result.current.values['--wa-color-surface-default'].light).toBe(
+      '#fafafa'
+    );
+    expect(result.current.values['--wa-color-surface-default'].dark).toBe(
+      '#101219'
+    );
+  });
+
+  it('sets a value that is the same in both modes in both, whichever mode is edited', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      result.current.setProperty('--wa-color-brand', '#0057b8');
+    });
+    expect(result.current.values['--wa-color-brand']).toEqual({
+      light: '#0057b8',
+      dark: '#0057b8',
+    });
+    act(() => {
+      result.current.setEditMode('light');
+    });
+    act(() => {
+      result.current.setProperty('--wa-border-radius-scale', '1.5');
+    });
+    expect(result.current.values['--wa-border-radius-scale']).toEqual({
+      light: '1.5',
+      dark: '1.5',
+    });
   });
 
   it('ignores unknown CSS variable names', () => {
