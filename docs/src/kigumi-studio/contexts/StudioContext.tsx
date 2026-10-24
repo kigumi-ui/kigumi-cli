@@ -167,12 +167,16 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setValues((prev) => {
         const current = prev[cssVar];
         if (!current) return prev;
+        // A value that is the same in both modes is set in both, whichever
+        // mode is being edited; otherwise the other mode keeps a stale value
+        // and the export writes the two apart.
+        const bothModes =
+          PROPERTIES_BY_VAR.get(cssVar)?.modeDependent === false;
         return {
           ...prev,
-          [cssVar]: {
-            ...current,
-            [editMode]: value,
-          },
+          [cssVar]: bothModes
+            ? { light: value, dark: value }
+            : { ...current, [editMode]: value },
         };
       });
     },
