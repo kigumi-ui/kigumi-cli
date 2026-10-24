@@ -30,16 +30,20 @@ export const themeAgent = chat.agent({
     if (!clientData) {
       throw new Error('A Theme Agent message arrived without its snapshot.');
     }
-    chat.response.write({
-      type: 'data-status',
-      data: { step: THEME_AGENT_STATUS.drafting },
-      transient: true,
-    });
+    // Transient: the chat shows the step while it lasts, the transcript keeps none.
+    const status = (step: string) =>
+      chat.response.write({
+        type: 'data-status',
+        data: { step },
+        transient: true,
+      });
+    status(THEME_AGENT_STATUS.drafting);
     return themeAgentTurn({
       streamText,
       model: anthropic(MODEL),
       messages,
       snapshot: clientData,
+      onStatus: status,
       abortSignal: signal,
     });
   },

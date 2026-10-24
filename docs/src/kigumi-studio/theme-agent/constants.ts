@@ -20,4 +20,6 @@ export const THEME_AGENT_PROPOSE_TOOL = 'propose_theme';
 /** Status steps the task streams while it works, shown in the chat. */
 export const THEME_AGENT_STATUS = {
   drafting: 'Drafting…',
+  checking: 'Checking contrast…',
+  fixing: 'Fixing…',
 } as const;

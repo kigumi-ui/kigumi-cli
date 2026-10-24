@@ -1,13 +1,23 @@
 import {
   stepCountIs,
   tool,
+  type StopCondition,
+  type ToolSet,
   type LanguageModel,
   type ModelMessage,
   type streamText as aiStreamText,
 } from 'ai';
-import { THEME_AGENT_PROPOSE_TOOL } from '../src/kigumi-studio/theme-agent/constants.js';
+import {
+  THEME_AGENT_PROPOSE_TOOL,
+  THEME_AGENT_STATUS,
+} from '../src/kigumi-studio/theme-agent/constants.js';
+import {
+  checkContrast,
+  violationFeedback,
+} from '../src/kigumi-studio/theme-agent/contrast.js';
 import type { ThemeAgentSnapshot } from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
+  applyProposal,
   themeProposalSchema,
   validateProposal,
   type ProposeThemeOutput,
@@ -16,26 +26,90 @@ import { PROPERTY_DEFINITIONS } from '../src/kigumi-studio/lib/property-definiti
 import { AVAILABLE_FONTS } from '../src/kigumi-studio/lib/font-definitions.js';
 import { SHADOW_COMPONENTS } from '../src/kigumi-studio/lib/shadow-components.js';
 
-/** Proposals the model may make per answer, the first included. */
+/** Invalid proposals per answer before the answer ends without one. */
 export const MAX_PROPOSAL_ATTEMPTS = 3;
+
+/** Rounds in which the model corrects contrast violations, per answer. */
+export const MAX_CONTRAST_CORRECTIONS = 2;
+
+/**
+ * Steps per answer: every invalid attempt, the first accepted proposal, its
+ * corrections, and one step to explain.
+ */
+export const MAX_STEPS = MAX_PROPOSAL_ATTEMPTS + MAX_CONTRAST_CORRECTIONS + 2;
 
 /** Per-step output ceiling, one of the Theme Agent's cost limits. */
 export const MAX_OUTPUT_TOKENS = 4096;
 
-const proposeTheme = tool({
-  description: [
-    'Propose changes to the custom theme. Name only the values to change.',
-    'Studio validates the proposal; when it returns accepted: false, correct',
-    'every listed error and propose again.',
-  ].join(' '),
-  inputSchema: themeProposalSchema,
-  execute: async (input): Promise<ProposeThemeOutput> => {
-    const validation = validateProposal(input);
-    return validation.valid
-      ? { accepted: true, errors: [] }
-      : { accepted: false, errors: validation.errors };
-  },
-});
+const PROPOSE_DESCRIPTION = [
+  'Propose changes to the custom theme. Name only the values to change.',
+  'Studio validates the proposal; when it returns accepted: false, correct',
+  'every listed error and propose again. An accepted proposal is checked for',
+  'contrast; when it returns correctContrast: true, propose again with only',
+  'the values that fix every pair listed in contrast. When contrast still',
+  'lists pairs and correctContrast is false, do not propose again: name the',
+  'pairs that still fail in your explanation.',
+].join(' ');
+
+/**
+ * The `propose_theme` tool for one answer. It keeps the custom theme as the
+ * answer's accepted proposals leave it, so a correction that names only its
+ * fixes is checked together with the proposal it corrects.
+ */
+function proposeThemeTool(
+  snapshot: ThemeAgentSnapshot,
+  onStatus: (step: string) => void
+) {
+  let theme = snapshot.theme;
+  let corrections = 0;
+  let rejections = 0;
+  // Set once a theme went back with violations and no correction left.
+  let settled = false;
+
+  const proposeTheme = tool({
+    description: PROPOSE_DESCRIPTION,
+    inputSchema: themeProposalSchema,
+    execute: async (input): Promise<ProposeThemeOutput> => {
+      if (settled) {
+        return {
+          accepted: false,
+          errors: [
+            'No contrast corrections are left in this answer; explain the pairs that still fail instead.',
+          ],
+          contrast: [],
+          correctContrast: false,
+        };
+      }
+      const validation = validateProposal(input);
+      if (!validation.valid) {
+        rejections += 1;
+        return {
+          accepted: false,
+          errors: validation.errors,
+          contrast: [],
+          correctContrast: false,
+        };
+      }
+      onStatus(THEME_AGENT_STATUS.checking);
+      theme = applyProposal(theme, validation.proposal);
+      const contrast = checkContrast(theme).map(violationFeedback);
+      const correctContrast =
+        contrast.length > 0 && corrections < MAX_CONTRAST_CORRECTIONS;
+      if (correctContrast) {
+        corrections += 1;
+        onStatus(THEME_AGENT_STATUS.fixing);
+      } else if (contrast.length > 0) {
+        settled = true;
+      }
+      return { accepted: true, errors: [], contrast, correctContrast };
+    },
+  });
+
+  const outOfAttempts: StopCondition<ToolSet> = () =>
+    rejections >= MAX_PROPOSAL_ATTEMPTS;
+
+  return { proposeTheme, outOfAttempts };
+}
 
 function propertyLine(property: (typeof PROPERTY_DEFINITIONS)[number]): string {
   const modes = property.modeDependent
@@ -75,8 +149,10 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     '',
     'How you answer:',
     `- To change the theme, call ${THEME_AGENT_PROPOSE_TOOL} once with only the values to change. A new theme covers brand, surfaces, text, form controls and shadow in both modes, plus fonts, radius and spacing where they fit the request.`,
-    '- Keep text readable: normal, quiet and link text need 4.5:1 contrast on every surface.',
+    '- Keep the theme readable in both modes (WCAG 2.1 AA): normal, quiet and link text need 4.5:1 on the raised, default and lowered surfaces; the form control border needs 3:1 on the form control background; white text on the brand fill needs 4.5:1.',
+    '- Studio derives the brand fill from --wa-color-brand at a fixed lightness, so only its hue and saturation change that contrast. A surface or text colour left at its Studio default is derived from --wa-color-neutral.',
     `- If ${THEME_AGENT_PROPOSE_TOOL} returns accepted: false, fix every listed error and call it again.`,
+    `- If it returns correctContrast: true, call it again with only the values that fix the listed contrast pairs. If contrast still lists pairs with correctContrast: false, stop proposing and name those pairs in your explanation.`,
     '- After the proposal is accepted, explain in two or three short sentences what changed and why. Do not list the values.',
     '- If the message needs no change to the theme, answer without calling the tool.',
     '- Reply in the language the user wrote in.',
@@ -103,28 +179,34 @@ interface ThemeAgentTurnOptions {
   model: LanguageModel;
   messages: ModelMessage[];
   snapshot: ThemeAgentSnapshot;
+  /** Status steps for the chat, such as "Checking contrast…". */
+  onStatus?: (step: string) => void;
   abortSignal?: AbortSignal;
 }
 
 /**
  * One Theme Agent answer: the model proposes through `propose_theme`, every
  * proposal is validated, and a rejected one goes back to the model with its
- * errors until it is accepted or the attempts run out.
+ * errors until it is accepted or the attempts run out. An accepted proposal
+ * is checked for contrast; its violations go back to the model for at most
+ * `MAX_CONTRAST_CORRECTIONS` rounds, after which the theme is accepted with
+ * them and the browser reports them.
  */
 export function themeAgentTurn({
   streamText,
   model,
   messages,
   snapshot,
+  onStatus = () => {},
   abortSignal,
 }: ThemeAgentTurnOptions) {
+  const { proposeTheme, outOfAttempts } = proposeThemeTool(snapshot, onStatus);
   return streamText({
     model,
     system: themeAgentSystemPrompt(snapshot),
     messages,
     tools: { [THEME_AGENT_PROPOSE_TOOL]: proposeTheme },
-    // Each attempt is a step; one more lets the model explain after the last.
-    stopWhen: stepCountIs(MAX_PROPOSAL_ATTEMPTS + 1),
+    stopWhen: [stepCountIs(MAX_STEPS), outOfAttempts],
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     abortSignal,
   });

@@ -23,6 +23,10 @@ import {
   THEME_AGENT_TASK_ID,
 } from '../../theme-agent/constants';
 import {
+  summarizeViolation,
+  type ContrastViolation,
+} from '../../theme-agent/contrast';
+import {
   createThemeAgentConversation,
   type AnswerStatus,
 } from '../../theme-agent/conversation';
@@ -57,10 +61,6 @@ function messageText(message: ThemeAgentMessage): string {
     .join('\n\n');
 }
 
-/**
- * The proposal the task accepted last in this answer, `null` when every
- * proposal was refused, `undefined` when the answer made none.
- */
 /** Why no proposal in this answer was accepted, from its last attempt. */
 function refusalReasons(message: ThemeAgentMessage, cutOff: boolean): string[] {
   if (cutOff) {
@@ -80,18 +80,26 @@ function refusalReasons(message: ThemeAgentMessage, cutOff: boolean): string[] {
   return [];
 }
 
-function acceptedProposal(
+/**
+ * The proposals the task accepted in this answer, in order: a contrast
+ * correction names only its fixes and applies on top of the one before.
+ * `null` when every proposal was refused, `undefined` when the answer made
+ * none.
+ */
+function acceptedProposals(
   message: ThemeAgentMessage
-): ThemeProposalInput | null | undefined {
-  let found: ThemeProposalInput | null | undefined;
+): ThemeProposalInput[] | null | undefined {
+  let proposed = false;
+  const accepted: ThemeProposalInput[] = [];
   for (const part of message.parts) {
     if (part.type !== `tool-${THEME_AGENT_PROPOSE_TOOL}`) continue;
-    found =
-      part.state === 'output-available' && part.output.accepted
-        ? part.input
-        : (found ?? null);
+    proposed = true;
+    if (part.state === 'output-available' && part.output.accepted) {
+      accepted.push(part.input);
+    }
   }
-  return found;
+  if (!proposed) return undefined;
+  return accepted.length > 0 ? accepted : null;
 }
 
 /**
@@ -130,12 +138,13 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
       }
       // Only a finished answer is applied, never part of one.
       if (isAbort || isDisconnect || isError) return;
-      const proposal = acceptedProposal(message);
-      if (!proposal) return;
-      // Validated again here: an invalid proposal is never applied.
+      const proposals = acceptedProposals(message);
+      if (!proposals) return;
+      // Validated and checked for contrast again here: an invalid proposal
+      // is never applied, and what fails contrast is applied with a warning.
       const outcome = conversation.answerReceived(
         message.id,
-        proposal,
+        proposals,
         currentTheme()
       );
       if (outcome.applied) applyTheme(outcome.theme);
@@ -153,9 +162,16 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   // Empty while a reply streams, so the polite live region announces the
   // finished reply once instead of every token.
   const lastMessage = messages.at(-1);
+  const lastWarnings = lastMessage
+    ? conversation.answerViolations(lastMessage.id).length
+    : 0;
   const lastOutcome =
     lastMessage && conversation.answerStatus(lastMessage.id) === 'applied'
-      ? ' Applied to the theme.'
+      ? lastWarnings > 0
+        ? ` Applied to the theme with ${lastWarnings} accessibility ${
+            lastWarnings === 1 ? 'warning' : 'warnings'
+          }.`
+        : ' Applied to the theme.'
       : '';
   const announcement = notice
     ? notice
@@ -271,6 +287,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
               {outcome && (
                 <AnswerOutcome
                   outcome={outcome}
+                  violations={conversation.answerViolations(message.id)}
                   reasons={
                     outcome === 'refused'
                       ? refusalReasons(message, cutOff.has(message.id))
@@ -336,29 +353,56 @@ function answerOutcome(
   finished: boolean
 ): AnswerOutcomeKind | undefined {
   if (status) return status;
-  if (finished && acceptedProposal(message) === null) return 'refused';
+  if (finished && acceptedProposals(message) === null) return 'refused';
   return undefined;
 }
 
 interface AnswerOutcomeProps {
   outcome: AnswerOutcomeKind;
   reasons: string[];
+  violations: ContrastViolation[];
   onUndo: () => void;
 }
 
 /** An answer's outcome, and its undo. */
-function AnswerOutcome({ outcome, reasons, onUndo }: AnswerOutcomeProps) {
+function AnswerOutcome({
+  outcome,
+  reasons,
+  violations,
+  onUndo,
+}: AnswerOutcomeProps) {
   switch (outcome) {
     case 'applied':
       return (
-        <div className="theme-agent__outcome wa-cluster wa-gap-xs wa-align-items-center">
-          <span className="theme-agent__outcome-text">
-            Applied to the theme
-          </span>
-          <Button size="small" appearance="outlined" onClick={onUndo}>
-            <Icon slot="start" name="arrow-rotate-left" />
-            Undo
-          </Button>
+        <div className="theme-agent__outcome wa-stack wa-gap-xs">
+          {violations.length > 0 && (
+            <Callout variant="warning" size="small">
+              <Icon slot="icon" name="universal-access" />
+              Accessibility warning: applied, but{' '}
+              {violations.length === 1
+                ? 'this pair falls'
+                : `these ${violations.length} pairs fall`}{' '}
+              short of WCAG 2.1 AA contrast.
+              <ul className="theme-agent__reasons">
+                {violations.map((violation) => (
+                  <li
+                    key={`${violation.mode}${violation.foreground}${violation.background}`}
+                  >
+                    {summarizeViolation(violation)}
+                  </li>
+                ))}
+              </ul>
+            </Callout>
+          )}
+          <div className="wa-cluster wa-gap-xs wa-align-items-center">
+            <span className="theme-agent__outcome-text">
+              Applied to the theme
+            </span>
+            <Button size="small" appearance="outlined" onClick={onUndo}>
+              <Icon slot="start" name="arrow-rotate-left" />
+              Undo
+            </Button>
+          </div>
         </div>
       );
     case 'undone':

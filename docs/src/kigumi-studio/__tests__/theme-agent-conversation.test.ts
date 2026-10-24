@@ -49,14 +49,16 @@ describe('Theme Agent conversation: apply', () => {
 
     const outcome = conversation.answerReceived(
       'answer-1',
-      {
-        light: {
-          '--wa-color-brand': '#0891b2',
-          '--wa-color-surface-default': '#f8fafc',
+      [
+        {
+          light: {
+            '--wa-color-brand': '#0891b2',
+            '--wa-color-surface-default': '#f8fafc',
+          },
+          dark: { '--wa-color-surface-default': '#0f172a' },
+          shadowComponents: ['Card', 'Button'],
         },
-        dark: { '--wa-color-surface-default': '#0f172a' },
-        shadowComponents: ['Card', 'Button'],
-      },
+      ],
       studioDefaults()
     );
 
@@ -76,7 +78,7 @@ describe('Theme Agent conversation: apply', () => {
 
     const outcome = conversation.answerReceived(
       'answer-1',
-      { light: { '--wa-color-brand': '#0891b2' }, dark: {} },
+      [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
       studioDefaults()
     );
 
@@ -146,7 +148,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
 
     const outcome = conversation.answerReceived(
       'answer-1',
-      proposal,
+      [proposal],
       studioDefaults()
     );
 
@@ -161,13 +163,15 @@ describe('Theme Agent conversation: rejected proposals', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(
       'answer-1',
-      {
-        light: {
-          '--wa-color-brand': '#0891b2',
-          '--wa-color-surface-default': 'hsl(0 0% 100%)',
+      [
+        {
+          light: {
+            '--wa-color-brand': '#0891b2',
+            '--wa-color-surface-default': 'hsl(0 0% 100%)',
+          },
+          dark: {},
         },
-        dark: {},
-      },
+      ],
       studioDefaults()
     );
     expect(outcome).toEqual({
@@ -182,7 +186,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(
       'answer-1',
-      { light: { '--wa-transition-fast': '100ms' }, dark: {} },
+      [{ light: { '--wa-transition-fast': '100ms' }, dark: {} }],
       studioDefaults()
     );
     expect(outcome.applied).toBe(true);
@@ -198,11 +202,13 @@ describe('Theme Agent conversation: undo', () => {
     const before = studioDefaults();
     const outcome = conversation.answerReceived(
       'answer-1',
-      {
-        light: { '--wa-color-surface-default': '#f8fafc' },
-        dark: { '--wa-color-surface-default': '#0f172a' },
-        shadowComponents: ['Card'],
-      },
+      [
+        {
+          light: { '--wa-color-surface-default': '#f8fafc' },
+          dark: { '--wa-color-surface-default': '#0f172a' },
+          shadowComponents: ['Card'],
+        },
+      ],
       before
     );
     expect(outcome.applied).toBe(true);
@@ -217,13 +223,13 @@ describe('Theme Agent conversation: undo', () => {
     const conversation = createThemeAgentConversation();
     const first = conversation.answerReceived(
       'answer-1',
-      { light: { '--wa-border-radius-scale': '2' }, dark: {} },
+      [{ light: { '--wa-border-radius-scale': '2' }, dark: {} }],
       studioDefaults()
     );
     if (!first.applied) throw new Error('first answer was not applied');
     const second = conversation.answerReceived(
       'answer-2',
-      { light: { '--wa-color-brand': '#0891b2' }, dark: {} },
+      [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
       first.theme
     );
     expect(second.applied).toBe(true);
@@ -238,13 +244,13 @@ describe('Theme Agent conversation: undo', () => {
     const proposal = { light: { '--wa-border-radius-scale': '2' }, dark: {} };
     const first = conversation.answerReceived(
       'answer-1',
-      proposal,
+      [proposal],
       studioDefaults()
     );
     if (!first.applied) throw new Error('answer was not applied');
     // Delivered again, after it was applied: the record of "before" must not
     // move to the theme that already contains the answer.
-    conversation.answerReceived('answer-1', proposal, first.theme);
+    conversation.answerReceived('answer-1', [proposal], first.theme);
 
     expect(conversation.undo('answer-1')).toEqual(studioDefaults());
   });
@@ -255,7 +261,7 @@ describe('Theme Agent conversation: refinement', () => {
     const conversation = createThemeAgentConversation();
     const first = conversation.answerReceived(
       'answer-1',
-      { light: { '--wa-color-brand': '#0891b2' }, dark: {} },
+      [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
       studioDefaults()
     );
     if (!first.applied) throw new Error('first answer was not applied');
@@ -268,7 +274,7 @@ describe('Theme Agent conversation: refinement', () => {
 
     const second = conversation.answerReceived(
       'answer-2',
-      { light: { '--wa-color-brand': '#d97706' }, dark: {} },
+      [{ light: { '--wa-color-brand': '#d97706' }, dark: {} }],
       edited
     );
     expect(second.applied).toBe(true);
@@ -278,6 +284,98 @@ describe('Theme Agent conversation: refinement', () => {
 
     // Undo of the second answer goes back to the hand-edited theme.
     expect(conversation.undo('answer-2')).toEqual(edited);
+  });
+});
+
+describe('Theme Agent conversation: accessibility', () => {
+  it('applies a correction on top of the proposal it corrects', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults());
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: {
+            '--wa-color-brand': '#7c3aed',
+            '--wa-color-text-quiet': '#949494',
+          },
+          dark: { '--wa-color-surface-default': '#18181b' },
+        },
+        // The correction names only the value it fixes.
+        { light: { '--wa-color-text-quiet': '#595959' }, dark: {} },
+      ],
+      studioDefaults()
+    );
+
+    expect(outcome.applied).toBe(true);
+    if (!outcome.applied) return;
+    expect(outcome.theme.light['--wa-color-brand']).toBe('#7c3aed');
+    expect(outcome.theme.dark['--wa-color-brand']).toBe('#7c3aed');
+    expect(outcome.theme.light['--wa-color-text-quiet']).toBe('#595959');
+    expect(outcome.theme.dark['--wa-color-surface-default']).toBe('#18181b');
+  });
+
+  it('applies an answer that still fails contrast and lists what fails', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults());
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: {
+            '--wa-color-surface-raised': '#fefefe',
+            '--wa-color-text-quiet': '#aaaaaa',
+          },
+          dark: {},
+        },
+      ],
+      studioDefaults()
+    );
+
+    expect(outcome.applied).toBe(true);
+    if (!outcome.applied) return;
+    expect(outcome.theme.light['--wa-color-text-quiet']).toBe('#aaaaaa');
+    const quietOnRaised = outcome.violations.find(
+      (v) =>
+        v.foreground === '--wa-color-text-quiet' &&
+        v.background === '--wa-color-surface-raised'
+    );
+    expect(quietOnRaised).toMatchObject({ mode: 'light', minimum: 4.5 });
+    // #aaaaaa on #fefefe is 2.3:1.
+    expect(quietOnRaised?.ratio).toBeCloseTo(2.3, 1);
+    expect(conversation.answerViolations('answer-1')).toEqual(
+      outcome.violations
+    );
+
+    // Once undone, the answer's theme is gone, and so are its warnings.
+    conversation.undo('answer-1');
+    expect(conversation.answerViolations('answer-1')).toEqual([]);
+  });
+
+  it('checks the theme as applied, hand edits made during the run included', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults());
+    const current = studioDefaults();
+    // Edited in the sidebar while the answer was on its way.
+    current.dark['--wa-color-surface-raised'] = '#f5f5f5';
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-border-radius-scale': '2' }, dark: {} }],
+      current
+    );
+
+    expect(outcome.applied).toBe(true);
+    if (!outcome.applied) return;
+    expect(outcome.violations).toContainEqual(
+      expect.objectContaining({
+        mode: 'dark',
+        foreground: '--wa-color-text-normal',
+        background: '--wa-color-surface-raised',
+      })
+    );
   });
 });
 
