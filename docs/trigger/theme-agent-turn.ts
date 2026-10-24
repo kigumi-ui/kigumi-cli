@@ -20,7 +20,7 @@ import { SHADOW_COMPONENTS } from '../src/kigumi-studio/lib/shadow-components.js
 export const MAX_PROPOSAL_ATTEMPTS = 3;
 
 /** Per-step output ceiling, one of the Theme Agent's cost limits. */
-export const MAX_OUTPUT_TOKENS = 2048;
+export const MAX_OUTPUT_TOKENS = 4096;
 
 const proposeTheme = tool({
   description: [

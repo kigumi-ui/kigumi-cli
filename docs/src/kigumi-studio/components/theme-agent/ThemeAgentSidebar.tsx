@@ -61,8 +61,13 @@ function messageText(message: ThemeAgentMessage): string {
  * The proposal the task accepted last in this answer, `null` when every
  * proposal was refused, `undefined` when the answer made none.
  */
-/** Why the task refused the proposals in this answer, last attempt first. */
-function refusalReasons(message: ThemeAgentMessage): string[] {
+/** Why no proposal in this answer was accepted, from its last attempt. */
+function refusalReasons(message: ThemeAgentMessage, cutOff: boolean): string[] {
+  if (cutOff) {
+    return [
+      'The answer hit its length limit before the proposal was complete.',
+    ];
+  }
   for (const part of [...message.parts].reverse()) {
     if (part.type !== `tool-${THEME_AGENT_PROPOSE_TOOL}`) continue;
     if (part.state === 'output-error') return [part.errorText];
@@ -109,6 +114,8 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
+  // Answers that hit the per-step output limit.
+  const [cutOff, setCutOff] = useState<ReadonlySet<string>>(() => new Set());
 
   const { messages, sendMessage, status, error } = useChat<ThemeAgentMessage>({
     id: chatId,
@@ -116,8 +123,11 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     onData: (part) => {
       if (part.type === 'data-status') setStatusStep(part.data.step);
     },
-    onFinish: ({ message, isAbort, isDisconnect, isError }) => {
+    onFinish: ({ message, isAbort, isDisconnect, isError, finishReason }) => {
       setStatusStep(null);
+      if (finishReason === 'length') {
+        setCutOff((ids) => new Set(ids).add(message.id));
+      }
       // Only a finished answer is applied, never part of one.
       if (isAbort || isDisconnect || isError) return;
       const proposal = acceptedProposal(message);
@@ -232,29 +242,46 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
             #0891b2, rounded”.
           </p>
         )}
-        {messages.map((message) => (
-          <Card
-            key={message.id}
-            appearance={message.role === 'user' ? 'filled' : 'outlined'}
-            className={clsx(
-              'theme-agent__message',
-              `theme-agent__message--${message.role}`
-            )}
-          >
-            <span className="wa-visually-hidden">
-              {message.role === 'user' ? 'You:' : 'Theme Agent:'}
-            </span>
-            {messageText(message)}
-            {message.role === 'assistant' && (
-              <AnswerOutcome
-                message={message}
-                status={conversation.answerStatus(message.id)}
-                finished={!running || message.id !== lastMessage?.id}
-                onUndo={() => undo(message.id)}
-              />
-            )}
-          </Card>
-        ))}
+        {messages.map((message) => {
+          const text = messageText(message);
+          const outcome =
+            message.role === 'assistant'
+              ? answerOutcome(
+                  message,
+                  conversation.answerStatus(message.id),
+                  !running || message.id !== lastMessage?.id
+                )
+              : undefined;
+          // An answer that has only started streaming shows nothing yet;
+          // the status step below says the Theme Agent is working.
+          if (!text && !outcome) return null;
+          return (
+            <Card
+              key={message.id}
+              appearance={message.role === 'user' ? 'filled' : 'outlined'}
+              className={clsx(
+                'theme-agent__message',
+                `theme-agent__message--${message.role}`
+              )}
+            >
+              <span className="wa-visually-hidden">
+                {message.role === 'user' ? 'You:' : 'Theme Agent:'}
+              </span>
+              {text}
+              {outcome && (
+                <AnswerOutcome
+                  outcome={outcome}
+                  reasons={
+                    outcome === 'refused'
+                      ? refusalReasons(message, cutOff.has(message.id))
+                      : []
+                  }
+                  onUndo={() => undo(message.id)}
+                />
+              )}
+            </Card>
+          );
+        })}
         {running && (
           <div className="wa-cluster wa-gap-xs theme-agent__pending">
             <Spinner />
@@ -296,61 +323,74 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   );
 }
 
+type AnswerOutcomeKind = AnswerStatus | 'refused';
+
+/**
+ * What an answer did to the custom theme: applied, undone, refused by the
+ * browser (`rejected`) or by the task (`refused`, every attempt failed), or
+ * nothing to show yet.
+ */
+function answerOutcome(
+  message: ThemeAgentMessage,
+  status: AnswerStatus | undefined,
+  finished: boolean
+): AnswerOutcomeKind | undefined {
+  if (status) return status;
+  if (finished && acceptedProposal(message) === null) return 'refused';
+  return undefined;
+}
+
 interface AnswerOutcomeProps {
-  message: ThemeAgentMessage;
-  status: AnswerStatus | undefined;
-  finished: boolean;
+  outcome: AnswerOutcomeKind;
+  reasons: string[];
   onUndo: () => void;
 }
 
-/** What an answer did to the custom theme, and its undo. */
-function AnswerOutcome({
-  message,
-  status,
-  finished,
-  onUndo,
-}: AnswerOutcomeProps) {
-  if (status === 'applied') {
-    return (
-      <div className="theme-agent__outcome wa-cluster wa-gap-xs wa-align-items-center">
-        <span className="theme-agent__outcome-text">Applied to the theme.</span>
-        <Button size="small" appearance="outlined" onClick={onUndo}>
-          <Icon slot="start" name="arrow-rotate-left" />
-          Undo
-        </Button>
-      </div>
-    );
+/** An answer's outcome, and its undo. */
+function AnswerOutcome({ outcome, reasons, onUndo }: AnswerOutcomeProps) {
+  switch (outcome) {
+    case 'applied':
+      return (
+        <div className="theme-agent__outcome wa-cluster wa-gap-xs wa-align-items-center">
+          <span className="theme-agent__outcome-text">
+            Applied to the theme.
+          </span>
+          <Button size="small" appearance="outlined" onClick={onUndo}>
+            <Icon slot="start" name="arrow-rotate-left" />
+            Undo
+          </Button>
+        </div>
+      );
+    case 'undone':
+      return (
+        <div className="theme-agent__outcome">
+          <span className="theme-agent__outcome-text">Undone.</span>
+        </div>
+      );
+    case 'rejected':
+      return (
+        <Callout variant="danger" size="small" className="theme-agent__outcome">
+          <Icon slot="icon" name="circle-exclamation" />
+          Studio refused this proposal. Nothing was applied.
+        </Callout>
+      );
+    case 'refused':
+      return (
+        <Callout
+          variant="warning"
+          size="small"
+          className="theme-agent__outcome"
+        >
+          <Icon slot="icon" name="triangle-exclamation" />
+          No valid theme came back. Nothing was applied.
+          {reasons.length > 0 && (
+            <ul className="theme-agent__reasons">
+              {reasons.map((reason, index) => (
+                <li key={index}>{reason}</li>
+              ))}
+            </ul>
+          )}
+        </Callout>
+      );
   }
-  if (status === 'undone') {
-    return (
-      <div className="theme-agent__outcome">
-        <span className="theme-agent__outcome-text">Undone.</span>
-      </div>
-    );
-  }
-  if (status === 'rejected') {
-    return (
-      <Callout variant="danger" size="small" className="theme-agent__outcome">
-        <Icon slot="icon" name="circle-exclamation" />
-        Studio refused this proposal. Nothing was applied.
-      </Callout>
-    );
-  }
-  if (finished && acceptedProposal(message) === null) {
-    const reasons = refusalReasons(message);
-    return (
-      <Callout variant="warning" size="small" className="theme-agent__outcome">
-        <Icon slot="icon" name="triangle-exclamation" />
-        No valid theme came back. Nothing was applied.
-        {reasons.length > 0 && (
-          <ul className="theme-agent__reasons">
-            {reasons.map((reason, index) => (
-              <li key={index}>{reason}</li>
-            ))}
-          </ul>
-        )}
-      </Callout>
-    );
-  }
-  return null;
 }
