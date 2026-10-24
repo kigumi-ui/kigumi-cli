@@ -353,7 +353,7 @@ function AnswerOutcome({ outcome, reasons, onUndo }: AnswerOutcomeProps) {
       return (
         <div className="theme-agent__outcome wa-cluster wa-gap-xs wa-align-items-center">
           <span className="theme-agent__outcome-text">
-            Applied to the theme.
+            Applied to the theme
           </span>
           <Button size="small" appearance="outlined" onClick={onUndo}>
             <Icon slot="start" name="arrow-rotate-left" />
@@ -364,7 +364,7 @@ function AnswerOutcome({ outcome, reasons, onUndo }: AnswerOutcomeProps) {
     case 'undone':
       return (
         <div className="theme-agent__outcome">
-          <span className="theme-agent__outcome-text">Undone.</span>
+          <span className="theme-agent__outcome-text">Undone</span>
         </div>
       );
     case 'rejected':
