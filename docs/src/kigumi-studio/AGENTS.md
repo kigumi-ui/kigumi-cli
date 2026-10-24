@@ -57,6 +57,7 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 | `lib/css-generator.ts` | Generate CSS output |
 | `lib/preview-style.ts` | `buildPreviewStyle()`: the custom properties the preview sets, derived palettes included. `getStyleObject()` and the contrast check both read it |
 | `lib/preset-loader.ts` | Load preset CSS files via `import.meta.glob` |
+| `lib/import-values.ts` | `mergeImportedValues()`: how Studio stores imported values (unit stripped, light-only structural values in both modes). `importValues()` and the Theme Agent's starting point both use it |
 | `themes/*.css` | Preset theme CSS files |
 
 ## Theme Agent
@@ -74,12 +75,16 @@ Browser (useChat + useTriggerChatTransport)
 | File | Purpose |
 | --- | --- |
 | `theme-agent/constants.ts` | Cookie name, task id, endpoint, tool name, status steps; shared by browser, function and task |
-| `theme-agent/custom-theme.ts` | The custom theme and the snapshot every message carries (types + Zod schema); shared with the task |
-| `theme-agent/proposal.ts` | Proposal shape and `validateProposal()`: Studio properties, Studio's font and shadow lists, values the sidebar offers. Shared with the task |
+| `theme-agent/custom-theme.ts` | The custom theme and the snapshot every message carries (theme, hand-set and kept values; types + Zod schema); shared with the task |
+| `theme-agent/proposal.ts` | Proposal shape and `validateProposal()`: Studio properties, Studio's font and shadow lists, values the sidebar offers, reasons. `missingReasons()` is the task's extra check. Shared with the task |
 | `theme-agent/contrast.ts` | `checkContrast()`: WCAG 2.1 AA pairs in both modes, read from `buildPreviewStyle()`; resolves hex, `rgb()`, `oklch()` and `var()`. Shared with the task |
-| `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply, contrast check of the applied theme, undo. No React, no network, no model |
-| `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme, apply one |
+| `theme-agent/conversation.ts` | The conversation module: snapshot, hand-set values, change requests (keep, overwrite, all), validate-then-apply, contrast check of the applied theme, undo of one answer's own values. No React, no network, no model |
+| `theme-agent/naming.ts` | Which values a message names, so a kept value may be asked about again |
+| `theme-agent/describe-change-request.ts` | How the chat names a change request and shows its current and proposed value |
+| `theme-agent/starting-point.ts` | The custom theme the user started from (loaded preset, or Studio's defaults), stored as loading it stores it |
+| `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext` and owner of the conversation: read the custom theme, apply one, report every other change as a user edit, give the conversation its starting point |
 | `components/theme-agent/ThemeAgentSidebar.tsx` | The chat, lazy-loaded only when the cookie is present |
+| `components/theme-agent/ChangeRequests.tsx` | Change requests under an answer: keep, overwrite, keep all, overwrite all |
 | `../../api/_lib/theme-agent-session.ts` | Access gate + request handling, tested with real `Request`s |
 | `../../trigger/theme-agent.ts` | The `chat.agent` task: limits, model, snapshot schema, status step |
 | `../../trigger/theme-agent-turn.ts` | One answer: prompt, the `propose_theme` tool, reject-and-retry loop, contrast correction rounds |
@@ -89,8 +94,11 @@ Guard rails:
 - The chat window uses `@/components/ui` wrappers only: no raw `wa-*` tags, no AI SDK UI components, no third-party chat UI. The AI SDK is used for `useChat` only.
 - Never render model output as HTML. `wa-markdown` injects marked's output unsanitised.
 - The model changes the theme only through the `propose_theme` tool, never through its reply text. The task validates every call with `validateProposal()` and sends the errors back for another attempt (at most 3 per answer). The browser validates again in the conversation module and never applies a proposal it refuses. `validateProposal()` refuses custom CSS until the `overrides` layer and its validator from ADR 0009 land.
-- Every accepted proposal is checked for contrast on the theme as the answer's proposals leave it: normal, quiet and link text on the raised, default and lowered surfaces at 4.5:1, the form control border on its background at 3:1, and the brand fill the preview paints (`--wa-color-brand-fill-loud`, derived from `--wa-color-brand`) under `--wa-color-brand-on-loud` at 4.5:1. The violations go back to the model for at most 2 correction rounds; a correction names only its fixes, so the browser applies an answer's accepted proposals in order. The browser checks the applied theme again, hand edits made during the run included, and lists what still fails in an accessibility warning; that warning, not the task's feedback, is what the theme on screen has. A colour the check cannot resolve counts as failing.
+- Every accepted proposal is checked for contrast on the theme as the answer's proposals leave it: normal, quiet and link text on the raised, default and lowered surfaces at 4.5:1, the form control border on its background at 3:1, and the brand fill the preview paints (`--wa-color-brand-fill-loud`, derived from `--wa-color-brand`) under `--wa-color-brand-on-loud` at 4.5:1. The violations go back to the model for at most 2 correction rounds, except the brand fill pair: the only fix is another brand hue, and the brand colour is the user's, so it is reported, never corrected; a correction names only its fixes, so the browser applies an answer's accepted proposals in order. The browser checks the applied theme again, hand edits made during the run included, and lists what still fails in an accessibility warning; that warning, not the task's feedback, is what the theme on screen has. A colour the check cannot resolve counts as failing.
 - Colours in a proposal are `#rrggbb`: the sidebar's picker, the brand palette and the shadow colour only work with that.
+- Hand-set values are protected in `conversation.ts`, never by the prompt (ADR 0007). At the first message, everything that differs from the starting point is hand-set, whenever the user set it; after that, every sidebar edit is. An answer that would change one returns it as a change request; only the user's overwrite applies it. The prompt lists hand-set and kept values so the model asks less often, and the task requires a reason for each hand-set value it proposes, but nothing depends on the model obeying. A change that relies on the prompt instead reverses ADR 0007.
+- The adapter finds user edits by comparing each committed theme with the previous one, in a layout effect, so every editing path counts (controls, section reset, import). `applyTheme()` commits synchronously (`flushSync`) and only the values it writes, in that commit, are left out; nothing stays pending afterwards to swallow a later hand edit. Do not apply an answer through any other Studio setter, or it becomes hand-set.
+- Undo reverts one answer's own values, overwritten change requests included, and leaves every value the user or a later answer changed since. The hand-set and kept status of what it reverts goes back with it.
 - Every message carries a snapshot of the custom theme as the sidebar has it (`sendMessage` `metadata`, the task's `clientDataSchema`). The task builds its prompt from the snapshot, never from earlier turns, so hand edits between messages are seen.
 - `ANTHROPIC_API_KEY` lives only in trigger.dev, in its Production environment. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
 - `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.
@@ -117,7 +125,7 @@ pnpm exec trigger whoami       # confirm the account
 pnpm exec trigger deploy --prod
 ```
 
-The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with the normal docs deployment. Cost ceilings: the Anthropic monthly spend limit (Console), `maxOutputTokens` per step and at most 4 steps per answer, and `concurrency: { total: 1 }` in the task, and trigger.dev's free credit, which stops runs once spent.
+The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with the normal docs deployment. Cost ceilings: the Anthropic monthly spend limit (Console), `maxOutputTokens` per step and at most `MAX_STEPS` (7) steps per answer, and `concurrency: { total: 1 }` in the task, and trigger.dev's free credit, which stops runs once spent.
 
 ## Testing
 

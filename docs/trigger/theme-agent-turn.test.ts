@@ -76,6 +76,23 @@ const snapshot: ThemeAgentSnapshot = {
     },
     shadowComponents: ['Card'],
   },
+  handSet: { light: [], dark: [], shadowComponents: false },
+  kept: { light: [], dark: [], shadowComponents: false },
+};
+
+/** The user tuned the dark surface and the shadow list, and kept the radius. */
+const handSetSnapshot: ThemeAgentSnapshot = {
+  ...snapshot,
+  handSet: {
+    light: ['--wa-border-radius-scale'],
+    dark: ['--wa-color-surface-default', '--wa-border-radius-scale'],
+    shadowComponents: true,
+  },
+  kept: {
+    light: ['--wa-border-radius-scale'],
+    dark: ['--wa-border-radius-scale'],
+    shadowComponents: false,
+  },
 };
 
 const messages: ModelMessage[] = [
@@ -171,6 +188,83 @@ describe('Theme Agent turn', () => {
     const prompt = JSON.stringify(model.doStreamCalls[0].prompt);
     expect(prompt).toContain('#1c1917');
     expect(prompt).toContain('#fafaf9');
+  });
+
+  it("gives the model the snapshot's hand-set and kept values", async () => {
+    const model = new MockLanguageModelV4({ doStream: [textStep('Hello.')] });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: handSetSnapshot,
+    });
+    await result.consumeStream();
+
+    const system = model.doStreamCalls[0].prompt.find(
+      (message) => message.role === 'system'
+    );
+    const text = typeof system?.content === 'string' ? system.content : '';
+    expect(text).toMatch(
+      /Hand-set values[^\n]*\n- --wa-border-radius-scale\n- dark --wa-color-surface-default\n- shadowComponents\n/
+    );
+    expect(text).toMatch(/Kept values[^\n]*\n- --wa-border-radius-scale\n\n/);
+  });
+
+  it('sends a proposal for a hand-set value without a reason back to the model', async () => {
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-color-brand': '#d97706' },
+          dark: { '--wa-color-surface-default': '#241a12' },
+        }),
+        proposalStep('call-2', {
+          light: { '--wa-color-brand': '#d97706' },
+          dark: { '--wa-color-surface-default': '#241a12' },
+          reasons: {
+            '--wa-color-surface-default': 'A warmer surface for the brand.',
+          },
+        }),
+        textStep('Warmer.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: handSetSnapshot,
+    });
+    await result.consumeStream();
+
+    const [rejected, accepted] = toolResults(model);
+    expect(JSON.stringify(rejected)).toContain(
+      'reasons --wa-color-surface-default: dark --wa-color-surface-default is hand-set; give a reason'
+    );
+    expect(JSON.stringify(rejected)).toContain('"accepted":false');
+    expect(JSON.stringify(accepted)).toContain('"accepted":true');
+  });
+
+  it('needs no reason for a kept value; Studio decides whether to ask', async () => {
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-border-radius-scale': '2.5' },
+          dark: {},
+        }),
+        textStep('Rounder.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: handSetSnapshot,
+    });
+    await result.consumeStream();
+
+    expect(JSON.stringify(toolResults(model)[0])).toContain('"accepted":true');
   });
 });
 
@@ -327,5 +421,35 @@ describe('Theme Agent turn: contrast', () => {
       true,
       false,
     ]);
+  });
+
+  it('reports a failing brand fill without a correction round', async () => {
+    // Only the brand fill fails: Studio derives it from the brand at a fixed
+    // lightness, so the only fix is another brand hue, the user's choice.
+    const greenBrand = {
+      light: { ...readableProposal.light, '--wa-color-brand': '#16a34a' },
+      dark: readableProposal.dark,
+    };
+    const steps: string[] = [];
+    const model = new MockLanguageModelV4({
+      doStream: [proposalStep('call-1', greenBrand), textStep('Green brand.')],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot,
+      onStatus: (step) => steps.push(step),
+    });
+    await result.consumeStream();
+
+    expect(model.doStreamCalls).toHaveLength(2);
+    const [output] = toolResults(model).map(
+      (o) => (o as { value: ProposeOutput }).value
+    );
+    expect(output.correctContrast).toBe(false);
+    expect(output.contrast.join('\n')).toContain('text on the brand fill');
+    expect(steps).not.toContain(THEME_AGENT_STATUS.fixing);
   });
 });
