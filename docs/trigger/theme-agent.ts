@@ -4,7 +4,7 @@ import {
   THEME_AGENT_STATUS,
   THEME_AGENT_TASK_ID,
 } from '../src/kigumi-studio/theme-agent/constants.js';
-import { themeAgentSnapshotSchema } from '../src/kigumi-studio/theme-agent/custom-theme.js';
+import { themeAgentClientDataSchema } from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import { themeAgentTurn } from './theme-agent-turn.js';
 
 const MODEL = 'claude-sonnet-5-5';
@@ -25,7 +25,7 @@ export const themeAgent = chat.agent({
   // An abandoned conversation ends after an hour without messages.
   turnTimeout: '1h',
   // Every message carries the custom theme as it is in the browser.
-  clientDataSchema: themeAgentSnapshotSchema,
+  clientDataSchema: themeAgentClientDataSchema,
   run: async ({ messages, clientData, signal, streamText }) => {
     if (!clientData) {
       throw new Error('A Theme Agent message arrived without its snapshot.');

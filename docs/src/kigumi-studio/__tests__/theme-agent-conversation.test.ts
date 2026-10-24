@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { createThemeAgentConversation } from '../theme-agent/conversation';
-import type { CustomTheme } from '../theme-agent/custom-theme';
+import {
+  themeAgentClientDataSchema,
+  type CustomTheme,
+} from '../theme-agent/custom-theme';
 
 /** Studio's out-of-the-box custom theme, written out from the sidebar defaults. */
 function studioDefaults(): CustomTheme {
@@ -275,5 +278,22 @@ describe('Theme Agent conversation: refinement', () => {
 
     // Undo of the second answer goes back to the hand-edited theme.
     expect(conversation.undo('answer-2')).toEqual(edited);
+  });
+});
+
+describe('Theme Agent snapshot schema', () => {
+  it('lets a run boot before the first message, which carries no snapshot', () => {
+    // trigger.dev parses the run's boot and preload payloads with the same
+    // schema; they never carry a message's metadata.
+    expect(themeAgentClientDataSchema.safeParse(undefined).success).toBe(true);
+  });
+
+  it('accepts the snapshot a message carries and refuses a malformed one', () => {
+    const snapshot =
+      createThemeAgentConversation().messageSent(studioDefaults());
+    expect(themeAgentClientDataSchema.safeParse(snapshot).success).toBe(true);
+    expect(
+      themeAgentClientDataSchema.safeParse({ theme: { light: {} } }).success
+    ).toBe(false);
   });
 });

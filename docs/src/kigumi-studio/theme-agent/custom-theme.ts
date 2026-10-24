@@ -38,3 +38,10 @@ export function cloneTheme(theme: CustomTheme): CustomTheme {
     shadowComponents: [...theme.shadowComponents],
   };
 }
+
+/**
+ * The task's `clientDataSchema`. trigger.dev also parses a run's boot and
+ * preload payloads with it, and those carry no message, so no snapshot. A
+ * message without one is refused in the task's `run`.
+ */
+export const themeAgentClientDataSchema = themeAgentSnapshotSchema.optional();
