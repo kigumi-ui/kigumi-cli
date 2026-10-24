@@ -299,4 +299,33 @@ describe('Theme Agent turn: contrast', () => {
     );
     expect(await result.text).toContain('still too light');
   });
+
+  it('refuses a proposal after the corrections are used up', async () => {
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', unreadableProposal),
+        proposalStep('call-2', unreadableProposal),
+        proposalStep('call-3', unreadableProposal),
+        // Told to stop proposing, the model proposes anyway.
+        proposalStep('call-4', {
+          light: { '--wa-color-brand': '#dc2626' },
+          dark: {},
+        }),
+        textStep('Done.'),
+      ],
+    });
+
+    const result = themeAgentTurn({ streamText, model, messages, snapshot });
+    await result.consumeStream();
+
+    const outputs = toolResults(model).map(
+      (output) => (output as { value: ProposeOutput }).value
+    );
+    expect(outputs.map((output) => output.accepted)).toEqual([
+      true,
+      true,
+      true,
+      false,
+    ]);
+  });
 });

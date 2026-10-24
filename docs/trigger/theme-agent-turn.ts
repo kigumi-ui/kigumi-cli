@@ -57,11 +57,23 @@ function proposeThemeTool(
   let theme = snapshot.theme;
   let corrections = 0;
   let rejections = 0;
+  // Set once a theme went back with violations and no correction left.
+  let settled = false;
 
   const proposeTheme = tool({
     description: PROPOSE_DESCRIPTION,
     inputSchema: themeProposalSchema,
     execute: async (input): Promise<ProposeThemeOutput> => {
+      if (settled) {
+        return {
+          accepted: false,
+          errors: [
+            'No contrast corrections are left in this answer; explain the pairs that still fail instead.',
+          ],
+          contrast: [],
+          correctContrast: false,
+        };
+      }
       const validation = validateProposal(input);
       if (!validation.valid) {
         rejections += 1;
@@ -80,6 +92,8 @@ function proposeThemeTool(
       if (correctContrast) {
         corrections += 1;
         onStatus(THEME_AGENT_STATUS.fixing);
+      } else if (contrast.length > 0) {
+        settled = true;
       }
       return { accepted: true, errors: [], contrast, correctContrast };
     },

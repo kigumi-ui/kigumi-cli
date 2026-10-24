@@ -23,7 +23,7 @@ import {
   THEME_AGENT_TASK_ID,
 } from '../../theme-agent/constants';
 import {
-  formatRatio,
+  summarizeViolation,
   type ContrastViolation,
 } from '../../theme-agent/contrast';
 import {
@@ -364,16 +364,6 @@ interface AnswerOutcomeProps {
   onUndo: () => void;
 }
 
-/** One violation as the chat lists it: mode, pair and ratio. */
-function violationText(violation: ContrastViolation): string {
-  const mode = violation.mode === 'light' ? 'Light' : 'Dark';
-  const ratio =
-    violation.ratio === null
-      ? 'colour not resolved'
-      : formatRatio(violation.ratio);
-  return `${mode} mode, ${violation.label}: ${ratio}, needs ${violation.minimum}:1`;
-}
-
 /** An answer's outcome, and its undo. */
 function AnswerOutcome({
   outcome,
@@ -398,7 +388,7 @@ function AnswerOutcome({
                   <li
                     key={`${violation.mode}${violation.foreground}${violation.background}`}
                   >
-                    {violationText(violation)}
+                    {summarizeViolation(violation)}
                   </li>
                 ))}
               </ul>

@@ -105,7 +105,7 @@ export function buildPreviewStyle(
     delete style['--wa-shadow-opacity'];
   }
 
-  // Neutralize WA built-in shadows — shadows are opt-in via shadowComponents only.
+  // Neutralize WA built-in shadows: shadows are opt-in via shadowComponents only.
   // Components like Card have box-shadow: var(--wa-shadow-m) in their Shadow DOM.
   // Setting these to 'none' disables all native shadows; the shadowComponents system
   // uses filter: drop-shadow() independently and is NOT affected.

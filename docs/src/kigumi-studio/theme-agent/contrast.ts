@@ -225,12 +225,17 @@ export function formatRatio(ratio: number): string {
  * (--wa-color-text-quiet #8a8a8a on --wa-color-surface-lowered #2a2a2a)".
  */
 export function describeViolation(violation: ContrastViolation): string {
+  const colours = `${violation.foreground} ${violation.foregroundColor} on ${violation.background} ${violation.backgroundColor}`;
+  const setBy = violation.setBy ? `, set by ${violation.setBy}` : '';
+  return `${summarizeViolation(violation)} (${colours}${setBy})`;
+}
+
+/** Mode, pair and ratio, as the chat's accessibility warning lists them. */
+export function summarizeViolation(violation: ContrastViolation): string {
   const mode = violation.mode === 'light' ? 'Light mode' : 'Dark mode';
   const result =
     violation.ratio === null
       ? 'a colour could not be resolved'
       : `${formatRatio(violation.ratio)}, needs ${violation.minimum}:1`;
-  const colours = `${violation.foreground} ${violation.foregroundColor} on ${violation.background} ${violation.backgroundColor}`;
-  const setBy = violation.setBy ? `, set by ${violation.setBy}` : '';
-  return `${mode}, ${violation.label}: ${result} (${colours}${setBy})`;
+  return `${mode}, ${violation.label}: ${result}`;
 }
