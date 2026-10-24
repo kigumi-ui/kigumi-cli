@@ -5,11 +5,8 @@ import { renderHook, act } from '@testing-library/react';
 import { StudioProvider, useStudio } from '../contexts/StudioContext';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
+import { loadPresets } from '../lib/preset-loader';
 import { useThemeAgentStudio } from '../theme-agent/use-theme-agent-studio';
-import {
-  createThemeAgentConversation,
-  type ThemeAgentConversation,
-} from '../theme-agent/conversation';
 
 function wrapper({ children }: { children: ReactNode }) {
   return <StudioProvider>{children}</StudioProvider>;
@@ -353,20 +350,13 @@ describe('useStudio - shadow and custom CSS', () => {
 });
 
 describe('Theme Agent adapter', () => {
-  let conversation: ThemeAgentConversation;
-  beforeEach(() => {
-    conversation = createThemeAgentConversation();
-  });
-
   function useBoth() {
-    return {
-      studio: useStudio(),
-      agent: useThemeAgentStudio(conversation),
-    };
+    return { studio: useStudio(), agent: useThemeAgentStudio() };
   }
 
   it('reports a sidebar edit to the conversation as a hand-set value', () => {
     const { result } = renderHook(useBoth, { wrapper });
+    const { conversation } = result.current.agent;
     conversation.messageSent(
       result.current.agent.currentTheme(),
       'Calm fintech theme'
@@ -395,18 +385,15 @@ describe('Theme Agent adapter', () => {
 
   it('a hand edit is hand-set even when it equals a value an apply did not write', () => {
     const { result } = renderHook(useBoth, { wrapper });
-    // Before the conversation, so not hand-set.
-    act(() => {
-      result.current.studio.setProperty('--wa-transition-fast', '100');
-    });
+    const { conversation } = result.current.agent;
     conversation.messageSent(
       result.current.agent.currentTheme(),
       'Calm fintech theme'
     );
-    // Studio stores this slider without its unit: "100ms" lands as the "100"
+    // Studio stores this slider without its unit: "75ms" lands as the "75"
     // already there, so nothing of this apply is ever committed.
     const applied = result.current.agent.currentTheme();
-    applied.dark['--wa-transition-fast'] = '100ms';
+    applied.dark['--wa-transition-fast'] = '75ms';
     act(() => {
       result.current.agent.applyTheme(applied);
     });
@@ -417,7 +404,7 @@ describe('Theme Agent adapter', () => {
     expect(premise.handSet.dark).toEqual([]);
 
     act(() => {
-      result.current.studio.setProperty('--wa-transition-fast', '100ms');
+      result.current.studio.setProperty('--wa-transition-fast', '75ms');
     });
 
     const snapshot = conversation.messageSent(
@@ -427,8 +414,57 @@ describe('Theme Agent adapter', () => {
     expect(snapshot.handSet.dark).toContain('--wa-transition-fast');
   });
 
+  it('takes the loaded preset as the starting point, so its values are not hand-set', async () => {
+    const [preset] = await loadPresets();
+    const { result } = renderHook(useBoth, { wrapper });
+    const { conversation } = result.current.agent;
+    // What the preset selector does.
+    act(() => {
+      result.current.studio.resetAll();
+      const merged: Record<string, { light?: string; dark?: string }> = {};
+      for (const [cssVar, value] of Object.entries(preset.values.light)) {
+        merged[cssVar] = { ...merged[cssVar], light: value };
+      }
+      for (const [cssVar, value] of Object.entries(preset.values.dark)) {
+        merged[cssVar] = { ...merged[cssVar], dark: value };
+      }
+      result.current.studio.importValues(merged);
+      result.current.studio.setShadowComponents(preset.shadowComponents);
+      result.current.studio.setSelectedPreset(preset.filename);
+    });
+    // Let the adapter's own preset load settle.
+    await act(async () => {
+      await loadPresets();
+    });
+
+    const snapshot = conversation.messageSent(
+      result.current.agent.currentTheme(),
+      'Make it warmer'
+    );
+    expect(snapshot.handSet).toEqual({
+      light: [],
+      dark: [],
+      shadowComponents: false,
+    });
+  });
+
+  it('counts a value set before the first message as hand-set', () => {
+    const { result } = renderHook(useBoth, { wrapper });
+    const { conversation } = result.current.agent;
+    act(() => {
+      result.current.studio.setProperty('--wa-color-brand', '#0057b8');
+    });
+
+    const snapshot = conversation.messageSent(
+      result.current.agent.currentTheme(),
+      'Make it warmer'
+    );
+    expect(snapshot.handSet.dark).toContain('--wa-color-brand');
+  });
+
   it('an applied answer changes the values without making them hand-set', () => {
     const { result } = renderHook(useBoth, { wrapper });
+    const { conversation } = result.current.agent;
     const theme = result.current.agent.currentTheme();
     conversation.messageSent(theme, 'Calm fintech theme');
     const outcome = conversation.answerReceived(

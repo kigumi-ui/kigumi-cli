@@ -1,14 +1,22 @@
-import { useCallback, useLayoutEffect, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { flushSync } from 'react-dom';
 import { useStudio } from '../contexts/StudioContext';
 import type { ThemeValue } from '../lib/defaults';
-import type { ThemeAgentConversation } from './conversation';
+import { loadPresets, type ThemePreset } from '../lib/preset-loader';
+import { createThemeAgentConversation } from './conversation';
 import {
   componentListKey,
   THEME_AGENT_MODES,
   type CustomTheme,
 } from './custom-theme';
 import { SHADOW_COMPONENTS_KEY } from './proposal';
+import { startingPoint } from './starting-point';
 
 function toTheme(
   values: Record<string, ThemeValue>,
@@ -27,17 +35,54 @@ function toTheme(
 }
 
 /**
- * The Theme Agent's thin adapter onto Studio: read the custom theme as the
- * sidebar has it now, apply one through Studio's own value-setting path, and
- * report every other change to the conversation as a user edit. Edits are
+ * The Theme Agent's thin adapter onto Studio, and the owner of its
+ * conversation: read the custom theme as the sidebar has it now, apply one
+ * through Studio's own value-setting path, and report every other change to
+ * the conversation as a user edit. The conversation's starting point is the
+ * loaded preset, or Studio's defaults. Edits are
  * found by comparing each committed theme with the one before, so every
  * editing path counts (sidebar controls, section resets, import). An apply
  * commits synchronously, and only what it writes, in that commit, is left
  * out.
  */
-export function useThemeAgentStudio(conversation: ThemeAgentConversation) {
-  const { values, shadowComponents, importValues, setShadowComponents } =
-    useStudio();
+export function useThemeAgentStudio() {
+  const {
+    values,
+    shadowComponents,
+    selectedPreset,
+    importValues,
+    setShadowComponents,
+  } = useStudio();
+
+  // Presets load lazily; until they have, the starting point is Studio's
+  // defaults, which counts more values as hand-set, never fewer.
+  const [presets, setPresets] = useState<ThemePreset[]>([]);
+  useEffect(() => {
+    if (!selectedPreset) return;
+    let cancelled = false;
+    loadPresets()
+      .then((loaded) => {
+        if (!cancelled) setPresets(loaded);
+      })
+      // Without presets the defaults stay the starting point.
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPreset]);
+  const start = useRef({ selectedPreset, presets });
+  useLayoutEffect(() => {
+    start.current = { selectedPreset, presets };
+  }, [selectedPreset, presets]);
+  const [conversation] = useState(() =>
+    createThemeAgentConversation(() =>
+      startingPoint(
+        start.current.presets.find(
+          (preset) => preset.filename === start.current.selectedPreset
+        )
+      )
+    )
+  );
 
   // Read at event time (send, answer finished), not at render time.
   const latest = useRef({ values, shadowComponents });
@@ -113,5 +158,5 @@ export function useThemeAgentStudio(conversation: ThemeAgentConversation) {
     [currentTheme, importValues, setShadowComponents]
   );
 
-  return { currentTheme, applyTheme };
+  return { conversation, currentTheme, applyTheme };
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createThemeAgentConversation } from '../theme-agent/conversation';
+import { startingPoint } from '../theme-agent/starting-point';
 import {
   themeAgentClientDataSchema,
   type CustomTheme,
@@ -30,7 +31,7 @@ function studioDefaults(): CustomTheme {
 
 describe('Theme Agent conversation: snapshot', () => {
   it('sends the custom theme as it is when the message is sent, both modes', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     const theme = studioDefaults();
     theme.dark['--wa-color-surface-default'] = '#202020';
 
@@ -44,7 +45,7 @@ describe('Theme Agent conversation: snapshot', () => {
 
 describe('Theme Agent conversation: apply', () => {
   it('applies a valid proposal on top of the current custom theme', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     conversation.messageSent(studioDefaults(), 'Calm fintech theme');
 
     const outcome = conversation.answerReceived(
@@ -73,7 +74,7 @@ describe('Theme Agent conversation: apply', () => {
   });
 
   it('applies a mode-independent value named once to both modes', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     conversation.messageSent(studioDefaults(), 'Calm fintech theme');
 
     const outcome = conversation.answerReceived(
@@ -143,7 +144,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
   ];
 
   it.each(refused)('refuses %s and applies nothing', (_, proposal, error) => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     conversation.messageSent(studioDefaults(), 'Calm fintech theme');
 
     const outcome = conversation.answerReceived(
@@ -160,7 +161,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
   });
 
   it('refuses the whole proposal when one value is invalid', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     const outcome = conversation.answerReceived(
       'answer-1',
       [
@@ -183,7 +184,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
   });
 
   it('accepts a slider value written with its unit, stored without it', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     const outcome = conversation.answerReceived(
       'answer-1',
       [{ light: { '--wa-transition-fast': '100ms' }, dark: {} }],
@@ -198,7 +199,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
 
 describe('Theme Agent conversation: undo', () => {
   it('restores the custom theme as it was before the answer', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     const before = studioDefaults();
     const outcome = conversation.answerReceived(
       'answer-1',
@@ -222,7 +223,7 @@ describe('Theme Agent conversation: undo', () => {
   });
 
   it('undoing an earlier answer reverts only its own values and leaves a later answer', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     const first = conversation.answerReceived(
       'answer-1',
       [{ light: { '--wa-border-radius-scale': '2' }, dark: {} }],
@@ -278,7 +279,7 @@ describe('Theme Agent conversation: undo', () => {
   });
 
   it('applies the same answer only once', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     const proposal = { light: { '--wa-border-radius-scale': '2' }, dark: {} };
     const first = conversation.answerReceived(
       'answer-1',
@@ -298,7 +299,7 @@ describe('Theme Agent conversation: undo', () => {
 
 describe('Theme Agent conversation: refinement', () => {
   it('a second answer starts from the current theme, hand edits included', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     const first = conversation.answerReceived(
       'answer-1',
       [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
@@ -329,7 +330,7 @@ describe('Theme Agent conversation: refinement', () => {
 
 describe('Theme Agent conversation: accessibility', () => {
   it('applies a correction on top of the proposal it corrects', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     conversation.messageSent(studioDefaults(), 'Calm fintech theme');
 
     const outcome = conversation.answerReceived(
@@ -357,7 +358,7 @@ describe('Theme Agent conversation: accessibility', () => {
   });
 
   it('applies an answer that still fails contrast and lists what fails', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     conversation.messageSent(studioDefaults(), 'Calm fintech theme');
 
     const outcome = conversation.answerReceived(
@@ -395,7 +396,7 @@ describe('Theme Agent conversation: accessibility', () => {
   });
 
   it('checks the theme as applied, hand edits made during the run included', () => {
-    const conversation = createThemeAgentConversation();
+    const conversation = createThemeAgentConversation(studioDefaults);
     conversation.messageSent(studioDefaults(), 'Calm fintech theme');
     const current = studioDefaults();
     // Edited in the sidebar while the answer was on its way.
@@ -438,7 +439,7 @@ describe('Theme Agent snapshot schema', () => {
   });
 
   it('accepts the snapshot a message carries and refuses a malformed one', () => {
-    const snapshot = createThemeAgentConversation().messageSent(
+    const snapshot = createThemeAgentConversation(studioDefaults).messageSent(
       studioDefaults(),
       'Calm fintech theme'
     );
@@ -451,7 +452,7 @@ describe('Theme Agent snapshot schema', () => {
 
 /** A conversation whose first message has been sent with `theme`. */
 function startedConversation(theme: CustomTheme = studioDefaults()) {
-  const conversation = createThemeAgentConversation();
+  const conversation = createThemeAgentConversation(studioDefaults);
   conversation.messageSent(theme, 'Calm fintech theme');
   return conversation;
 }
@@ -536,27 +537,74 @@ describe('Theme Agent conversation: when a value becomes hand-set', () => {
     expect(outcome.theme.dark['--wa-color-brand']).toBe('#db2777');
   });
 
-  it('values set before the first message are not hand-set', () => {
-    const conversation = createThemeAgentConversation();
+  it('a value that differs from the starting point at the first message is hand-set', () => {
+    // The brand was set by hand before the Theme Agent was opened, in dark
+    // mode only, as the sidebar writes it.
+    const conversation = createThemeAgentConversation(studioDefaults);
     const tuned = studioDefaults();
-    tuned.dark['--wa-color-surface-default'] = '#1a1410';
-    conversation.userEdited('--wa-color-surface-default', 'dark');
-    const snapshot = conversation.messageSent(tuned, 'Make it playful');
+    tuned.dark['--wa-color-brand'] = '#0057b8';
+    tuned.light['--wa-color-surface-default'] = '#fffdf8';
+    const snapshot = conversation.messageSent(tuned, 'Make it warmer');
     expect(snapshot.handSet).toEqual({
-      light: [],
-      dark: [],
+      light: ['--wa-color-brand', '--wa-color-surface-default'],
+      dark: ['--wa-color-brand'],
       shadowComponents: false,
     });
 
     const outcome = conversation.answerReceived(
       'answer-1',
-      [{ light: {}, dark: { '--wa-color-surface-default': '#2a1a3a' } }],
+      [
+        {
+          light: {
+            '--wa-color-brand': '#d64228',
+            '--wa-color-surface-default': '#fdf6ec',
+            '--wa-color-surface-raised': '#fffaf3',
+          },
+          dark: {},
+        },
+      ],
       tuned
     );
-    expect(outcome.applied && outcome.changeRequests).toEqual([]);
-    expect(
-      outcome.applied && outcome.theme.dark['--wa-color-surface-default']
-    ).toBe('#2a1a3a');
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.dark['--wa-color-brand']).toBe('#0057b8');
+    expect(outcome.theme.light['--wa-color-surface-default']).toBe('#fffdf8');
+    expect(outcome.theme.light['--wa-color-surface-raised']).toBe('#fffaf3');
+    expect(outcome.changeRequests).toEqual([
+      expect.objectContaining({
+        cssVar: '--wa-color-brand',
+        current: '#0057b8',
+        proposed: '#d64228',
+      }),
+      expect.objectContaining({ cssVar: '--wa-color-surface-default' }),
+    ]);
+  });
+
+  it('a value back at its starting point is not hand-set', () => {
+    const conversation = createThemeAgentConversation(studioDefaults);
+    // Changed and set back before the first message.
+    conversation.userEdited('--wa-color-surface-default', 'dark');
+    const snapshot = conversation.messageSent(studioDefaults(), 'Calm');
+    expect(snapshot.handSet).toEqual({
+      light: [],
+      dark: [],
+      shadowComponents: false,
+    });
+  });
+
+  it('the starting point is the preset that was loaded, not the theme a preset made', () => {
+    const preset = studioDefaults();
+    preset.light['--wa-color-brand'] = '#7c3aed';
+    preset.dark['--wa-color-brand'] = '#7c3aed';
+    preset.shadowComponents = ['Card'];
+    const conversation = createThemeAgentConversation(() => preset);
+
+    const snapshot = conversation.messageSent(structuredClone(preset), 'Calm');
+
+    expect(snapshot.handSet).toEqual({
+      light: [],
+      dark: [],
+      shadowComponents: false,
+    });
   });
 
   it('tuning the dark surface leaves the light surface free', () => {
@@ -952,5 +1000,33 @@ describe('Theme Agent conversation: contrast after an overwrite', () => {
     conversation.overwrite(outcome.changeRequests[0].id, outcome.theme);
 
     expect(quietFails()).toBe(false);
+  });
+});
+
+describe('Theme Agent starting point', () => {
+  it('stores a preset the way loading it does', () => {
+    const start = startingPoint({
+      values: {
+        light: {
+          '--wa-transition-fast': '150ms',
+          '--wa-color-brand': '#7c3aed',
+        },
+        dark: {},
+        warnings: [],
+      },
+      shadowComponents: ['Card'],
+    });
+    // Unit stripped, and a mode-independent value given for light applies
+    // to dark too, as importValues stores it.
+    expect(start.light['--wa-transition-fast']).toBe('150');
+    expect(start.dark['--wa-transition-fast']).toBe('150');
+    expect(start.dark['--wa-color-brand']).toBe('#7c3aed');
+    expect(start.shadowComponents).toEqual(['Card']);
+  });
+
+  it("is Studio's defaults without a preset", () => {
+    const start = startingPoint();
+    expect(start.light['--wa-color-brand']).toBe('#0071ec');
+    expect(start.shadowComponents).toEqual([]);
   });
 });

@@ -14,6 +14,7 @@ import {
   PROPERTIES_BY_VAR,
   type PropertyGroup,
 } from '../lib/property-definitions';
+import { mergeImportedValues, type ImportedValues } from '../lib/import-values';
 import {
   DEFAULT_VALUES,
   type ThemeMode,
@@ -210,39 +211,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const importValues = useCallback(
-    (imported: Record<string, { light?: string; dark?: string }>) => {
-      setValues((prev) => {
-        const next = { ...prev };
-        for (const [cssVar, modes] of Object.entries(imported)) {
-          if (!next[cssVar]) continue;
-          // Strip unit suffix for properties that store raw numbers (e.g. "75ms" -> "75")
-          const prop = PROPERTIES_BY_VAR.get(cssVar);
-          const suffix = prop?.unit;
-          const strip = (v: string | undefined): string | undefined => {
-            if (!v || !suffix) return v;
-            return v.endsWith(suffix) ? v.slice(0, -suffix.length) : v;
-          };
-          const strippedLight = strip(modes.light);
-          const strippedDark = strip(modes.dark);
-
-          // For mode-independent tokens: if only light value is provided,
-          // use it for dark too (structural tokens should be identical in both modes)
-          const effectiveDark =
-            !prop?.modeDependent && strippedLight && !strippedDark
-              ? strippedLight
-              : strippedDark;
-
-          next[cssVar] = {
-            light: strippedLight ?? next[cssVar].light,
-            dark: effectiveDark ?? next[cssVar].dark,
-          };
-        }
-        return next;
-      });
-    },
-    []
-  );
+  const importValues = useCallback((imported: ImportedValues) => {
+    setValues((prev) => mergeImportedValues(prev, imported));
+  }, []);
 
   const getStyleObject = useCallback(
     (mode: ThemeMode): Record<string, string> =>

@@ -27,7 +27,6 @@ import {
   type ContrastViolation,
 } from '../../theme-agent/contrast';
 import {
-  createThemeAgentConversation,
   type AnswerStatus,
   type ChangeRequest,
 } from '../../theme-agent/conversation';
@@ -119,8 +118,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     }),
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
-  const [conversation] = useState(createThemeAgentConversation);
-  const { currentTheme, applyTheme } = useThemeAgentStudio(conversation);
+  const { conversation, currentTheme, applyTheme } = useThemeAgentStudio();
   // The conversation module is plain state; re-render after each event.
   const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);

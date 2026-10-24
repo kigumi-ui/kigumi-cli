@@ -120,11 +120,13 @@ text instructions, in conversation with the user.
 _Avoid_: preset agent, theme generator
 
 **Hand-set value**:
-A value in the custom theme that the user changed in the Studio sidebar during
-the conversation, including while the Theme Agent was answering. It is tracked
-per mode; a value that is the same in both modes, and the list of components
-that get a shadow, count as one each. Values the user set before the
-conversation are not hand-set. A value stays hand-set until the user
+A value in the custom theme that the user set by hand: at the first message
+of a conversation, every value that differs from the starting point (the
+loaded preset, or Studio's defaults), whenever it was set, and every value the
+user changes in the Studio sidebar after that, including while the Theme Agent
+is answering. It is tracked per mode; a value that is the same in both modes,
+and the list of components that get a shadow, count as one each. The Theme
+Agent's own changes are not hand-set. A value stays hand-set until the user
 overwrites it through a change request. The Theme Agent never changes a
 hand-set value on its own.
 _Avoid_: locked value, pinned value, manual override

@@ -71,8 +71,9 @@ export type AnswerStatus = 'applied' | 'unchanged' | 'undone' | 'rejected';
 export interface ThemeAgentConversation {
   /**
    * The snapshot that travels with a message, taken from `theme` as it is
-   * now. The first message starts the conversation: only edits after it are
-   * hand-set. Open change requests are resolved as kept.
+   * now. The first message starts the conversation: every value that differs
+   * from the starting point then is hand-set, and so is every edit after it.
+   * Open change requests are resolved as kept.
    */
   messageSent(theme: CustomTheme, text: string): ThemeAgentSnapshot;
   /** The user changed `cssVar` in `mode` in the sidebar. */
@@ -244,7 +245,14 @@ function restoreUnit(to: Protection, from: Protection, unitKey: string): void {
   else to.kept.delete(unitKey);
 }
 
-export function createThemeAgentConversation(): ThemeAgentConversation {
+/**
+ * `startingPoint` is the custom theme the user started from: the preset that
+ * was loaded, or Studio's defaults. Whatever differs from it when the first
+ * message is sent was set by hand, before or after the Theme Agent opened.
+ */
+export function createThemeAgentConversation(
+  startingPoint: () => CustomTheme
+): ThemeAgentConversation {
   const answers: AnswerRecord[] = [];
   let started = false;
   const protection: Protection = { handSet: new Map(), kept: new Set() };
@@ -291,6 +299,61 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       }
     }
     return next;
+  };
+
+  const markValue = (cssVar: string, mode: ThemeAgentMode) => {
+    if (!PROPERTIES_BY_VAR.has(cssVar)) return;
+    protection.handSet.set(valueKey(cssVar, mode), {
+      kind: 'value',
+      cssVar,
+      modes: isModeDependent(cssVar) ? [mode] : [...THEME_AGENT_MODES],
+      editedMode: mode,
+    });
+  };
+
+  const markShadowComponents = () => {
+    protection.handSet.set(SHADOW_COMPONENTS_KEY, {
+      kind: 'shadowComponents',
+    });
+  };
+
+  /**
+   * Everything in `theme` that is not as `start` had it was set by hand,
+   * except what an answer wrote and still holds.
+   */
+  const markHandSetSince = (start: CustomTheme, theme: CustomTheme) => {
+    const written = (key: string, value: string) =>
+      answers.some(
+        (answer) => !answer.undone && answer.wrote.get(key) === value
+      );
+    const cssVars = new Set([
+      ...Object.keys(theme.light),
+      ...Object.keys(theme.dark),
+    ]);
+    for (const cssVar of cssVars) {
+      for (const mode of THEME_AGENT_MODES) {
+        const value = theme[mode][cssVar];
+        if (
+          value !== undefined &&
+          value !== start[mode][cssVar] &&
+          !written(`${mode} ${cssVar}`, value)
+        ) {
+          markValue(cssVar, mode);
+        }
+      }
+    }
+    const listWritten = answers.some(
+      (answer) =>
+        !answer.undone &&
+        answer.wroteShadowComponents !== undefined &&
+        sameList(answer.wroteShadowComponents, theme.shadowComponents)
+    );
+    if (
+      !sameList(theme.shadowComponents, start.shadowComponents) &&
+      !listWritten
+    ) {
+      markShadowComponents();
+    }
   };
 
   /**
@@ -372,7 +435,10 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
 
   return {
     messageSent(theme, text) {
-      started = true;
+      if (!started) {
+        started = true;
+        markHandSetSince(startingPoint(), theme);
+      }
       for (const record of openRecords()) keepRecord(record);
       named = namedValues(text);
       return {
@@ -382,21 +448,14 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       };
     },
 
+    // Before the first message, the comparison with the starting point
+    // decides instead, so a value set back is not hand-set.
     userEdited(cssVar, mode) {
-      if (!started || !PROPERTIES_BY_VAR.has(cssVar)) return;
-      protection.handSet.set(valueKey(cssVar, mode), {
-        kind: 'value',
-        cssVar,
-        modes: isModeDependent(cssVar) ? [mode] : [...THEME_AGENT_MODES],
-        editedMode: mode,
-      });
+      if (started) markValue(cssVar, mode);
     },
 
     userEditedShadowComponents() {
-      if (!started) return;
-      protection.handSet.set(SHADOW_COMPONENTS_KEY, {
-        kind: 'shadowComponents',
-      });
+      if (started) markShadowComponents();
     },
 
     answerReceived(answerId, proposals, current) {

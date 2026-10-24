@@ -104,13 +104,19 @@ function proposeThemeTool(
       }
       onStatus(THEME_AGENT_STATUS.checking);
       theme = applyProposal(theme, validation.proposal);
-      const contrast = checkContrast(theme).map(violationFeedback);
+      const violations = checkContrast(theme);
+      const contrast = violations.map(violationFeedback);
+      // A pair set by another value is the brand fill: Studio derives it
+      // from the brand at a fixed lightness, so the only fix is another
+      // brand hue, and the brand is the user's. It is reported, never
+      // corrected.
+      const correctable = violations.filter((violation) => !violation.setBy);
       const correctContrast =
-        contrast.length > 0 && corrections < MAX_CONTRAST_CORRECTIONS;
+        correctable.length > 0 && corrections < MAX_CONTRAST_CORRECTIONS;
       if (correctContrast) {
         corrections += 1;
         onStatus(THEME_AGENT_STATUS.fixing);
-      } else if (contrast.length > 0) {
+      } else if (correctable.length > 0) {
         settled = true;
       }
       return { accepted: true, errors: [], contrast, correctContrast };
@@ -181,7 +187,7 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     'How you answer:',
     `- To change the theme, call ${THEME_AGENT_PROPOSE_TOOL} once with only the values to change. A new theme covers brand, surfaces, text, form controls and shadow in both modes, plus fonts, radius and spacing where they fit the request.`,
     '- Keep the theme readable in both modes (WCAG 2.1 AA): normal, quiet and link text need 4.5:1 on the raised, default and lowered surfaces; the form control border needs 3:1 on the form control background; white text on the brand fill needs 4.5:1.',
-    '- Studio derives the brand fill from --wa-color-brand at a fixed lightness, so only its hue and saturation change that contrast. A surface or text colour left at its Studio default is derived from --wa-color-neutral.',
+    "- The brand colour is the user's: change --wa-color-brand only when the latest message asks about the brand, never as part of a mood such as warmer or calmer, and never to fix contrast. Studio derives the brand fill from it at a fixed lightness; a failing brand fill pair is reported to the user, not corrected. A surface or text colour left at its Studio default is derived from --wa-color-neutral.",
     `- If ${THEME_AGENT_PROPOSE_TOOL} returns accepted: false, fix every listed error and call it again.`,
     `- If it returns correctContrast: true, call it again with only the values that fix the listed contrast pairs. If contrast still lists pairs with correctContrast: false, stop proposing and name those pairs in your explanation.`,
     '- After the proposal is accepted, explain in two or three short sentences what changed and why. Do not list the values.',
