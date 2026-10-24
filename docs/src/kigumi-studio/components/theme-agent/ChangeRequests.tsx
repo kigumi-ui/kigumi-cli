@@ -1,14 +1,16 @@
-import clsx from 'clsx';
-import { Button, ButtonGroup, Callout, Icon } from '@/components/ui';
-import { PROPERTIES_BY_VAR } from '../../lib/property-definitions';
+import { useEffect, useId, useRef } from 'react';
 import {
-  changeRequestLabel,
-  OPEN_REQUEST_CLASS,
-} from '../../theme-agent/change-request-label';
+  Button,
+  ButtonGroup,
+  Callout,
+  Icon,
+  type ButtonRef,
+} from '@/components/ui';
 import type {
   ChangeRequest,
   ChangeRequestStatus,
 } from '../../theme-agent/conversation';
+import { describeChangeRequest } from '../../theme-agent/describe-change-request';
 
 const RESOLVED_TEXT: Record<Exclude<ChangeRequestStatus, 'open'>, string> = {
   kept: 'Kept. Name it in a message to change it after all.',
@@ -16,14 +18,10 @@ const RESOLVED_TEXT: Record<Exclude<ChangeRequestStatus, 'open'>, string> = {
   undone: 'Undone',
 };
 
-function displayValue(request: ChangeRequest, which: 'current' | 'proposed') {
-  if (request.kind === 'shadowComponents') {
-    const list = request[which];
-    return list.length > 0 ? list.join(', ') : 'none';
-  }
-  const unit = PROPERTIES_BY_VAR.get(request.cssVar)?.unit ?? '';
-  return `${request[which]}${unit}`;
-}
+// A value the user changed while the answer was being written was not
+// hand-set when the agent proposed it, so it gave no reason.
+const NO_REASON =
+  'The Theme Agent gave no reason for this value; its answer above explains the change.';
 
 interface ChangeRequestsProps {
   requests: ChangeRequest[];
@@ -31,11 +29,14 @@ interface ChangeRequestsProps {
   onOverwrite: (request: ChangeRequest) => void;
   onKeepAll: () => void;
   onOverwriteAll: () => void;
+  /** Called after the last open request is resolved, to move focus on. */
+  onAllResolved: () => void;
 }
 
 /**
  * The hand-set values an answer would change, each with the agent's reason
- * and keep or overwrite; "all" variants from two open requests on.
+ * and keep or overwrite; "all" variants from two open requests on. After a
+ * request is resolved, focus moves to the next open one.
  */
 export function ChangeRequests({
   requests,
@@ -43,8 +44,28 @@ export function ChangeRequests({
   onOverwrite,
   onKeepAll,
   onOverwriteAll,
+  onAllResolved,
 }: ChangeRequestsProps) {
+  const idPrefix = useId();
+  const keepButtons = useRef(new Map<string, ButtonRef>());
+  // Set by a click; the buttons it came from are gone after the re-render
+  // the click causes, so focus moves on once that render has committed.
+  const moveFocus = useRef(false);
   const open = requests.filter((request) => request.status === 'open');
+
+  useEffect(() => {
+    if (!moveFocus.current) return;
+    moveFocus.current = false;
+    const next = open[0];
+    if (next) keepButtons.current.get(next.id)?.focus({ preventScroll: true });
+    else onAllResolved();
+  });
+
+  const resolve = (action: () => void) => () => {
+    moveFocus.current = true;
+    action();
+  };
+
   return (
     <Callout variant="brand" size="small" className="theme-agent__outcome">
       <Icon slot="icon" name="hand" />
@@ -54,39 +75,41 @@ export function ChangeRequests({
             ? 'The Theme Agent would change a value you set by hand:'
             : 'The Theme Agent would change values you set by hand:'}
         </span>
-        {requests.map((request) => {
-          const label = changeRequestLabel(request);
+        {requests.map((request, index) => {
+          const { label, current, proposed } = describeChangeRequest(request);
+          const reasonId = `${idPrefix}-reason-${index}`;
           return (
             <div
               key={request.id}
-              className={clsx(
-                'theme-agent__request wa-stack wa-gap-2xs',
-                request.status === 'open' && OPEN_REQUEST_CLASS
-              )}
+              className="theme-agent__request wa-stack wa-gap-2xs"
             >
               <span className="theme-agent__request-target">{label}</span>
               <span className="theme-agent__request-change">
-                {displayValue(request, 'current')} →{' '}
-                {displayValue(request, 'proposed')}
+                {current} → {proposed}
               </span>
-              {request.reason && (
-                <span className="theme-agent__request-reason">
-                  {request.reason}
-                </span>
-              )}
+              <span id={reasonId} className="theme-agent__request-reason">
+                {request.reason ?? NO_REASON}
+              </span>
               {request.status === 'open' ? (
-                <ButtonGroup label={label}>
+                <ButtonGroup
+                  label={`${label}: ${current} to ${proposed}`}
+                  aria-describedby={reasonId}
+                >
                   <Button
+                    ref={(button) => {
+                      if (button) keepButtons.current.set(request.id, button);
+                      else keepButtons.current.delete(request.id);
+                    }}
                     size="small"
                     appearance="outlined"
-                    onClick={() => onKeep(request)}
+                    onClick={resolve(() => onKeep(request))}
                   >
                     Keep
                   </Button>
                   <Button
                     size="small"
                     appearance="outlined"
-                    onClick={() => onOverwrite(request)}
+                    onClick={resolve(() => onOverwrite(request))}
                   >
                     Overwrite
                   </Button>
@@ -101,10 +124,18 @@ export function ChangeRequests({
         })}
         {open.length >= 2 && (
           <ButtonGroup label="All change requests">
-            <Button size="small" appearance="outlined" onClick={onKeepAll}>
+            <Button
+              size="small"
+              appearance="outlined"
+              onClick={resolve(onKeepAll)}
+            >
               Keep all
             </Button>
-            <Button size="small" appearance="outlined" onClick={onOverwriteAll}>
+            <Button
+              size="small"
+              appearance="outlined"
+              onClick={resolve(onOverwriteAll)}
+            >
               Overwrite all
             </Button>
           </ButtonGroup>

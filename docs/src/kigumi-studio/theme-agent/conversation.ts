@@ -109,12 +109,13 @@ export interface ThemeAgentConversation {
   openChangeRequests(): ChangeRequest[];
   changeRequests(answerId: string): ChangeRequest[];
   /**
-   * The custom theme as it was before `answerId`, to apply. Hand-set and
-   * kept values go back to how they were then too. Undoing an answer also
-   * undoes every answer applied after it. `undefined` when there is nothing
-   * to undo.
+   * `current` with the values `answerId` set put back as they were before it,
+   * overwritten change requests included, to apply. A value changed since,
+   * by the user or a later answer, stays as it is. The hand-set and kept
+   * status of what goes back returns to how it was too. `undefined` when
+   * there is nothing to undo.
    */
-  undo(answerId: string): CustomTheme | undefined;
+  undo(answerId: string, current: CustomTheme): CustomTheme | undefined;
   answerStatus(answerId: string): AnswerStatus | undefined;
   /** The contrast violations an applied answer left; none once it is undone. */
   answerViolations(answerId: string): ContrastViolation[];
@@ -146,7 +147,10 @@ interface AnswerRecord {
   /** The custom theme and its protection just before this answer. */
   before: { theme: CustomTheme; protection: Protection } | undefined;
   outcome: AnswerOutcome;
-  changed: boolean;
+  /** What this answer wrote, by `mode cssVar`, directly or by overwrite. */
+  wrote: Map<string, string>;
+  /** The shadow component list it wrote, if it wrote one. */
+  wroteShadowComponents?: string[];
   requests: RequestRecord[];
   undone: boolean;
 }
@@ -169,16 +173,6 @@ function cloneProtection(protection: Protection): Protection {
 
 function sameList(a: string[], b: string[]): boolean {
   return componentListKey(a) === componentListKey(b);
-}
-
-function sameTheme(a: CustomTheme, b: CustomTheme): boolean {
-  const differs = (x: Record<string, string>, y: Record<string, string>) =>
-    Object.keys({ ...x, ...y }).some((key) => x[key] !== y[key]);
-  return (
-    !differs(a.light, b.light) &&
-    !differs(a.dark, b.dark) &&
-    sameList(a.shadowComponents, b.shadowComponents)
-  );
 }
 
 function valueSet(
@@ -213,24 +207,52 @@ function mergeProposals(proposals: ThemeProposal[]): ThemeProposal {
   return merged;
 }
 
-function applyRequest(theme: CustomTheme, request: ChangeRequest): void {
+/** Write `request`'s proposal into `theme` and record it on `answer`. */
+function applyRequest(
+  theme: CustomTheme,
+  request: ChangeRequest,
+  answer: AnswerRecord | undefined
+): void {
   if (request.kind === 'shadowComponents') {
     theme.shadowComponents = [...request.proposed];
+    if (answer) answer.wroteShadowComponents = [...request.proposed];
     return;
   }
-  for (const mode of request.modes)
+  for (const mode of request.modes) {
     theme[mode][request.cssVar] = request.proposed;
+    answer?.wrote.set(`${mode} ${request.cssVar}`, request.proposed);
+  }
+}
+
+/** What `theme` holds that `before` did not, by `mode cssVar`. */
+function written(before: CustomTheme, theme: CustomTheme): Map<string, string> {
+  const wrote = new Map<string, string>();
+  for (const mode of THEME_AGENT_MODES) {
+    for (const [cssVar, value] of Object.entries(theme[mode])) {
+      if (before[mode][cssVar] !== value) wrote.set(`${mode} ${cssVar}`, value);
+    }
+  }
+  return wrote;
+}
+
+/** Put `unitKey`'s hand-set and kept status back as `from` had it. */
+function restoreUnit(to: Protection, from: Protection, unitKey: string): void {
+  const unit = from.handSet.get(unitKey);
+  if (unit) to.handSet.set(unitKey, unit);
+  else to.handSet.delete(unitKey);
+  if (from.kept.has(unitKey)) to.kept.add(unitKey);
+  else to.kept.delete(unitKey);
 }
 
 export function createThemeAgentConversation(): ThemeAgentConversation {
   const answers: AnswerRecord[] = [];
   let started = false;
-  let protection: Protection = { handSet: new Map(), kept: new Set() };
+  const protection: Protection = { handSet: new Map(), kept: new Set() };
   /** What the message in flight names; a kept value it names may be asked about. */
   let named = new Set<string>();
 
   const find = (id: string) => answers.find((answer) => answer.id === id);
-  const copy = (record: RequestRecord): ChangeRequest => ({
+  const copyRequest = (record: RequestRecord): ChangeRequest => ({
     ...record.request,
   });
   const openRecords = () =>
@@ -250,20 +272,37 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
   ): CustomTheme | undefined => {
     if (records.length === 0) return undefined;
     const next = cloneTheme(current);
+    const answersTouched = new Set<AnswerRecord>();
     for (const record of records) {
-      applyRequest(next, record.request);
+      const answer = find(record.request.answerId);
+      applyRequest(next, record.request, answer);
       record.request.status = 'overwritten';
       protection.handSet.delete(record.unitKey);
       protection.kept.delete(record.unitKey);
-      const answer = find(record.request.answerId);
-      if (answer) answer.changed = true;
+      if (answer) answersTouched.add(answer);
+    }
+    // The theme changed, so its contrast is checked again.
+    for (const answer of answersTouched) {
+      if (answer.outcome.applied) {
+        answer.outcome = {
+          ...answer.outcome,
+          violations: checkContrast(next),
+        };
+      }
     }
     return next;
   };
 
-  /** Whether a proposed change to `unitKey` becomes a change request. */
-  const asks = (unitKey: string, namedAs: string) =>
-    !protection.kept.has(unitKey) || named.has(namedAs);
+  /**
+   * Whether a proposed change to a hand-set `unitKey` is asked about, or
+   * shown as already kept: a kept value is asked about again only when the
+   * message in flight names it.
+   */
+  const requestStatus = (
+    unitKey: string,
+    namedAs: string
+  ): ChangeRequestStatus =>
+    !protection.kept.has(unitKey) || named.has(namedAs) ? 'open' : 'kept';
 
   const receive = (
     answerId: string,
@@ -289,7 +328,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           for (const m of unit.modes) theme[m][cssVar] = proposed;
           continue;
         }
-        if (raised.has(unitKey) || !asks(unitKey, cssVar)) continue;
+        if (raised.has(unitKey)) continue;
         raised.add(unitKey);
         requests.push({
           unitKey,
@@ -302,7 +341,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
             current: handValue,
             proposed,
             reason: proposal.reasons?.[cssVar],
-            status: 'open',
+            status: requestStatus(unitKey, cssVar),
           },
         });
       }
@@ -312,7 +351,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
     if (proposedList && !sameList(current.shadowComponents, proposedList)) {
       if (!protection.handSet.has(SHADOW_COMPONENTS_KEY)) {
         theme.shadowComponents = [...proposedList];
-      } else if (asks(SHADOW_COMPONENTS_KEY, SHADOW_COMPONENTS_KEY)) {
+      } else {
         requests.push({
           unitKey: SHADOW_COMPONENTS_KEY,
           request: {
@@ -322,7 +361,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
             current: [...current.shadowComponents],
             proposed: [...proposedList],
             reason: proposal.reasons?.[SHADOW_COMPONENTS_KEY],
-            status: 'open',
+            status: requestStatus(SHADOW_COMPONENTS_KEY, SHADOW_COMPONENTS_KEY),
           },
         });
       }
@@ -378,7 +417,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           id: answerId,
           before: undefined,
           outcome,
-          changed: false,
+          wrote: new Map(),
           requests: [],
           undone: false,
         });
@@ -397,14 +436,17 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       const outcome: AnswerOutcome = {
         applied: true,
         theme,
-        changeRequests: requests.map(copy),
+        changeRequests: requests.map(copyRequest),
         violations: checkContrast(theme),
       };
       answers.push({
         id: answerId,
         before,
         outcome,
-        changed: !sameTheme(theme, current),
+        wrote: written(current, theme),
+        ...(sameList(theme.shadowComponents, current.shadowComponents)
+          ? {}
+          : { wroteShadowComponents: [...theme.shadowComponents] }),
         requests,
         undone: false,
       });
@@ -434,26 +476,42 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
     },
 
     openChangeRequests() {
-      return openRecords().map(copy);
+      return openRecords().map(copyRequest);
     },
 
     changeRequests(answerId) {
-      return (find(answerId)?.requests ?? []).map(copy);
+      return (find(answerId)?.requests ?? []).map(copyRequest);
     },
 
-    undo(answerId) {
-      const index = answers.findIndex((answer) => answer.id === answerId);
-      const answer = answers[index];
+    undo(answerId, current) {
+      const answer = find(answerId);
       if (!answer || !answer.before || answer.undone) return undefined;
-      for (const later of answers.slice(index)) {
-        later.undone = true;
-        for (const record of later.requests) {
-          if (record.request.status === 'open')
-            record.request.status = 'undone';
-        }
+      const { theme: before, protection: protectedBefore } = answer.before;
+      const next = cloneTheme(current);
+      const restored = new Set<string>();
+
+      for (const [key, value] of answer.wrote) {
+        const [mode, cssVar] = key.split(' ') as [ThemeAgentMode, string];
+        // Changed since, by the user or a later answer: theirs stays.
+        if (current[mode][cssVar] !== value) continue;
+        next[mode][cssVar] = before[mode][cssVar];
+        restored.add(valueKey(cssVar, mode));
       }
-      protection = cloneProtection(answer.before.protection);
-      return cloneTheme(answer.before.theme);
+      const list = answer.wroteShadowComponents;
+      if (list && sameList(current.shadowComponents, list)) {
+        next.shadowComponents = [...before.shadowComponents];
+        restored.add(SHADOW_COMPONENTS_KEY);
+      }
+      // Decisions on this answer's change requests go with it.
+      for (const record of answer.requests) {
+        restored.add(record.unitKey);
+        if (record.request.status === 'open') record.request.status = 'undone';
+      }
+      for (const unitKey of restored) {
+        restoreUnit(protection, protectedBefore, unitKey);
+      }
+      answer.undone = true;
+      return next;
     },
 
     answerViolations(answerId) {
@@ -467,7 +525,9 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       if (!answer) return undefined;
       if (!answer.outcome.applied) return 'rejected';
       if (answer.undone) return 'undone';
-      return answer.changed ? 'applied' : 'unchanged';
+      return answer.wrote.size > 0 || answer.wroteShadowComponents
+        ? 'applied'
+        : 'unchanged';
     },
   };
 }

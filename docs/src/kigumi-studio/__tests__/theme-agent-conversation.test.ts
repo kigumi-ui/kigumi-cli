@@ -156,7 +156,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
     if (outcome.applied) return;
     expect(outcome.errors.some((e) => e.startsWith(error))).toBe(true);
     expect(conversation.answerStatus('answer-1')).toBe('rejected');
-    expect(conversation.undo('answer-1')).toBeUndefined();
+    expect(conversation.undo('answer-1', studioDefaults())).toBeUndefined();
   });
 
   it('refuses the whole proposal when one value is invalid', () => {
@@ -211,15 +211,17 @@ describe('Theme Agent conversation: undo', () => {
       ],
       before
     );
-    expect(outcome.applied).toBe(true);
+    if (!outcome.applied) throw new Error('answer was not applied');
 
-    expect(conversation.undo('answer-1')).toEqual(studioDefaults());
+    expect(conversation.undo('answer-1', outcome.theme)).toEqual(
+      studioDefaults()
+    );
     expect(conversation.answerStatus('answer-1')).toBe('undone');
     // One step: a second undo has nothing left to restore.
-    expect(conversation.undo('answer-1')).toBeUndefined();
+    expect(conversation.undo('answer-1', studioDefaults())).toBeUndefined();
   });
 
-  it('undoing an earlier answer restores the theme before it and undoes the later ones', () => {
+  it('undoing an earlier answer reverts only its own values and leaves a later answer', () => {
     const conversation = createThemeAgentConversation();
     const first = conversation.answerReceived(
       'answer-1',
@@ -232,11 +234,47 @@ describe('Theme Agent conversation: undo', () => {
       [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
       first.theme
     );
-    expect(second.applied).toBe(true);
+    if (!second.applied) throw new Error('second answer was not applied');
 
-    expect(conversation.undo('answer-1')).toEqual(studioDefaults());
-    expect(conversation.answerStatus('answer-2')).toBe('undone');
-    expect(conversation.undo('answer-2')).toBeUndefined();
+    const undone = conversation.undo('answer-1', second.theme);
+    expect(undone?.light['--wa-border-radius-scale']).toBe('1');
+    expect(undone?.light['--wa-color-brand']).toBe('#0891b2');
+    expect(conversation.answerStatus('answer-1')).toBe('undone');
+    expect(conversation.answerStatus('answer-2')).toBe('applied');
+  });
+
+  it('undo leaves a value the user changed after the answer', () => {
+    const conversation = startedConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: { '--wa-color-brand': '#0891b2' },
+          dark: { '--wa-color-surface-default': '#0f172a' },
+        },
+      ],
+      studioDefaults()
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    // The user tunes the answer's dark surface and the dark text by hand.
+    const tuned = structuredClone(outcome.theme);
+    tuned.dark['--wa-color-surface-default'] = '#111827';
+    tuned.dark['--wa-color-text-normal'] = '#e5e7eb';
+    conversation.userEdited('--wa-color-surface-default', 'dark');
+    conversation.userEdited('--wa-color-text-normal', 'dark');
+
+    const undone = conversation.undo('answer-1', tuned);
+
+    expect(undone?.light['--wa-color-brand']).toBe('#0071ec');
+    expect(undone?.dark['--wa-color-brand']).toBe('#0071ec');
+    expect(undone?.dark['--wa-color-surface-default']).toBe('#111827');
+    expect(undone?.dark['--wa-color-text-normal']).toBe('#e5e7eb');
+    // The hand edits stay hand-set.
+    const snapshot = conversation.messageSent(undone!, 'Again');
+    expect(snapshot.handSet.dark).toEqual([
+      '--wa-color-surface-default',
+      '--wa-color-text-normal',
+    ]);
   });
 
   it('applies the same answer only once', () => {
@@ -252,7 +290,9 @@ describe('Theme Agent conversation: undo', () => {
     // move to the theme that already contains the answer.
     conversation.answerReceived('answer-1', [proposal], first.theme);
 
-    expect(conversation.undo('answer-1')).toEqual(studioDefaults());
+    expect(conversation.undo('answer-1', first.theme)).toEqual(
+      studioDefaults()
+    );
   });
 });
 
@@ -283,7 +323,7 @@ describe('Theme Agent conversation: refinement', () => {
     expect(second.theme.dark['--wa-color-surface-default']).toBe('#1a1410');
 
     // Undo of the second answer goes back to the hand-edited theme.
-    expect(conversation.undo('answer-2')).toEqual(edited);
+    expect(conversation.undo('answer-2', second.theme)).toEqual(edited);
   });
 });
 
@@ -350,7 +390,7 @@ describe('Theme Agent conversation: accessibility', () => {
     );
 
     // Once undone, the answer's theme is gone, and so are its warnings.
-    conversation.undo('answer-1');
+    conversation.undo('answer-1', outcome.theme);
     expect(conversation.answerViolations('answer-1')).toEqual([]);
   });
 
@@ -643,7 +683,26 @@ describe('Theme Agent conversation: keep and overwrite', () => {
     expect(
       later.applied && later.theme.dark['--wa-color-surface-default']
     ).toBe('#1a1410');
-    expect(later.applied && later.changeRequests).toEqual([]);
+    // Shown as kept, so the user sees why it did not change, but not asked.
+    expect(later.applied && later.changeRequests).toEqual([
+      expect.objectContaining({
+        cssVar: '--wa-color-surface-default',
+        proposed: '#000000',
+        status: 'kept',
+      }),
+    ]);
+    expect(conversation.openChangeRequests()).toEqual([]);
+  });
+
+  it('a kept value edited by hand again stays kept', () => {
+    const { conversation, applied, surface } = twoChangeRequests();
+    conversation.keep(surface.id);
+    const retuned = structuredClone(applied);
+    retuned.dark['--wa-color-surface-default'] = '#201810';
+    conversation.userEdited('--wa-color-surface-default', 'dark');
+
+    const snapshot = conversation.messageSent(retuned, 'More contrast');
+    expect(snapshot.kept.dark).toContain('--wa-color-surface-default');
   });
 
   it('a kept value is asked about again when the message names it', () => {
@@ -664,6 +723,7 @@ describe('Theme Agent conversation: keep and overwrite', () => {
       expect.objectContaining({
         cssVar: '--wa-color-surface-default',
         proposed: '#2a1c10',
+        status: 'open',
       }),
     ]);
   });
@@ -749,7 +809,7 @@ describe('Theme Agent conversation: undo with hand-set values', () => {
     const next = conversation.overwrite(surface.id, applied);
     if (!next) throw new Error('nothing to overwrite');
 
-    expect(conversation.undo('answer-1')).toEqual(edited);
+    expect(conversation.undo('answer-1', next)).toEqual(edited);
     expect(conversation.openChangeRequests()).toEqual([]);
 
     // The dark surface is hand-set again, as it was before the answer.
@@ -766,9 +826,9 @@ describe('Theme Agent conversation: undo with hand-set values', () => {
   });
 
   it('undo forgets a keep made on the undone answer', () => {
-    const { conversation, edited, surface } = twoChangeRequests();
+    const { conversation, edited, applied, surface } = twoChangeRequests();
     conversation.keep(surface.id);
-    conversation.undo('answer-1');
+    conversation.undo('answer-1', applied);
 
     const snapshot = conversation.messageSent(edited, 'Try again');
     expect(snapshot.kept.dark).toEqual([]);
@@ -849,7 +909,7 @@ describe('Theme Agent conversation: naming a kept value', () => {
     (cssVar, hand, proposed, message) => {
       const outcome = askAgain(cssVar, 'dark', hand, proposed, message);
       expect(outcome.applied && outcome.changeRequests).toEqual([
-        expect.objectContaining({ proposed }),
+        expect.objectContaining({ proposed, status: 'open' }),
       ]);
     }
   );
@@ -862,6 +922,35 @@ describe('Theme Agent conversation: naming a kept value', () => {
       '2.5',
       'Make the brand warmer'
     );
-    expect(outcome.applied && outcome.changeRequests).toEqual([]);
+    expect(
+      outcome.applied && outcome.changeRequests.map((r) => r.status)
+    ).toEqual(['kept']);
+  });
+});
+
+describe('Theme Agent conversation: contrast after an overwrite', () => {
+  it('checks the theme again once a change request is overwritten', () => {
+    const conversation = startedConversation();
+    // The user sets a light quiet text that fails on every light surface.
+    const edited = studioDefaults();
+    edited.light['--wa-color-text-quiet'] = '#aaaaaa';
+    conversation.userEdited('--wa-color-text-quiet', 'light');
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-color-text-quiet': '#595959' }, dark: {} }],
+      edited
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    const quietFails = () =>
+      conversation
+        .answerViolations('answer-1')
+        .some(
+          (v) => v.mode === 'light' && v.foreground === '--wa-color-text-quiet'
+        );
+    expect(quietFails()).toBe(true);
+
+    conversation.overwrite(outcome.changeRequests[0].id, outcome.theme);
+
+    expect(quietFails()).toBe(false);
   });
 });

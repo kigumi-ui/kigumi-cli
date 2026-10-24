@@ -393,6 +393,40 @@ describe('Theme Agent adapter', () => {
     });
   });
 
+  it('a hand edit is hand-set even when it equals a value an apply did not write', () => {
+    const { result } = renderHook(useBoth, { wrapper });
+    // Before the conversation, so not hand-set.
+    act(() => {
+      result.current.studio.setProperty('--wa-transition-fast', '100');
+    });
+    conversation.messageSent(
+      result.current.agent.currentTheme(),
+      'Calm fintech theme'
+    );
+    // Studio stores this slider without its unit: "100ms" lands as the "100"
+    // already there, so nothing of this apply is ever committed.
+    const applied = result.current.agent.currentTheme();
+    applied.dark['--wa-transition-fast'] = '100ms';
+    act(() => {
+      result.current.agent.applyTheme(applied);
+    });
+    const premise = conversation.messageSent(
+      result.current.agent.currentTheme(),
+      'Faster'
+    );
+    expect(premise.handSet.dark).toEqual([]);
+
+    act(() => {
+      result.current.studio.setProperty('--wa-transition-fast', '100ms');
+    });
+
+    const snapshot = conversation.messageSent(
+      result.current.agent.currentTheme(),
+      'Warmer'
+    );
+    expect(snapshot.handSet.dark).toContain('--wa-transition-fast');
+  });
+
   it('an applied answer changes the values without making them hand-set', () => {
     const { result } = renderHook(useBoth, { wrapper });
     const theme = result.current.agent.currentTheme();

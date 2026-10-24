@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useLayoutEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { useStudio } from '../contexts/StudioContext';
 import type { ThemeValue } from '../lib/defaults';
 import type { ThemeAgentConversation } from './conversation';
@@ -30,8 +31,9 @@ function toTheme(
  * sidebar has it now, apply one through Studio's own value-setting path, and
  * report every other change to the conversation as a user edit. Edits are
  * found by comparing each committed theme with the one before, so every
- * editing path counts (sidebar controls, section resets, import), and the
- * Theme Agent's own changes are left out by value.
+ * editing path counts (sidebar controls, section resets, import). An apply
+ * commits synchronously, and only what it writes, in that commit, is left
+ * out.
  */
 export function useThemeAgentStudio(conversation: ThemeAgentConversation) {
   const { values, shadowComponents, importValues, setShadowComponents } =
@@ -40,39 +42,33 @@ export function useThemeAgentStudio(conversation: ThemeAgentConversation) {
   // Read at event time (send, answer finished), not at render time.
   const latest = useRef({ values, shadowComponents });
   const previous = useRef<CustomTheme>(toTheme(values, shadowComponents));
-  // What applyTheme is about to write, per mode and custom property (or the
-  // shadow list): seen in the next commit, it is not a user edit.
-  const pending = useRef(new Map<string, string>());
+  // While an apply commits: what it writes, by `mode cssVar` (or the shadow
+  // list key). Empty at every other time, so nothing an apply leaves behind
+  // can swallow a later hand edit.
+  const applying = useRef<ReadonlySet<string>>(new Set());
 
-  useEffect(() => {
+  // A layout effect runs inside the commit, so inside applyTheme's flushSync.
+  useLayoutEffect(() => {
     latest.current = { values, shadowComponents };
     const now = toTheme(values, shadowComponents);
     const before = previous.current;
     previous.current = now;
 
-    let landed = false;
-    const isApplied = (key: string, value: string) => {
-      if (pending.current.get(key) !== value) return false;
-      landed = true;
-      return true;
-    };
     for (const mode of THEME_AGENT_MODES) {
       for (const [cssVar, value] of Object.entries(now[mode])) {
         if (before[mode][cssVar] === value) continue;
-        if (!isApplied(`${mode} ${cssVar}`, value)) {
+        if (!applying.current.has(`${mode} ${cssVar}`)) {
           conversation.userEdited(cssVar, mode);
         }
       }
     }
-    const list = componentListKey(now.shadowComponents);
     if (
-      list !== componentListKey(before.shadowComponents) &&
-      !isApplied(SHADOW_COMPONENTS_KEY, list)
+      componentListKey(now.shadowComponents) !==
+        componentListKey(before.shadowComponents) &&
+      !applying.current.has(SHADOW_COMPONENTS_KEY)
     ) {
       conversation.userEditedShadowComponents();
     }
-    // An apply lands in one commit; nothing of it is still to come.
-    if (landed) pending.current.clear();
   }, [values, shadowComponents, conversation]);
 
   const currentTheme = useCallback(
@@ -83,33 +79,38 @@ export function useThemeAgentStudio(conversation: ThemeAgentConversation) {
 
   const applyTheme = useCallback(
     (theme: CustomTheme) => {
-      const now = toTheme(
-        latest.current.values,
-        latest.current.shadowComponents
-      );
-      // A new apply supersedes anything an earlier one left unseen.
-      pending.current.clear();
+      const now = currentTheme();
+      const writes = new Set<string>();
       const imported: Record<string, { light?: string; dark?: string }> = {};
       for (const mode of THEME_AGENT_MODES) {
         for (const [cssVar, value] of Object.entries(theme[mode])) {
           if (now[mode][cssVar] === value) continue;
-          pending.current.set(`${mode} ${cssVar}`, value);
           // Both modes: importValues copies a light-only value into dark
           // for a mode-independent property.
           imported[cssVar] = {
             light: theme.light[cssVar],
             dark: theme.dark[cssVar],
           };
+          writes.add(`light ${cssVar}`).add(`dark ${cssVar}`);
         }
       }
-      const list = componentListKey(theme.shadowComponents);
-      if (list !== componentListKey(now.shadowComponents)) {
-        pending.current.set(SHADOW_COMPONENTS_KEY, list);
+      if (
+        componentListKey(theme.shadowComponents) !==
+        componentListKey(now.shadowComponents)
+      ) {
+        writes.add(SHADOW_COMPONENTS_KEY);
       }
-      importValues(imported);
-      setShadowComponents([...theme.shadowComponents]);
+      applying.current = writes;
+      try {
+        flushSync(() => {
+          importValues(imported);
+          setShadowComponents([...theme.shadowComponents]);
+        });
+      } finally {
+        applying.current = new Set();
+      }
     },
-    [importValues, setShadowComponents]
+    [currentTheme, importValues, setShadowComponents]
   );
 
   return { currentTheme, applyTheme };

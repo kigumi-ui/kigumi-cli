@@ -37,10 +37,7 @@ import type {
 } from '../../theme-agent/proposal';
 import { requestThemeAgentToken } from '../../theme-agent/session-client';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
-import {
-  changeRequestLabel,
-  OPEN_REQUEST_CLASS,
-} from '../../theme-agent/change-request-label';
+import { describeChangeRequest } from '../../theme-agent/describe-change-request';
 import { ChangeRequests } from './ChangeRequests';
 import './ThemeAgentSidebar.css';
 
@@ -211,32 +208,24 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     setDraft('');
   };
 
-  // The buttons that were clicked go away. Once they have, focus moves to
-  // the next open change request, or back to the message field.
-  const [focusAfterResolve, setFocusAfterResolve] = useState(0);
-  useEffect(() => {
-    if (focusAfterResolve === 0) return;
-    const next = messagesRef.current?.querySelector<HTMLElement>(
-      `.${OPEN_REQUEST_CLASS} .Button`
-    );
-    (next ?? textareaRef.current)?.focus({ preventScroll: true });
-  }, [focusAfterResolve]);
-
+  // ChangeRequests moves focus to the next open request; after the last,
+  // it comes back to the message field.
   const resolved = (message: string) => {
     conversationChanged();
     setNotice(message);
-    setFocusAfterResolve((n) => n + 1);
   };
+  const focusMessage = () =>
+    textareaRef.current?.focus({ preventScroll: true });
 
   const keep = (request: ChangeRequest) => {
     conversation.keep(request.id);
-    resolved(`Kept ${changeRequestLabel(request)}.`);
+    resolved(`Kept ${describeChangeRequest(request).label}.`);
   };
 
   const overwrite = (request: ChangeRequest) => {
     const next = conversation.overwrite(request.id, currentTheme());
     if (next) applyTheme(next);
-    resolved(`Overwrote ${changeRequestLabel(request)}.`);
+    resolved(`Overwrote ${describeChangeRequest(request).label}.`);
   };
 
   const keepAll = () => {
@@ -251,11 +240,13 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   };
 
   const undo = (answerId: string) => {
-    const before = conversation.undo(answerId);
-    if (!before) return;
-    applyTheme(before);
+    const reverted = conversation.undo(answerId, currentTheme());
+    if (!reverted) return;
+    applyTheme(reverted);
     conversationChanged();
-    setNotice('Undone. The theme is back to how it was before that answer.');
+    setNotice(
+      "Undone. That answer's changes are reverted; values you changed since stay."
+    );
     // The Undo button goes away; keep focus in the chat.
     textareaRef.current?.focus({ preventScroll: true });
   };
@@ -351,6 +342,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                   onOverwrite={overwrite}
                   onKeepAll={keepAll}
                   onOverwriteAll={overwriteAll}
+                  onAllResolved={focusMessage}
                 />
               )}
             </Card>
