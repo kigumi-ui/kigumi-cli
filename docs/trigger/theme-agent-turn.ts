@@ -23,6 +23,7 @@ import type {
 } from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
   applyProposal,
+  emptyProposal,
   locksOf,
   mergeProposals,
   splitLocked,
@@ -82,7 +83,7 @@ function proposeThemeTool(
 ) {
   let theme = snapshot.theme;
   // What the answer's proposals hold back for the user, merged in order.
-  let heldSoFar = mergeProposals([]);
+  let heldSoFar = emptyProposal();
   let corrections = 0;
   let rejections = 0;
   // Set once a theme went back with violations and no correction left.

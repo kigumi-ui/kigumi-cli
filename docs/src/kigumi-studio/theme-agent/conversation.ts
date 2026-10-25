@@ -23,6 +23,7 @@ import {
 } from './contrast';
 import {
   applyProposal,
+  emptyProposal,
   mergeProposals,
   splitLocked,
   validateProposal,
@@ -37,8 +38,8 @@ import {
 // Locked values are protected here, in code, not by the prompt (ADR 0007,
 // ADR 0010): an answer never changes a locked value; what it would change is
 // held, and only the user's "Unlock and apply" applies it. Nor does an answer
-// overwrite a value the user changed while it was being written: that is
-// held too, and the user's "Apply" applies it.
+// overwrite a value the user changed while it was being written (ADR 0011):
+// that is held too, and the user's "Apply" applies it.
 
 /**
  * Why a change is held: the value is `locked`, or the user `edited` it while
@@ -437,7 +438,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       );
       const { free, held: editedPart } = sentTheme
         ? splitLocked(unlocked, editedSince(sentTheme, current))
-        : { free: unlocked, held: mergeProposals([]) };
+        : { free: unlocked, held: emptyProposal() };
       const theme = applyProposal(current, free);
       const violations = checkContrast(theme);
       const held = [
@@ -503,8 +504,10 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
         if (change.kind === 'shadowComponents') {
           effect.wroteShadowComponents = [...change.proposed];
         } else {
-          for (const [mode, value] of Object.entries(change.proposed)) {
-            effect.wrote[mode as ThemeMode].set(change.cssVar, value);
+          for (const mode of THEME_MODES) {
+            const value = change.proposed[mode];
+            if (value !== undefined)
+              effect.wrote[mode].set(change.cssVar, value);
           }
         }
         unlock = withLocks(unlock, heldLock(change), true);

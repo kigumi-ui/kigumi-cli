@@ -29,6 +29,17 @@ export function valueLabel(
   return `${label}${mode}`;
 }
 
+/**
+ * The sidebar name of a value locked in `mode`: the mode only for a value
+ * set per mode, since a mode-independent one is locked in both.
+ */
+export function lockedValueLabel(cssVar: string, mode: ThemeMode): string {
+  return valueLabel(
+    cssVar,
+    PROPERTIES_BY_VAR.get(cssVar)?.modeDependent ? [mode] : []
+  );
+}
+
 /** The sidebar name of a held change, as `valueLabel()` writes it. */
 export function heldChangeLabel(change: HeldChange): string {
   if (change.kind === 'shadowComponents') return 'Components with a shadow';

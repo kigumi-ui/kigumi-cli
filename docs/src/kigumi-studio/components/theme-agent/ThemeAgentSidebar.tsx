@@ -35,9 +35,8 @@ import {
   type HeldEntry,
   type HeldReason,
 } from '../../theme-agent/conversation';
-import { valueLabel } from '../../theme-agent/describe-held-change';
-import type { LockedValues } from '../../lib/locks';
-import { PROPERTIES_BY_VAR } from '../../lib/property-definitions';
+import { lockedValueLabel } from '../../theme-agent/describe-held-change';
+import { hasLocks, type LockedValues } from '../../lib/locks';
 import type {
   ProposeThemeOutput,
   ThemeProposalInput,
@@ -226,11 +225,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     setLocked(result.unlock, false);
     applyTheme(result.theme);
     conversationChanged();
-    const unlocked =
-      result.unlock.light.length > 0 ||
-      result.unlock.dark.length > 0 ||
-      result.unlock.shadowComponents;
-    setNotice(unlockAnnouncement(result.applied, result.changed, unlocked));
+    setNotice(unlockAnnouncement(result));
     // The button goes away; keep focus in the chat.
     textareaRef.current?.focus({ preventScroll: true });
   };
@@ -400,39 +395,48 @@ function appliedAnnouncement(warnings: number): string {
   }.`;
 }
 
-function unlockAnnouncement(
-  applied: number,
-  changed: number,
-  unlocked: boolean
-): string {
-  const skipped =
-    changed === 0
-      ? ''
-      : changed === 1
-        ? 'One value was not applied: you changed it since.'
-        : `${changed} values were not applied: you changed them since.`;
+/** `one` for a count of 1, `many` with the count otherwise; none for 0. */
+function countSentence(count: number, one: string, many: string): string {
+  if (count === 0) return '';
+  return count === 1 ? one : `${count} ${many}`;
+}
+
+function unlockAnnouncement({
+  applied,
+  changed,
+  unlock,
+}: {
+  applied: number;
+  changed: number;
+  unlock: LockedValues;
+}): string {
+  const skipped = countSentence(
+    changed,
+    'One value was not applied: you changed it since.',
+    'values were not applied: you changed them since.'
+  );
   if (applied === 0) return skipped;
-  const done = unlocked ? 'Unlocked and applied.' : 'Applied.';
+  const done = hasLocks(unlock) ? 'Unlocked and applied.' : 'Applied.';
   return skipped ? `${done} ${skipped}` : done;
 }
 
 function heldAnnouncement(held: HeldEntry[]): string {
   const count = (reason: HeldReason) =>
     held.filter((entry) => entry.change.reason === reason).length;
-  const locked = count('locked');
-  const edited = count('edited');
-  return (
-    (locked === 0
-      ? ''
-      : locked === 1
-        ? ' One locked value was not changed.'
-        : ` ${locked} locked values were not changed.`) +
-    (edited === 0
-      ? ''
-      : edited === 1
-        ? ' One value you changed while it answered was not changed.'
-        : ` ${edited} values you changed while it answered were not changed.`)
-  );
+  return [
+    countSentence(
+      count('locked'),
+      'One locked value was not changed.',
+      'locked values were not changed.'
+    ),
+    countSentence(
+      count('edited'),
+      'One value you changed while it answered was not changed.',
+      'values you changed while it answered were not changed.'
+    ),
+  ]
+    .map((sentence) => (sentence ? ` ${sentence}` : ''))
+    .join('');
 }
 
 /**
@@ -444,10 +448,7 @@ function violationLine(
   locked: LockedValues
 ): string {
   const sources = lockedSources(violation, locked).map((cssVar) =>
-    valueLabel(
-      cssVar,
-      PROPERTIES_BY_VAR.get(cssVar)?.modeDependent ? [violation.mode] : []
-    )
+    lockedValueLabel(cssVar, violation.mode)
   );
   const summary = summarizeViolation(violation);
   return sources.length > 0

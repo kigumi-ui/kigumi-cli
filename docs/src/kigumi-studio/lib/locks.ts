@@ -98,6 +98,13 @@ export function withLocks(
   };
 }
 
+/** Whether `locked` locks anything at all. */
+export function hasLocks(locked: LockedValues): boolean {
+  return (
+    locked.light.length > 0 || locked.dark.length > 0 || locked.shadowComponents
+  );
+}
+
 /** Locks read from storage or a message; anything unreadable is unlocked. */
 export function parseLocks(value: unknown): LockedValues {
   if (typeof value !== 'object' || value === null) return NO_LOCKS;
@@ -146,11 +153,7 @@ export function loadLocks(): LockedValues {
 
 export function saveLocks(locked: LockedValues): void {
   try {
-    const none =
-      locked.light.length === 0 &&
-      locked.dark.length === 0 &&
-      !locked.shadowComponents;
-    if (none) localStorage.removeItem(STORAGE_KEY);
+    if (!hasLocks(locked)) localStorage.removeItem(STORAGE_KEY);
     else localStorage.setItem(STORAGE_KEY, JSON.stringify(locked));
   } catch {
     // Storage unavailable: the locks last until the page is reloaded.
