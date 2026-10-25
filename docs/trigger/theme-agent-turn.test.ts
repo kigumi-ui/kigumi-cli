@@ -217,6 +217,25 @@ describe('Theme Agent turn', () => {
     expect(locked).toMatch(/propose that change anyway/);
     expect(locked).not.toMatch(/never propose/i);
   });
+
+  it('lets the model change the brand when the user asks to fix the brand fill', async () => {
+    // "never to fix contrast" kept the model from proposing a locked brand
+    // when the user asked to improve the brand fill warning: nothing was
+    // held, so no Unlock and apply.
+    const text = await systemPrompt(lockedSnapshot);
+    const brand = text
+      .split('\n')
+      .find((line) => line.includes("brand colour is the user's"));
+    expect(brand).toMatch(/asks to fix a failing brand fill pair/);
+    expect(brand).toMatch(/never on your own to fix contrast/);
+  });
+
+  it('tells the model an earlier held change can no longer be applied from the chat', async () => {
+    // The model sent the user up to an older answer whose button was gone.
+    const text = await systemPrompt(lockedSnapshot);
+    expect(text).toMatch(/offered only under your latest answer/);
+    expect(text).toMatch(/propose it again/);
+  });
 });
 
 /** Every value the contrast check reads, readable in both modes. */

@@ -824,6 +824,27 @@ describe('Theme Agent conversation: what the last answer did', () => {
     });
   });
 
+  it('says nothing about an answer that proposed nothing, not an older one', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.answerFinished('answer-1');
+    conversation.answerReceived(
+      'answer-1',
+      [greenBrand],
+      studioDefaults(),
+      locks(brand)
+    );
+    expect(
+      conversation.messageSent(studioDefaults(), locks(brand)).previous
+    ).toMatchObject({ status: 'unchanged', held: ['--wa-color-brand'] });
+
+    // The next answer only talks: the brand held by answer-1 is not its.
+    conversation.answerFinished('answer-2');
+
+    expect(
+      conversation.messageSent(studioDefaults(), locks(brand)).previous
+    ).toBeUndefined();
+  });
+
   it('tells the agent once the user unlocked and applied, or undid the answer', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(

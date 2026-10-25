@@ -141,6 +141,9 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
       if (finishReason === 'length') {
         setCutOff((ids) => new Set(ids).add(message.id));
       }
+      // Recorded with or without a proposal, so the next message never
+      // reports an older answer's outcome as this one's.
+      conversation.answerFinished(message.id);
       // Only a finished answer is applied, never part of one.
       if (isAbort || isDisconnect || isError) return;
       const proposals = acceptedProposals(message);

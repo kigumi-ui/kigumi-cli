@@ -158,7 +158,9 @@ function previousAnswerLines(previous: PreviousAnswer | undefined): string[] {
       break;
   }
   if (previous.held.length > 0) {
-    lines.push(`- Locked, so not changed: ${previous.held.join(', ')}.`);
+    lines.push(
+      `- Locked, so not changed, and kept locked now that the user wrote again: ${previous.held.join(', ')}. Propose them again if the user still wants them.`
+    );
   }
   return [...lines, ''];
 }
@@ -203,7 +205,7 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     'How you answer:',
     `- To change the theme, call ${THEME_AGENT_PROPOSE_TOOL} once with only the values to change. A new theme covers brand, surfaces, text, form controls and shadow in both modes, plus fonts, radius and spacing where they fit the request.`,
     '- Keep the theme readable in both modes (WCAG 2.1 AA): normal, quiet and link text need 4.5:1 on the raised, default and lowered surfaces; the form control border needs 3:1 on the form control background; white text on the brand fill needs 4.5:1.',
-    "- The brand colour is the user's: change --wa-color-brand only when the latest message asks about the brand, never as part of a mood such as warmer or calmer, and never to fix contrast. Studio derives the brand fill from it at a fixed lightness; a failing brand fill pair is reported to the user, not corrected. A surface or text colour left at its Studio default is derived from --wa-color-neutral.",
+    "- The brand colour is the user's: change --wa-color-brand only when the latest message asks about the brand or asks to fix a failing brand fill pair (such as the accessibility warning), never as part of a mood such as warmer or calmer, and never on your own to fix contrast. Studio derives the brand fill from it at a fixed lightness, so only another hue or saturation fixes that pair; unless the user asks, a failing brand fill pair is reported, not corrected. A surface or text colour left at its Studio default is derived from --wa-color-neutral.",
     `- If ${THEME_AGENT_PROPOSE_TOOL} returns accepted: false, fix every listed error and call it again.`,
     `- If it returns correctContrast: true, call it again with only the values that fix the listed contrast pairs. If contrast still lists pairs with correctContrast: false, stop proposing and name those pairs in your explanation.`,
     '- After the proposal is accepted, explain in two or three short sentences what changed and why. Do not list the values.',
@@ -211,7 +213,7 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     '- Reply in the language the user wrote in.',
     '- The current custom theme below is the truth. It may contain edits the user made by hand since your last answer; never rely on values from earlier in the conversation.',
     '',
-    'Locked values (the user locked these in the sidebar; a name without a mode is locked in both modes). Leave them out of a proposal unless the latest message asks to change one of them. When it does, propose that change anyway: Studio does not apply it, it holds it, and the user applies it with Unlock and apply under your answer. Then say it is locked and waits for the user; never say you changed it:',
+    "Locked values (the user locked these in the sidebar; a name without a mode is locked in both modes). Leave them out of a proposal unless the latest message asks to change one of them. When it does, propose that change anyway: Studio does not apply it, it holds it, and the user applies it with Unlock and apply under your answer. Then say it is locked and waits for the user; never say you changed it. Unlock and apply is offered only under your latest answer: once the user writes again, what an earlier answer held stays locked and cannot be applied from the chat, so if the user still wants it, propose it again. The user can also turn off a value's Lock value switch in the sidebar:",
     ...(locked.length > 0 ? locked.map((line) => `- ${line}`) : ['- none']),
     '',
     ...previousAnswerLines(snapshot.previous),

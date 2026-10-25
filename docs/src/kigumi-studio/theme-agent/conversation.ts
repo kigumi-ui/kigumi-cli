@@ -98,6 +98,13 @@ export interface ThemeAgentConversation {
     current: CustomTheme,
     locked: LockedValues
   ): AnswerOutcome;
+  /**
+   * Every finished answer, with a proposal or without one. The next
+   * message's snapshot reports what Studio did with the last answer only
+   * when that answer proposed something: otherwise there is nothing to say,
+   * and an older answer's outcome is not presented as the last one's.
+   */
+  answerFinished(answerId: string): void;
   /** What `answerId` held back because it was locked, and what became of it. */
   heldChanges(answerId: string): HeldEntry[];
   /**
@@ -251,6 +258,7 @@ function locksOfEntries(entries: HeldEntry[]): LockedValues {
 export function createThemeAgentConversation(): ThemeAgentConversation {
   const answers: AnswerRecord[] = [];
   const find = (id: string) => answers.find((answer) => answer.id === id);
+  let lastAnswerId: string | undefined;
 
   const statusOf = (answer: AnswerRecord): AnswerStatus => {
     if (!answer.outcome.applied) return 'rejected';
@@ -263,7 +271,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
 
   const previousAnswer = (): PreviousAnswer | undefined => {
     const last = answers.at(-1);
-    if (!last) return undefined;
+    if (!last || last.id !== lastAnswerId) return undefined;
     const status = statusOf(last);
     const notApplied = last.effect.held.filter(
       (entry) => entry.state !== 'applied'
@@ -297,6 +305,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
     answerReceived(answerId, proposals, current, locked) {
       const known = find(answerId);
       if (known) return known.outcome;
+      lastAnswerId = answerId;
 
       const valid: ThemeProposal[] = [];
       const errors: string[] = [];
@@ -344,6 +353,10 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
         undone: false,
       });
       return outcome;
+    },
+
+    answerFinished(answerId) {
+      lastAnswerId = answerId;
     },
 
     heldChanges(answerId) {
