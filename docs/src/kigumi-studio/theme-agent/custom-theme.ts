@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseLocks, type LockedValues } from '../lib/locks';
 
 // Shared by the browser and the trigger.dev task (docs/trigger).
 
@@ -34,11 +35,8 @@ export function componentListKey(list: string[]): string {
  */
 export interface ThemeAgentSnapshot {
   theme: CustomTheme;
-  /**
-   * Values the user locked in the sidebar: CSS custom properties, and
-   * `shadowComponents` for the shadow component list.
-   */
-  locked: string[];
+  /** Values the user locked in the sidebar, per mode. */
+  locked: LockedValues;
   /**
    * What Studio did with the agent's last answer, which the task cannot see:
    * applied, nothing applied, refused (with why), or undone by the user,
@@ -49,7 +47,10 @@ export interface ThemeAgentSnapshot {
 
 export interface PreviousAnswer {
   status: 'applied' | 'unchanged' | 'rejected' | 'undone';
-  /** Lock keys the answer proposed but Studio did not change. */
+  /**
+   * The locked values it proposed that Studio did not change, as
+   * `describeLocks()` writes them.
+   */
   held: string[];
   /** Why Studio refused it. */
   errors: string[];
@@ -64,9 +65,10 @@ const previousAnswerSchema = z.object({
 export const themeAgentSnapshotSchema = z.object({
   theme: customThemeSchema,
   previous: previousAnswerSchema.optional(),
-  // A page from before locks sends none; the task is deployed by hand, so
-  // it may be newer than the page talking to it.
-  locked: z.array(z.string()).default([]),
+  // A page from before per-mode locks sends none or a list; the task is
+  // deployed by hand, so it may be newer than the page talking to it. The
+  // prompt then lists no locks, and the page still holds what it locked.
+  locked: z.unknown().optional().transform(parseLocks),
 });
 
 export function cloneTheme(theme: CustomTheme): CustomTheme {

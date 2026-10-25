@@ -14,7 +14,13 @@ import {
   PROPERTIES_BY_VAR,
   type PropertyGroup,
 } from '../lib/property-definitions';
-import { loadLocks, saveLocks, withLocks } from '../lib/locks';
+import {
+  loadLocks,
+  saveLocks,
+  withLocks,
+  type LockedValues,
+} from '../lib/locks';
+import { hasThemeAgentAccess } from '../theme-agent/access';
 import {
   DEFAULT_VALUES,
   type ThemeMode,
@@ -64,9 +70,15 @@ interface StudioContextType {
   setSelectedPreset: (preset: string | null) => void;
   resetAll: () => void;
   resetGroup: (group: PropertyGroup) => void;
-  /** Values the Theme Agent may not change (lib/locks.ts keys). */
-  lockedValues: string[];
-  setLocked: (keys: string[], locked: boolean) => void;
+  /** Values the Theme Agent may not change, per mode (lib/locks.ts). */
+  lockedValues: LockedValues;
+  setLocked: (change: LockedValues, locked: boolean) => void;
+  /**
+   * Whether locks apply: only with the Theme Agent's access cookie. Without
+   * it there is no switch to unlock with, so a stored lock must not leave a
+   * value disabled.
+   */
+  locksAvailable: boolean;
   importValues: (
     imported: Record<string, { light?: string; dark?: string }>
   ) => void;
@@ -164,16 +176,17 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(
     () => getPersistedOnce()?.selectedPreset ?? null
   );
-  const [lockedValues, setLockedValues] = useState<string[]>(loadLocks);
+  const [lockedValues, setLockedValues] = useState<LockedValues>(loadLocks);
+  const [locksAvailable] = useState(() => hasThemeAgentAccess(document.cookie));
   const isFirstRender = useRef(true);
 
-  const setLocked = useCallback((keys: string[], locked: boolean) => {
-    setLockedValues((prev) => {
-      const next = withLocks(prev, keys, locked);
-      saveLocks(next);
-      return next;
-    });
+  const setLocked = useCallback((change: LockedValues, locked: boolean) => {
+    setLockedValues((prev) => withLocks(prev, change, locked));
   }, []);
+
+  useEffect(() => {
+    saveLocks(lockedValues);
+  }, [lockedValues]);
 
   const setProperty = useCallback(
     (cssVar: string, value: string) => {
@@ -523,6 +536,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       selectedPreset,
       lockedValues,
       setLocked,
+      locksAvailable,
       setProperty,
       setEditMode,
       setPreviewMode,
@@ -545,6 +559,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       selectedPreset,
       lockedValues,
       setLocked,
+      locksAvailable,
       setProperty,
       resetAll,
       resetGroup,

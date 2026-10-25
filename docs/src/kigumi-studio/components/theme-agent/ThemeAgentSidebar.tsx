@@ -4,7 +4,6 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
-  type ReactNode,
 } from 'react';
 import { useChat } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
@@ -37,7 +36,11 @@ import type {
 } from '../../theme-agent/proposal';
 import { requestThemeAgentToken } from '../../theme-agent/session-client';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
-import { LockedChangesCallout, UnlockAndApply } from './LockedChanges';
+import {
+  LockedChangeActions,
+  LockedChangesCallout,
+  type HeldView,
+} from './LockedChanges';
 import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
@@ -119,7 +122,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
   const [conversation] = useState(createThemeAgentConversation);
-  const { currentTheme, locked, applyTheme, unlock } = useThemeAgentStudio();
+  const { currentTheme, locked, applyTheme, setLocked } = useThemeAgentStudio();
   // The conversation module is plain state; re-render after each event.
   const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
@@ -170,11 +173,13 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     ? conversation.answerViolations(lastMessage.id).length
     : 0;
   const lastHeld = lastMessage
-    ? conversation.heldChanges(lastMessage.id)
-    : undefined;
+    ? conversation
+        .heldChanges(lastMessage.id)
+        .filter((entry) => entry.state === 'held').length
+    : 0;
   const lastOutcome =
     (lastStatus === 'applied' ? appliedAnnouncement(lastWarnings) : '') +
-    (lastHeld?.held ? heldAnnouncement(lastHeld.changes.length) : '');
+    heldAnnouncement(lastHeld);
   const announcement = notice
     ? notice
     : status === 'error'
@@ -207,13 +212,13 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     setDraft('');
   };
 
-  const unlockAndApply = (answerId: string) => {
-    const result = conversation.applyHeld(answerId, currentTheme());
+  const unlockAndApply = (answerId: string, index?: number) => {
+    const result = conversation.applyHeld(answerId, currentTheme(), index);
     if (!result) return;
-    unlock(result.unlock);
+    setLocked(result.unlock, false);
     applyTheme(result.theme);
     conversationChanged();
-    setNotice('Unlocked and applied.');
+    setNotice(unlockAnnouncement(result.applied, result.changed));
     // The button goes away; keep focus in the chat.
     textareaRef.current?.focus({ preventScroll: true });
   };
@@ -221,7 +226,9 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   const undo = (answerId: string) => {
     const reverted = conversation.undo(answerId, currentTheme());
     if (!reverted) return;
-    applyTheme(reverted);
+    applyTheme(reverted.theme);
+    // What its unlock and apply unlocked is locked again.
+    setLocked(reverted.relock, true);
     conversationChanged();
     setNotice(
       "Undone. That answer's changes are reverted; values you changed since stay."
@@ -283,9 +290,14 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                   !running || message.id !== lastMessage?.id
                 )
               : undefined;
-          const { changes: heldChanges, held } = conversation.heldChanges(
-            message.id
-          );
+          const heldEntries = conversation.heldChanges(message.id);
+          const held: HeldView | undefined =
+            heldEntries.length > 0
+              ? {
+                  entries: heldEntries,
+                  onApply: (index) => unlockAndApply(message.id, index),
+                }
+              : undefined;
           // An answer that has only started streaming shows nothing yet;
           // the status step below says the Theme Agent is working.
           if (!text && !outcome) return null;
@@ -314,21 +326,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                         : []
                   }
                   onUndo={() => undo(message.id)}
-                  hasHeld={heldChanges.length > 0}
-                  lockedCallout={
-                    heldChanges.length > 0 && (
-                      <LockedChangesCallout changes={heldChanges} />
-                    )
-                  }
-                  lockedAction={
-                    heldChanges.length > 0 && (
-                      <UnlockAndApply
-                        count={heldChanges.length}
-                        held={held}
-                        onApply={() => unlockAndApply(message.id)}
-                      />
-                    )
-                  }
+                  held={held}
                 />
               )}
             </Card>
@@ -360,7 +358,6 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
           rows={3}
           resize="none"
           value={draft}
-          readonly={running}
           onInput={(event) =>
             setDraft((event.target as HTMLTextAreaElement).value)
           }
@@ -380,6 +377,17 @@ function appliedAnnouncement(warnings: number): string {
   return ` Applied to the theme with ${warnings} accessibility ${
     warnings === 1 ? 'warning' : 'warnings'
   }.`;
+}
+
+function unlockAnnouncement(applied: number, changed: number): string {
+  const skipped =
+    changed === 0
+      ? ''
+      : changed === 1
+        ? 'One value was not applied: you changed it since.'
+        : `${changed} values were not applied: you changed them since.`;
+  if (applied === 0) return skipped;
+  return skipped ? `Unlocked and applied. ${skipped}` : 'Unlocked and applied.';
 }
 
 function heldAnnouncement(count: number): string {
@@ -411,11 +419,8 @@ interface AnswerOutcomeProps {
   reasons: string[];
   violations: ContrastViolation[];
   onUndo: () => void;
-  hasHeld: boolean;
-  /** The locked values the answer did not change, below its warning. */
-  lockedCallout: ReactNode;
-  /** Unlock and apply, below the callouts like Undo. */
-  lockedAction: ReactNode;
+  /** What the answer held because it is locked; none when it held nothing. */
+  held: HeldView | undefined;
 }
 
 /**
@@ -427,10 +432,10 @@ function AnswerOutcome({
   reasons,
   violations,
   onUndo,
-  hasHeld,
-  lockedCallout,
-  lockedAction,
+  held,
 }: AnswerOutcomeProps) {
+  const lockedCallout = held && <LockedChangesCallout entries={held.entries} />;
+  const lockedActions = held && <LockedChangeActions {...held} />;
   switch (outcome) {
     case 'applied':
       return (
@@ -464,7 +469,7 @@ function AnswerOutcome({
               Undo
             </Button>
           </div>
-          {lockedAction}
+          {lockedActions}
         </div>
       );
     case 'unchanged':
@@ -472,9 +477,9 @@ function AnswerOutcome({
         <div className="theme-agent__outcome wa-stack wa-gap-xs">
           {lockedCallout}
           <span className="theme-agent__outcome-text">
-            {hasHeld ? 'Nothing applied: locked' : 'No change to the theme'}
+            {held ? 'Nothing applied: locked' : 'No change to the theme'}
           </span>
-          {lockedAction}
+          {lockedActions}
         </div>
       );
     case 'undone':

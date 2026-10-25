@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useStudio } from '../contexts/StudioContext';
+import type { LockedValues } from '../lib/locks';
 import { THEME_AGENT_MODES, type CustomTheme } from './custom-theme';
 
 /**
  * The Theme Agent's thin adapter onto Studio: read the custom theme and its
- * locked values as the sidebar has them now, apply a custom theme through
- * Studio's own value-setting path, and unlock values for "Unlock and apply".
+ * locked values as the sidebar has them now, and apply a custom theme
+ * through Studio's own value-setting path. `setLocked` is Studio's own, for
+ * "Unlock and apply" and for Undo locking again what that unlocked.
  */
 export function useThemeAgentStudio() {
   const {
@@ -37,7 +39,7 @@ export function useThemeAgentStudio() {
   }, []);
 
   const locked = useCallback(
-    (): string[] => [...latest.current.lockedValues],
+    (): LockedValues => latest.current.lockedValues,
     []
   );
 
@@ -62,10 +64,5 @@ export function useThemeAgentStudio() {
     [currentTheme, importValues, setShadowComponents]
   );
 
-  const unlock = useCallback(
-    (keys: string[]) => setLocked(keys, false),
-    [setLocked]
-  );
-
-  return { currentTheme, locked, applyTheme, unlock };
+  return { currentTheme, locked, applyTheme, setLocked };
 }

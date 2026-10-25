@@ -77,23 +77,3 @@
   padding-inline-start: var(--wa-space-m);
   overflow-wrap: anywhere;
 }
-
-.theme-agent__request + .theme-agent__request {
-  padding-top: var(--wa-space-s);
-  border-top: var(--wa-border-width-s) var(--wa-border-style)
-    var(--wa-color-surface-border);
-}
-
-.theme-agent__request-target {
-  font-weight: var(--wa-font-weight-semibold);
-}
-
-.theme-agent__request-change {
-  font-family: var(--wa-font-family-code);
-  font-size: var(--wa-font-size-s);
-  overflow-wrap: anywhere;
-}
-
-.theme-agent__request-reason {
-  color: var(--wa-color-text-quiet);
-}

@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { createThemeAgentConversation } from '../theme-agent/conversation';
 import {
+  NO_LOCKS,
+  SHADOW_COMPONENTS_LOCK,
+  valueLock,
+  withLocks,
+  type LockedValues,
+} from '../lib/locks';
+import {
   themeAgentClientDataSchema,
   type CustomTheme,
 } from '../theme-agent/custom-theme';
@@ -34,7 +41,7 @@ describe('Theme Agent conversation: snapshot', () => {
     const theme = studioDefaults();
     theme.dark['--wa-color-surface-default'] = '#202020';
 
-    const snapshot = conversation.messageSent(theme, []);
+    const snapshot = conversation.messageSent(theme, NO_LOCKS);
     theme.dark['--wa-color-surface-default'] = '#303030';
 
     expect(snapshot.theme.dark['--wa-color-surface-default']).toBe('#202020');
@@ -45,7 +52,7 @@ describe('Theme Agent conversation: snapshot', () => {
 describe('Theme Agent conversation: apply', () => {
   it('applies a valid proposal on top of the current custom theme', () => {
     const conversation = createThemeAgentConversation();
-    conversation.messageSent(studioDefaults(), []);
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
 
     const outcome = conversation.answerReceived(
       'answer-1',
@@ -60,7 +67,7 @@ describe('Theme Agent conversation: apply', () => {
         },
       ],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
 
     expect(outcome.applied).toBe(true);
@@ -75,13 +82,13 @@ describe('Theme Agent conversation: apply', () => {
 
   it('applies a mode-independent value named once to both modes', () => {
     const conversation = createThemeAgentConversation();
-    conversation.messageSent(studioDefaults(), []);
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
 
     const outcome = conversation.answerReceived(
       'answer-1',
       [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
 
     expect(outcome.applied).toBe(true);
@@ -146,13 +153,13 @@ describe('Theme Agent conversation: rejected proposals', () => {
 
   it.each(refused)('refuses %s and applies nothing', (_, proposal, error) => {
     const conversation = createThemeAgentConversation();
-    conversation.messageSent(studioDefaults(), []);
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
 
     const outcome = conversation.answerReceived(
       'answer-1',
       [proposal],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
 
     expect(outcome.applied).toBe(false);
@@ -176,7 +183,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
         },
       ],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     expect(outcome).toEqual({
       applied: false,
@@ -192,7 +199,7 @@ describe('Theme Agent conversation: rejected proposals', () => {
       'answer-1',
       [{ light: { '--wa-transition-fast': '100ms' }, dark: {} }],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     expect(outcome.applied).toBe(true);
     if (!outcome.applied) return;
@@ -215,11 +222,11 @@ describe('Theme Agent conversation: undo', () => {
         },
       ],
       before,
-      []
+      NO_LOCKS
     );
     if (!outcome.applied) throw new Error('answer was not applied');
 
-    expect(conversation.undo('answer-1', outcome.theme)).toEqual(
+    expect(conversation.undo('answer-1', outcome.theme)?.theme).toEqual(
       studioDefaults()
     );
     expect(conversation.answerStatus('answer-1')).toBe('undone');
@@ -233,18 +240,18 @@ describe('Theme Agent conversation: undo', () => {
       'answer-1',
       [{ light: { '--wa-border-radius-scale': '2' }, dark: {} }],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     if (!first.applied) throw new Error('first answer was not applied');
     const second = conversation.answerReceived(
       'answer-2',
       [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
       first.theme,
-      []
+      NO_LOCKS
     );
     if (!second.applied) throw new Error('second answer was not applied');
 
-    const undone = conversation.undo('answer-1', second.theme);
+    const undone = conversation.undo('answer-1', second.theme)?.theme;
     expect(undone?.light['--wa-border-radius-scale']).toBe('1');
     expect(undone?.light['--wa-color-brand']).toBe('#0891b2');
     expect(conversation.answerStatus('answer-1')).toBe('undone');
@@ -262,7 +269,7 @@ describe('Theme Agent conversation: undo', () => {
         },
       ],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     if (!outcome.applied) throw new Error('answer was not applied');
     // The user tunes the answer's dark surface and the dark text by hand.
@@ -270,7 +277,7 @@ describe('Theme Agent conversation: undo', () => {
     tuned.dark['--wa-color-surface-default'] = '#111827';
     tuned.dark['--wa-color-text-normal'] = '#e5e7eb';
 
-    const undone = conversation.undo('answer-1', tuned);
+    const undone = conversation.undo('answer-1', tuned)?.theme;
 
     expect(undone?.light['--wa-color-brand']).toBe('#0071ec');
     expect(undone?.dark['--wa-color-brand']).toBe('#0071ec');
@@ -285,14 +292,14 @@ describe('Theme Agent conversation: undo', () => {
       'answer-1',
       [proposal],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     if (!first.applied) throw new Error('answer was not applied');
     // Delivered again, after it was applied: the record of "before" must not
     // move to the theme that already contains the answer.
-    conversation.answerReceived('answer-1', [proposal], first.theme, []);
+    conversation.answerReceived('answer-1', [proposal], first.theme, NO_LOCKS);
 
-    expect(conversation.undo('answer-1', first.theme)).toEqual(
+    expect(conversation.undo('answer-1', first.theme)?.theme).toEqual(
       studioDefaults()
     );
   });
@@ -305,21 +312,21 @@ describe('Theme Agent conversation: refinement', () => {
       'answer-1',
       [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     if (!first.applied) throw new Error('first answer was not applied');
 
     // The user tunes the dark surface by hand, then asks for a warmer brand.
     const edited = structuredClone(first.theme);
     edited.dark['--wa-color-surface-default'] = '#1a1410';
-    const snapshot = conversation.messageSent(edited, []);
+    const snapshot = conversation.messageSent(edited, NO_LOCKS);
     expect(snapshot.theme.dark['--wa-color-surface-default']).toBe('#1a1410');
 
     const second = conversation.answerReceived(
       'answer-2',
       [{ light: { '--wa-color-brand': '#d97706' }, dark: {} }],
       edited,
-      []
+      NO_LOCKS
     );
     expect(second.applied).toBe(true);
     if (!second.applied) return;
@@ -327,14 +334,14 @@ describe('Theme Agent conversation: refinement', () => {
     expect(second.theme.dark['--wa-color-surface-default']).toBe('#1a1410');
 
     // Undo of the second answer goes back to the hand-edited theme.
-    expect(conversation.undo('answer-2', second.theme)).toEqual(edited);
+    expect(conversation.undo('answer-2', second.theme)?.theme).toEqual(edited);
   });
 });
 
 describe('Theme Agent conversation: accessibility', () => {
   it('applies a correction on top of the proposal it corrects', () => {
     const conversation = createThemeAgentConversation();
-    conversation.messageSent(studioDefaults(), []);
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
 
     const outcome = conversation.answerReceived(
       'answer-1',
@@ -350,7 +357,7 @@ describe('Theme Agent conversation: accessibility', () => {
         { light: { '--wa-color-text-quiet': '#595959' }, dark: {} },
       ],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
 
     expect(outcome.applied).toBe(true);
@@ -363,7 +370,7 @@ describe('Theme Agent conversation: accessibility', () => {
 
   it('applies an answer that still fails contrast and lists what fails', () => {
     const conversation = createThemeAgentConversation();
-    conversation.messageSent(studioDefaults(), []);
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
 
     const outcome = conversation.answerReceived(
       'answer-1',
@@ -377,7 +384,7 @@ describe('Theme Agent conversation: accessibility', () => {
         },
       ],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
 
     expect(outcome.applied).toBe(true);
@@ -402,7 +409,7 @@ describe('Theme Agent conversation: accessibility', () => {
 
   it('checks the theme as applied, hand edits made during the run included', () => {
     const conversation = createThemeAgentConversation();
-    conversation.messageSent(studioDefaults(), []);
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
     const current = studioDefaults();
     // Edited in the sidebar while the answer was on its way.
     current.dark['--wa-color-surface-raised'] = '#f5f5f5';
@@ -411,7 +418,7 @@ describe('Theme Agent conversation: accessibility', () => {
       'answer-1',
       [{ light: { '--wa-border-radius-scale': '2' }, dark: {} }],
       current,
-      []
+      NO_LOCKS
     );
 
     expect(outcome.applied).toBe(true);
@@ -437,13 +444,22 @@ describe('Theme Agent snapshot schema', () => {
     const parsed = themeAgentClientDataSchema.safeParse({
       theme: studioDefaults(),
     });
-    expect(parsed.success && parsed.data?.locked).toEqual([]);
+    expect(parsed.success && parsed.data?.locked).toEqual(NO_LOCKS);
+  });
+
+  it('reads a lock list from a page before per-mode locks as no locks', () => {
+    // The browser still holds what it locked; only the prompt lists none.
+    const parsed = themeAgentClientDataSchema.safeParse({
+      theme: studioDefaults(),
+      locked: ['--wa-color-brand'],
+    });
+    expect(parsed.success && parsed.data?.locked).toEqual(NO_LOCKS);
   });
 
   it('accepts the snapshot a message carries and refuses a malformed one', () => {
     const snapshot = createThemeAgentConversation().messageSent(
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     expect(themeAgentClientDataSchema.safeParse(snapshot).success).toBe(true);
     expect(
@@ -451,6 +467,17 @@ describe('Theme Agent snapshot schema', () => {
     ).toBe(false);
   });
 });
+
+/** Locks as the sidebar's switches set them, one value per call. */
+function locks(...changes: LockedValues[]): LockedValues {
+  return changes.reduce(
+    (locked, change) => withLocks(locked, change, true),
+    NO_LOCKS
+  );
+}
+
+const darkSurface = valueLock('--wa-color-surface-default', ['dark']);
+const brand = valueLock('--wa-color-brand', ['light', 'dark']);
 
 describe('Theme Agent conversation: locked values', () => {
   const warmer = {
@@ -468,7 +495,7 @@ describe('Theme Agent conversation: locked values', () => {
       'answer-1',
       [warmer],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     if (!outcome.applied) throw new Error('answer was not applied');
     expect(outcome.theme.dark['--wa-color-brand']).toBe('#d64228');
@@ -477,50 +504,88 @@ describe('Theme Agent conversation: locked values', () => {
     expect(outcome.held).toEqual([]);
   });
 
-  it('never changes a locked value and holds what the answer proposed for it', () => {
+  it('a dark surface locked by hand stays and is held; the light surface changes', () => {
+    const conversation = createThemeAgentConversation();
+    const tuned = studioDefaults();
+    tuned.dark['--wa-color-surface-default'] = '#1a1a1a';
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [warmer],
+      tuned,
+      locks(darkSurface)
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.dark['--wa-color-surface-default']).toBe('#1a1a1a');
+    expect(outcome.theme.light['--wa-color-surface-default']).toBe('#fdf6ec');
+    expect(outcome.held).toEqual([
+      {
+        kind: 'value',
+        cssVar: '--wa-color-surface-default',
+        proposed: { dark: '#241a12' },
+        was: { dark: '#1a1a1a' },
+      },
+    ]);
+    expect(conversation.heldChanges('answer-1')).toEqual([
+      { change: outcome.held[0], state: 'held' },
+    ]);
+  });
+
+  it('locks a mode-independent value in both modes', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(
       'answer-1',
       [warmer],
       studioDefaults(),
-      ['--wa-color-brand', '--wa-color-surface-default']
+      // The switch was flipped while editing dark mode.
+      locks(valueLock('--wa-color-brand', ['dark']))
     );
     if (!outcome.applied) throw new Error('answer was not applied');
-    // A locked value is locked in both modes.
     expect(outcome.theme.light['--wa-color-brand']).toBe('#0071ec');
     expect(outcome.theme.dark['--wa-color-brand']).toBe('#0071ec');
-    expect(outcome.theme.light['--wa-color-surface-default']).toBe('#ffffff');
-    expect(outcome.theme.dark['--wa-color-surface-default']).toBe('#101219');
-    expect(outcome.theme.shadowComponents).toEqual(['Card']);
-    expect(outcome.held).toEqual([
-      {
-        kind: 'value',
-        cssVar: '--wa-color-brand',
-        proposed: { light: '#d64228', dark: '#d64228' },
-      },
-      {
-        kind: 'value',
-        cssVar: '--wa-color-surface-default',
-        proposed: { light: '#fdf6ec', dark: '#241a12' },
-      },
-    ]);
-    expect(conversation.heldChanges('answer-1').held).toBe(true);
+    expect(outcome.held[0]).toMatchObject({
+      cssVar: '--wa-color-brand',
+      proposed: { light: '#d64228', dark: '#d64228' },
+    });
   });
 
   it('a value locked while the answer was written is held when it arrives', () => {
     const conversation = createThemeAgentConversation();
-    conversation.messageSent(studioDefaults(), []);
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
     // Locked during the run: the answer arrives with the lock in place.
     const outcome = conversation.answerReceived(
       'answer-1',
       [{ light: { '--wa-border-radius-scale': '2.5' }, dark: {} }],
       studioDefaults(),
-      ['--wa-border-radius-scale']
+      locks(valueLock('--wa-border-radius-scale', ['light', 'dark']))
     );
     if (!outcome.applied) throw new Error('answer was not applied');
     expect(outcome.theme.light['--wa-border-radius-scale']).toBe('1');
     expect(outcome.held).toHaveLength(1);
     expect(conversation.answerStatus('answer-1')).toBe('unchanged');
+  });
+
+  it('a radius changed by hand during the run, then locked, is held', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    const current = studioDefaults();
+    current.light['--wa-border-radius-scale'] = '0.5';
+    current.dark['--wa-border-radius-scale'] = '0.5';
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-border-radius-scale': '2.5' }, dark: {} }],
+      current,
+      locks(valueLock('--wa-border-radius-scale', ['light', 'dark']))
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.light['--wa-border-radius-scale']).toBe('0.5');
+    expect(outcome.held[0]).toMatchObject({
+      proposed: { light: '2.5', dark: '2.5' },
+      was: { light: '0.5', dark: '0.5' },
+    });
   });
 
   it('holds a new shadow component list when the list is locked', () => {
@@ -529,42 +594,114 @@ describe('Theme Agent conversation: locked values', () => {
       'answer-1',
       [warmer],
       studioDefaults(),
-      ['shadowComponents']
+      SHADOW_COMPONENTS_LOCK
     );
     if (!outcome.applied) throw new Error('answer was not applied');
     expect(outcome.theme.shadowComponents).toEqual([]);
     expect(outcome.held).toEqual([
-      { kind: 'shadowComponents', proposed: ['Card'] },
+      { kind: 'shadowComponents', proposed: ['Card'], was: [] },
     ]);
   });
 
-  it('unlock and apply applies the held changes and says what to unlock', () => {
+  it('unlock and apply one value leaves the others held', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(
       'answer-1',
       [warmer],
       studioDefaults(),
-      ['--wa-color-brand', 'shadowComponents']
+      locks(brand, darkSurface, SHADOW_COMPONENTS_LOCK)
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+
+    const result = conversation.applyHeld('answer-1', outcome.theme, 1);
+
+    expect(result?.unlock).toEqual(darkSurface);
+    expect(result?.applied).toBe(1);
+    expect(result?.theme.dark['--wa-color-surface-default']).toBe('#241a12');
+    expect(result?.theme.dark['--wa-color-brand']).toBe('#0071ec');
+    expect(
+      conversation.heldChanges('answer-1').map((entry) => entry.state)
+    ).toEqual(['held', 'applied', 'held']);
+    // The outcome keeps only what is still held.
+    expect(
+      conversation.answerReceived('answer-1', [], outcome.theme, NO_LOCKS)
+    ).toMatchObject({
+      held: [{ cssVar: '--wa-color-brand' }, { kind: 'shadowComponents' }],
+    });
+    // Once only.
+    expect(
+      conversation.applyHeld('answer-1', result!.theme, 1)
+    ).toBeUndefined();
+  });
+
+  it('unlock and apply all applies every held change and says what to unlock', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [warmer],
+      studioDefaults(),
+      locks(brand, SHADOW_COMPONENTS_LOCK)
     );
     if (!outcome.applied) throw new Error('answer was not applied');
 
     const result = conversation.applyHeld('answer-1', outcome.theme);
 
-    expect(result?.unlock).toEqual(['--wa-color-brand', 'shadowComponents']);
+    expect(result?.unlock).toEqual(locks(brand, SHADOW_COMPONENTS_LOCK));
     expect(result?.theme.dark['--wa-color-brand']).toBe('#d64228');
     expect(result?.theme.shadowComponents).toEqual(['Card']);
-    expect(conversation.heldChanges('answer-1').held).toBe(false);
-    // Once only.
+    expect(
+      conversation.heldChanges('answer-1').every((e) => e.state === 'applied')
+    ).toBe(true);
     expect(conversation.applyHeld('answer-1', result!.theme)).toBeUndefined();
   });
 
-  it('undo after unlock and apply reverts the held changes too', () => {
+  it('unlock and apply leaves a value the user changed since, and its lock', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [warmer],
+      studioDefaults(),
+      locks(brand, darkSurface)
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    // The user unlocked the dark surface, tuned it and locked it again.
+    const tuned = structuredClone(outcome.theme);
+    tuned.dark['--wa-color-surface-default'] = '#202020';
+
+    const result = conversation.applyHeld('answer-1', tuned);
+
+    expect(result?.theme.dark['--wa-color-surface-default']).toBe('#202020');
+    expect(result?.theme.dark['--wa-color-brand']).toBe('#d64228');
+    expect(result?.unlock).toEqual(brand);
+    expect(result).toMatchObject({ applied: 1, changed: 1 });
+    expect(
+      conversation.heldChanges('answer-1').map((entry) => entry.state)
+    ).toEqual(['applied', 'changed']);
+  });
+
+  it('sending the next message keeps what is still held', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [warmer],
+      studioDefaults(),
+      locks(brand)
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+
+    conversation.messageSent(outcome.theme, locks(brand));
+
+    expect(conversation.heldChanges('answer-1')[0].state).toBe('kept');
+    expect(conversation.applyHeld('answer-1', outcome.theme)).toBeUndefined();
+  });
+
+  it('undo after unlock and apply reverts the held changes and locks them again', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(
       'answer-1',
       [{ light: { '--wa-color-brand': '#d64228' }, dark: {} }],
       studioDefaults(),
-      ['--wa-color-brand']
+      locks(brand)
     );
     if (!outcome.applied) throw new Error('answer was not applied');
     const result = conversation.applyHeld('answer-1', outcome.theme);
@@ -572,7 +709,22 @@ describe('Theme Agent conversation: locked values', () => {
 
     const undone = conversation.undo('answer-1', result!.theme);
 
-    expect(undone?.dark['--wa-color-brand']).toBe('#0071ec');
+    expect(undone?.theme.dark['--wa-color-brand']).toBe('#0071ec');
+    expect(undone?.relock).toEqual(brand);
+  });
+
+  it('undo of an answer that unlocked nothing locks nothing', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [warmer],
+      studioDefaults(),
+      locks(brand)
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(conversation.undo('answer-1', outcome.theme)?.relock).toEqual(
+      NO_LOCKS
+    );
   });
 
   it('checks contrast again after unlock and apply', () => {
@@ -583,7 +735,7 @@ describe('Theme Agent conversation: locked values', () => {
       'answer-1',
       [{ light: { '--wa-color-text-quiet': '#595959' }, dark: {} }],
       pale,
-      ['--wa-color-text-quiet']
+      locks(valueLock('--wa-color-text-quiet', ['light']))
     );
     if (!outcome.applied) throw new Error('answer was not applied');
     const quietFails = () =>
@@ -601,12 +753,16 @@ describe('Theme Agent conversation: locked values', () => {
 
   it('sends the locked values with the snapshot, and only Studio values', () => {
     const conversation = createThemeAgentConversation();
-    const snapshot = conversation.messageSent(studioDefaults(), [
-      '--wa-color-brand',
-      'shadowComponents',
-      '--wa-nonexistent',
-    ]);
-    expect(snapshot.locked).toEqual(['--wa-color-brand', 'shadowComponents']);
+    const snapshot = conversation.messageSent(studioDefaults(), {
+      light: ['--wa-nonexistent'],
+      dark: ['--wa-color-surface-default'],
+      shadowComponents: true,
+    });
+    expect(snapshot.locked).toEqual({
+      light: [],
+      dark: ['--wa-color-surface-default'],
+      shadowComponents: true,
+    });
   });
 });
 
@@ -616,7 +772,7 @@ describe('Theme Agent conversation: what the last answer did', () => {
   it('says nothing before the first answer', () => {
     const snapshot = createThemeAgentConversation().messageSent(
       studioDefaults(),
-      []
+      NO_LOCKS
     );
     expect(snapshot.previous).toBeUndefined();
   });
@@ -627,10 +783,10 @@ describe('Theme Agent conversation: what the last answer did', () => {
       'answer-1',
       [{ ...greenBrand, reasons: { '--wa-color-brand': 'Green.' } }],
       studioDefaults(),
-      []
+      NO_LOCKS
     );
 
-    const snapshot = conversation.messageSent(studioDefaults(), []);
+    const snapshot = conversation.messageSent(studioDefaults(), NO_LOCKS);
 
     expect(snapshot.previous).toEqual({
       status: 'rejected',
@@ -644,17 +800,26 @@ describe('Theme Agent conversation: what the last answer did', () => {
 
   it('tells the agent which locked values its last answer did not change', () => {
     const conversation = createThemeAgentConversation();
-    conversation.answerReceived('answer-1', [greenBrand], studioDefaults(), [
-      '--wa-color-brand',
-    ]);
+    conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: {},
+          dark: {
+            '--wa-color-brand': '#2f8f4e',
+            '--wa-color-surface-default': '#241a12',
+          },
+        },
+      ],
+      studioDefaults(),
+      locks(brand, darkSurface)
+    );
 
-    const snapshot = conversation.messageSent(studioDefaults(), [
-      '--wa-color-brand',
-    ]);
+    const snapshot = conversation.messageSent(studioDefaults(), locks(brand));
 
     expect(snapshot.previous).toEqual({
       status: 'unchanged',
-      held: ['--wa-color-brand'],
+      held: ['--wa-color-brand', '--wa-color-surface-default (dark mode)'],
       errors: [],
     });
   });
@@ -665,21 +830,19 @@ describe('Theme Agent conversation: what the last answer did', () => {
       'answer-1',
       [greenBrand],
       studioDefaults(),
-      ['--wa-color-brand']
+      locks(brand)
     );
     if (!outcome.applied) throw new Error('answer was not applied');
     const result = conversation.applyHeld('answer-1', outcome.theme);
-    expect(conversation.messageSent(result!.theme, []).previous).toEqual({
+    expect(conversation.messageSent(result!.theme, NO_LOCKS).previous).toEqual({
       status: 'applied',
       held: [],
       errors: [],
     });
 
     conversation.undo('answer-1', result!.theme);
-    expect(conversation.messageSent(studioDefaults(), []).previous).toEqual({
-      status: 'undone',
-      held: [],
-      errors: [],
-    });
+    expect(
+      conversation.messageSent(studioDefaults(), NO_LOCKS).previous
+    ).toEqual({ status: 'undone', held: [], errors: [] });
   });
 });

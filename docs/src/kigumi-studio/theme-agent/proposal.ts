@@ -3,9 +3,13 @@ import {
   PROPERTIES_BY_VAR,
   type PropertyDefinition,
 } from '../lib/property-definitions';
-import { SHADOW_COMPONENTS_LOCK } from '../lib/locks';
+import type { LockedValues } from '../lib/locks';
 import { SHADOW_COMPONENTS } from '../lib/shadow-components';
-import { cloneTheme, type CustomTheme } from './custom-theme';
+import {
+  cloneTheme,
+  THEME_AGENT_MODES,
+  type CustomTheme,
+} from './custom-theme';
 
 // Shared by the browser and the trigger.dev task (docs/trigger): the task
 // rejects an invalid proposal and lets the model retry, the browser checks
@@ -200,45 +204,36 @@ export function applyProposal(
 }
 
 /**
- * `proposal` without what `locked` covers (CSS custom properties, and
- * `SHADOW_COMPONENTS_LOCK` for the shadow list): what the browser will apply
- * of it. The task checks contrast on that, not on values that stay as they
- * are.
+ * `proposal` split by `locked`: `free` is what the browser applies, `held`
+ * what it holds back for the user to unlock and apply. The browser and the
+ * task both split with this, so they agree on what lands.
  */
-export function withoutLocked(
+export function splitLocked(
   proposal: ThemeProposal,
-  locked: readonly string[]
-): ThemeProposal {
-  const isLocked = new Set(locked);
-  const keep = (values: Record<string, string>) =>
-    Object.fromEntries(
-      Object.entries(values).filter(([cssVar]) => !isLocked.has(cssVar))
-    );
-  const result: ThemeProposal = {
-    light: keep(proposal.light),
-    dark: keep(proposal.dark),
-  };
-  if (proposal.shadowComponents && !isLocked.has(SHADOW_COMPONENTS_LOCK)) {
-    result.shadowComponents = proposal.shadowComponents;
+  locked: LockedValues
+): { free: ThemeProposal; held: ThemeProposal } {
+  const free: ThemeProposal = { light: {}, dark: {} };
+  const held: ThemeProposal = { light: {}, dark: {} };
+  for (const mode of THEME_AGENT_MODES) {
+    for (const [cssVar, value] of Object.entries(proposal[mode])) {
+      (locked[mode].includes(cssVar) ? held : free)[mode][cssVar] = value;
+    }
   }
-  return result;
+  if (proposal.shadowComponents) {
+    (locked.shadowComponents ? held : free).shadowComponents = [
+      ...proposal.shadowComponents,
+    ];
+  }
+  return { free, held };
 }
 
-/** The lock keys `proposal` would change: what Studio will hold back. */
-export function lockedIn(
-  proposal: ThemeProposal,
-  locked: readonly string[]
-): string[] {
-  const isLocked = new Set(locked);
-  const keys = new Set(
-    [...Object.keys(proposal.light), ...Object.keys(proposal.dark)].filter(
-      (cssVar) => isLocked.has(cssVar)
-    )
-  );
-  if (proposal.shadowComponents && isLocked.has(SHADOW_COMPONENTS_LOCK)) {
-    keys.add(SHADOW_COMPONENTS_LOCK);
-  }
-  return [...keys];
+/** The values `proposal` names, as locks. */
+export function locksOf(proposal: ThemeProposal): LockedValues {
+  return {
+    light: Object.keys(proposal.light),
+    dark: Object.keys(proposal.dark),
+    shadowComponents: proposal.shadowComponents !== undefined,
+  };
 }
 
 /** What the task's `propose_theme` tool returns to the model and the browser. */
@@ -250,6 +245,9 @@ export interface ProposeThemeOutput {
   contrast: string[];
   /** `true` while the model is to correct `contrast` and propose again. */
   correctContrast: boolean;
-  /** Values of the proposal the user locked: Studio will not change them. */
+  /**
+   * Values of the proposal the user locked, as `describeLocks()` writes
+   * them: Studio holds them for the user to unlock and apply.
+   */
   locked: string[];
 }

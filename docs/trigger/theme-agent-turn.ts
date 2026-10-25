@@ -21,14 +21,15 @@ import type {
 } from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
   applyProposal,
-  lockedIn,
-  withoutLocked,
+  locksOf,
+  splitLocked,
   themeProposalSchema,
   validateProposal,
   type ProposeThemeOutput,
 } from '../src/kigumi-studio/theme-agent/proposal.js';
 import { PROPERTY_DEFINITIONS } from '../src/kigumi-studio/lib/property-definitions.js';
 import { AVAILABLE_FONTS } from '../src/kigumi-studio/lib/font-definitions.js';
+import { describeLocks } from '../src/kigumi-studio/lib/locks.js';
 import { SHADOW_COMPONENTS } from '../src/kigumi-studio/lib/shadow-components.js';
 
 /** Invalid proposals per answer before the answer ends without one. */
@@ -54,8 +55,9 @@ const PROPOSE_DESCRIPTION = [
   'the values that fix every pair listed in contrast. When contrast still',
   'lists pairs and correctContrast is false, do not propose again: name the',
   'pairs that still fail in your explanation. Values listed in locked are',
-  'locked by the user and will not change: never say you changed them; say',
-  'they are locked.',
+  'locked by the user: Studio holds them instead of applying them, and the',
+  'user decides with Unlock and apply. Never say you changed them; say they',
+  'are locked and wait for the user.',
 ].join(' ');
 
 /**
@@ -101,10 +103,8 @@ function proposeThemeTool(
       }
       onStatus(THEME_AGENT_STATUS.checking);
       // Locked values stay as they are in the browser; check what lands.
-      theme = applyProposal(
-        theme,
-        withoutLocked(validation.proposal, snapshot.locked)
-      );
+      const { free, held } = splitLocked(validation.proposal, snapshot.locked);
+      theme = applyProposal(theme, free);
       const violations = checkContrast(theme);
       const contrast = violations.map(violationFeedback);
       // A pair set by another value is the brand fill: Studio derives it
@@ -125,7 +125,7 @@ function proposeThemeTool(
         errors: [],
         contrast,
         correctContrast,
-        locked: lockedIn(validation.proposal, snapshot.locked),
+        locked: describeLocks(locksOf(held)),
       };
     },
   });
@@ -194,6 +194,7 @@ function propertyLine(property: (typeof PROPERTY_DEFINITIONS)[number]): string {
 
 /** The system prompt for one turn, built around the snapshot sent with it. */
 export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
+  const locked = describeLocks(snapshot.locked);
   return [
     'You are the Theme Agent in Kigumi Studio, the visual theme builder of Kigumi.',
     'You help the user build a custom Kigumi theme for light and dark mode.',
@@ -210,10 +211,8 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     '- Reply in the language the user wrote in.',
     '- The current custom theme below is the truth. It may contain edits the user made by hand since your last answer; never rely on values from earlier in the conversation.',
     '',
-    'Locked values (the user locked these in the sidebar; never propose them. If the request needs one, say it is locked and that the user can unlock it in the sidebar or with Unlock and apply under your answer):',
-    ...(snapshot.locked.length > 0
-      ? snapshot.locked.map((key) => `- ${key}`)
-      : ['- none']),
+    'Locked values (the user locked these in the sidebar; a name without a mode is locked in both modes). Leave them out of a proposal unless the latest message asks to change one of them. When it does, propose that change anyway: Studio does not apply it, it holds it, and the user applies it with Unlock and apply under your answer. Then say it is locked and waits for the user; never say you changed it:',
+    ...(locked.length > 0 ? locked.map((line) => `- ${line}`) : ['- none']),
     '',
     ...previousAnswerLines(snapshot.previous),
     'Values you may set (nothing else, no custom CSS):',

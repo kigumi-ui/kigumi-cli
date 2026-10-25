@@ -5,7 +5,12 @@ import { renderHook, act } from '@testing-library/react';
 import { StudioProvider, useStudio } from '../contexts/StudioContext';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
-import { SHADOW_COMPONENTS_LOCK } from '../lib/locks';
+import {
+  NO_LOCKS,
+  SHADOW_COMPONENTS_LOCK,
+  valueLock,
+  withLocks,
+} from '../lib/locks';
 import { useValueLock } from '../theme-agent/use-value-lock';
 import { useThemeAgentStudio } from '../theme-agent/use-theme-agent-studio';
 
@@ -357,15 +362,16 @@ describe('Theme Agent adapter', () => {
 
   it('reads the locked values and unlocks them for unlock and apply', () => {
     const { result } = renderHook(useBoth, { wrapper });
+    const brand = valueLock('--wa-color-brand', ['light', 'dark']);
     act(() => {
-      result.current.studio.setLocked(['--wa-color-brand'], true);
+      result.current.studio.setLocked(brand, true);
     });
-    expect(result.current.agent.locked()).toEqual(['--wa-color-brand']);
+    expect(result.current.agent.locked()).toEqual(brand);
 
     act(() => {
-      result.current.agent.unlock(['--wa-color-brand']);
+      result.current.agent.setLocked(brand, false);
     });
-    expect(result.current.studio.lockedValues).toEqual([]);
+    expect(result.current.studio.lockedValues).toEqual(NO_LOCKS);
   });
 
   it('reads a sidebar edit into the custom theme it hands the Theme Agent', () => {
@@ -413,74 +419,105 @@ describe('Theme Agent adapter', () => {
   });
 });
 
+/** Set the Theme Agent's access cookie for `run`, then remove it. */
+function withAccessCookie(run: () => void) {
+  document.cookie = 'kigumi-theme-agent=test; path=/';
+  try {
+    run();
+  } finally {
+    document.cookie = 'kigumi-theme-agent=; path=/; max-age=0';
+  }
+}
+
 describe('useStudio - locked values', () => {
+  const darkSurface = valueLock('--wa-color-surface-default', ['dark']);
+
   it('starts with nothing locked', () => {
     const { result } = renderHook(() => useStudio(), { wrapper });
-    expect(result.current.lockedValues).toEqual([]);
+    expect(result.current.lockedValues).toEqual(NO_LOCKS);
   });
 
-  it('locks and unlocks values, the shadow component list included', () => {
+  it('locks a value per mode, a mode-independent one in both, and the shadow list', () => {
     const { result } = renderHook(() => useStudio(), { wrapper });
     act(() => {
-      result.current.setLocked(
-        ['--wa-color-brand', SHADOW_COMPONENTS_LOCK],
-        true
-      );
+      result.current.setLocked(darkSurface, true);
+      result.current.setLocked(valueLock('--wa-color-brand', ['dark']), true);
+      result.current.setLocked(SHADOW_COMPONENTS_LOCK, true);
     });
-    expect(result.current.lockedValues).toEqual([
-      '--wa-color-brand',
-      SHADOW_COMPONENTS_LOCK,
-    ]);
+    expect(result.current.lockedValues).toEqual({
+      light: ['--wa-color-brand'],
+      dark: ['--wa-color-brand', '--wa-color-surface-default'],
+      shadowComponents: true,
+    });
     act(() => {
-      result.current.setLocked(['--wa-color-brand'], false);
+      result.current.setLocked(darkSurface, false);
     });
-    expect(result.current.lockedValues).toEqual([SHADOW_COMPONENTS_LOCK]);
+    expect(result.current.lockedValues.dark).toEqual(['--wa-color-brand']);
   });
 
   it('ignores keys that are not Studio values', () => {
     const { result } = renderHook(() => useStudio(), { wrapper });
     act(() => {
-      result.current.setLocked(['--wa-nonexistent'], true);
+      result.current.setLocked(
+        { light: ['--wa-nonexistent'], dark: [], shadowComponents: false },
+        true
+      );
     });
-    expect(result.current.lockedValues).toEqual([]);
+    expect(result.current.lockedValues).toEqual(NO_LOCKS);
   });
 
   it('keeps locks through a reset, a group reset and a reload', () => {
     const first = renderHook(() => useStudio(), { wrapper });
     act(() => {
-      first.result.current.setLocked(['--wa-color-brand'], true);
+      first.result.current.setLocked(darkSurface, true);
     });
     act(() => {
-      first.result.current.resetGroup('colors-brand');
+      first.result.current.resetGroup('colors-surface');
       first.result.current.resetAll();
     });
-    expect(first.result.current.lockedValues).toEqual(['--wa-color-brand']);
+    const locked = withLocks(NO_LOCKS, darkSurface, true);
+    expect(first.result.current.lockedValues).toEqual(locked);
     first.unmount();
 
     const reloaded = renderHook(() => useStudio(), { wrapper });
-    expect(reloaded.result.current.lockedValues).toEqual(['--wa-color-brand']);
+    expect(reloaded.result.current.lockedValues).toEqual(locked);
+  });
+
+  it('a switch locks the value in the mode being edited', () => {
+    withAccessCookie(() => {
+      const { result } = renderHook(
+        () => ({
+          studio: useStudio(),
+          lock: useValueLock('--wa-color-surface-default'),
+        }),
+        { wrapper }
+      );
+      act(() => result.current.studio.setEditMode('dark'));
+      act(() => result.current.lock.setLocked(true));
+      expect(result.current.lock.locked).toBe(true);
+
+      act(() => result.current.studio.setEditMode('light'));
+      expect(result.current.lock.locked).toBe(false);
+      expect(result.current.lock.modes).toEqual(['light']);
+    });
   });
 
   it('a locked value counts as locked only with the Theme Agent cookie', () => {
-    localStorage.setItem(
-      'kigumi-studio-locks',
-      JSON.stringify(['--wa-color-brand'])
+    localStorage.setItem('kigumi-studio-locks', JSON.stringify(darkSurface));
+    const without = renderHook(
+      () => useValueLock('--wa-color-surface-default'),
+      { wrapper }
     );
-    const without = renderHook(() => useValueLock('--wa-color-brand'), {
-      wrapper,
-    });
     // Without the cookie there is no switch to unlock with.
     expect(without.result.current.locked).toBe(false);
     without.unmount();
 
-    document.cookie = 'kigumi-theme-agent=test; path=/';
-    try {
-      const withCookie = renderHook(() => useValueLock('--wa-color-brand'), {
-        wrapper,
-      });
+    withAccessCookie(() => {
+      const withCookie = renderHook(
+        () => useValueLock('--wa-color-surface-default'),
+        { wrapper }
+      );
       expect(withCookie.result.current.locked).toBe(true);
-    } finally {
-      document.cookie = 'kigumi-theme-agent=; path=/; max-age=0';
-    }
+    });
   });
 });

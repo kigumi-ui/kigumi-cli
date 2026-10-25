@@ -20,7 +20,7 @@ export function PropertyRow({ property, style }: PropertyRowProps) {
   const modified = isModified(property.cssVar);
   // Locked for the Theme Agent: disabled until unlocked, as Web Awesome
   // shows a disabled control.
-  const { locked } = useValueLock(property.cssVar);
+  const lock = useValueLock(property.cssVar);
 
   return (
     <div className="property-row" style={style}>
@@ -35,11 +35,11 @@ export function PropertyRow({ property, style }: PropertyRowProps) {
         <PropertyControl
           property={property}
           value={currentValue}
-          disabled={locked}
+          disabled={lock.locked}
           onChange={(val) => setProperty(property.cssVar, val)}
         />
       </div>
-      <LockSwitch lockKey={property.cssVar} context={property.label} />
+      <LockSwitch lock={lock} context={property.label} />
     </div>
   );
 }

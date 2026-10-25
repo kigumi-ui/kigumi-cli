@@ -1,22 +1,44 @@
-import { useCallback, useState } from 'react';
 import { useStudio } from '../contexts/StudioContext';
-import { hasThemeAgentAccess } from './access';
+import type { ThemeMode } from '../lib/defaults';
+import {
+  isLocked,
+  lockModes,
+  SHADOW_COMPONENTS_LOCK,
+  valueLock,
+} from '../lib/locks';
+
+/** One value's lock against the Theme Agent, for its row in the sidebar. */
+export interface ValueLock {
+  /** Only with the Theme Agent's access cookie. */
+  available: boolean;
+  locked: boolean;
+  /** The modes the switch locks: the edited one for a value set per mode. */
+  modes: ThemeMode[];
+  setLocked: (locked: boolean) => void;
+}
 
 /**
- * Whether one value is locked against the Theme Agent, and how to change
- * that. Only with the access cookie: without it there is no switch to unlock
- * with, so a stored lock must not leave a value disabled.
+ * A property's lock in the mode the sidebar edits: a value set per mode
+ * locks in that mode only, a mode-independent one in both.
  */
-export function useValueLock(lockKey: string) {
-  const [available] = useState(() => hasThemeAgentAccess(document.cookie));
-  const { lockedValues, setLocked } = useStudio();
-  const setValueLocked = useCallback(
-    (locked: boolean) => setLocked([lockKey], locked),
-    [lockKey, setLocked]
-  );
+export function useValueLock(cssVar: string): ValueLock {
+  const { editMode, lockedValues, setLocked, locksAvailable } = useStudio();
+  const modes = lockModes(cssVar, editMode);
   return {
-    available,
-    locked: available && lockedValues.includes(lockKey),
-    setLocked: setValueLocked,
+    available: locksAvailable,
+    locked: locksAvailable && isLocked(lockedValues, cssVar, modes),
+    modes,
+    setLocked: (locked) => setLocked(valueLock(cssVar, modes), locked),
+  };
+}
+
+/** The lock of the list of components that get a shadow. */
+export function useShadowComponentsLock(): ValueLock {
+  const { lockedValues, setLocked, locksAvailable } = useStudio();
+  return {
+    available: locksAvailable,
+    locked: locksAvailable && lockedValues.shadowComponents,
+    modes: ['light', 'dark'],
+    setLocked: (locked) => setLocked(SHADOW_COMPONENTS_LOCK, locked),
   };
 }

@@ -11,6 +11,7 @@ import {
   THEME_AGENT_STATUS,
 } from '../src/kigumi-studio/theme-agent/constants';
 import type { ThemeAgentSnapshot } from '../src/kigumi-studio/theme-agent/custom-theme';
+import { NO_LOCKS } from '../src/kigumi-studio/lib/locks';
 
 type StreamResult = Extract<
   NonNullable<ConstructorParameters<typeof MockLanguageModelV4>[0]>['doStream'],
@@ -76,14 +77,34 @@ const snapshot: ThemeAgentSnapshot = {
     },
     shadowComponents: ['Card'],
   },
-  locked: [],
+  locked: NO_LOCKS,
 };
 
-/** The user locked the brand and the shadow component list. */
+/** The user locked the brand, the dark surface and the shadow component list. */
 const lockedSnapshot: ThemeAgentSnapshot = {
   ...snapshot,
-  locked: ['--wa-color-brand', 'shadowComponents'],
+  locked: {
+    light: ['--wa-color-brand'],
+    dark: ['--wa-color-brand', '--wa-color-surface-default'],
+    shadowComponents: true,
+  },
 };
+
+/** The system prompt the model gets for one turn with `turnSnapshot`. */
+async function systemPrompt(turnSnapshot: ThemeAgentSnapshot): Promise<string> {
+  const model = new MockLanguageModelV4({ doStream: [textStep('Hello.')] });
+  const result = themeAgentTurn({
+    streamText,
+    model,
+    messages,
+    snapshot: turnSnapshot,
+  });
+  await result.consumeStream();
+  const system = model.doStreamCalls[0].prompt.find(
+    (message) => message.role === 'system'
+  );
+  return typeof system?.content === 'string' ? system.content : '';
+}
 
 const messages: ModelMessage[] = [
   { role: 'user', content: 'Calm fintech theme, brand #0891b2' },
@@ -180,24 +201,21 @@ describe('Theme Agent turn', () => {
     expect(prompt).toContain('#fafaf9');
   });
 
-  it("gives the model the snapshot's locked values", async () => {
-    const model = new MockLanguageModelV4({ doStream: [textStep('Hello.')] });
-
-    const result = themeAgentTurn({
-      streamText,
-      model,
-      messages,
-      snapshot: lockedSnapshot,
-    });
-    await result.consumeStream();
-
-    const system = model.doStreamCalls[0].prompt.find(
-      (message) => message.role === 'system'
-    );
-    const text = typeof system?.content === 'string' ? system.content : '';
+  it("gives the model the snapshot's locked values, per mode", async () => {
+    const text = await systemPrompt(lockedSnapshot);
     expect(text).toMatch(
-      /Locked values[^\n]*\n- --wa-color-brand\n- shadowComponents\n/
+      /Locked values[^\n]*\n- --wa-color-brand\n- --wa-color-surface-default \(dark mode\)\n- shadowComponents\n/
     );
+  });
+
+  it('asks the model to propose a locked value the message asks for, so Studio can hold it', async () => {
+    // Told never to propose a locked value, the model never did, nothing was
+    // held, and "Unlock and apply" never appeared under an answer.
+    const text = await systemPrompt(lockedSnapshot);
+    const locked = text.slice(text.indexOf('Locked values'));
+    expect(locked).toMatch(/unless the latest message asks/);
+    expect(locked).toMatch(/propose that change anyway/);
+    expect(locked).not.toMatch(/never propose/i);
   });
 });
 
@@ -399,7 +417,7 @@ describe('Theme Agent turn: contrast', () => {
         },
         dark: readableProposal.dark,
       },
-      locked: ['--wa-color-text-quiet'],
+      locked: { ...NO_LOCKS, light: ['--wa-color-text-quiet'] },
     };
     const model = new MockLanguageModelV4({
       doStream: [
