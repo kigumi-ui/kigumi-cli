@@ -1,10 +1,11 @@
-import { lazy, Suspense, useRef, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
+import clsx from 'clsx';
 import { StudioHeader } from './StudioHeader';
 import { StudioSidebar } from './StudioSidebar';
 import { StudioPreview } from './StudioPreview';
 import { ImportDialog } from './toolbar/ImportDialog';
 import { ExportDialog } from './toolbar/ExportDialog';
-import type { ButtonRef } from '@/components/ui';
+import { PanelToggle } from './PanelToggle';
 import { hasThemeAgentAccess } from '../theme-agent/access';
 import './StudioLayout.css';
 
@@ -25,25 +26,15 @@ export function StudioLayout() {
   const [themeAgentOpen, setThemeAgentOpen] = useState(false);
   // Mounted on first open and kept, so closing keeps the conversation.
   const [themeAgentMounted, setThemeAgentMounted] = useState(false);
-  const themeAgentButtonRef = useRef<ButtonRef>(null);
 
   const toggleThemeAgent = () => {
     setThemeAgentMounted(true);
     setThemeAgentOpen((open) => !open);
   };
 
-  const closeThemeAgent = () => {
-    setThemeAgentOpen(false);
-    themeAgentButtonRef.current?.focus({});
-  };
-
   return (
     <div className="studio-layout">
-      <StudioHeader
-        onToggleThemeAgent={themeAgentAvailable ? toggleThemeAgent : undefined}
-        themeAgentOpen={themeAgentOpen}
-        themeAgentButtonRef={themeAgentButtonRef}
-      />
+      <StudioHeader />
       <div className="studio-layout__body">
         <StudioSidebar
           collapsed={sidebarCollapsed}
@@ -52,13 +43,28 @@ export function StudioLayout() {
           onExport={() => setExportOpen(true)}
         />
         <StudioPreview />
-        {themeAgentAvailable && themeAgentMounted && (
-          <Suspense fallback={null}>
-            <ThemeAgentSidebar
+        {/* The panel and its toggle load with Studio; the chat inside
+            loads on first open. */}
+        {themeAgentAvailable && (
+          <div
+            className={clsx(
+              'theme-agent-panel',
+              !themeAgentOpen && 'theme-agent-panel--collapsed'
+            )}
+          >
+            <PanelToggle
+              side="end"
               open={themeAgentOpen}
-              onClose={closeThemeAgent}
+              icon="robot"
+              label="Theme Agent"
+              onToggle={toggleThemeAgent}
             />
-          </Suspense>
+            {themeAgentMounted && (
+              <Suspense fallback={null}>
+                <ThemeAgentSidebar open={themeAgentOpen} />
+              </Suspense>
+            )}
+          </div>
         )}
       </div>
       <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} />

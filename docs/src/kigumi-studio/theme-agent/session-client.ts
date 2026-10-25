@@ -24,11 +24,36 @@ export async function requestThemeAgentToken(
       error?: string;
     };
     throw new Error(
-      `The Theme Agent could not start (${response.status})${error ? `: ${error}` : '.'}`
+      `The Theme Agent could not start (${response.status})${
+        error ? `: ${error}` : '.'
+      }`
     );
   }
   const { publicAccessToken } = (await response.json()) as {
     publicAccessToken: string;
   };
   return publicAccessToken;
+}
+
+/**
+ * Close the chat session for good: its run exits instead of waiting for the
+ * next message, and trigger.dev lists the session as closed. `keepalive`
+ * lets the request outlive the page, for `pagehide`.
+ */
+export async function closeThemeAgentSession(
+  chatId: string,
+  { keepalive = false }: { keepalive?: boolean } = {}
+): Promise<void> {
+  const response = await fetch(THEME_AGENT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    credentials: 'same-origin',
+    keepalive,
+    body: JSON.stringify({ intent: 'close', chatId }),
+  });
+  if (!response.ok) {
+    throw new Error(
+      `The Theme Agent session did not close (${response.status}).`
+    );
+  }
 }

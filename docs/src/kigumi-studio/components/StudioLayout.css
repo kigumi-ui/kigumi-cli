@@ -11,8 +11,91 @@
   overflow: hidden;
 }
 
+/* ── Side panels: Styles (start) and Theme Agent (end) ── */
+
+/* The headline on top of a side panel; the same height with or without a
+   button in it. */
+.studio-panel-header {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  min-height: 3rem;
+  padding: var(--wa-space-xs) var(--wa-space-m);
+  border-bottom: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-surface-border);
+}
+
+/* The tab on a panel's inner edge, sticking out over the preview. */
+.studio-panel-toggle {
+  position: absolute;
+  top: 0;
+  z-index: 10;
+}
+
+.studio-panel-toggle::part(base) {
+  height: var(--wa-space-2xl);
+  width: var(--wa-space-xl);
+  padding: 0;
+  /* Set per side: the tab is rounded on the edge away from its panel. */
+  border-radius: var(--studio-panel-toggle-radius);
+}
+
+.studio-panel-toggle--start {
+  right: calc(var(--wa-space-xl) * -1);
+  --studio-panel-toggle-radius: 0 var(--wa-border-radius-l)
+    var(--wa-border-radius-l) 0;
+}
+
+.studio-panel-toggle--end {
+  left: calc(var(--wa-space-xl) * -1);
+  --studio-panel-toggle-radius: var(--wa-border-radius-l) 0 0
+    var(--wa-border-radius-l);
+}
+
+.theme-agent-panel {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  width: 360px;
+  transition: width var(--wa-transition-medium) var(--wa-transition-easing);
+}
+
+.theme-agent-panel--collapsed {
+  width: 0;
+}
+
 @media (max-width: 768px) {
+  /* Styles at the bottom, the Theme Agent on top, the preview between. */
   .studio-layout__body {
     flex-direction: column-reverse;
+  }
+
+  .theme-agent-panel {
+    width: 100%;
+  }
+
+  .theme-agent-panel--collapsed {
+    max-height: 0;
+  }
+
+  .studio-panel-toggle::part(base) {
+    height: var(--wa-space-xl);
+    width: var(--wa-space-2xl);
+  }
+
+  .studio-panel-toggle--start {
+    top: calc(var(--wa-space-xl) * -1);
+    right: 50%;
+    transform: translateX(50%);
+    --studio-panel-toggle-radius: var(--wa-border-radius-l)
+      var(--wa-border-radius-l) 0 0;
+  }
+
+  .studio-panel-toggle--end {
+    top: auto;
+    bottom: calc(var(--wa-space-xl) * -1);
+    left: 50%;
+    transform: translateX(-50%);
+    --studio-panel-toggle-radius: 0 0 var(--wa-border-radius-l)
+      var(--wa-border-radius-l);
   }
 }

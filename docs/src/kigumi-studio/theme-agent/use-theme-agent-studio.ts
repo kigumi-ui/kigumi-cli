@@ -8,7 +8,9 @@ import type { CustomTheme } from './custom-theme';
  * locked values as the sidebar has them now, and apply a custom theme
  * through Studio's own value-setting path. `setLocked` is Studio's own, for
  * "Unlock and apply" and for Undo locking again what that unlocked.
- * `lockedValues` is the render-time value, for what the chat shows.
+ * `lockedValues` is the render-time value, for what the chat shows;
+ * `onThemeReplaced` tells when the whole theme is replaced, which ends the
+ * conversation.
  */
 export function useThemeAgentStudio() {
   const {
@@ -18,6 +20,7 @@ export function useThemeAgentStudio() {
     importValues,
     setShadowComponents,
     setLocked,
+    onThemeReplaced,
   } = useStudio();
 
   // Read at event time (send, answer finished), not at render time.
@@ -65,5 +68,12 @@ export function useThemeAgentStudio() {
     [currentTheme, importValues, setShadowComponents]
   );
 
-  return { currentTheme, locked, lockedValues, applyTheme, setLocked };
+  return {
+    currentTheme,
+    locked,
+    lockedValues,
+    applyTheme,
+    setLocked,
+    onThemeReplaced,
+  };
 }

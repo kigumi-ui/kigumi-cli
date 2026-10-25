@@ -1,23 +1,11 @@
-import type { RefObject } from 'react';
 import { Link } from 'react-router-dom';
-import { Icon, Badge, Button, type ButtonRef } from '@/components/ui';
+import { Icon, Badge } from '@/components/ui';
 import { ThemeFab } from '@/components/landing/ThemeFab';
 import logoImg from '@/assets/icon.svg';
 import './StudioHeader.css';
 import { StudioKnowledgeBase } from './knowledgebase/StudioKnowledgeBase';
 
-interface StudioHeaderProps {
-  /** Set only with the access cookie; no Theme Agent button otherwise. */
-  onToggleThemeAgent?: () => void;
-  themeAgentOpen?: boolean;
-  themeAgentButtonRef?: RefObject<ButtonRef | null>;
-}
-
-export function StudioHeader({
-  onToggleThemeAgent,
-  themeAgentOpen = false,
-  themeAgentButtonRef,
-}: StudioHeaderProps) {
+export function StudioHeader() {
   return (
     <header className="studio-header wa-split wa-align-items-center">
       {/* Logo and title */}
@@ -43,19 +31,6 @@ export function StudioHeader({
         </span>
       </div>
       <div className="wa-cluster wa-gap-s">
-        {onToggleThemeAgent && (
-          <Button
-            ref={themeAgentButtonRef}
-            size="small"
-            pill
-            variant={themeAgentOpen ? 'brand' : 'neutral'}
-            appearance={themeAgentOpen ? 'accent' : 'outlined'}
-            onClick={onToggleThemeAgent}
-          >
-            <Icon slot="start" name="wand-magic-sparkles" />
-            {themeAgentOpen ? 'Close Theme Agent' : 'Theme Agent'}
-          </Button>
-        )}
         <ThemeFab />
         <StudioKnowledgeBase />
       </div>

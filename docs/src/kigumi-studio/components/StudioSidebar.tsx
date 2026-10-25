@@ -7,6 +7,7 @@ import {
   ButtonGroup,
   Dialog,
 } from '@/components/ui';
+import { PanelToggle } from './PanelToggle';
 import { useStudio } from '../contexts/StudioContext';
 import { ColorEditor } from './editor/ColorEditor';
 import { TypographyEditor } from './editor/TypographyEditor';
@@ -104,90 +105,96 @@ export function StudioSidebar({
     <div
       className={`studio-sidebar-wrapper ${collapsed ? 'studio-sidebar-wrapper--collapsed' : ''}`}
     >
-      <aside className="studio-sidebar wa-justify-content-stretch">
-        <div className="studio-sidebar__toolbar">
-          <div className="wa-stack wa-gap-2xs">
-            <span className="wa-caption-xs">Theme preset</span>
-            <PresetSelector />
-          </div>
-          <div className="wa-cluster wa-gap-m">
-            <div className="wa-stack wa-gap-2xs">
-              <span className="wa-caption-xs">Theme mode</span>
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <ButtonGroup>
-                  <Button
-                    size="small"
-                    variant={editMode === 'light' ? 'brand' : 'neutral'}
-                    appearance={editMode === 'light' ? 'accent' : 'outlined'}
-                    onClick={() => handleModeChange('light')}
-                  >
-                    <Icon name="sun" label="Light" slot="start" /> Light
-                  </Button>
-                  <Button
-                    size="small"
-                    variant={editMode === 'dark' ? 'brand' : 'neutral'}
-                    appearance={editMode === 'dark' ? 'accent' : 'outlined'}
-                    onClick={() => handleModeChange('dark')}
-                  >
-                    <Icon name="moon" label="Dark" slot="start" /> Dark
-                  </Button>
-                </ButtonGroup>
-              </div>
-            </div>
-            <div className="wa-stack wa-gap-2xs">
-              <span className="wa-caption-xs">Color mode</span>
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Button
-                  variant="neutral"
-                  appearance="outlined"
-                  size="small"
-                  onClick={() => setConfirmOpen(true)}
-                  title={`Generate ${editMode} mode colors from ${sourceMode} mode`}
-                >
-                  <Icon name="wand-magic-sparkles" slot="start" />
-                  Generate from {sourceMode}
-                </Button>
-              </div>
-            </div>
-          </div>
-          <ButtonGroup>
-            <Button
-              variant="neutral"
-              appearance="outlined"
-              size="small"
-              onClick={onImport}
-            >
-              <Icon name="download" slot="start" />
-              Import
-            </Button>
-            <Button variant="brand" size="small" onClick={onExport}>
-              <Icon name="upload" slot="start" />
-              Export
-            </Button>
-          </ButtonGroup>
+      <aside className="studio-sidebar" aria-label="Styles">
+        <div className="studio-panel-header wa-cluster wa-align-items-center">
+          <span className="wa-heading-s wa-cluster wa-gap-xs">
+            <Icon name="palette" />
+            Styles
+          </span>
         </div>
-        <Divider />
-        {/* One accordion: each editor renders its sections as its items. */}
-        <Accordion>
-          <ColorEditor />
-          <TypographyEditor />
-          <SpacingEditor />
-          <BorderEditor />
-          <ShadowEditor />
-          <FormControlEditor />
-          <FocusEditor />
-          <TransitionEditor />
-        </Accordion>
+        <div className="studio-sidebar__body">
+          <div className="studio-sidebar__toolbar">
+            <div className="wa-stack wa-gap-2xs">
+              <span className="wa-caption-xs">Theme preset</span>
+              <PresetSelector />
+            </div>
+            <div className="wa-cluster wa-gap-m">
+              <div className="wa-stack wa-gap-2xs">
+                <span className="wa-caption-xs">Theme mode</span>
+                <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                  <ButtonGroup>
+                    <Button
+                      size="small"
+                      variant={editMode === 'light' ? 'brand' : 'neutral'}
+                      appearance={editMode === 'light' ? 'accent' : 'outlined'}
+                      onClick={() => handleModeChange('light')}
+                    >
+                      <Icon name="sun" label="Light" slot="start" /> Light
+                    </Button>
+                    <Button
+                      size="small"
+                      variant={editMode === 'dark' ? 'brand' : 'neutral'}
+                      appearance={editMode === 'dark' ? 'accent' : 'outlined'}
+                      onClick={() => handleModeChange('dark')}
+                    >
+                      <Icon name="moon" label="Dark" slot="start" /> Dark
+                    </Button>
+                  </ButtonGroup>
+                </div>
+              </div>
+              <div className="wa-stack wa-gap-2xs">
+                <span className="wa-caption-xs">Color mode</span>
+                <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                  <Button
+                    variant="neutral"
+                    appearance="outlined"
+                    size="small"
+                    onClick={() => setConfirmOpen(true)}
+                    title={`Generate ${editMode} mode colors from ${sourceMode} mode`}
+                  >
+                    <Icon name="wand-magic-sparkles" slot="start" />
+                    Generate from {sourceMode}
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <ButtonGroup>
+              <Button
+                variant="neutral"
+                appearance="outlined"
+                size="small"
+                onClick={onImport}
+              >
+                <Icon name="download" slot="start" />
+                Import
+              </Button>
+              <Button variant="brand" size="small" onClick={onExport}>
+                <Icon name="upload" slot="start" />
+                Export
+              </Button>
+            </ButtonGroup>
+          </div>
+          <Divider />
+          {/* One accordion: each editor renders its sections as its items. */}
+          <Accordion>
+            <ColorEditor />
+            <TypographyEditor />
+            <SpacingEditor />
+            <BorderEditor />
+            <ShadowEditor />
+            <FormControlEditor />
+            <FocusEditor />
+            <TransitionEditor />
+          </Accordion>
+        </div>
       </aside>
-      <Button
-        className="studio-sidebar__toggle"
-        onClick={onToggle}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        appearance="filled"
-        size="small"
-      >
-        <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} />
-      </Button>
+      <PanelToggle
+        side="start"
+        open={!collapsed}
+        icon="palette"
+        label="Styles"
+        onToggle={onToggle}
+      />
       <Dialog
         open={confirmOpen}
         label={`Override ${editMode} mode colors?`}

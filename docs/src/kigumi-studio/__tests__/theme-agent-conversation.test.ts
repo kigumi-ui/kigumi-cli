@@ -433,6 +433,58 @@ describe('Theme Agent conversation: accessibility', () => {
   });
 });
 
+describe('Theme Agent conversation: ended', () => {
+  const warmerBrand = [{ light: { '--wa-color-brand': '#c2410c' }, dark: {} }];
+
+  it('applies nothing from an answer that arrives after the conversation ended', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+
+    conversation.end();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      warmerBrand,
+      studioDefaults(),
+      NO_LOCKS
+    );
+
+    expect(outcome).toEqual({
+      applied: false,
+      errors: ['conversation: ended before the answer arrived'],
+    });
+  });
+
+  it('an ended conversation offers no undo and no unlock and apply', () => {
+    const conversation = createThemeAgentConversation();
+    const brandLocked = valueLock('--wa-color-brand', ['light', 'dark']);
+    conversation.messageSent(studioDefaults(), brandLocked);
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: {
+            '--wa-color-brand': '#c2410c',
+            '--wa-color-surface-default': '#fff7ed',
+          },
+          dark: {},
+        },
+      ],
+      studioDefaults(),
+      brandLocked
+    );
+    expect(outcome.applied).toBe(true);
+    if (!outcome.applied) return;
+    expect(conversation.heldChanges('answer-1')).toHaveLength(1);
+
+    // A preset replaced the theme the answer was applied to.
+    conversation.end();
+
+    expect(conversation.undo('answer-1', outcome.theme)).toBeUndefined();
+    expect(conversation.applyHeld('answer-1', outcome.theme)).toBeUndefined();
+    expect(conversation.heldChanges('answer-1')).toEqual([]);
+  });
+});
+
 describe('Theme Agent snapshot schema', () => {
   it('lets a run boot before the first message, which carries no snapshot', () => {
     // trigger.dev parses the run's boot and preload payloads with the same
