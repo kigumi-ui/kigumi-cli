@@ -58,7 +58,7 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 | `lib/preview-style.ts` | `buildPreviewStyle()`: the custom properties the preview sets, derived palettes included. `getStyleObject()` and the contrast check both read it |
 | `lib/preset-loader.ts` | Load preset CSS files via `import.meta.glob` |
 | `lib/locks.ts` | Locked values: lock keys per value, section and in total, stored apart from the theme (`kigumi-studio-locks`), so reset and presets leave them; never exported |
-| `components/editor/LockSwitch.tsx` | The lock switch under each value, beside each section's Reset and above the sections; only with the Theme Agent's access cookie |
+| `components/editor/LockSwitch.tsx` | The "Lock value" switch under each value and under the shadow component list; only with the Theme Agent's access cookie |
 | `themes/*.css` | Preset theme CSS files |
 
 ## Theme Agent

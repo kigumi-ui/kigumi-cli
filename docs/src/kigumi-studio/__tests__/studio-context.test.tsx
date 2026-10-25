@@ -5,11 +5,7 @@ import { renderHook, act } from '@testing-library/react';
 import { StudioProvider, useStudio } from '../contexts/StudioContext';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
-import {
-  ALL_LOCK_KEYS,
-  groupLockKeys,
-  SHADOW_COMPONENTS_LOCK,
-} from '../lib/locks';
+import { SHADOW_COMPONENTS_LOCK } from '../lib/locks';
 import { useThemeAgentStudio } from '../theme-agent/use-theme-agent-studio';
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -451,7 +447,7 @@ describe('useStudio - locked values', () => {
   it('keeps locks through a reset, a group reset and a reload', () => {
     const first = renderHook(() => useStudio(), { wrapper });
     act(() => {
-      first.result.current.setLocked(groupLockKeys('colors-brand'), true);
+      first.result.current.setLocked(['--wa-color-brand'], true);
     });
     act(() => {
       first.result.current.resetGroup('colors-brand');
@@ -462,14 +458,5 @@ describe('useStudio - locked values', () => {
 
     const reloaded = renderHook(() => useStudio(), { wrapper });
     expect(reloaded.result.current.lockedValues).toEqual(['--wa-color-brand']);
-  });
-
-  it('lock keys: a group covers its values, the shadows group its component list too', () => {
-    expect(groupLockKeys('border-radius')).toEqual([
-      '--wa-border-radius-scale',
-    ]);
-    expect(groupLockKeys('shadows')).toContain(SHADOW_COMPONENTS_LOCK);
-    expect(ALL_LOCK_KEYS).toContain('--wa-color-brand');
-    expect(ALL_LOCK_KEYS).toContain(SHADOW_COMPONENTS_LOCK);
   });
 });

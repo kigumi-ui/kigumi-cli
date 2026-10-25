@@ -11,9 +11,8 @@ change requests although the user had changed nothing. And a rule that only
 counts edits after the first message let "make it warmer" turn a brand the user
 had set just before into orange.
 
-So the user says what is protected. Each value in the sidebar has a lock, each
-section a "Lock all", and one switch above the sections locks everything. The
-Theme Agent may change every value that is not locked. The guarantee of ADR
+So the user says what is protected: each value in the sidebar has a "Lock
+value" switch. The Theme Agent may change every value that is not locked. The guarantee of ADR
 0007 still lives in code: the conversation module never applies a proposal for
 a locked value, it holds it, and only the user's "Unlock and apply" applies it.
 

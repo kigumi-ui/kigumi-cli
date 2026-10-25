@@ -1,8 +1,4 @@
-import {
-  PROPERTIES_BY_GROUP,
-  PROPERTY_DEFINITIONS,
-  type PropertyGroup,
-} from './property-definitions';
+import { PROPERTY_DEFINITIONS } from './property-definitions';
 
 // Locked values: what the user does not want the Theme Agent to change. Kept
 // apart from the theme itself, so a reset or a preset leaves them as they
@@ -14,16 +10,10 @@ export const SHADOW_COMPONENTS_LOCK = 'shadowComponents';
 const STORAGE_KEY = 'kigumi-studio-locks';
 
 /** Every value that can be locked: each custom property, and the shadow list. */
-export const ALL_LOCK_KEYS: readonly string[] = [
+const ALL_LOCK_KEYS: readonly string[] = [
   ...PROPERTY_DEFINITIONS.map((property) => property.cssVar),
   SHADOW_COMPONENTS_LOCK,
 ];
-
-/** The lock keys of one sidebar section; the shadows section owns the list. */
-export function groupLockKeys(group: PropertyGroup): string[] {
-  const keys = (PROPERTIES_BY_GROUP.get(group) ?? []).map((p) => p.cssVar);
-  return group === 'shadows' ? [...keys, SHADOW_COMPONENTS_LOCK] : keys;
-}
 
 /**
  * `locked` with `keys` locked or unlocked, in the order of `ALL_LOCK_KEYS`;

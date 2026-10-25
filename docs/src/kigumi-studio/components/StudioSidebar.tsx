@@ -11,8 +11,6 @@ import { FocusEditor } from './editor/FocusEditor';
 import { TransitionEditor } from './editor/TransitionEditor';
 import './StudioSidebar.css';
 import { PresetSelector } from './toolbar/PresetSelector';
-import { LockSwitch } from './editor/LockSwitch';
-import { ALL_LOCK_KEYS } from '../lib/locks';
 import { generateOppositeMode } from '../lib/color-utils';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 
@@ -162,9 +160,6 @@ export function StudioSidebar({
           </ButtonGroup>
         </div>
         <Divider />
-        <div className="studio-sidebar__locks">
-          <LockSwitch keys={ALL_LOCK_KEYS} label="Lock all values" />
-        </div>
         <ColorEditor />
         <TypographyEditor />
         <SpacingEditor />

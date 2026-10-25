@@ -34,11 +34,7 @@ export function PropertyRow({ property, style }: PropertyRowProps) {
           onChange={(val) => setProperty(property.cssVar, val)}
         />
       </div>
-      <LockSwitch
-        keys={[property.cssVar]}
-        label="Lock value"
-        context={property.label}
-      />
+      <LockSwitch lockKey={property.cssVar} context={property.label} />
     </div>
   );
 }

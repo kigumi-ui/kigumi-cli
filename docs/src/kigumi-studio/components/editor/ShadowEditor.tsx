@@ -157,8 +157,7 @@ export function ShadowEditor() {
         </Combobox>
 
         <LockSwitch
-          keys={[SHADOW_COMPONENTS_LOCK]}
-          label="Lock value"
+          lockKey={SHADOW_COMPONENTS_LOCK}
           context="Apply shadows to components"
         />
 

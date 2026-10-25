@@ -120,8 +120,8 @@ text instructions, in conversation with the user.
 _Avoid_: preset agent, theme generator
 
 **Locked value**:
-A value in the custom theme the user locked in the Studio sidebar, one value
-at a time, a whole section, or all at once. A value is locked in both modes;
+A value in the custom theme the user locked with its "Lock value" switch in
+the Studio sidebar. A value is locked in both modes;
 the list of components that get a shadow is one value too. The Theme Agent may
 change every value that is not locked, and never changes a locked one: what
 an answer proposes for it is held, and the user can unlock and apply it. Locks
