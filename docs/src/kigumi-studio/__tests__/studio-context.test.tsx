@@ -194,6 +194,24 @@ describe('useStudio - resetAll', () => {
     });
     expect(localStorage.getItem('kigumi-studio-state')).toBeNull();
   });
+
+  it('counts a replaced theme, which ends a Theme Agent conversation; edits do not', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    const before = result.current.themeReplacements;
+
+    act(() => {
+      result.current.setProperty('--wa-color-brand', '#ff0000');
+      result.current.importValues({ '--wa-color-brand': { light: '#00ff00' } });
+      result.current.resetGroup('colors-brand');
+    });
+    expect(result.current.themeReplacements).toBe(before);
+
+    // A preset, Default and an import all replace the theme through resetAll.
+    act(() => {
+      result.current.resetAll();
+    });
+    expect(result.current.themeReplacements).toBe(before + 1);
+  });
 });
 
 describe('useStudio - resetGroup', () => {

@@ -69,6 +69,12 @@ interface StudioContextType {
   setCustomCSS: (css: string | null) => void;
   setSelectedPreset: (preset: string | null) => void;
   resetAll: () => void;
+  /**
+   * How often the whole custom theme was replaced since the page loaded: a
+   * preset, Default or an import, all through `resetAll`. A Theme Agent
+   * conversation ends when it changes. Edits and a section reset do not count.
+   */
+  themeReplacements: number;
   resetGroup: (group: PropertyGroup) => void;
   /** Values the Theme Agent may not change, per mode (lib/locks.ts). */
   lockedValues: LockedValues;
@@ -177,6 +183,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     () => getPersistedOnce()?.selectedPreset ?? null
   );
   const [lockedValues, setLockedValues] = useState<LockedValues>(loadLocks);
+  const [themeReplacements, setThemeReplacements] = useState(0);
   const [locksAvailable] = useState(() => hasThemeAgentAccess(document.cookie));
   const isFirstRender = useRef(true);
 
@@ -214,6 +221,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setShadowComponents([]);
     setCustomCSS(null);
     setSelectedPreset(null);
+    setThemeReplacements((count) => count + 1);
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch {
@@ -544,6 +552,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setCustomCSS,
       setSelectedPreset,
       resetAll,
+      themeReplacements,
       resetGroup,
       importValues,
       getStyleObject,
@@ -562,6 +571,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       locksAvailable,
       setProperty,
       resetAll,
+      themeReplacements,
       resetGroup,
       importValues,
       getStyleObject,
