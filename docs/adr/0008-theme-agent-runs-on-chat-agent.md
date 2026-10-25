@@ -34,8 +34,8 @@ every turn in its run traces.
 
 An abandoned conversation ends when its run has waited `turnTimeout` (1h)
 for a message; suspended time is not billed. This comes from the SDK's
-option docs and has not been observed yet: "Conversation lifecycle" (#187)
-confirms it and sets the final value. `maxDuration` counts compute seconds
+option docs. Since ADR 0012 the browser closes a conversation it ends, so the
+timeout is the fallback for one it could not close, and stays at 1h. `maxDuration` counts compute seconds
 across all turns of one run.
 
 The task deploys by hand, and Vercel Production and Preview both use the

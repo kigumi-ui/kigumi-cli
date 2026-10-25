@@ -35,22 +35,20 @@
   height: var(--wa-space-2xl);
   width: var(--wa-space-xl);
   padding: 0;
+  /* Set per side: the tab is rounded on the edge away from its panel. */
+  border-radius: var(--studio-panel-toggle-radius);
 }
 
 .studio-panel-toggle--start {
   right: calc(var(--wa-space-xl) * -1);
-}
-
-.studio-panel-toggle--start::part(base) {
-  border-radius: 0 var(--wa-border-radius-l) var(--wa-border-radius-l) 0;
+  --studio-panel-toggle-radius: 0 var(--wa-border-radius-l)
+    var(--wa-border-radius-l) 0;
 }
 
 .studio-panel-toggle--end {
   left: calc(var(--wa-space-xl) * -1);
-}
-
-.studio-panel-toggle--end::part(base) {
-  border-radius: var(--wa-border-radius-l) 0 0 var(--wa-border-radius-l);
+  --studio-panel-toggle-radius: var(--wa-border-radius-l) 0 0
+    var(--wa-border-radius-l);
 }
 
 .theme-agent-panel {
@@ -88,10 +86,8 @@
     top: calc(var(--wa-space-xl) * -1);
     right: 50%;
     transform: translateX(50%);
-  }
-
-  .studio-panel-toggle--start::part(base) {
-    border-radius: var(--wa-border-radius-l) var(--wa-border-radius-l) 0 0;
+    --studio-panel-toggle-radius: var(--wa-border-radius-l)
+      var(--wa-border-radius-l) 0 0;
   }
 
   .studio-panel-toggle--end {
@@ -99,9 +95,7 @@
     bottom: calc(var(--wa-space-xl) * -1);
     left: 50%;
     transform: translateX(-50%);
-  }
-
-  .studio-panel-toggle--end::part(base) {
-    border-radius: 0 0 var(--wa-border-radius-l) var(--wa-border-radius-l);
+    --studio-panel-toggle-radius: 0 0 var(--wa-border-radius-l)
+      var(--wa-border-radius-l);
   }
 }
