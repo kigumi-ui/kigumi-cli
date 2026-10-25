@@ -4,11 +4,12 @@ import { THEME_AGENT_COOKIE } from '../../src/kigumi-studio/theme-agent/constant
 
 /**
  * `start` creates the session (and its first run) for a chat id; `refresh`
- * only mints a new token for it. The chat id becomes a trigger.dev session
- * external id and a token scope, so it is held to a plain id alphabet.
+ * only mints a new token for it; `close` ends the conversation for good. The
+ * chat id becomes a trigger.dev session external id and a token scope, so it
+ * is held to a plain id alphabet.
  */
 const SessionRequestSchema = z.object({
-  intent: z.enum(['start', 'refresh']),
+  intent: z.enum(['start', 'refresh', 'close']),
   chatId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
 });
 
@@ -18,6 +19,10 @@ export interface ThemeAgentSessions {
   start(chatId: string): Promise<{ publicAccessToken: string }>;
   /** Mint a fresh session-scoped token for an existing chat session. */
   refreshToken(chatId: string): Promise<string>;
+  /** Tell the session's run to exit now instead of waiting for a message. */
+  endRun(chatId: string): Promise<void>;
+  /** Mark the session closed: terminal, further appends are refused. */
+  close(chatId: string): Promise<void>;
 }
 
 export interface ThemeAgentSessionDeps {
@@ -89,6 +94,12 @@ export async function handleThemeAgentSession(
 
   const body = parsed.data;
   try {
+    if (body.intent === 'close') {
+      // In this order: a closed session refuses the close record too.
+      await sessions.endRun(body.chatId);
+      await sessions.close(body.chatId);
+      return new Response(null, { status: 204 });
+    }
     const publicAccessToken =
       body.intent === 'refresh'
         ? await sessions.refreshToken(body.chatId)

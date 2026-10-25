@@ -16,11 +16,11 @@
 /* ── Sidebar Content ── */
 
 .studio-sidebar {
+  display: flex;
+  flex-direction: column;
   width: 380px;
   min-width: 380px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: var(--wa-space-m);
+  overflow: hidden;
   border-right: var(--wa-border-width-s) var(--wa-border-style)
     var(--wa-color-surface-border);
   background: var(--wa-color-surface-default);
@@ -33,6 +33,14 @@
   transition: opacity var(--wa-transition-fast) var(--wa-transition-easing);
 }
 
+/* Below the headline, which stays in place. */
+.studio-sidebar__body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--wa-space-m);
+}
+
 /* ── Toolbar (Preset / Mode / Actions) ── */
 
 .studio-sidebar__toolbar {
@@ -41,28 +49,9 @@
   gap: var(--wa-space-xs);
 }
 
-/* ── Toggle Button ── */
+/* The toggle tab is PanelToggle, styled in StudioLayout.css. */
 
-.studio-sidebar__toggle {
-  position: absolute;
-  right: calc(var(--wa-space-xl) * -1);
-  top: 0;
-  z-index: 10;
-}
-
-.studio-sidebar__toggle::part(base) {
-  height: var(--wa-space-2xl);
-  width: var(--wa-space-xl);
-  padding: 0;
-  border-radius: 0 var(--wa-border-radius-l) var(--wa-border-radius-l) 0;
-}
-
-/* Desktop: chevron-left / chevron-right */
-.studio-sidebar__toggle-icon--mobile {
-  display: none;
-}
-
-/* ── Mobile: sidebar at bottom, vertical chevrons ── */
+/* ── Mobile: sidebar at bottom ── */
 
 @media (max-width: 768px) {
   .studio-sidebar-wrapper {
@@ -90,26 +79,5 @@
     border-top: var(--wa-border-width-s) var(--wa-border-style)
       var(--wa-color-surface-border);
     max-height: 60vh;
-  }
-
-  .studio-sidebar__toggle {
-    right: 50%;
-    top: calc(var(--wa-space-xl) * -1);
-    bottom: auto;
-    transform: translateX(50%);
-  }
-
-  .studio-sidebar__toggle::part(base) {
-    border-radius: var(--wa-border-radius-l) 0 0 var(--wa-border-radius-l);
-    transform: rotate(90deg);
-  }
-
-  /* On mobile: show vertical icons, hide horizontal */
-  .studio-sidebar__toggle-icon--desktop {
-    display: none;
-  }
-
-  .studio-sidebar__toggle-icon--mobile {
-    display: contents;
   }
 }

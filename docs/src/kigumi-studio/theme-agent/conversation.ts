@@ -167,6 +167,13 @@ export interface ThemeAgentConversation {
   answerErrors(answerId: string): string[];
   /** The contrast violations an applied answer left; none once it is undone. */
   answerViolations(answerId: string): ContrastViolation[];
+  /**
+   * End the conversation: "New chat", or the custom theme replaced
+   * as a whole (a preset, Default, an import). Its run may still finish an
+   * answer, but nothing it does reaches the theme on screen any more: a late
+   * answer is not applied, and no answer of it offers apply or Undo.
+   */
+  end(): void;
 }
 
 /** What one answer did to the custom theme. */
@@ -351,9 +358,12 @@ function valuesOfEntries(entries: HeldEntry[]): LockedValues {
 export function createThemeAgentConversation(): ThemeAgentConversation {
   const answers: AnswerRecord[] = [];
   const find = (id: string) => answers.find((answer) => answer.id === id);
+  // What can still change the theme on screen: nothing once it has ended.
+  const findLive = (id: string) => (ended ? undefined : find(id));
   let lastAnswerId: string | undefined;
   // The theme the latest message carried, which its answer was written for.
   let sentTheme: CustomTheme | undefined;
+  let ended = false;
 
   const statusOf = (answer: AnswerRecord): AnswerStatus => {
     if (!answer.outcome.applied) return 'rejected';
@@ -410,6 +420,12 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
     answerReceived(answerId, proposals, current, locked) {
       const known = find(answerId);
       if (known) return known.outcome;
+      if (ended) {
+        return {
+          applied: false,
+          errors: ['conversation: ended before the answer arrived'],
+        };
+      }
       lastAnswerId = answerId;
 
       const valid: ThemeProposal[] = [];
@@ -476,13 +492,13 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
     },
 
     heldChanges(answerId) {
-      const answer = find(answerId);
+      const answer = findLive(answerId);
       if (!answer || answer.undone) return [];
       return answer.effect.held;
     },
 
     applyHeld(answerId, current, index) {
-      const answer = find(answerId);
+      const answer = findLive(answerId);
       if (!answer || answer.undone || !answer.outcome.applied) return undefined;
       const { effect } = answer;
       const chosen = effect.held.filter(
@@ -530,7 +546,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
     },
 
     undo(answerId, current) {
-      const answer = find(answerId);
+      const answer = findLive(answerId);
       if (!answer || !answer.before || answer.undone) return undefined;
       const { before, effect } = answer;
       const theme = cloneTheme(current);
@@ -570,6 +586,10 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       const answer = find(answerId);
       if (!answer || answer.undone || !answer.outcome.applied) return [];
       return answer.outcome.violations;
+    },
+
+    end() {
+      ended = true;
     },
   };
 }

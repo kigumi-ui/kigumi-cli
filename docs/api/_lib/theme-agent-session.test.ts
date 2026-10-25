@@ -14,6 +14,8 @@ function stubSessions() {
     refreshToken: vi.fn<ThemeAgentSessions['refreshToken']>(
       async (chatId) => `refresh-token-for-${chatId}`
     ),
+    endRun: vi.fn<ThemeAgentSessions['endRun']>(async () => {}),
+    close: vi.fn<ThemeAgentSessions['close']>(async () => {}),
   };
 }
 
@@ -106,6 +108,43 @@ describe('Theme Agent access gate', () => {
       publicAccessToken: 'refresh-token-for-chat-1',
     });
     expect(sessions.start).not.toHaveBeenCalled();
+  });
+
+  it('ends the run, then closes the session, for the right cookie', async () => {
+    const sessions = stubSessions();
+    const calls: string[] = [];
+    sessions.endRun.mockImplementation(async (chatId) => {
+      calls.push(`endRun ${chatId}`);
+    });
+    sessions.close.mockImplementation(async (chatId) => {
+      calls.push(`close ${chatId}`);
+    });
+
+    const response = await handleThemeAgentSession(
+      sessionRequest(
+        { intent: 'close', chatId: 'chat-1' },
+        `kigumi-theme-agent=${ACCESS_KEY}`
+      ),
+      { accessKey: ACCESS_KEY, sessions }
+    );
+
+    expect(response.status).toBe(204);
+    // A closed session refuses every append, the close record included.
+    expect(calls).toEqual(['endRun chat-1', 'close chat-1']);
+    expect(sessions.start).not.toHaveBeenCalled();
+  });
+
+  it('closes nothing without the access cookie', async () => {
+    const sessions = stubSessions();
+
+    const response = await handleThemeAgentSession(
+      sessionRequest({ intent: 'close', chatId: 'chat-1' }),
+      { accessKey: ACCESS_KEY, sessions }
+    );
+
+    expect(response.status).toBe(401);
+    expect(sessions.endRun).not.toHaveBeenCalled();
+    expect(sessions.close).not.toHaveBeenCalled();
   });
 
   it('reports a refused trigger.dev call as 502 with its reason', async () => {

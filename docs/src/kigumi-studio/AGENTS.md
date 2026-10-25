@@ -33,10 +33,13 @@ Visual theme builder for Web Awesome CSS custom properties.
 KigumiStudio (page)
   StudioProvider (context: ~43 CSS properties, light/dark modes)
     StudioLayout
-      StudioHeader (mode toggles, preset selector, import/export, reset)
-      StudioSidebar (scrollable; one Accordion, an EditorSection AccordionItem per property group)
+      StudioHeader (back link, logo, site theme, knowledge base)
+      StudioSidebar ("Styles": preset, mode, generate, import/export; one Accordion, an EditorSection AccordionItem per property group)
       StudioPreview (live component showcase with applied theme)
+      Theme Agent panel (only with the access cookie; ThemeAgentSidebar loads on first open)
 ```
+
+Both side panels have the same headline (`studio-panel-header`, Styles with a palette, Theme Agent with a robot) and a `PanelToggle` tab on their inner edge, mirrored: the panel's icon while collapsed, an x while open. It is the only way to show or hide a panel. The shared panel styles live in `StudioLayout.css`.
 
 ## State Flow
 
@@ -50,7 +53,7 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 
 | File | Purpose |
 | --- | --- |
-| `contexts/StudioContext.tsx` | State management (~43 properties, light/dark) |
+| `contexts/StudioContext.tsx` | State management (~43 properties, light/dark). `onThemeReplaced()` tells subscribers when `resetAll` replaces the whole theme (a preset, Default, an import) |
 | `lib/property-definitions.ts` | Property metadata (43 definitions) |
 | `lib/defaults.ts` | Default values from Web Awesome |
 | `lib/css-parser.ts` | Parse `:root {}` and `.wa-dark {}` blocks |
@@ -80,12 +83,15 @@ Browser (useChat + useTriggerChatTransport)
 | `theme-agent/custom-theme.ts` | The custom theme and the snapshot every message carries (theme and locked values; types + Zod schema); shared with the task |
 | `theme-agent/proposal.ts` | Proposal shape and `validateProposal()`: Studio properties, Studio's font and shadow lists, values the sidebar offers. `splitLocked()` splits a proposal into what the browser applies and what it holds; browser and task both use it. Shared with the task |
 | `theme-agent/contrast.ts` | `checkContrast()`: WCAG 2.1 AA pairs in both modes, read from `buildPreviewStyle()`; resolves hex, `rgb()`, `oklch()` and `var()`. Shared with the task |
-| `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply except locked values and values changed during the run, held changes (with the contrast pairs each would fix) and apply per value or all, contrast check of the applied theme, undo of one answer's own values. No React, no network, no model |
+| `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply except locked values and values changed during the run, held changes (with the contrast pairs each would fix) and apply per value or all, contrast check of the applied theme, undo of one answer's own values, and `end()`, after which nothing of that conversation reaches the theme. No React, no network, no model |
 | `theme-agent/describe-held-change.ts` | The sidebar name of a value (`valueLabel()`) and of a held change |
 | `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme and its locked values, apply a theme; hands on Studio's `setLocked` |
-| `components/theme-agent/ThemeAgentSidebar.tsx` | The chat, lazy-loaded only when the cookie is present. A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card |
+| `components/PanelToggle.tsx` | The tab that shows and hides a side panel, shared by Styles and the Theme Agent |
+| `components/theme-agent/ThemeAgentSidebar.tsx` | The Theme Agent panel, lazy-loaded only when the cookie is present: its headline with "New chat", and the conversation's lifecycle ("New chat", a replaced theme, ADR 0012). Mounts one `ThemeAgentChat` per conversation |
+| `components/theme-agent/ThemeAgentChat.tsx` | One conversation: its chat id, `useChat` run, conversation module, messages and composer; `end()` and `focus()` for the panel. A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card |
+| `theme-agent/session-client.ts` | The browser's calls to `/api/theme-agent`: a session token (`start`, `refresh`) and `close` |
 | `components/theme-agent/LockedChanges.tsx` | `UnlockAndApply`, the answer's action inside its card: one button for one held value, one per value plus one for all with more; "Unlock and apply" for a locked value, "Apply" for one changed during the run. `LockedChangesCallouts`, Studio's report below the card: success callouts for what was applied, neutral ones for what stays locked and what the user changed during the run, each naming the contrast pairs it would fix |
-| `../../api/_lib/theme-agent-session.ts` | Access gate + request handling, tested with real `Request`s |
+| `../../api/_lib/theme-agent-session.ts` | Access gate + request handling (`start`, `refresh`, `close`), tested with real `Request`s |
 | `../../trigger/theme-agent.ts` | The `chat.agent` task: limits, model, snapshot schema, status step |
 | `../../trigger/theme-agent-turn.ts` | One answer: prompt, the `propose_theme` tool, reject-and-retry loop, contrast correction rounds |
 
@@ -104,6 +110,8 @@ Guard rails:
 - Locks are the user's own: a reset, a section reset and loading a preset leave them, and the export never contains them. Only the Theme Agent reads them.
 - Undo reverts one answer's own values, held changes it applied included, and leaves every value the user or a later answer changed since. What its "Unlock and apply" unlocked is locked again, except a value changed since, which stays unlocked.
 - The message field stays writable while an answer runs, so the next message can be prepared; only sending waits for the answer.
+- A conversation ends with "New chat" and whenever the whole custom theme is replaced (a preset, Default, an import: `onThemeReplaced`), so no held change or Undo refers to a theme no longer on screen. Ending calls `conversation.end()` (a late answer from its run is never applied), stops a running answer, mounts a fresh chat with a new chat id, and closes the trigger.dev session through the `close` intent: the run gets the `trigger: "close"` record and exits, then the session is closed, in that order because a closed session refuses appends. A conversation that never sent a message has nothing to end. The draft message survives, and locks stay (ADR 0010, ADR 0012).
+- A reload starts a fresh conversation (the chat id is per mount); the custom theme is Studio's own and persists. `pagehide` closes the session too, except for a page kept in the back/forward cache. Whatever is not closed, a crashed tab for one, ends when its run has waited `turnTimeout` (1h) for a message.
 - Every message carries a snapshot of the custom theme as the sidebar has it (`sendMessage` `metadata`, the task's `clientDataSchema`). The task builds its prompt from the snapshot, never from earlier turns, so hand edits between messages are seen.
 - `ANTHROPIC_API_KEY` lives only in trigger.dev, in its Production environment. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
 - `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.

@@ -13,12 +13,6 @@
   display: none;
 }
 
-.theme-agent__header {
-  padding: var(--wa-space-xs) var(--wa-space-m);
-  border-bottom: var(--wa-border-width-s) var(--wa-border-style)
-    var(--wa-color-surface-border);
-}
-
 .theme-agent__messages {
   flex: 1;
   overflow-y: auto;
