@@ -62,7 +62,8 @@
   }
 }
 
-.theme-agent__outcome {
+/* The action an answer offers, inside its card. */
+.theme-agent__actions {
   margin-top: var(--wa-space-s);
   white-space: normal;
 }

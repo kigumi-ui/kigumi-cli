@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useEffect,
   useReducer,
   useRef,
@@ -29,6 +30,7 @@ import {
 import {
   createThemeAgentConversation,
   type AnswerStatus,
+  type HeldEntry,
 } from '../../theme-agent/conversation';
 import type {
   ProposeThemeOutput,
@@ -36,11 +38,7 @@ import type {
 } from '../../theme-agent/proposal';
 import { requestThemeAgentToken } from '../../theme-agent/session-client';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
-import {
-  LockedChangeActions,
-  LockedChangesCallout,
-  type HeldView,
-} from './LockedChanges';
+import { LockedChangesCallouts, UnlockAndApply } from './LockedChanges';
 import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
@@ -294,29 +292,37 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                 )
               : undefined;
           const heldEntries = conversation.heldChanges(message.id);
-          const held: HeldView | undefined =
-            heldEntries.length > 0
-              ? {
-                  entries: heldEntries,
-                  onApply: (index) => unlockAndApply(message.id, index),
-                }
-              : undefined;
+          // Unlock and apply belongs to the message while a change is held.
+          const action = heldEntries.some(
+            (entry) => entry.state === 'held'
+          ) && (
+            <UnlockAndApply
+              entries={heldEntries}
+              onApply={(index) => unlockAndApply(message.id, index)}
+            />
+          );
           // An answer that has only started streaming shows nothing yet;
           // the status step below says the Theme Agent is working.
           if (!text && !outcome) return null;
+          // The message and its action in the card; what Studio did with
+          // it below the card, as Studio's own report.
           return (
-            <Card
-              key={message.id}
-              appearance={message.role === 'user' ? 'filled' : 'outlined'}
-              className={clsx(
-                'theme-agent__message',
-                `theme-agent__message--${message.role}`
+            <Fragment key={message.id}>
+              {(text || action) && (
+                <Card
+                  appearance={message.role === 'user' ? 'filled' : 'outlined'}
+                  className={clsx(
+                    'theme-agent__message',
+                    `theme-agent__message--${message.role}`
+                  )}
+                >
+                  <span className="wa-visually-hidden">
+                    {message.role === 'user' ? 'You:' : 'Theme Agent:'}
+                  </span>
+                  {text}
+                  {action}
+                </Card>
               )}
-            >
-              <span className="wa-visually-hidden">
-                {message.role === 'user' ? 'You:' : 'Theme Agent:'}
-              </span>
-              {text}
               {outcome && (
                 <AnswerOutcome
                   outcome={outcome}
@@ -329,10 +335,10 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                         : []
                   }
                   onUndo={() => undo(message.id)}
-                  held={held}
+                  held={heldEntries}
                 />
               )}
-            </Card>
+            </Fragment>
           );
         })}
         {running && (
@@ -422,13 +428,13 @@ interface AnswerOutcomeProps {
   reasons: string[];
   violations: ContrastViolation[];
   onUndo: () => void;
-  /** What the answer held because it is locked; none when it held nothing. */
-  held: HeldView | undefined;
+  /** What the answer held because it is locked, and what became of it. */
+  held: HeldEntry[];
 }
 
 /**
- * An answer's outcome: its callouts first (accessibility warning,
- * locked values), then the plain rows to act on, Undo and unlock and apply.
+ * Studio's report under an answer: its callouts first (accessibility
+ * warning, locked values not changed), then what was applied, with Undo.
  */
 function AnswerOutcome({
   outcome,
@@ -437,12 +443,13 @@ function AnswerOutcome({
   onUndo,
   held,
 }: AnswerOutcomeProps) {
-  const lockedCallout = held && <LockedChangesCallout entries={held.entries} />;
-  const lockedActions = held && <LockedChangeActions {...held} />;
+  const lockedCallout = held.length > 0 && (
+    <LockedChangesCallouts entries={held} />
+  );
   switch (outcome) {
     case 'applied':
       return (
-        <div className="theme-agent__outcome wa-stack wa-gap-xs">
+        <div className="wa-stack wa-gap-xs">
           {violations.length > 0 && (
             <Callout variant="warning" size="small">
               <Icon slot="icon" name="universal-access" />
@@ -472,28 +479,27 @@ function AnswerOutcome({
               Undo
             </Button>
           </div>
-          {lockedActions}
         </div>
       );
     case 'unchanged':
       return (
-        <div className="theme-agent__outcome wa-stack wa-gap-xs">
-          {lockedCallout}
-          <span className="theme-agent__outcome-text">
-            {held ? 'Nothing applied: locked' : 'No change to the theme'}
-          </span>
-          {lockedActions}
+        <div className="wa-stack wa-gap-xs">
+          {lockedCallout || (
+            <span className="theme-agent__outcome-text">
+              No change to the theme
+            </span>
+          )}
         </div>
       );
     case 'undone':
       return (
-        <div className="theme-agent__outcome">
+        <div>
           <span className="theme-agent__outcome-text">Undone</span>
         </div>
       );
     case 'rejected':
       return (
-        <Callout variant="danger" size="small" className="theme-agent__outcome">
+        <Callout variant="danger" size="small">
           <Icon slot="icon" name="circle-exclamation" />
           Studio refused this proposal. Nothing was applied.
           {reasons.length > 0 && (
@@ -507,11 +513,7 @@ function AnswerOutcome({
       );
     case 'refused':
       return (
-        <Callout
-          variant="warning"
-          size="small"
-          className="theme-agent__outcome"
-        >
+        <Callout variant="warning" size="small">
           <Icon slot="icon" name="triangle-exclamation" />
           No valid theme came back. Nothing was applied.
           {reasons.length > 0 && (

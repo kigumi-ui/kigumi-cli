@@ -83,8 +83,8 @@ Browser (useChat + useTriggerChatTransport)
 | `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply except locked values, held changes and unlock and apply per value or all, contrast check of the applied theme, undo of one answer's own values. No React, no network, no model |
 | `theme-agent/describe-held-change.ts` | The sidebar name of a held change |
 | `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme and its locked values, apply a theme; hands on Studio's `setLocked` |
-| `components/theme-agent/ThemeAgentSidebar.tsx` | The chat, lazy-loaded only when the cookie is present |
-| `components/theme-agent/LockedChanges.tsx` | Under an answer: the locked values it did not change, then one "Unlock and apply" per held value and "Unlock and apply all" for two or more, or what became of each |
+| `components/theme-agent/ThemeAgentSidebar.tsx` | The chat, lazy-loaded only when the cookie is present. A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card |
+| `components/theme-agent/LockedChanges.tsx` | `UnlockAndApply`, the answer's action inside its card: one button for one held value, one per value plus "Unlock and apply all" for more. `LockedChangesCallouts`, Studio's report below the card: a success callout for what was unlocked and applied, a neutral one for what stays locked |
 | `../../api/_lib/theme-agent-session.ts` | Access gate + request handling, tested with real `Request`s |
 | `../../trigger/theme-agent.ts` | The `chat.agent` task: limits, model, snapshot schema, status step |
 | `../../trigger/theme-agent-turn.ts` | One answer: prompt, the `propose_theme` tool, reject-and-retry loop, contrast correction rounds |

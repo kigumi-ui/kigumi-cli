@@ -1,80 +1,93 @@
 import { Button, Callout, Icon } from '@/components/ui';
-import type { HeldEntry, HeldState } from '../../theme-agent/conversation';
+import type { HeldEntry } from '../../theme-agent/conversation';
 import { heldChangeLabel } from '../../theme-agent/describe-held-change';
 
-/** An answer's held changes and how to apply them. */
-export interface HeldView {
+interface UnlockAndApplyProps {
   entries: HeldEntry[];
   /** Unlock and apply the entry at `index`, or every held one without it. */
   onApply: (index?: number) => void;
 }
 
 /**
- * What an answer did not change because it is locked. Information only: the
- * actions sit below the callouts, in `LockedChangeActions`, like Undo.
+ * Studio's report under the answer on its held changes: a success callout
+ * for the ones applied with "Unlock and apply", and the locked values it did
+ * not change.
  */
-export function LockedChangesCallout({ entries }: { entries: HeldEntry[] }) {
+export function LockedChangesCallouts({ entries }: { entries: HeldEntry[] }) {
+  const labels = (state: (entry: HeldEntry) => boolean) =>
+    entries
+      .filter(state)
+      .map((entry) => heldChangeLabel(entry.change))
+      .join(', ');
+  const applied = labels((entry) => entry.state === 'applied');
+  const notChanged = labels((entry) => entry.state !== 'applied');
   return (
-    <Callout variant="neutral" size="small">
-      <Icon slot="icon" name="lock" />
-      Locked, not changed:{' '}
-      {entries.map((entry) => heldChangeLabel(entry.change)).join(', ')}.
-    </Callout>
+    <>
+      {applied && (
+        <Callout variant="success" size="small">
+          <Icon slot="icon" name="lock-open" />
+          Unlocked and applied: {applied}.
+        </Callout>
+      )}
+      {notChanged && (
+        <Callout variant="neutral" size="small">
+          <Icon slot="icon" name="lock" />
+          Locked, not changed: {notChanged}.
+        </Callout>
+      )}
+    </>
   );
 }
 
-const STATE_TEXT: Record<Exclude<HeldState, 'held'>, string> = {
-  applied: 'unlocked and applied',
-  changed: 'not applied, you changed it since',
-  kept: 'kept locked',
-};
-
 /**
- * One row per held value: "Unlock and apply" while it is held, else what
- * became of it. With two or more still held, "Unlock and apply all" too.
+ * The answer's own action, inside its card: the message says what it
+ * proposes, so the button needs no copy around it. One held value has one
+ * "Unlock and apply"; two or more add one button per value, named by it, and
+ * "Unlock and apply all". Nothing once no change is held.
  */
-export function LockedChangeActions({ entries, onApply }: HeldView) {
-  const open = entries.filter((entry) => entry.state === 'held').length;
+export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
+  const open = entries
+    .map((entry, index) => ({ entry, index }))
+    .filter(({ entry }) => entry.state === 'held');
+  if (open.length === 0) return null;
+
+  if (open.length === 1) {
+    const [{ entry, index }] = open;
+    return (
+      <div className="theme-agent__actions wa-cluster">
+        <Button
+          size="small"
+          appearance="outlined"
+          onClick={() => onApply(index)}
+        >
+          <Icon slot="start" name="lock-open" />
+          Unlock and apply
+          <span className="wa-visually-hidden">
+            : {heldChangeLabel(entry.change)}
+          </span>
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="wa-stack wa-gap-xs">
-      {open > 0 && (
-        <span className="theme-agent__outcome-text">Change anyway?</span>
-      )}
-      {entries.map((entry, index) => {
-        const label = heldChangeLabel(entry.change);
-        if (entry.state !== 'held') {
-          return (
-            <span key={index} className="theme-agent__outcome-text">
-              {label}: {STATE_TEXT[entry.state]}
-            </span>
-          );
-        }
-        return (
-          <div
-            key={index}
-            className="wa-cluster wa-gap-xs wa-align-items-center"
-          >
-            <span className="theme-agent__outcome-text">{label}</span>
-            <Button
-              size="small"
-              appearance="outlined"
-              onClick={() => onApply(index)}
-            >
-              <Icon slot="start" name="lock-open" />
-              Unlock and apply
-              <span className="wa-visually-hidden">: {label}</span>
-            </Button>
-          </div>
-        );
-      })}
-      {open >= 2 && (
-        <div className="wa-cluster">
-          <Button size="small" appearance="outlined" onClick={() => onApply()}>
-            <Icon slot="start" name="lock-open" />
-            Unlock and apply all {open}
-          </Button>
-        </div>
-      )}
+    <div className="theme-agent__actions wa-cluster wa-gap-xs">
+      <Button size="small" appearance="outlined" onClick={() => onApply()}>
+        <Icon slot="start" name="lock-open" />
+        Unlock and apply all
+      </Button>
+      {open.map(({ entry, index }) => (
+        <Button
+          key={index}
+          size="small"
+          appearance="plain"
+          onClick={() => onApply(index)}
+        >
+          <Icon slot="start" name="lock-open" />
+          <span className="wa-visually-hidden">Unlock and apply </span>
+          {heldChangeLabel(entry.change)}
+        </Button>
+      ))}
     </div>
   );
 }
