@@ -26,12 +26,14 @@ import {
 import {
   lockedSources,
   summarizeViolation,
+  violationKey,
   type ContrastViolation,
 } from '../../theme-agent/contrast';
 import {
   createThemeAgentConversation,
   type AnswerStatus,
   type HeldEntry,
+  type HeldReason,
 } from '../../theme-agent/conversation';
 import { valueLabel } from '../../theme-agent/describe-held-change';
 import type { LockedValues } from '../../lib/locks';
@@ -415,7 +417,7 @@ function unlockAnnouncement(
 }
 
 function heldAnnouncement(held: HeldEntry[]): string {
-  const count = (reason: HeldEntry['change']['reason']) =>
+  const count = (reason: HeldReason) =>
     held.filter((entry) => entry.change.reason === reason).length;
   const locked = count('locked');
   const edited = count('edited');
@@ -506,9 +508,7 @@ function AnswerReport({
       short of WCAG 2.1 AA contrast.
       <ul className="theme-agent__reasons">
         {violations.map((violation) => (
-          <li
-            key={`${violation.mode}${violation.foreground}${violation.background}`}
-          >
+          <li key={violationKey(violation)}>
             {violationLine(violation, locked)}
           </li>
         ))}

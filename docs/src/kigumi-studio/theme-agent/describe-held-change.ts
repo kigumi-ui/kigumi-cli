@@ -1,4 +1,5 @@
 import type { ThemeMode } from '../lib/defaults';
+import { THEME_MODES } from '../lib/locks';
 import {
   PROPERTIES_BY_VAR,
   PROPERTY_GROUP_LABELS,
@@ -31,5 +32,8 @@ export function valueLabel(
 /** The sidebar name of a held change, as `valueLabel()` writes it. */
 export function heldChangeLabel(change: HeldChange): string {
   if (change.kind === 'shadowComponents') return 'Components with a shadow';
-  return valueLabel(change.cssVar, Object.keys(change.proposed) as ThemeMode[]);
+  return valueLabel(
+    change.cssVar,
+    THEME_MODES.filter((mode) => mode in change.proposed)
+  );
 }

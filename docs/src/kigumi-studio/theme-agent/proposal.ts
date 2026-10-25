@@ -223,6 +223,22 @@ export function splitLocked(
   return { free, held };
 }
 
+/**
+ * An answer's proposals as one: later values win, as a correction intends.
+ * The browser and the task both merge with this; none is the empty proposal.
+ */
+export function mergeProposals(proposals: ThemeProposal[]): ThemeProposal {
+  const merged: ThemeProposal = { light: {}, dark: {} };
+  for (const proposal of proposals) {
+    Object.assign(merged.light, proposal.light);
+    Object.assign(merged.dark, proposal.dark);
+    if (proposal.shadowComponents) {
+      merged.shadowComponents = [...proposal.shadowComponents];
+    }
+  }
+  return merged;
+}
+
 /** The values `proposal` names, as locks. */
 export function locksOf(proposal: ThemeProposal): LockedValues {
   return {

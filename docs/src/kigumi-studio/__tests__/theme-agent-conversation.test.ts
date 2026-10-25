@@ -1001,6 +1001,24 @@ describe('Theme Agent conversation: values changed while the answer ran', () => 
     expect(outcome.held).toEqual([]);
   });
 
+  it('a value changed during the run and set back is not held', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    // Tuned and then set back: the answer was written for this value.
+    const current = studioDefaults();
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: {}, dark: { '--wa-color-surface-default': '#241a12' } }],
+      current,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.dark['--wa-color-surface-default']).toBe('#241a12');
+    expect(outcome.held).toEqual([]);
+  });
+
   it('compares with the latest message, not an earlier one', () => {
     const conversation = createThemeAgentConversation();
     conversation.messageSent(studioDefaults(), NO_LOCKS);

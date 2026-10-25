@@ -15,7 +15,7 @@ import {
   checkContrast,
   lockedSources,
   violationFeedback,
-  type ContrastViolation,
+  violationKey,
 } from '../src/kigumi-studio/theme-agent/contrast.js';
 import type {
   PreviousAnswer,
@@ -24,11 +24,11 @@ import type {
 import {
   applyProposal,
   locksOf,
+  mergeProposals,
   splitLocked,
   themeProposalSchema,
   validateProposal,
   type ProposeThemeOutput,
-  type ThemeProposal,
 } from '../src/kigumi-studio/theme-agent/proposal.js';
 import { PROPERTY_DEFINITIONS } from '../src/kigumi-studio/lib/property-definitions.js';
 import { AVAILABLE_FONTS } from '../src/kigumi-studio/lib/font-definitions.js';
@@ -71,20 +71,6 @@ const NO_CONTRAST = {
   lockedContrast: [],
 };
 
-const violationKey = (v: ContrastViolation) =>
-  `${v.mode} ${v.foreground} ${v.background}`;
-
-/** `held` with `more` on top, as the browser merges an answer's proposals. */
-function mergeHeld(held: ThemeProposal, more: ThemeProposal): ThemeProposal {
-  return {
-    light: { ...held.light, ...more.light },
-    dark: { ...held.dark, ...more.dark },
-    ...((more.shadowComponents ?? held.shadowComponents)
-      ? { shadowComponents: more.shadowComponents ?? held.shadowComponents }
-      : {}),
-  };
-}
-
 /**
  * The `propose_theme` tool for one answer. It keeps the custom theme as the
  * answer's accepted proposals leave it, so a correction that names only its
@@ -96,7 +82,7 @@ function proposeThemeTool(
 ) {
   let theme = snapshot.theme;
   // What the answer's proposals hold back for the user, merged in order.
-  let heldSoFar: ThemeProposal = { light: {}, dark: {} };
+  let heldSoFar = mergeProposals([]);
   let corrections = 0;
   let rejections = 0;
   // Set once a theme went back with violations and no correction left.
@@ -130,7 +116,7 @@ function proposeThemeTool(
       // Locked values stay as they are in the browser; check what lands.
       const { free, held } = splitLocked(validation.proposal, snapshot.locked);
       theme = applyProposal(theme, free);
-      heldSoFar = mergeHeld(heldSoFar, held);
+      heldSoFar = mergeProposals([heldSoFar, held]);
       const violations = checkContrast(theme);
       const contrast = violations.map(violationFeedback);
       // A pair the held values fix is fixed once the user applies them.

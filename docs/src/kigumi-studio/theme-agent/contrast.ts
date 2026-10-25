@@ -236,6 +236,11 @@ export function checkContrast(theme: CustomTheme): ContrastViolation[] {
   return violations;
 }
 
+/** One string per violation: its mode and pair. */
+export function violationKey(violation: ContrastViolation): string {
+  return `${violation.mode} ${violation.foreground} ${violation.background}`;
+}
+
 /**
  * The locked Studio values behind `violation` when every value behind it is
  * locked in its mode, so the Theme Agent may not fix it; none while one is

@@ -16,9 +16,14 @@ import {
   type PreviousAnswer,
   type ThemeAgentSnapshot,
 } from './custom-theme';
-import { checkContrast, type ContrastViolation } from './contrast';
+import {
+  checkContrast,
+  violationKey,
+  type ContrastViolation,
+} from './contrast';
 import {
   applyProposal,
+  mergeProposals,
   splitLocked,
   validateProposal,
   type ThemeProposal,
@@ -186,19 +191,6 @@ function sameList(a: string[], b: string[]): boolean {
   return componentListKey(a) === componentListKey(b);
 }
 
-/** An answer's proposals as one: later values win, as a correction intends. */
-function mergeProposals(proposals: ThemeProposal[]): ThemeProposal {
-  const merged: ThemeProposal = { light: {}, dark: {} };
-  for (const proposal of proposals) {
-    Object.assign(merged.light, proposal.light);
-    Object.assign(merged.dark, proposal.dark);
-    if (proposal.shadowComponents) {
-      merged.shadowComponents = [...proposal.shadowComponents];
-    }
-  }
-  return merged;
-}
-
 /** The changes `held` would make to `current`; equal values are none. */
 function heldFrom(
   held: ThemeProposal,
@@ -286,7 +278,8 @@ function restoredLock(change: HeldChange, current: CustomTheme): LockedValues {
 
 /**
  * The values `current` has that differ from `sent`, the theme the message
- * carried: what the user changed while the answer was being written.
+ * carried: what the user changed while the answer was being written. A value
+ * changed and set back counts as unchanged: the answer was written for it.
  */
 function editedSince(sent: CustomTheme, current: CustomTheme): LockedValues {
   const changed = (mode: ThemeMode) =>
@@ -316,9 +309,6 @@ function withChange(theme: CustomTheme, change: HeldChange): CustomTheme {
   }
   return next;
 }
-
-const violationKey = (v: ContrastViolation) =>
-  `${v.mode} ${v.foreground} ${v.background}`;
 
 /** The `violations` of `theme` that applying `change` alone would fix. */
 function resolvedBy(
@@ -362,7 +352,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
   const find = (id: string) => answers.find((answer) => answer.id === id);
   let lastAnswerId: string | undefined;
   // The theme the latest message carried, which its answer was written for.
-  let sent: CustomTheme | undefined;
+  let sentTheme: CustomTheme | undefined;
 
   const statusOf = (answer: AnswerRecord): AnswerStatus => {
     if (!answer.outcome.applied) return 'rejected';
@@ -408,7 +398,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           answer.outcome = { ...answer.outcome, held: [] };
         }
       }
-      sent = cloneTheme(theme);
+      sentTheme = cloneTheme(theme);
       return {
         theme: cloneTheme(theme),
         locked: parseLocks(locked),
@@ -445,9 +435,9 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
         mergeProposals(valid),
         locked
       );
-      const { free, held: editedPart } = sent
-        ? splitLocked(unlocked, editedSince(sent, current))
-        : { free: unlocked, held: { light: {}, dark: {} } };
+      const { free, held: editedPart } = sentTheme
+        ? splitLocked(unlocked, editedSince(sentTheme, current))
+        : { free: unlocked, held: mergeProposals([]) };
       const theme = applyProposal(current, free);
       const violations = checkContrast(theme);
       const held = [
@@ -500,7 +490,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       );
       if (chosen.length === 0) return undefined;
 
-      const theme = cloneTheme(current);
+      let theme = cloneTheme(current);
       let unlock = NO_LOCKS;
       let applied = 0;
       for (const entry of chosen) {
@@ -509,15 +499,12 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           entry.state = 'changed';
           continue;
         }
+        theme = withChange(theme, change);
         if (change.kind === 'shadowComponents') {
-          theme.shadowComponents = [...change.proposed];
           effect.wroteShadowComponents = [...change.proposed];
         } else {
-          for (const mode of THEME_MODES) {
-            const value = change.proposed[mode];
-            if (value === undefined) continue;
-            theme[mode][change.cssVar] = value;
-            effect.wrote[mode].set(change.cssVar, value);
+          for (const [mode, value] of Object.entries(change.proposed)) {
+            effect.wrote[mode as ThemeMode].set(change.cssVar, value);
           }
         }
         unlock = withLocks(unlock, heldLock(change), true);
