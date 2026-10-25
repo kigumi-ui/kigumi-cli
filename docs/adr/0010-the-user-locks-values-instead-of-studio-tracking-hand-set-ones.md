@@ -50,9 +50,14 @@ and apply all". Keeping is doing nothing: sending the next message keeps every
 change still held, so only the latest answer offers to apply. A value changed
 since the answer, after the user unlocked it, is not applied and stays
 locked, as Undo leaves a value changed since. Undoing an answer locks again
-what its "Unlock and apply" unlocked.
+what its "Unlock and apply" unlocked, except a value changed since: Undo
+leaves it as the user has it, and unlocked.
 
 The prompt asks the model to propose a change to a locked value when the
 user's message asks for it. Studio holds it, so naming a locked value raises a
 held change right away and never a silent one. The reason for a held change
 is the answer's own text above it; a held change carries no reason of its own.
+That a kept change is not proposed again, and that naming a locked value
+raises one right away, rest on the model following the prompt. Code
+guarantees only that no change to a locked value lands without the user's
+"Unlock and apply".

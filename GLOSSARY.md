@@ -133,5 +133,5 @@ What an answer proposed for a locked value, held back instead of applied.
 Under the latest answer the user can unlock and apply each held change, or
 all of them; a value changed since the answer is not applied. Sending the
 next message keeps the rest locked, and undoing the answer locks again what
-it unlocked.
+it unlocked, unless that value changed since.
 _Avoid_: change request, suggestion
