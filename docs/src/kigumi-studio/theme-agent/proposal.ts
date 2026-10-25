@@ -3,30 +3,18 @@ import {
   PROPERTIES_BY_VAR,
   type PropertyDefinition,
 } from '../lib/property-definitions';
+import { SHADOW_COMPONENTS_LOCK } from '../lib/locks';
 import { SHADOW_COMPONENTS } from '../lib/shadow-components';
-import {
-  cloneTheme,
-  componentListKey,
-  THEME_AGENT_MODES,
-  type CustomTheme,
-  type ThemeAgentSnapshot,
-} from './custom-theme';
+import { cloneTheme, type CustomTheme } from './custom-theme';
 
 // Shared by the browser and the trigger.dev task (docs/trigger): the task
 // rejects an invalid proposal and lets the model retry, the browser checks
 // again before applying. Neither applies anything this module refuses.
 
-/** The `reasons` key for the shadow component list. */
-export const SHADOW_COMPONENTS_KEY = 'shadowComponents';
-
-/** Longest reason accepted; it is shown in a change request. */
-export const MAX_REASON_LENGTH = 300;
-
 /**
  * The shape of a Theme Agent proposal: the values to change per mode and,
- * optionally, the full list of components that get a shadow, and why
- * hand-set values should change. Like `PresetJSON` without custom CSS; any
- * other key is refused.
+ * optionally, the full list of components that get a shadow. Like
+ * `PresetJSON` without custom CSS; any other key is refused.
  */
 export const themeProposalSchema = z.strictObject({
   light: z
@@ -41,12 +29,6 @@ export const themeProposalSchema = z.strictObject({
     .describe(
       'The complete list of components that get a shadow; omit to keep the current list'
     ),
-  reasons: z
-    .record(z.string(), z.string())
-    .optional()
-    .describe(
-      `Why each hand-set value you propose should change, keyed by CSS custom property or "${SHADOW_COMPONENTS_KEY}"; one short sentence each`
-    ),
 });
 
 export type ThemeProposalInput = z.infer<typeof themeProposalSchema>;
@@ -56,8 +38,6 @@ export interface ThemeProposal {
   light: Record<string, string>;
   dark: Record<string, string>;
   shadowComponents?: string[];
-  /** Keyed by CSS custom property or `SHADOW_COMPONENTS_KEY`. */
-  reasons?: Record<string, string>;
 }
 
 export type ProposalValidation =
@@ -187,29 +167,6 @@ export function validateProposal(input: unknown): ProposalValidation {
     shadowComponents = [...new Set(parsed.data.shadowComponents)];
   }
 
-  let reasons: Record<string, string> | undefined;
-  if (parsed.data.reasons) {
-    reasons = {};
-    for (const [key, raw] of Object.entries(parsed.data.reasons)) {
-      const proposed =
-        key === SHADOW_COMPONENTS_KEY
-          ? shadowComponents !== undefined
-          : key in parsed.data.light || key in parsed.data.dark;
-      const reason = raw.trim();
-      if (!proposed) {
-        errors.push(`reasons ${key}: not a value this proposal changes`);
-      } else if (reason === '') {
-        errors.push(`reasons ${key}: empty`);
-      } else if (reason.length > MAX_REASON_LENGTH) {
-        errors.push(
-          `reasons ${key}: longer than ${MAX_REASON_LENGTH} characters`
-        );
-      } else {
-        reasons[key] = reason;
-      }
-    }
-  }
-
   if (
     errors.length === 0 &&
     Object.keys(light).length === 0 &&
@@ -220,58 +177,12 @@ export function validateProposal(input: unknown): ProposalValidation {
   }
 
   if (errors.length > 0) return { valid: false, errors };
-  const proposal: ThemeProposal = { light, dark };
-  if (shadowComponents) proposal.shadowComponents = shadowComponents;
-  if (reasons) proposal.reasons = reasons;
-  return { valid: true, proposal };
-}
-
-/**
- * The task's extra check: every change to a value the snapshot lists as
- * hand-set and not kept needs a reason, because it becomes a change request
- * that shows it. The browser does not repeat this check; a value the user set while
- * the run was in progress gets a change request without a reason.
- */
-export function missingReasons(
-  proposal: ThemeProposal,
-  snapshot: ThemeAgentSnapshot
-): string[] {
-  const errors: string[] = [];
-  const asked = new Set<string>();
-  for (const mode of THEME_AGENT_MODES) {
-    for (const [cssVar, value] of Object.entries(proposal[mode])) {
-      if (
-        asked.has(cssVar) ||
-        !snapshot.handSet[mode].includes(cssVar) ||
-        // Kept values are not proposed at all unless the message names
-        // them; Studio, not this check, decides which reach the user.
-        snapshot.kept[mode].includes(cssVar) ||
-        snapshot.theme[mode][cssVar] === value ||
-        proposal.reasons?.[cssVar]
-      ) {
-        continue;
-      }
-      asked.add(cssVar);
-      const name = PROPERTIES_BY_VAR.get(cssVar)?.modeDependent
-        ? `${mode} ${cssVar}`
-        : cssVar;
-      errors.push(`reasons ${cssVar}: ${name} is hand-set; give a reason`);
-    }
-  }
-  const list = proposal.shadowComponents;
-  if (
-    list &&
-    snapshot.handSet.shadowComponents &&
-    !snapshot.kept.shadowComponents &&
-    componentListKey(list) !==
-      componentListKey(snapshot.theme.shadowComponents) &&
-    !proposal.reasons?.[SHADOW_COMPONENTS_KEY]
-  ) {
-    errors.push(
-      `reasons ${SHADOW_COMPONENTS_KEY}: the shadow component list is hand-set; give a reason`
-    );
-  }
-  return errors;
+  return {
+    valid: true,
+    proposal: shadowComponents
+      ? { light, dark, shadowComponents }
+      : { light, dark },
+  };
 }
 
 /** `theme` with a validated proposal on top; `theme` itself is left as it is. */
@@ -286,6 +197,31 @@ export function applyProposal(
     next.shadowComponents = [...proposal.shadowComponents];
   }
   return next;
+}
+
+/**
+ * `proposal` without what `locked` covers (CSS custom properties, and
+ * `SHADOW_COMPONENTS_LOCK` for the shadow list): what the browser will apply
+ * of it. The task checks contrast on that, not on values that stay as they
+ * are.
+ */
+export function withoutLocked(
+  proposal: ThemeProposal,
+  locked: readonly string[]
+): ThemeProposal {
+  const isLocked = new Set(locked);
+  const keep = (values: Record<string, string>) =>
+    Object.fromEntries(
+      Object.entries(values).filter(([cssVar]) => !isLocked.has(cssVar))
+    );
+  const result: ThemeProposal = {
+    light: keep(proposal.light),
+    dark: keep(proposal.dark),
+  };
+  if (proposal.shadowComponents && !isLocked.has(SHADOW_COMPONENTS_LOCK)) {
+    result.shadowComponents = proposal.shadowComponents;
+  }
+  return result;
 }
 
 /** What the task's `propose_theme` tool returns to the model and the browser. */

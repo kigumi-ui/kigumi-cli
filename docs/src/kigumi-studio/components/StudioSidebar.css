@@ -41,6 +41,16 @@
   gap: var(--wa-space-xs);
 }
 
+/* Empty, and so collapsed, without the Theme Agent's access cookie. */
+.studio-sidebar__locks {
+  display: flex;
+  margin-block-end: var(--wa-space-xs);
+}
+
+.studio-sidebar__locks:empty {
+  display: none;
+}
+
 /* ── Toggle Button ── */
 
 .studio-sidebar__toggle {

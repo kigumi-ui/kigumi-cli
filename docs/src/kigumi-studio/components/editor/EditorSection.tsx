@@ -1,6 +1,8 @@
 import { Details, Button, Icon } from '@/components/ui';
 import { useStudio } from '../../contexts/StudioContext';
+import { groupLockKeys } from '../../lib/locks';
 import type { PropertyGroupInfo } from '../../lib/property-definitions';
+import { LockSwitch } from './LockSwitch';
 import './EditorSection.css';
 
 interface EditorSectionProps {
@@ -25,7 +27,13 @@ export function EditorSection({
       <div className="editor-section__content">
         <div className="editor-section__properties">{children}</div>
         <div className="editor-section__actions">
+          <LockSwitch
+            keys={groupLockKeys(group.key)}
+            label="Lock all"
+            context={group.label}
+          />
           <Button
+            className="editor-section__reset"
             variant="neutral"
             appearance="plain"
             size="small"

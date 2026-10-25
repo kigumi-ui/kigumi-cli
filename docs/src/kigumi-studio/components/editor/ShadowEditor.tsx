@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { EditorSection } from './EditorSection';
 import { PropertyRow } from './PropertyRow';
+import { LockSwitch } from './LockSwitch';
+import { SHADOW_COMPONENTS_LOCK } from '../../lib/locks';
 import {
   PROPERTIES_BY_GROUP,
   PROPERTY_GROUPS,
@@ -153,6 +155,12 @@ export function ShadowEditor() {
             );
           })}
         </Combobox>
+
+        <LockSwitch
+          keys={[SHADOW_COMPONENTS_LOCK]}
+          label="Lock value"
+          context="Apply shadows to components"
+        />
 
         <p className="shadow-component-editor__hint">
           Selected components will receive{' '}

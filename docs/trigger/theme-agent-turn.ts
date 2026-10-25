@@ -15,23 +15,15 @@ import {
   checkContrast,
   violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast.js';
-import {
-  THEME_AGENT_MODES,
-  type ThemeAgentSnapshot,
-  type ThemeValueSet,
-} from '../src/kigumi-studio/theme-agent/custom-theme.js';
+import type { ThemeAgentSnapshot } from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
   applyProposal,
-  missingReasons,
-  SHADOW_COMPONENTS_KEY,
+  withoutLocked,
   themeProposalSchema,
   validateProposal,
   type ProposeThemeOutput,
 } from '../src/kigumi-studio/theme-agent/proposal.js';
-import {
-  PROPERTIES_BY_VAR,
-  PROPERTY_DEFINITIONS,
-} from '../src/kigumi-studio/lib/property-definitions.js';
+import { PROPERTY_DEFINITIONS } from '../src/kigumi-studio/lib/property-definitions.js';
 import { AVAILABLE_FONTS } from '../src/kigumi-studio/lib/font-definitions.js';
 import { SHADOW_COMPONENTS } from '../src/kigumi-studio/lib/shadow-components.js';
 
@@ -90,20 +82,21 @@ function proposeThemeTool(
         };
       }
       const validation = validateProposal(input);
-      const errors = validation.valid
-        ? missingReasons(validation.proposal, snapshot)
-        : validation.errors;
-      if (!validation.valid || errors.length > 0) {
+      if (!validation.valid) {
         rejections += 1;
         return {
           accepted: false,
-          errors,
+          errors: validation.errors,
           contrast: [],
           correctContrast: false,
         };
       }
       onStatus(THEME_AGENT_STATUS.checking);
-      theme = applyProposal(theme, validation.proposal);
+      // Locked values stay as they are in the browser; check what lands.
+      theme = applyProposal(
+        theme,
+        withoutLocked(validation.proposal, snapshot.locked)
+      );
       const violations = checkContrast(theme);
       const contrast = violations.map(violationFeedback);
       // A pair set by another value is the brand fill: Studio derives it
@@ -127,25 +120,6 @@ function proposeThemeTool(
     rejections >= MAX_PROPOSAL_ATTEMPTS;
 
   return { proposeTheme, outOfAttempts };
-}
-
-/**
- * One line per value: `dark --wa-…` for a mode-dependent value, the bare
- * custom property for one that is the same in both modes.
- */
-function valueSetLines(set: ThemeValueSet): string[] {
-  const lines = new Set<string>();
-  for (const mode of THEME_AGENT_MODES) {
-    for (const cssVar of set[mode]) {
-      lines.add(
-        PROPERTIES_BY_VAR.get(cssVar)?.modeDependent
-          ? `- ${mode} ${cssVar}`
-          : `- ${cssVar}`
-      );
-    }
-  }
-  if (set.shadowComponents) lines.add(`- ${SHADOW_COMPONENTS_KEY}`);
-  return lines.size > 0 ? [...lines] : ['- none'];
 }
 
 function propertyLine(property: (typeof PROPERTY_DEFINITIONS)[number]): string {
@@ -195,11 +169,10 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     '- Reply in the language the user wrote in.',
     '- The current custom theme below is the truth. It may contain edits the user made by hand since your last answer; never rely on values from earlier in the conversation.',
     '',
-    `Hand-set values (the user set these by hand in this conversation; Studio never applies your change to one, it asks the user. Propose one only when the request needs it, and give one short sentence in reasons for each):`,
-    ...valueSetLines(snapshot.handSet),
-    '',
-    'Kept values (the user kept these when you asked; do not propose them unless the latest message asks for them):',
-    ...valueSetLines(snapshot.kept),
+    'Locked values (the user locked these in the sidebar; never propose them. If the request needs one, say it is locked and that the user can unlock it in the sidebar or with Unlock and apply under your answer):',
+    ...(snapshot.locked.length > 0
+      ? snapshot.locked.map((key) => `- ${key}`)
+      : ['- none']),
     '',
     'Values you may set (nothing else, no custom CSS):',
     ...PROPERTY_DEFINITIONS.map(propertyLine),

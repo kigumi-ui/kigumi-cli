@@ -14,7 +14,7 @@ import {
   PROPERTIES_BY_VAR,
   type PropertyGroup,
 } from '../lib/property-definitions';
-import { mergeImportedValues, type ImportedValues } from '../lib/import-values';
+import { loadLocks, saveLocks, withLocks } from '../lib/locks';
 import {
   DEFAULT_VALUES,
   type ThemeMode,
@@ -64,6 +64,9 @@ interface StudioContextType {
   setSelectedPreset: (preset: string | null) => void;
   resetAll: () => void;
   resetGroup: (group: PropertyGroup) => void;
+  /** Values the Theme Agent may not change (lib/locks.ts keys). */
+  lockedValues: string[];
+  setLocked: (keys: string[], locked: boolean) => void;
   importValues: (
     imported: Record<string, { light?: string; dark?: string }>
   ) => void;
@@ -161,7 +164,16 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(
     () => getPersistedOnce()?.selectedPreset ?? null
   );
+  const [lockedValues, setLockedValues] = useState<string[]>(loadLocks);
   const isFirstRender = useRef(true);
+
+  const setLocked = useCallback((keys: string[], locked: boolean) => {
+    setLockedValues((prev) => {
+      const next = withLocks(prev, keys, locked);
+      saveLocks(next);
+      return next;
+    });
+  }, []);
 
   const setProperty = useCallback(
     (cssVar: string, value: string) => {
@@ -211,9 +223,39 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const importValues = useCallback((imported: ImportedValues) => {
-    setValues((prev) => mergeImportedValues(prev, imported));
-  }, []);
+  const importValues = useCallback(
+    (imported: Record<string, { light?: string; dark?: string }>) => {
+      setValues((prev) => {
+        const next = { ...prev };
+        for (const [cssVar, modes] of Object.entries(imported)) {
+          if (!next[cssVar]) continue;
+          // Strip unit suffix for properties that store raw numbers (e.g. "75ms" -> "75")
+          const prop = PROPERTIES_BY_VAR.get(cssVar);
+          const suffix = prop?.unit;
+          const strip = (v: string | undefined): string | undefined => {
+            if (!v || !suffix) return v;
+            return v.endsWith(suffix) ? v.slice(0, -suffix.length) : v;
+          };
+          const strippedLight = strip(modes.light);
+          const strippedDark = strip(modes.dark);
+
+          // For mode-independent tokens: if only light value is provided,
+          // use it for dark too (structural tokens should be identical in both modes)
+          const effectiveDark =
+            !prop?.modeDependent && strippedLight && !strippedDark
+              ? strippedLight
+              : strippedDark;
+
+          next[cssVar] = {
+            light: strippedLight ?? next[cssVar].light,
+            dark: effectiveDark ?? next[cssVar].dark,
+          };
+        }
+        return next;
+      });
+    },
+    []
+  );
 
   const getStyleObject = useCallback(
     (mode: ThemeMode): Record<string, string> =>
@@ -479,6 +521,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       shadowComponents,
       customCSS,
       selectedPreset,
+      lockedValues,
+      setLocked,
       setProperty,
       setEditMode,
       setPreviewMode,
@@ -499,6 +543,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       shadowComponents,
       customCSS,
       selectedPreset,
+      lockedValues,
+      setLocked,
       setProperty,
       resetAll,
       resetGroup,

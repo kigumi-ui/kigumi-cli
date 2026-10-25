@@ -5,7 +5,11 @@ import { renderHook, act } from '@testing-library/react';
 import { StudioProvider, useStudio } from '../contexts/StudioContext';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
-import { loadPresets } from '../lib/preset-loader';
+import {
+  ALL_LOCK_KEYS,
+  groupLockKeys,
+  SHADOW_COMPONENTS_LOCK,
+} from '../lib/locks';
 import { useThemeAgentStudio } from '../theme-agent/use-theme-agent-studio';
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -354,148 +358,17 @@ describe('Theme Agent adapter', () => {
     return { studio: useStudio(), agent: useThemeAgentStudio() };
   }
 
-  it('reports a sidebar edit to the conversation as a hand-set value', () => {
+  it('reads the locked values and unlocks them for unlock and apply', () => {
     const { result } = renderHook(useBoth, { wrapper });
-    const { conversation } = result.current.agent;
-    conversation.messageSent(
-      result.current.agent.currentTheme(),
-      'Calm fintech theme'
-    );
+    act(() => {
+      result.current.studio.setLocked(['--wa-color-brand'], true);
+    });
+    expect(result.current.agent.locked()).toEqual(['--wa-color-brand']);
 
     act(() => {
-      result.current.studio.setProperty(
-        '--wa-color-surface-default',
-        '#202020'
-      );
+      result.current.agent.unlock(['--wa-color-brand']);
     });
-    act(() => {
-      result.current.studio.setShadowComponents(['Card']);
-    });
-
-    const snapshot = conversation.messageSent(
-      result.current.agent.currentTheme(),
-      'Warmer'
-    );
-    expect(snapshot.handSet).toEqual({
-      light: [],
-      dark: ['--wa-color-surface-default'],
-      shadowComponents: true,
-    });
-  });
-
-  it('a hand edit is hand-set even when it equals a value an apply did not write', () => {
-    const { result } = renderHook(useBoth, { wrapper });
-    const { conversation } = result.current.agent;
-    conversation.messageSent(
-      result.current.agent.currentTheme(),
-      'Calm fintech theme'
-    );
-    // Studio stores this slider without its unit: "75ms" lands as the "75"
-    // already there, so nothing of this apply is ever committed.
-    const applied = result.current.agent.currentTheme();
-    applied.dark['--wa-transition-fast'] = '75ms';
-    act(() => {
-      result.current.agent.applyTheme(applied);
-    });
-    const premise = conversation.messageSent(
-      result.current.agent.currentTheme(),
-      'Faster'
-    );
-    expect(premise.handSet.dark).toEqual([]);
-
-    act(() => {
-      result.current.studio.setProperty('--wa-transition-fast', '75ms');
-    });
-
-    const snapshot = conversation.messageSent(
-      result.current.agent.currentTheme(),
-      'Warmer'
-    );
-    expect(snapshot.handSet.dark).toContain('--wa-transition-fast');
-  });
-
-  it('takes the loaded preset as the starting point, so its values are not hand-set', async () => {
-    const [preset] = await loadPresets();
-    const { result } = renderHook(useBoth, { wrapper });
-    const { conversation } = result.current.agent;
-    // What the preset selector does.
-    act(() => {
-      result.current.studio.resetAll();
-      const merged: Record<string, { light?: string; dark?: string }> = {};
-      for (const [cssVar, value] of Object.entries(preset.values.light)) {
-        merged[cssVar] = { ...merged[cssVar], light: value };
-      }
-      for (const [cssVar, value] of Object.entries(preset.values.dark)) {
-        merged[cssVar] = { ...merged[cssVar], dark: value };
-      }
-      result.current.studio.importValues(merged);
-      result.current.studio.setShadowComponents(preset.shadowComponents);
-      result.current.studio.setSelectedPreset(preset.filename);
-    });
-    // Let the adapter's own preset load settle.
-    await act(async () => {
-      await loadPresets();
-    });
-
-    const snapshot = conversation.messageSent(
-      result.current.agent.currentTheme(),
-      'Make it warmer'
-    );
-    expect(snapshot.handSet).toEqual({
-      light: [],
-      dark: [],
-      shadowComponents: false,
-    });
-  });
-
-  it('counts a value set before the first message as hand-set', () => {
-    const { result } = renderHook(useBoth, { wrapper });
-    const { conversation } = result.current.agent;
-    act(() => {
-      result.current.studio.setProperty('--wa-color-brand', '#0057b8');
-    });
-
-    const snapshot = conversation.messageSent(
-      result.current.agent.currentTheme(),
-      'Make it warmer'
-    );
-    expect(snapshot.handSet.dark).toContain('--wa-color-brand');
-  });
-
-  it('an applied answer changes the values without making them hand-set', () => {
-    const { result } = renderHook(useBoth, { wrapper });
-    const { conversation } = result.current.agent;
-    const theme = result.current.agent.currentTheme();
-    conversation.messageSent(theme, 'Calm fintech theme');
-    const outcome = conversation.answerReceived(
-      'answer-1',
-      [
-        {
-          light: { '--wa-color-brand': '#0891b2' },
-          dark: { '--wa-color-surface-default': '#0f172a' },
-          shadowComponents: ['Card'],
-        },
-      ],
-      theme
-    );
-    if (!outcome.applied) throw new Error('answer was not applied');
-
-    act(() => {
-      result.current.agent.applyTheme(outcome.theme);
-    });
-
-    expect(result.current.studio.values['--wa-color-brand'].dark).toBe(
-      '#0891b2'
-    );
-    const snapshot = conversation.messageSent(
-      result.current.agent.currentTheme(),
-      'Warmer'
-    );
-    expect(snapshot.handSet).toEqual({
-      light: [],
-      dark: [],
-      shadowComponents: false,
-    });
+    expect(result.current.studio.lockedValues).toEqual([]);
   });
 
   it('reads a sidebar edit into the custom theme it hands the Theme Agent', () => {
@@ -540,5 +413,63 @@ describe('Theme Agent adapter', () => {
     expect(shadowComponents).toEqual(['Button']);
     // The preview reads the same values.
     expect(getStyleObject('dark')['--wa-transition-fast']).toBe('100ms');
+  });
+});
+
+describe('useStudio - locked values', () => {
+  it('starts with nothing locked', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    expect(result.current.lockedValues).toEqual([]);
+  });
+
+  it('locks and unlocks values, the shadow component list included', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      result.current.setLocked(
+        ['--wa-color-brand', SHADOW_COMPONENTS_LOCK],
+        true
+      );
+    });
+    expect(result.current.lockedValues).toEqual([
+      '--wa-color-brand',
+      SHADOW_COMPONENTS_LOCK,
+    ]);
+    act(() => {
+      result.current.setLocked(['--wa-color-brand'], false);
+    });
+    expect(result.current.lockedValues).toEqual([SHADOW_COMPONENTS_LOCK]);
+  });
+
+  it('ignores keys that are not Studio values', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      result.current.setLocked(['--wa-nonexistent'], true);
+    });
+    expect(result.current.lockedValues).toEqual([]);
+  });
+
+  it('keeps locks through a reset, a group reset and a reload', () => {
+    const first = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      first.result.current.setLocked(groupLockKeys('colors-brand'), true);
+    });
+    act(() => {
+      first.result.current.resetGroup('colors-brand');
+      first.result.current.resetAll();
+    });
+    expect(first.result.current.lockedValues).toEqual(['--wa-color-brand']);
+    first.unmount();
+
+    const reloaded = renderHook(() => useStudio(), { wrapper });
+    expect(reloaded.result.current.lockedValues).toEqual(['--wa-color-brand']);
+  });
+
+  it('lock keys: a group covers its values, the shadows group its component list too', () => {
+    expect(groupLockKeys('border-radius')).toEqual([
+      '--wa-border-radius-scale',
+    ]);
+    expect(groupLockKeys('shadows')).toContain(SHADOW_COMPONENTS_LOCK);
+    expect(ALL_LOCK_KEYS).toContain('--wa-color-brand');
+    expect(ALL_LOCK_KEYS).toContain(SHADOW_COMPONENTS_LOCK);
   });
 });

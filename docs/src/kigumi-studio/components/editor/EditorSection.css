@@ -17,5 +17,16 @@
 
 .editor-section__actions {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: var(--wa-space-s);
+}
+
+/* Right-aligned with or without the lock switch on its left. */
+.editor-section__reset {
+  margin-inline-start: auto;
+}
+
+/* In a row, centred on Reset instead of the column's start. */
+.editor-section__actions .lock-switch {
+  align-self: center;
 }

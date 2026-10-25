@@ -29,41 +29,23 @@ export function componentListKey(list: string[]): string {
 }
 
 /**
- * Values named per mode by CSS custom property (a mode-independent value is
- * listed in both), plus whether the shadow component list is one of them.
- */
-export interface ThemeValueSet {
-  light: string[];
-  dark: string[];
-  shadowComponents: boolean;
-}
-
-const themeValueSetSchema = z.object({
-  light: z.array(z.string()),
-  dark: z.array(z.string()),
-  shadowComponents: z.boolean(),
-});
-
-/**
  * What every message to the Theme Agent carries. The task trusts it alone for
  * current values, never its memory of earlier turns.
  */
 export interface ThemeAgentSnapshot {
   theme: CustomTheme;
-  /** Values the user set by hand during this conversation, kept ones included. */
-  handSet: ThemeValueSet;
-  /** Hand-set values the user chose to keep when the agent asked to change them. */
-  kept: ThemeValueSet;
+  /**
+   * Values the user locked in the sidebar: CSS custom properties, and
+   * `shadowComponents` for the shadow component list.
+   */
+  locked: string[];
 }
-
-// A tab opened before hand-set values existed sends neither list; the task
-// is deployed by hand, so it may be newer than the page talking to it.
-const noValues = () => ({ light: [], dark: [], shadowComponents: false });
 
 export const themeAgentSnapshotSchema = z.object({
   theme: customThemeSchema,
-  handSet: themeValueSetSchema.default(noValues),
-  kept: themeValueSetSchema.default(noValues),
+  // A page from before locks sends none; the task is deployed by hand, so
+  // it may be newer than the page talking to it.
+  locked: z.array(z.string()).default([]),
 });
 
 export function cloneTheme(theme: CustomTheme): CustomTheme {

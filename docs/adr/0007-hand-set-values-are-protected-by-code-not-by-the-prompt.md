@@ -1,5 +1,7 @@
 # Hand-set values are protected by code, not by the prompt
 
+Amended by [ADR 0010](0010-the-user-locks-values-instead-of-studio-tracking-hand-set-ones.md): the user locks the values to protect, instead of Studio tracking hand-set ones. That the guarantee lives in code, not in the prompt, still holds.
+
 The Theme Agent must never silently overwrite a value the user set by hand
 during the conversation. Telling the model so in its prompt would be the
 obvious way to get that, and it is not enough: a model can miss a value, and

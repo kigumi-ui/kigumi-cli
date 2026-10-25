@@ -119,24 +119,11 @@ The AI assistant in Kigumi Studio that builds and refines a custom theme from
 text instructions, in conversation with the user.
 _Avoid_: preset agent, theme generator
 
-**Hand-set value**:
-A value in the custom theme that the user set by hand: at the first message
-of a conversation, every value that differs from the starting point (the
-loaded preset, or Studio's defaults), whenever it was set, and every value the
-user changes in the Studio sidebar after that, including while the Theme Agent
-is answering. It is tracked per mode; a value that is the same in both modes,
-and the list of components that get a shadow, count as one each. The Theme
-Agent's own changes are not hand-set. A value stays hand-set until the user
-overwrites it through a change request. The Theme Agent never changes a
-hand-set value on its own.
-_Avoid_: locked value, pinned value, manual override
-
-**Change request**:
-The Theme Agent's proposal to change a hand-set value, with its reason. The
-user keeps or overwrites the value; until then nothing changes. A kept value
-is not asked about again in that conversation unless the user brings it up.
-_Avoid_: suggestion, approval
-
-**Auto mode**:
-A per-conversation switch, off by default. When on, the Theme Agent treats
-hand-set values like any other value and raises no change requests.
+**Locked value**:
+A value in the custom theme the user locked in the Studio sidebar, one value
+at a time, a whole section, or all at once. A value is locked in both modes;
+the list of components that get a shadow is one value too. The Theme Agent may
+change every value that is not locked, and never changes a locked one: what
+an answer proposes for it is held, and the user can unlock and apply it. Locks
+survive a reload and a reset, and are not part of the exported theme.
+_Avoid_: hand-set value, pinned value, protected value

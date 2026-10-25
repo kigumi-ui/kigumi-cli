@@ -1,0 +1,11 @@
+.lock-switch {
+  align-self: flex-start;
+}
+
+.lock-switch__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wa-space-2xs);
+  font-size: var(--wa-font-size-s);
+  color: var(--wa-color-text-quiet);
+}

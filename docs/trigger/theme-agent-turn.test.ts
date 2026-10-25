@@ -76,23 +76,13 @@ const snapshot: ThemeAgentSnapshot = {
     },
     shadowComponents: ['Card'],
   },
-  handSet: { light: [], dark: [], shadowComponents: false },
-  kept: { light: [], dark: [], shadowComponents: false },
+  locked: [],
 };
 
-/** The user tuned the dark surface and the shadow list, and kept the radius. */
-const handSetSnapshot: ThemeAgentSnapshot = {
+/** The user locked the brand and the shadow component list. */
+const lockedSnapshot: ThemeAgentSnapshot = {
   ...snapshot,
-  handSet: {
-    light: ['--wa-border-radius-scale'],
-    dark: ['--wa-color-surface-default', '--wa-border-radius-scale'],
-    shadowComponents: true,
-  },
-  kept: {
-    light: ['--wa-border-radius-scale'],
-    dark: ['--wa-border-radius-scale'],
-    shadowComponents: false,
-  },
+  locked: ['--wa-color-brand', 'shadowComponents'],
 };
 
 const messages: ModelMessage[] = [
@@ -190,14 +180,14 @@ describe('Theme Agent turn', () => {
     expect(prompt).toContain('#fafaf9');
   });
 
-  it("gives the model the snapshot's hand-set and kept values", async () => {
+  it("gives the model the snapshot's locked values", async () => {
     const model = new MockLanguageModelV4({ doStream: [textStep('Hello.')] });
 
     const result = themeAgentTurn({
       streamText,
       model,
       messages,
-      snapshot: handSetSnapshot,
+      snapshot: lockedSnapshot,
     });
     await result.consumeStream();
 
@@ -206,65 +196,8 @@ describe('Theme Agent turn', () => {
     );
     const text = typeof system?.content === 'string' ? system.content : '';
     expect(text).toMatch(
-      /Hand-set values[^\n]*\n- --wa-border-radius-scale\n- dark --wa-color-surface-default\n- shadowComponents\n/
+      /Locked values[^\n]*\n- --wa-color-brand\n- shadowComponents\n/
     );
-    expect(text).toMatch(/Kept values[^\n]*\n- --wa-border-radius-scale\n\n/);
-  });
-
-  it('sends a proposal for a hand-set value without a reason back to the model', async () => {
-    const model = new MockLanguageModelV4({
-      doStream: [
-        proposalStep('call-1', {
-          light: { '--wa-color-brand': '#d97706' },
-          dark: { '--wa-color-surface-default': '#241a12' },
-        }),
-        proposalStep('call-2', {
-          light: { '--wa-color-brand': '#d97706' },
-          dark: { '--wa-color-surface-default': '#241a12' },
-          reasons: {
-            '--wa-color-surface-default': 'A warmer surface for the brand.',
-          },
-        }),
-        textStep('Warmer.'),
-      ],
-    });
-
-    const result = themeAgentTurn({
-      streamText,
-      model,
-      messages,
-      snapshot: handSetSnapshot,
-    });
-    await result.consumeStream();
-
-    const [rejected, accepted] = toolResults(model);
-    expect(JSON.stringify(rejected)).toContain(
-      'reasons --wa-color-surface-default: dark --wa-color-surface-default is hand-set; give a reason'
-    );
-    expect(JSON.stringify(rejected)).toContain('"accepted":false');
-    expect(JSON.stringify(accepted)).toContain('"accepted":true');
-  });
-
-  it('needs no reason for a kept value; Studio decides whether to ask', async () => {
-    const model = new MockLanguageModelV4({
-      doStream: [
-        proposalStep('call-1', {
-          light: { '--wa-border-radius-scale': '2.5' },
-          dark: {},
-        }),
-        textStep('Rounder.'),
-      ],
-    });
-
-    const result = themeAgentTurn({
-      streamText,
-      model,
-      messages,
-      snapshot: handSetSnapshot,
-    });
-    await result.consumeStream();
-
-    expect(JSON.stringify(toolResults(model)[0])).toContain('"accepted":true');
   });
 });
 
@@ -451,5 +384,46 @@ describe('Theme Agent turn: contrast', () => {
     expect(output.correctContrast).toBe(false);
     expect(output.contrast.join('\n')).toContain('text on the brand fill');
     expect(steps).not.toContain(THEME_AGENT_STATUS.fixing);
+  });
+
+  it('checks contrast on what lands, without the locked values', async () => {
+    // The proposal would fix the quiet text, but the user locked it: the
+    // browser keeps the failing value, so the task must not report a pass.
+    const pale = {
+      ...snapshot,
+      theme: {
+        ...snapshot.theme,
+        light: {
+          ...readableProposal.light,
+          '--wa-color-text-quiet': '#aaaaaa',
+        },
+        dark: readableProposal.dark,
+      },
+      locked: ['--wa-color-text-quiet'],
+    };
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-color-text-quiet': '#595959' },
+          dark: {},
+        }),
+        textStep('Locked.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: pale,
+    });
+    await result.consumeStream();
+
+    const [output] = toolResults(model).map(
+      (o) => (o as { value: ProposeOutput }).value
+    );
+    expect(output.contrast.join('\n')).toContain(
+      'Light mode, quiet text on the raised surface'
+    );
   });
 });

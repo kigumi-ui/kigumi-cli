@@ -28,8 +28,8 @@ import {
   type ContrastViolation,
 } from '../../theme-agent/contrast';
 import {
+  createThemeAgentConversation,
   type AnswerStatus,
-  type ChangeRequest,
 } from '../../theme-agent/conversation';
 import type {
   ProposeThemeOutput,
@@ -37,8 +37,7 @@ import type {
 } from '../../theme-agent/proposal';
 import { requestThemeAgentToken } from '../../theme-agent/session-client';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
-import { describeChangeRequest } from '../../theme-agent/describe-change-request';
-import { ChangeRequestActions, ChangeRequestsCallout } from './ChangeRequests';
+import { LockedChangesCallout, UnlockAndApply } from './LockedChanges';
 import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
@@ -119,7 +118,8 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     }),
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
-  const { conversation, currentTheme, applyTheme } = useThemeAgentStudio();
+  const [conversation] = useState(createThemeAgentConversation);
+  const { currentTheme, locked, applyTheme, unlock } = useThemeAgentStudio();
   // The conversation module is plain state; re-render after each event.
   const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
@@ -147,7 +147,8 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
       const outcome = conversation.answerReceived(
         message.id,
         proposals,
-        currentTheme()
+        currentTheme(),
+        locked()
       );
       if (outcome.applied) applyTheme(outcome.theme);
       conversationChanged();
@@ -168,12 +169,12 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   const lastWarnings = lastMessage
     ? conversation.answerViolations(lastMessage.id).length
     : 0;
-  const lastRequests = lastMessage
-    ? conversation.changeRequests(lastMessage.id).length
-    : 0;
+  const lastHeld = lastMessage
+    ? conversation.heldChanges(lastMessage.id)
+    : undefined;
   const lastOutcome =
     (lastStatus === 'applied' ? appliedAnnouncement(lastWarnings) : '') +
-    requestsAnnouncement(lastRequests);
+    (lastHeld?.held ? heldAnnouncement(lastHeld.changes.length) : '');
   const announcement = notice
     ? notice
     : status === 'error'
@@ -201,41 +202,20 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     setStatusStep(null);
     void sendMessage(
       { text },
-      { metadata: conversation.messageSent(currentTheme(), text) }
+      { metadata: conversation.messageSent(currentTheme(), locked()) }
     );
-    conversationChanged();
     setDraft('');
   };
 
-  // ChangeRequests moves focus to the next open request; after the last,
-  // it comes back to the message field.
-  const resolved = (message: string) => {
+  const unlockAndApply = (answerId: string) => {
+    const result = conversation.applyHeld(answerId, currentTheme());
+    if (!result) return;
+    unlock(result.unlock);
+    applyTheme(result.theme);
     conversationChanged();
-    setNotice(message);
-  };
-  const focusMessage = () =>
+    setNotice('Unlocked and applied.');
+    // The button goes away; keep focus in the chat.
     textareaRef.current?.focus({ preventScroll: true });
-
-  const keep = (request: ChangeRequest) => {
-    conversation.keep(request.id);
-    resolved(`Kept ${describeChangeRequest(request).label}.`);
-  };
-
-  const overwrite = (request: ChangeRequest) => {
-    const next = conversation.overwrite(request.id, currentTheme());
-    if (next) applyTheme(next);
-    resolved(`Overwrote ${describeChangeRequest(request).label}.`);
-  };
-
-  const keepAll = () => {
-    conversation.keepAll();
-    resolved('Kept every value you set by hand.');
-  };
-
-  const overwriteAll = () => {
-    const next = conversation.overwriteAll(currentTheme());
-    if (next) applyTheme(next);
-    resolved('Overwrote every value the Theme Agent asked about.');
   };
 
   const undo = (answerId: string) => {
@@ -303,8 +283,9 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                   !running || message.id !== lastMessage?.id
                 )
               : undefined;
-          const requests =
-            outcome === 'undone' ? [] : conversation.changeRequests(message.id);
+          const { changes: heldChanges, held } = conversation.heldChanges(
+            message.id
+          );
           // An answer that has only started streaming shows nothing yet;
           // the status step below says the Theme Agent is working.
           if (!text && !outcome) return null;
@@ -331,21 +312,20 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                       : []
                   }
                   onUndo={() => undo(message.id)}
-                  hasRequests={requests.length > 0}
-                  requestsCallout={
-                    requests.length > 0 && (
-                      <ChangeRequestsCallout requests={requests} />
+                  hasHeld={heldChanges.length > 0}
+                  lockedCallout={
+                    heldChanges.length > 0 && (
+                      <LockedChangesCallout changes={heldChanges} />
                     )
                   }
-                  requestActions={
-                    <ChangeRequestActions
-                      requests={requests}
-                      onKeep={keep}
-                      onOverwrite={overwrite}
-                      onKeepAll={keepAll}
-                      onOverwriteAll={overwriteAll}
-                      onAllResolved={focusMessage}
-                    />
+                  lockedAction={
+                    heldChanges.length > 0 && (
+                      <UnlockAndApply
+                        count={heldChanges.length}
+                        held={held}
+                        onApply={() => unlockAndApply(message.id)}
+                      />
+                    )
                   }
                 />
               )}
@@ -400,12 +380,11 @@ function appliedAnnouncement(warnings: number): string {
   }.`;
 }
 
-function requestsAnnouncement(count: number): string {
+function heldAnnouncement(count: number): string {
   if (count === 0) return '';
-  if (count === 1) {
-    return ' It would change a value you set by hand; keep or overwrite it.';
-  }
-  return ` It would change ${count} values you set by hand; keep or overwrite them.`;
+  return count === 1
+    ? ' One locked value was not changed.'
+    : ` ${count} locked values were not changed.`;
 }
 
 type AnswerOutcomeKind = AnswerStatus | 'refused';
@@ -430,25 +409,25 @@ interface AnswerOutcomeProps {
   reasons: string[];
   violations: ContrastViolation[];
   onUndo: () => void;
-  hasRequests: boolean;
-  /** What the answer would change among hand-set values, below its warning. */
-  requestsCallout: ReactNode;
-  /** Keep or overwrite, below the callouts like Undo. */
-  requestActions: ReactNode;
+  hasHeld: boolean;
+  /** The locked values the answer did not change, below its warning. */
+  lockedCallout: ReactNode;
+  /** Unlock and apply, below the callouts like Undo. */
+  lockedAction: ReactNode;
 }
 
 /**
- * An answer's outcome: its callouts first (accessibility warning, change
- * requests), then the plain rows to act on, Undo and keep or overwrite.
+ * An answer's outcome: its callouts first (accessibility warning,
+ * locked values), then the plain rows to act on, Undo and unlock and apply.
  */
 function AnswerOutcome({
   outcome,
   reasons,
   violations,
   onUndo,
-  hasRequests,
-  requestsCallout,
-  requestActions,
+  hasHeld,
+  lockedCallout,
+  lockedAction,
 }: AnswerOutcomeProps) {
   switch (outcome) {
     case 'applied':
@@ -473,7 +452,7 @@ function AnswerOutcome({
               </ul>
             </Callout>
           )}
-          {requestsCallout}
+          {lockedCallout}
           <div className="wa-cluster wa-gap-xs wa-align-items-center">
             <span className="theme-agent__outcome-text">
               Applied to the theme
@@ -483,17 +462,17 @@ function AnswerOutcome({
               Undo
             </Button>
           </div>
-          {requestActions}
+          {lockedAction}
         </div>
       );
     case 'unchanged':
       return (
         <div className="theme-agent__outcome wa-stack wa-gap-xs">
-          {requestsCallout}
+          {lockedCallout}
           <span className="theme-agent__outcome-text">
-            {hasRequests ? 'Nothing applied yet' : 'No change to the theme'}
+            {hasHeld ? 'Nothing applied: locked' : 'No change to the theme'}
           </span>
-          {requestActions}
+          {lockedAction}
         </div>
       );
     case 'undone':
