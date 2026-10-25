@@ -33,10 +33,13 @@ Visual theme builder for Web Awesome CSS custom properties.
 KigumiStudio (page)
   StudioProvider (context: ~43 CSS properties, light/dark modes)
     StudioLayout
-      StudioHeader (mode toggles, preset selector, import/export, reset)
-      StudioSidebar (scrollable; one Accordion, an EditorSection AccordionItem per property group)
+      StudioHeader (back link, logo, site theme, knowledge base)
+      StudioSidebar ("Styles": preset, mode, generate, import/export; one Accordion, an EditorSection AccordionItem per property group)
       StudioPreview (live component showcase with applied theme)
+      Theme Agent panel (only with the access cookie; ThemeAgentSidebar loads on first open)
 ```
+
+Both side panels have the same headline (`studio-panel-header`, Styles with a palette, Theme Agent with a robot) and a `PanelToggle` tab on their inner edge, mirrored: the panel's icon while collapsed, an x while open. It is the only way to show or hide a panel. The shared panel styles live in `StudioLayout.css`.
 
 ## State Flow
 
@@ -83,6 +86,7 @@ Browser (useChat + useTriggerChatTransport)
 | `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply except locked values and values changed during the run, held changes (with the contrast pairs each would fix) and apply per value or all, contrast check of the applied theme, undo of one answer's own values, and `end()`, after which nothing of that conversation reaches the theme. No React, no network, no model |
 | `theme-agent/describe-held-change.ts` | The sidebar name of a value (`valueLabel()`) and of a held change |
 | `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme and its locked values, apply a theme; hands on Studio's `setLocked` |
+| `components/PanelToggle.tsx` | The tab that shows and hides a side panel, shared by Styles and the Theme Agent |
 | `components/theme-agent/ThemeAgentSidebar.tsx` | The chat, lazy-loaded only when the cookie is present. The sidebar owns the conversation's lifecycle ("New chat", a replaced theme) and mounts one `ThemeAgentChat` per conversation. A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card |
 | `theme-agent/session-client.ts` | The browser's calls to `/api/theme-agent`: a session token (`start`, `refresh`) and `close` |
 | `components/theme-agent/LockedChanges.tsx` | `UnlockAndApply`, the answer's action inside its card: one button for one held value, one per value plus one for all with more; "Unlock and apply" for a locked value, "Apply" for one changed during the run. `LockedChangesCallouts`, Studio's report below the card: success callouts for what was applied, neutral ones for what stays locked and what the user changed during the run, each naming the contrast pairs it would fix |

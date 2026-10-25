@@ -54,7 +54,6 @@ import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
   open: boolean;
-  onClose: () => void;
 }
 
 /** Why the conversation on screen started: the user asked, or the theme was replaced. */
@@ -146,7 +145,7 @@ function closeSession(chatId: string, keepalive = false) {
  * message survives. A reload starts a fresh one anyway: the chat id is per
  * mount, the custom theme is Studio's and persists.
  */
-export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
+export function ThemeAgentSidebar({ open }: ThemeAgentSidebarProps) {
   const { onThemeReplaced } = useThemeAgentStudio();
   const [conversation, setConversation] = useState<{
     key: number;
@@ -201,30 +200,20 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
       aria-label="Theme Agent"
       hidden={!open}
     >
-      <div className="theme-agent__header wa-split wa-align-items-center">
+      <div className="studio-panel-header wa-split wa-align-items-center">
         <span className="wa-heading-s wa-cluster wa-gap-xs">
-          <Icon name="wand-magic-sparkles" />
+          <Icon name="robot" />
           Theme Agent
         </span>
-        <div className="wa-cluster wa-gap-2xs">
-          <Button
-            size="small"
-            appearance="outlined"
-            variant="neutral"
-            onClick={newConversation}
-          >
-            <Icon slot="start" name="plus" />
-            New chat
-          </Button>
-          <Button
-            size="small"
-            appearance="plain"
-            variant="neutral"
-            onClick={onClose}
-          >
-            <Icon name="xmark" label="Close Theme Agent" />
-          </Button>
-        </div>
+        <Button
+          size="small"
+          appearance="outlined"
+          variant="neutral"
+          onClick={newConversation}
+        >
+          <Icon slot="start" name="plus" />
+          New chat
+        </Button>
       </div>
       <div className="wa-visually-hidden" aria-live="polite">
         {notice}
