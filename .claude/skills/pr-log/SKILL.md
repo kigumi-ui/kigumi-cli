@@ -55,6 +55,8 @@ A **round** is one push session. Each round gets exactly one new log comment.
    - **Evidence**: bug-injection tables, gate output, anything a reviewer
      would otherwise have to trust you on. Tables, checklists and
      `<details>` all belong here.
+     `pnpm sabotage <cases.json>` prints the bug-injection table, and
+     reports a case whose test never ran as did-not-run.
 5. `gh pr comment <pr> --body-file <file>`.
 6. Run `pnpm check:pr-log --pr <pr>`. Done when it reports no commit outside
    a Covers range (a draft reports `pending`, which is expected).

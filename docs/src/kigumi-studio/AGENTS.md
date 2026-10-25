@@ -125,7 +125,7 @@ The task deploys by hand; nothing in CI deploys it. Redeploy after every change 
 cd docs
 pnpm exec trigger login        # once per machine
 pnpm exec trigger whoami       # confirm the account
-pnpm exec trigger deploy --prod
+pnpm deploy:task              # trigger deploy --prod; full output in trigger-deploy.log
 ```
 
 The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with the normal docs deployment. Cost ceilings: the Anthropic monthly spend limit (Console), `maxOutputTokens` per step and at most `MAX_STEPS` (7) steps per answer, and `concurrency: { total: 1 }` in the task, and trigger.dev's free credit, which stops runs once spent.

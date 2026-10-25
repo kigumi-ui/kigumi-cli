@@ -31,6 +31,7 @@
   "scripts": {
     "setup:npmrc": "node scripts/setup-npmrc.mjs",
     "dev": "tsx watch src/index.ts",
+    "sabotage": "tsx scripts/sabotage.ts",
     "generate:metadata": "tsx scripts/parse-custom-elements.ts",
     "generate:skill-refs": "tsx scripts/generate-skill-references.ts",
     "generate:pro-shim": "tsx scripts/sync-wa-pro-shim.ts",
@@ -88,8 +89,8 @@
     "verify:app": "tsx scripts/verify-test-app.ts",
     "lint": "eslint src tests templates \"*.config.{js,ts}\" \"scripts/**/*.ts\" \"tools/**/*.js\"",
     "lint:fix": "eslint src tests templates \"*.config.{js,ts}\" \"scripts/**/*.ts\" \"tools/**/*.js\" --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\" \"tests/**/*.{ts,tsx,js,jsx,json}\" \"templates/**/*.{ts,tsx,js,jsx,vue,css}\" \"scripts/**/*.ts\" \"tools/**/*.{js,json,md}\" \"*.{js,ts,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\" \"tests/**/*.{ts,tsx,js,jsx,json}\" \"templates/**/*.{ts,tsx,js,jsx,vue,css}\" \"scripts/**/*.ts\" \"tools/**/*.{js,json,md}\" \"*.{js,ts,json,md}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\" \"tests/**/*.{ts,tsx,js,jsx,json}\" \"templates/**/*.{ts,tsx,js,jsx,vue,css}\" \"scripts/**/*.ts\" \"tools/**/*.{js,json,md}\" \"docs/**/*.{ts,tsx,css}\" \"*.{js,ts,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\" \"tests/**/*.{ts,tsx,js,jsx,json}\" \"templates/**/*.{ts,tsx,js,jsx,vue,css}\" \"scripts/**/*.ts\" \"tools/**/*.{js,json,md}\" \"docs/**/*.{ts,tsx,css}\" \"*.{js,ts,json,md}\"",
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "release-readiness": "tsx scripts/release-readiness.ts run",
