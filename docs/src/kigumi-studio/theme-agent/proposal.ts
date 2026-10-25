@@ -242,6 +242,11 @@ export interface ProposeThemeOutput {
   /** `true` while the model is to correct `contrast` and propose again. */
   correctContrast: boolean;
   /**
+   * The pairs of `contrast` to correct whose every value is locked, each
+   * naming them: the model proposes the fix anyway, and Studio holds it.
+   */
+  lockedContrast: string[];
+  /**
    * Values of the proposal the user locked, as `describeLocks()` writes
    * them: Studio holds them for the user to unlock and apply.
    */

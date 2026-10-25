@@ -24,6 +24,7 @@ import {
   THEME_AGENT_TASK_ID,
 } from '../../theme-agent/constants';
 import {
+  lockedSources,
   summarizeViolation,
   type ContrastViolation,
 } from '../../theme-agent/contrast';
@@ -32,6 +33,9 @@ import {
   type AnswerStatus,
   type HeldEntry,
 } from '../../theme-agent/conversation';
+import { valueLabel } from '../../theme-agent/describe-held-change';
+import type { LockedValues } from '../../lib/locks';
+import { PROPERTIES_BY_VAR } from '../../lib/property-definitions';
 import type {
   ProposeThemeOutput,
   ThemeProposalInput,
@@ -120,7 +124,8 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
   const [conversation] = useState(createThemeAgentConversation);
-  const { currentTheme, locked, applyTheme, setLocked } = useThemeAgentStudio();
+  const { currentTheme, locked, lockedValues, applyTheme, setLocked } =
+    useThemeAgentStudio();
   // The conversation module is plain state; re-render after each event.
   const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
@@ -176,8 +181,8 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   const lastHeld = lastMessage
     ? conversation
         .heldChanges(lastMessage.id)
-        .filter((entry) => entry.state === 'held').length
-    : 0;
+        .filter((entry) => entry.state === 'held')
+    : [];
   const lastOutcome =
     (lastStatus === 'applied' ? appliedAnnouncement(lastWarnings) : '') +
     heldAnnouncement(lastHeld);
@@ -219,7 +224,11 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     setLocked(result.unlock, false);
     applyTheme(result.theme);
     conversationChanged();
-    setNotice(unlockAnnouncement(result.applied, result.changed));
+    const unlocked =
+      result.unlock.light.length > 0 ||
+      result.unlock.dark.length > 0 ||
+      result.unlock.shadowComponents;
+    setNotice(unlockAnnouncement(result.applied, result.changed, unlocked));
     // The button goes away; keep focus in the chat.
     textareaRef.current?.focus({ preventScroll: true });
   };
@@ -336,6 +345,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                   }
                   onUndo={() => undo(message.id)}
                   held={heldEntries}
+                  locked={lockedValues}
                 />
               )}
             </Fragment>
@@ -388,7 +398,11 @@ function appliedAnnouncement(warnings: number): string {
   }.`;
 }
 
-function unlockAnnouncement(applied: number, changed: number): string {
+function unlockAnnouncement(
+  applied: number,
+  changed: number,
+  unlocked: boolean
+): string {
   const skipped =
     changed === 0
       ? ''
@@ -396,14 +410,47 @@ function unlockAnnouncement(applied: number, changed: number): string {
         ? 'One value was not applied: you changed it since.'
         : `${changed} values were not applied: you changed them since.`;
   if (applied === 0) return skipped;
-  return skipped ? `Unlocked and applied. ${skipped}` : 'Unlocked and applied.';
+  const done = unlocked ? 'Unlocked and applied.' : 'Applied.';
+  return skipped ? `${done} ${skipped}` : done;
 }
 
-function heldAnnouncement(count: number): string {
-  if (count === 0) return '';
-  return count === 1
-    ? ' One locked value was not changed.'
-    : ` ${count} locked values were not changed.`;
+function heldAnnouncement(held: HeldEntry[]): string {
+  const count = (reason: HeldEntry['change']['reason']) =>
+    held.filter((entry) => entry.change.reason === reason).length;
+  const locked = count('locked');
+  const edited = count('edited');
+  return (
+    (locked === 0
+      ? ''
+      : locked === 1
+        ? ' One locked value was not changed.'
+        : ` ${locked} locked values were not changed.`) +
+    (edited === 0
+      ? ''
+      : edited === 1
+        ? ' One value you changed while it answered was not changed.'
+        : ` ${edited} values you changed while it answered were not changed.`)
+  );
+}
+
+/**
+ * A violation as the accessibility warning lists it; when every value
+ * behind it is locked, so the Theme Agent may not fix it, it names them.
+ */
+function violationLine(
+  violation: ContrastViolation,
+  locked: LockedValues
+): string {
+  const sources = lockedSources(violation, locked).map((cssVar) =>
+    valueLabel(
+      cssVar,
+      PROPERTIES_BY_VAR.get(cssVar)?.modeDependent ? [violation.mode] : []
+    )
+  );
+  const summary = summarizeViolation(violation);
+  return sources.length > 0
+    ? `${summary}. Locked: ${sources.join(', ')}`
+    : summary;
 }
 
 type AnswerReportKind = AnswerStatus | 'refused';
@@ -428,13 +475,15 @@ interface AnswerReportProps {
   reasons: string[];
   violations: ContrastViolation[];
   onUndo: () => void;
-  /** What the answer held because it is locked, and what became of it. */
+  /** What the answer held, and what became of it. */
   held: HeldEntry[];
+  /** The values locked now, named in the accessibility warning. */
+  locked: LockedValues;
 }
 
 /**
  * Studio's report under an answer: its callouts first (accessibility
- * warning, locked values not changed), then what was applied, with Undo.
+ * warning, values held and not changed), then what was applied, with Undo.
  */
 function AnswerReport({
   outcome,
@@ -442,33 +491,35 @@ function AnswerReport({
   violations,
   onUndo,
   held,
+  locked,
 }: AnswerReportProps) {
   const lockedCallout = held.length > 0 && (
     <LockedChangesCallouts entries={held} />
+  );
+  const warning = violations.length > 0 && (
+    <Callout variant="warning" size="small">
+      <Icon slot="icon" name="universal-access" />
+      Accessibility warning: {outcome === 'applied' ? 'applied, but ' : ''}
+      {violations.length === 1
+        ? 'this pair falls'
+        : `these ${violations.length} pairs fall`}{' '}
+      short of WCAG 2.1 AA contrast.
+      <ul className="theme-agent__reasons">
+        {violations.map((violation) => (
+          <li
+            key={`${violation.mode}${violation.foreground}${violation.background}`}
+          >
+            {violationLine(violation, locked)}
+          </li>
+        ))}
+      </ul>
+    </Callout>
   );
   switch (outcome) {
     case 'applied':
       return (
         <div className="wa-stack wa-gap-xs">
-          {violations.length > 0 && (
-            <Callout variant="warning" size="small">
-              <Icon slot="icon" name="universal-access" />
-              Accessibility warning: applied, but{' '}
-              {violations.length === 1
-                ? 'this pair falls'
-                : `these ${violations.length} pairs fall`}{' '}
-              short of WCAG 2.1 AA contrast.
-              <ul className="theme-agent__reasons">
-                {violations.map((violation) => (
-                  <li
-                    key={`${violation.mode}${violation.foreground}${violation.background}`}
-                  >
-                    {summarizeViolation(violation)}
-                  </li>
-                ))}
-              </ul>
-            </Callout>
-          )}
+          {warning}
           {lockedCallout}
           <div className="wa-cluster wa-gap-xs wa-align-items-center">
             <span className="theme-agent__outcome-text">
@@ -484,6 +535,7 @@ function AnswerReport({
     case 'unchanged':
       return (
         <div className="wa-stack wa-gap-xs">
+          {warning}
           {lockedCallout || (
             <span className="theme-agent__outcome-text">
               No change to the theme

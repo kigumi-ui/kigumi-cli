@@ -129,9 +129,11 @@ exported theme.
 _Avoid_: hand-set value, pinned value, protected value
 
 **Held change**:
-What an answer proposed for a locked value, held back instead of applied.
-Under the latest answer the user can unlock and apply each held change, or
-all of them; a value changed since the answer is not applied. Sending the
-next message keeps the rest locked, and undoing the answer locks again what
-it unlocked, unless that value changed since.
+What an answer proposed for a locked value, or for a value the user changed
+while the answer was being written, held back instead of applied. Under the
+latest answer the user can apply each held change, or all of them; applying a
+locked value unlocks it ("Unlock and apply"). A value changed since the answer
+is not applied. Sending the next message keeps the rest as they are, and
+undoing the answer locks again what it unlocked, unless that value changed
+since. A held change that would fix a failing contrast pair names that pair.
 _Avoid_: change request, suggestion

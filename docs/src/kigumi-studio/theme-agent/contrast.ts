@@ -4,6 +4,7 @@ import {
   type ThemeMode,
   type ThemeValue,
 } from '../lib/defaults';
+import type { LockedValues } from '../lib/locks';
 import { buildPreviewStyle } from '../lib/preview-style';
 import type { CustomTheme } from './custom-theme';
 
@@ -235,6 +236,25 @@ export function checkContrast(theme: CustomTheme): ContrastViolation[] {
   return violations;
 }
 
+/**
+ * The locked Studio values behind `violation` when every value behind it is
+ * locked in its mode, so the Theme Agent may not fix it; none while one is
+ * free to change. Behind a pair are its two colours, or the value that sets
+ * a derived one (the brand behind the brand fill).
+ */
+export function lockedSources(
+  violation: ContrastViolation,
+  locked: LockedValues
+): string[] {
+  const sources = violation.setBy
+    ? [violation.setBy]
+    : [violation.foreground, violation.background];
+  const lockedInMode = locked[violation.mode];
+  return sources.every((cssVar) => lockedInMode.includes(cssVar))
+    ? sources
+    : [];
+}
+
 /** A ratio as the chat shows it, never rounded up to a pass. */
 export function formatRatio(ratio: number): string {
   return `${(Math.floor(ratio * 100) / 100).toFixed(2)}:1`;
@@ -252,12 +272,17 @@ export function violationFeedback(violation: ContrastViolation): string {
   return `${summarizeViolation(violation)} (${colours}${setBy})`;
 }
 
+/** Mode and pair, e.g. "Dark mode, quiet text on the lowered surface". */
+export function violationPair(violation: ContrastViolation): string {
+  const mode = violation.mode === 'light' ? 'Light mode' : 'Dark mode';
+  return `${mode}, ${violation.label}`;
+}
+
 /** Mode, pair and ratio, as the chat's accessibility warning lists them. */
 export function summarizeViolation(violation: ContrastViolation): string {
-  const mode = violation.mode === 'light' ? 'Light mode' : 'Dark mode';
   const result =
     violation.ratio === null
       ? 'a colour could not be resolved'
       : `${formatRatio(violation.ratio)}, needs ${violation.minimum}:1`;
-  return `${mode}, ${violation.label}: ${result}`;
+  return `${violationPair(violation)}: ${result}`;
 }
