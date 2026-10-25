@@ -17,6 +17,7 @@ import {
   validateProposal,
   type ThemeProposal,
 } from '../src/kigumi-studio/theme-agent/proposal';
+import { hexToOklch } from '../src/kigumi-studio/lib/color-utils';
 import { DEFAULT_VALUES } from '../src/kigumi-studio/lib/defaults';
 import { NO_LOCKS } from '../src/kigumi-studio/lib/locks';
 
@@ -73,7 +74,7 @@ export function acceptedProposals(
 }
 
 /** Every value a proposal names, e.g. "light --wa-color-brand #dc2626". */
-function named(proposal: ThemeProposal): string {
+function describeProposal(proposal: ThemeProposal): string {
   const values = (['light', 'dark'] as const).flatMap((mode) =>
     Object.entries(proposal[mode]).map(
       ([cssVar, value]) => `${mode} ${cssVar} ${value}`
@@ -89,7 +90,10 @@ const NO_PROPOSAL: Verdict = {
 };
 
 /** What the browser does with an answer: apply what is free, hold the rest. */
-function landed(proposals: ThemeProposal[], snapshot: ThemeAgentSnapshot) {
+function asStudioTakesIt(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+) {
   const merged = mergeProposals(proposals);
   const { free, held } = splitLocked(merged, snapshot.locked);
   return { merged, free, held, applied: applyProposal(snapshot.theme, free) };
@@ -101,18 +105,37 @@ function brandHeld(
   snapshot: ThemeAgentSnapshot
 ): Verdict {
   if (proposals.length === 0) return NO_PROPOSAL;
-  const { merged, held } = landed(proposals, snapshot);
+  const { merged, held } = asStudioTakesIt(proposals, snapshot);
   const brand = held.light[BRAND] ?? held.dark[BRAND];
   if (brand === undefined) {
     return {
       pass: false,
-      reason: `${BRAND} was not proposed, so Studio holds nothing and offers no Unlock and apply; proposed: ${named(merged)}`,
+      reason: `${BRAND} was not proposed, so Studio holds nothing and offers no Unlock and apply; proposed: ${describeProposal(merged)}`,
     };
   }
   return {
     pass: true,
     reason: `${BRAND} ${brand} was proposed and Studio holds it`,
   };
+}
+
+/** A held brand that is red: OKLCH hue from 350 to 35 degrees, not grey. */
+function redBrandHeld(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+): Verdict {
+  const verdict = brandHeld(proposals, snapshot);
+  if (!verdict.pass) return verdict;
+  const { held } = asStudioTakesIt(proposals, snapshot);
+  const brand = held.light[BRAND] ?? held.dark[BRAND];
+  const [, chroma, hue] = hexToOklch(brand);
+  const red = chroma >= 0.1 && (hue >= 350 || hue <= 35);
+  return red
+    ? verdict
+    : {
+        pass: false,
+        reason: `${verdict.reason}, but it is not red (OKLCH hue ${Math.round(hue)}, chroma ${chroma.toFixed(2)})`,
+      };
 }
 
 /**
@@ -127,7 +150,14 @@ function brandFillFixHeld(
 ): Verdict {
   const verdict = brandHeld(proposals, snapshot);
   if (!verdict.pass) return verdict;
-  const { held, applied } = landed(proposals, snapshot);
+  const { held, applied } = asStudioTakesIt(proposals, snapshot);
+  const brand = held.light[BRAND] ?? held.dark[BRAND];
+  if (brand.toLowerCase() === snapshot.theme.light[BRAND].toLowerCase()) {
+    return {
+      pass: false,
+      reason: `${verdict.reason}, but it is the brand it already has`,
+    };
+  }
   const left = checkContrast(applyProposal(applied, held)).filter(
     (violation) => violation.setBy === BRAND
   );
@@ -154,13 +184,13 @@ function lightSurfaceChanged(
   snapshot: ThemeAgentSnapshot
 ): Verdict {
   if (proposals.length === 0) return NO_PROPOSAL;
-  const { merged, held, applied } = landed(proposals, snapshot);
+  const { merged, held, applied } = asStudioTakesIt(proposals, snapshot);
   const darkBefore = paintedStyle(snapshot.theme, 'dark')[SURFACE];
   const darkAfter = paintedStyle(applied, 'dark')[SURFACE];
   if (darkAfter !== darkBefore) {
     return {
       pass: false,
-      reason: `the dark surface is locked, but the preview now paints it ${darkAfter} instead of ${darkBefore}; proposed: ${named(merged)}`,
+      reason: `the dark surface is locked, but the preview now paints it ${darkAfter} instead of ${darkBefore}; proposed: ${describeProposal(merged)}`,
     };
   }
   const lightBefore = paintedStyle(snapshot.theme, 'light');
@@ -171,7 +201,7 @@ function lightSurfaceChanged(
   if (changed.length === 0) {
     return {
       pass: false,
-      reason: `no light surface changes; proposed: ${named(merged)}`,
+      reason: `no light surface changes; proposed: ${describeProposal(merged)}`,
     };
   }
   const darkFate =
@@ -197,7 +227,7 @@ function brandLeftAlone(
   snapshot: ThemeAgentSnapshot
 ): Verdict {
   if (proposals.length === 0) return NO_PROPOSAL;
-  const { merged } = landed(proposals, snapshot);
+  const { merged } = asStudioTakesIt(proposals, snapshot);
   const brand = merged.light[BRAND] ?? merged.dark[BRAND];
   if (brand !== undefined) {
     return {
@@ -207,7 +237,7 @@ function brandLeftAlone(
   }
   return {
     pass: true,
-    reason: `${BRAND} left alone; proposed: ${named(merged)}`,
+    reason: `${BRAND} left alone; proposed: ${describeProposal(merged)}`,
   };
 }
 
@@ -286,10 +316,10 @@ export const SCENARIOS: EvalScenario[] = [
   {
     id: 'locked-brand-red',
     description:
-      'Brand locked, "make the brand red": the brand is proposed and held',
+      'Brand locked, "make the brand red": a red brand is proposed and held',
     snapshot: { theme: studioTheme(), locked: BRAND_LOCKED },
     messages: [{ role: 'user', content: 'Make the brand red.' }],
-    judge: brandHeld,
+    judge: redBrandHeld,
   },
   {
     id: 'locked-brand-improve-fill',

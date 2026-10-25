@@ -82,7 +82,7 @@ Browser (useChat + useTriggerChatTransport)
 | `theme-agent/constants.ts` | Cookie name, task id, endpoint, tool name, status steps; shared by browser, function and task |
 | `theme-agent/custom-theme.ts` | The custom theme and the snapshot every message carries (theme and locked values; types + Zod schema); shared with the task |
 | `theme-agent/proposal.ts` | Proposal shape and `validateProposal()`: Studio properties, Studio's font and shadow lists, values the sidebar offers. `splitLocked()` splits a proposal into what the browser applies and what it holds; browser and task both use it. Shared with the task |
-| `theme-agent/contrast.ts` | `checkContrast()`: WCAG 2.1 AA pairs in both modes, read from `buildPreviewStyle()`; resolves hex, `rgb()`, `oklch()` and `var()`. Shared with the task |
+| `theme-agent/contrast.ts` | `checkContrast()`: WCAG 2.1 AA pairs in both modes, read from `paintedStyle()`, the colours `buildPreviewStyle()` paints for a custom theme; resolves hex, `rgb()`, `oklch()` and `var()`. Shared with the task |
 | `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply except locked values and values changed during the run, held changes (with the contrast pairs each would fix) and apply per value or all, contrast check of the applied theme, undo of one answer's own values, and `end()`, after which nothing of that conversation reaches the theme. No React, no network, no model |
 | `theme-agent/describe-held-change.ts` | The sidebar name of a value (`valueLabel()`) and of a held change |
 | `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme and its locked values, apply a theme; hands on Studio's `setLocked` |
@@ -115,7 +115,7 @@ Guard rails:
 - A conversation ends with "New chat" and whenever the whole custom theme is replaced (a preset, Default, an import: `onThemeReplaced`), so no held change or Undo refers to a theme no longer on screen. Ending calls `conversation.end()` (a late answer from its run is never applied), stops a running answer, mounts a fresh chat with a new chat id, and closes the trigger.dev session through the `close` intent: the run gets the `trigger: "close"` record and exits, then the session is closed, in that order because a closed session refuses appends. A conversation that never sent a message has nothing to end. The draft message survives, and locks stay (ADR 0010, ADR 0012).
 - A reload starts a fresh conversation (the chat id is per mount); the custom theme is Studio's own and persists. `pagehide` closes the session too, except for a page kept in the back/forward cache. Whatever is not closed, a crashed tab for one, ends when its run has waited `turnTimeout` (1h) for a message.
 - Every message carries a snapshot of the custom theme as the sidebar has it (`sendMessage` `metadata`, the task's `clientDataSchema`). The task builds its prompt from the snapshot, never from earlier turns, so hand edits between messages are seen.
-- `ANTHROPIC_API_KEY` lives only in trigger.dev, in its Production environment. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
+- `ANTHROPIC_API_KEY` lives in trigger.dev, in its Production environment, for the task; the prompt eval reads a maintainer's own key from the environment or a gitignored `.env`, never from a committed file. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
 - `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.
 
 ### Enabling it in a browser
@@ -133,7 +133,7 @@ Then reload Studio. Any value shows the button; only the right one starts a run.
 
 The task deploys by hand; nothing in CI deploys it. Redeploy after every change under `docs/trigger/` or to `docs/trigger.config.ts`, and with every change to `theme-agent/proposal.ts` or `custom-theme.ts`: a page that validates proposals more strictly than the deployed task refuses what that task accepted, and the agent then believes it changed the theme.
 
-Run the prompt eval first, and deploy only when every scenario passes. The unit tests pin the prompt's wording against a mock model, which returns whatever the test scripts; only the eval shows what the real model does with the prompt. A prompt that told the model never to propose locked values passed every unit test and left nothing for Studio to hold.
+Run the prompt eval first, and deploy only when every scenario passes. The unit tests pin the prompt's wording against a mock model, which returns whatever the test scripts; only the eval shows what the real model does with the prompt. A prompt bug that only changes what the model chooses to propose passes every unit test.
 
 ```bash
 cd docs

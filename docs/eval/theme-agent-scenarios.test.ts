@@ -91,10 +91,27 @@ describe('brand locked, make the brand red', () => {
     expect(s.snapshot.locked.dark).toContain('--wa-color-brand');
   });
 
+  it('passes every red Studio might be offered', () => {
+    for (const red of ['#d62839', '#b91c1c', '#ef4444', '#e11d48']) {
+      expect(
+        s.judge([both('--wa-color-brand', red)], s.snapshot).pass,
+        red
+      ).toBe(true);
+    }
+  });
+
   it('passes when the brand is proposed, so Studio holds it', () => {
     const verdict = s.judge([both('--wa-color-brand', '#dc2626')], s.snapshot);
     expect(verdict).toMatchObject({ pass: true });
     expect(verdict.reason).toContain('#dc2626');
+  });
+
+  it('fails when the held brand is not red', () => {
+    for (const notRed of ['#0071ec', '#ea580c', '#7f6f6f']) {
+      const verdict = s.judge([both('--wa-color-brand', notRed)], s.snapshot);
+      expect(verdict.pass, notRed).toBe(false);
+      expect(verdict.reason).toContain('not red');
+    }
   });
 
   it('fails when the brand is left out of every proposal', () => {
@@ -132,6 +149,12 @@ describe('brand locked, improve the brand fill warning', () => {
     expect(fails.reason).toContain(
       'still fails: Light mode, text on the brand fill'
     );
+  });
+
+  it('fails when the held brand is the green it already has', () => {
+    const verdict = s.judge([both('--wa-color-brand', '#22c55e')], s.snapshot);
+    expect(verdict.pass).toBe(false);
+    expect(verdict.reason).toContain('the brand it already has');
   });
 
   it('fails when the brand is not proposed', () => {
