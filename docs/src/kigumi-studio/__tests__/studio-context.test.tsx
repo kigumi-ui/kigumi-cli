@@ -6,6 +6,7 @@ import { StudioProvider, useStudio } from '../contexts/StudioContext';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
 import { SHADOW_COMPONENTS_LOCK } from '../lib/locks';
+import { useValueLock } from '../theme-agent/use-value-lock';
 import { useThemeAgentStudio } from '../theme-agent/use-theme-agent-studio';
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -458,5 +459,28 @@ describe('useStudio - locked values', () => {
 
     const reloaded = renderHook(() => useStudio(), { wrapper });
     expect(reloaded.result.current.lockedValues).toEqual(['--wa-color-brand']);
+  });
+
+  it('a locked value counts as locked only with the Theme Agent cookie', () => {
+    localStorage.setItem(
+      'kigumi-studio-locks',
+      JSON.stringify(['--wa-color-brand'])
+    );
+    const without = renderHook(() => useValueLock('--wa-color-brand'), {
+      wrapper,
+    });
+    // Without the cookie there is no switch to unlock with.
+    expect(without.result.current.locked).toBe(false);
+    without.unmount();
+
+    document.cookie = 'kigumi-theme-agent=test; path=/';
+    try {
+      const withCookie = renderHook(() => useValueLock('--wa-color-brand'), {
+        wrapper,
+      });
+      expect(withCookie.result.current.locked).toBe(true);
+    } finally {
+      document.cookie = 'kigumi-theme-agent=; path=/; max-age=0';
+    }
   });
 });

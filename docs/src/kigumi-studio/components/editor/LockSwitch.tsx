@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { Switch } from '@/components/ui';
-import { useStudio } from '../../contexts/StudioContext';
-import { hasThemeAgentAccess } from '../../theme-agent/access';
+import { useValueLock } from '../../theme-agent/use-value-lock';
 import './LockSwitch.css';
 
 interface LockSwitchProps {
@@ -12,21 +10,21 @@ interface LockSwitchProps {
 }
 
 /**
- * "Lock value": keeps one value from the Theme Agent. Only there with the
- * Theme Agent's access cookie, since locks mean nothing to anyone else.
+ * "Lock value": keeps one value from the Theme Agent; its control is
+ * disabled while locked. Only there with the Theme Agent's access cookie,
+ * since locks mean nothing to anyone else.
  */
 export function LockSwitch({ lockKey, context }: LockSwitchProps) {
-  const [available] = useState(() => hasThemeAgentAccess(document.cookie));
-  const { lockedValues, setLocked } = useStudio();
+  const { available, locked, setLocked } = useValueLock(lockKey);
   if (!available) return null;
 
   return (
     <Switch
       size="small"
-      checked={lockedValues.includes(lockKey)}
+      checked={locked}
       className="lock-switch"
       onChange={(event) =>
-        setLocked([lockKey], (event.target as HTMLInputElement).checked)
+        setLocked((event.target as HTMLInputElement).checked)
       }
     >
       <span className="lock-switch__label">

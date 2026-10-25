@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { EditorSection } from './EditorSection';
 import { PropertyRow } from './PropertyRow';
 import { LockSwitch } from './LockSwitch';
+import { useValueLock } from '../../theme-agent/use-value-lock';
 import { SHADOW_COMPONENTS_LOCK } from '../../lib/locks';
 import {
   PROPERTIES_BY_GROUP,
@@ -114,6 +115,8 @@ export function ShadowEditor() {
   }, [shadowComponents]);
 
   const selectedCount = shadowComponents.length;
+  // Locked for the Theme Agent: disabled until unlocked.
+  const { locked: shadowListLocked } = useValueLock(SHADOW_COMPONENTS_LOCK);
 
   return (
     <EditorSection group={group}>
@@ -131,6 +134,7 @@ export function ShadowEditor() {
 
         <Combobox
           ref={comboboxRef}
+          disabled={shadowListLocked}
           multiple
           value={shadowComponents}
           placeholder="Select components..."
