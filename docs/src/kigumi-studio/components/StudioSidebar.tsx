@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { Button, Icon, Divider, ButtonGroup, Dialog } from '@/components/ui';
+import {
+  Accordion,
+  Button,
+  Icon,
+  Divider,
+  ButtonGroup,
+  Dialog,
+} from '@/components/ui';
 import { useStudio } from '../contexts/StudioContext';
 import { ColorEditor } from './editor/ColorEditor';
 import { TypographyEditor } from './editor/TypographyEditor';
@@ -160,14 +167,17 @@ export function StudioSidebar({
           </ButtonGroup>
         </div>
         <Divider />
-        <ColorEditor />
-        <TypographyEditor />
-        <SpacingEditor />
-        <BorderEditor />
-        <ShadowEditor />
-        <FormControlEditor />
-        <FocusEditor />
-        <TransitionEditor />
+        {/* One accordion: each editor renders its sections as its items. */}
+        <Accordion>
+          <ColorEditor />
+          <TypographyEditor />
+          <SpacingEditor />
+          <BorderEditor />
+          <ShadowEditor />
+          <FormControlEditor />
+          <FocusEditor />
+          <TransitionEditor />
+        </Accordion>
       </aside>
       <Button
         className="studio-sidebar__toggle"
