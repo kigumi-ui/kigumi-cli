@@ -10,8 +10,11 @@ export default defineConfig({
     reporters: ['verbose'],
     // An answer takes several model steps.
     testTimeout: 180_000,
-    // The key from the environment, or from docs/.env (gitignored); the
-    // environment wins.
-    env: loadEnv('', process.cwd(), 'ANTHROPIC_API_KEY'),
+    // The key from the environment, else docs/.env, else the repository's
+    // .env, as setup:npmrc reads them (both gitignored).
+    env: {
+      ...loadEnv('', '..', 'ANTHROPIC_API_KEY'),
+      ...loadEnv('', '.', 'ANTHROPIC_API_KEY'),
+    },
   },
 });

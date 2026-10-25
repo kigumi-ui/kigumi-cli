@@ -16,7 +16,7 @@ describe(`Theme Agent prompt eval (${THEME_AGENT_MODEL})`, () => {
     // A run without a key verified nothing; it fails, it never passes.
     if (!process.env.ANTHROPIC_API_KEY) {
       throw new Error(
-        'ANTHROPIC_API_KEY is not set, so no scenario ran. Export it, or put it in docs/.env (gitignored).'
+        'ANTHROPIC_API_KEY is not set, so no scenario ran. Export it, or put it in docs/.env or the repository .env (both gitignored).'
       );
     }
   });
