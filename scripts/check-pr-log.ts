@@ -65,6 +65,7 @@ const NOTHING: LogCoverage = {
 function check(pr: PullRequestInfo): {
   status: LogStatus;
   coverage: LogCoverage;
+  commits: ReturnType<typeof branchCommits>;
 } {
   const prNumber = pr.number;
   const exempt = isExempt(pr);
@@ -76,7 +77,7 @@ function check(pr: PullRequestInfo): {
       required: 0,
       coverage: NOTHING,
     });
-    return { status, coverage: NOTHING };
+    return { status, coverage: NOTHING, commits: [] };
   }
 
   const base = prMergeBase(process.cwd(), pr);
@@ -101,10 +102,14 @@ function check(pr: PullRequestInfo): {
     required: required.length,
     coverage,
   });
-  return { status, coverage };
+  return { status, coverage, commits };
 }
 
-function report(status: LogStatus, coverage: LogCoverage): void {
+function report(
+  status: LogStatus,
+  coverage: LogCoverage,
+  commits: ReturnType<typeof branchCommits>
+): void {
   const colour =
     status.state === 'success'
       ? pc.green
@@ -112,8 +117,14 @@ function report(status: LogStatus, coverage: LogCoverage): void {
         ? pc.yellow
         : pc.red;
   console.log(colour(`${CONTEXT}: ${status.state}: ${status.description}`));
-  for (const sha of coverage.uncovered)
-    console.log(pc.red(`  not in any Covers range: ${sha.slice(0, 12)}`));
+  const messageBySha = new Map(commits.map((c) => [c.sha, c.message]));
+  for (const sha of coverage.uncovered) {
+    const message = messageBySha.get(sha) ?? '';
+    const suffix = message ? ` — ${message}` : '';
+    console.log(
+      pc.red(`  not in any Covers range: ${sha.slice(0, 12)}${suffix}`)
+    );
+  }
   for (const id of coverage.stale) {
     console.log(
       pc.yellow(
@@ -139,7 +150,7 @@ function main(): number {
     const pr = pullRequest(prNumber);
     headSha = pr.headSha;
     const result = check(pr);
-    report(result.status, result.coverage);
+    report(result.status, result.coverage, result.commits);
     if (post)
       setStatus(headSha, {
         context: CONTEXT,

@@ -40,6 +40,7 @@ tests/
 │   ├── scripts/cem-completeness.test.ts # Check A's all-or-nothing CEM gate (#43)
 │   ├── scripts/guard-outcome.test.ts    # Shared guard reporting: skip is never a pass (#43)
 │   ├── scripts/gha-workflows.test.ts    # The GHA validators' shared workflow loader and inspectionGap; validate:gha-permissions fails an empty inspection on a temp dir (#147)
+│   ├── scripts/sabotage.test.ts     # Bug-injection runner: a pattern that no longer matches, or a run that collected no tests, is did-not-run, never red
 │   ├── scripts/is-entry-point.test.ts   # Entry-point check matches through a symlinked directory (#106)
 │   ├── scripts/check-starter-wa-version.test.ts # Starter job guard: a starter older than DEFAULT_WEBAWESOME_VERSION fails, numeric compare, missing install fails (#138)
 │   ├── parse-custom-elements-import.test.ts # Importing the parser never starts main() (#106)

@@ -55,12 +55,26 @@ A **round** is one push session. Each round gets exactly one new log comment.
    - **Evidence**: bug-injection tables, gate output, anything a reviewer
      would otherwise have to trust you on. Tables, checklists and
      `<details>` all belong here.
+     `pnpm sabotage <cases.json>` prints the bug-injection table, and
+     reports a case whose test never ran as did-not-run.
 5. `gh pr comment <pr> --body-file <file>`.
 6. Run `pnpm check:pr-log --pr <pr>`. Done when it reports no commit outside
    a Covers range (a draft reports `pending`, which is expected).
 
 Only log comments by people with write access count (`OWNER`, `MEMBER`,
 `COLLABORATOR`). On a PR from a fork, a maintainer posts the rounds.
+
+### Common failures to avoid
+
+- **Path mentions in the body**: the `PR body` check treats every backticked
+  repo path as a claim that the path exists at head or is deleted by the diff.
+  Do not backtick runtime/generated files (e.g. `docs/trigger-deploy.log`,
+  which is gitignored). Either drop the backticks or move the detail to the
+  log comment.
+- **Missing a round after a push**: every commit committed after the PR opened
+  must sit inside a `Covers` range. Push, then post the next round before the
+  checks re-run; otherwise `pr-log` fails with the uncovered commit's SHA and
+  message.
 
 ## When the body has become wrong
 

@@ -6,6 +6,9 @@ coverage
 .pnpm-store
 pnpm-lock.yaml
 tests/fixtures/starter-snapshots
+# Kigumi's snapshots of generated files, the base of the three-way merge in
+# `kigumi update`; reformatting one turns every update into a conflict.
+docs/.kigumi/snapshots
 
 # Generated agent references. Prettier reads `_` as emphasis and rewrites the
 # identifiers these files document (eyedropper-button__base -> **base,

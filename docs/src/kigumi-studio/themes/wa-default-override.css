@@ -30,7 +30,8 @@
   --wa-font-size-scale: 1;
   --wa-font-weight-bold: 600;
   --wa-font-weight-heading: var(--wa-font-weight-bold);
-  --wa-link-decoration-default: underline color-mix(in oklab, currentColor 70%, transparent) dotted;
+  --wa-link-decoration-default: underline
+    color-mix(in oklab, currentColor 70%, transparent) dotted;
   --wa-link-decoration-hover: underline;
 
   /* Space */
@@ -96,7 +97,8 @@
   --wa-color-text-normal: var(--wa-color-neutral-95);
   --wa-color-shadow: color-mix(
     in oklab,
-    var(--wa-color-surface-lowered) calc(var(--wa-shadow-blur-scale) * 32% + 40%),
+    var(--wa-color-surface-lowered)
+      calc(var(--wa-shadow-blur-scale) * 32% + 40%),
     transparent
   );
   --wa-color-focus: var(--wa-color-brand-60);
@@ -137,7 +139,10 @@
    because it's a descendant of <html class="wa-theme-tailspin">. */
 @layer theme {
   .component-showcase {
-    h1, h2, h3, h4 {
+    h1,
+    h2,
+    h3,
+    h4 {
       letter-spacing: normal;
     }
 
@@ -146,11 +151,18 @@
       color: unset;
     }
 
-    a, wa-badge, wa-tag {
+    a,
+    wa-badge,
+    wa-tag {
       font-weight: unset;
     }
 
-    :is(wa-button, button, input:where([type='button'], [type='reset'], [type='submit']), a.wa-button):not([appearance='plain']) {
+    :is(
+      wa-button,
+      button,
+      input:where([type='button'], [type='reset'], [type='submit']),
+      a.wa-button
+    ):not([appearance='plain']) {
       &:where(:not(wa-button)),
       &::part(base) {
         box-shadow: none;
@@ -159,26 +171,40 @@
 
     wa-callout {
       border-radius: unset;
-      &::part(icon) { opacity: unset; }
+      &::part(icon) {
+        opacity: unset;
+      }
     }
 
     wa-switch {
       --height: unset;
       --thumb-size: unset;
       --width: unset;
-      &::part(control) { background-color: unset; border-color: unset; }
-      &:state(checked)::part(control) { background-color: unset; }
-      &::part(thumb) { background-color: unset; box-shadow: unset; }
+      &::part(control) {
+        background-color: unset;
+        border-color: unset;
+      }
+      &:state(checked)::part(control) {
+        background-color: unset;
+      }
+      &::part(thumb) {
+        background-color: unset;
+        box-shadow: unset;
+      }
     }
 
     wa-tab {
       color: unset;
     }
 
-    wa-radio, input[type='radio'] {
+    wa-radio,
+    input[type='radio'] {
       --checked-icon-color: unset;
       --checked-icon-scale: unset;
-      &:checked, &:state(checked)::part(control) { background-color: unset; }
+      &:checked,
+      &:state(checked)::part(control) {
+        background-color: unset;
+      }
     }
   }
 }

@@ -84,6 +84,8 @@ node dist/index.js add button --force
 | `scripts/vercel-ignore-build.mjs` | Vercel `ignoreCommand` for both Vercel projects (`docs`, `storybook`): builds only when a file the project renders or serves changed since the branch's last deployment (docs/ denylist, plus CHANGELOG, `package.json`, `llms.txt` and the `PUBLISHED_SKILLS` for the landing page); dependabot branches never deploy. Plain Node, runs before install, builds whenever unsure |
 | `scripts/post-changeset-version.ts` | Update version references after changeset version bump |
 | `tools/eslint-plugin-kigumi/` | Local ESLint plugin (plain directory, imported by relative path from `eslint.config.js`, not an npm package, no workspace). Rules are `.js` so `pnpm lint` needs no build step. Tested via RuleTester in `tests/unit/eslint-rules/` |
+| `scripts/deploy-theme-agent.mjs` | `pnpm deploy:task` in `docs/`: deploys the Theme Agent's trigger.dev task to prod, the full output to `docs/trigger-deploy.log`, only the deployed version (or on failure the log's last lines) to the terminal |
+| `scripts/sabotage.ts` | `pnpm sabotage <cases.json>`: bug injection for a PR's guards. Each case puts a bug back (`find` must occur exactly once), runs its test, restores the file, and reads vitest's `Tests` summary: red, green, or did-not-run when no tests ran. Prints the Markdown table for the PR log |
 | `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
 | `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
 | `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (7 checks: version, component counts, pro list, template dirs, test files (the `tests/AGENTS.md` tree has a row for every test file under `tests/` outside `fixtures/`, matched by exact path or a glob row in the same directory, and every row names a file that exists), prose count claims in `templates/AGENTS.md`, and no "Last Updated" stamp or changelog in any tracked AGENTS.md/CLAUDE.md) |
@@ -1008,7 +1010,7 @@ git push -u origin HEAD
 gh pr create --draft --title "feat: my feature" --body-file body.md
 ```
 
-The PR body becomes the squash commit on main, so it is written as history: a summary and four sections, per `.github/PULL_REQUEST_TEMPLATE.md`. Review rounds and evidence go in the PR log, one new comment per push. Use the `pr-log` skill when opening a PR and after every push to one; `pr-body.yml` and the `pr-log` status enforce it (`docs/adr/0006`). When `/code-review` runs on a PR, give its Spec sub-agent the PR body and the log comments too, and have it report body claims the diff does not back and user-facing changes the body omits.
+The PR body becomes the squash commit on main, so it is written as history: a summary and four sections, per `.github/PULL_REQUEST_TEMPLATE.md`. Review rounds and evidence go in the PR log, one new comment per push. Use the `pr-log` skill when opening a PR and after every push to one; `pr-body.yml` and the `pr-log` status enforce it (`docs/adr/0006`). When `/code-review` runs on a PR, give its Spec sub-agent the PR body, the log comments and every ADR the diff adds or changes, and have it report body claims the diff does not back and user-facing changes the body omits. An issue criterion that such an ADR replaces is judged against the ADR, not the issue.
 
 **Step 4: Wait for CI, review, merge**
 

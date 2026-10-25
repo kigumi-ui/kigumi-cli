@@ -173,13 +173,13 @@ describe('knownPaths: renames', () => {
 });
 
 describe('branchCommits', () => {
-  it('lists the branch commits with their committer time, not the base', () => {
+  it('lists the branch commits with their committer time and message, not the base', () => {
     const base = commit('base', 500);
     const b = commit('b', 1_000);
-    const c = commit('c', 2_000);
+    const c = commit('c message line', 2_000);
     expect(branchCommits(repo, base, c)).toEqual([
-      { sha: c, committedAt: 2_000 },
-      { sha: b, committedAt: 1_000 },
+      { sha: c, committedAt: 2_000, message: 'c message line' },
+      { sha: b, committedAt: 1_000, message: 'b' },
     ]);
   });
 });
