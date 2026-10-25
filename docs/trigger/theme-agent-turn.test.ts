@@ -228,6 +228,11 @@ describe('Theme Agent turn', () => {
       .find((line) => line.includes("brand colour is the user's"));
     expect(brand).toMatch(/asks to fix a failing brand fill pair/);
     expect(brand).toMatch(/never on your own to fix contrast/);
+    // A bare "improve" after that report still got a general theme change
+    // and no brand: the eval's locked-brand-improve-fill scenario.
+    expect(brand).toMatch(
+      /a short request to improve or fix[^.]*right after an answer that reported a failing brand fill pair asks for that fix/
+    );
   });
 
   it('tells the model an earlier held change can no longer be applied from the chat', async () => {
