@@ -87,7 +87,9 @@ Browser (useChat + useTriggerChatTransport)
 | `components/theme-agent/LockedChanges.tsx` | `UnlockAndApply`, the answer's action inside its card: one button for one held value, one per value plus one for all with more; "Unlock and apply" for a locked value, "Apply" for one changed during the run. `LockedChangesCallouts`, Studio's report below the card: success callouts for what was applied, neutral ones for what stays locked and what the user changed during the run, each naming the contrast pairs it would fix |
 | `../../api/_lib/theme-agent-session.ts` | Access gate + request handling, tested with real `Request`s |
 | `../../trigger/theme-agent.ts` | The `chat.agent` task: limits, model, snapshot schema, status step |
-| `../../trigger/theme-agent-turn.ts` | One answer: prompt, the `propose_theme` tool, reject-and-retry loop, contrast correction rounds |
+| `../../trigger/theme-agent-turn.ts` | One answer: prompt, the `propose_theme` tool, reject-and-retry loop, contrast correction rounds; `THEME_AGENT_MODEL` |
+| `../../eval/theme-agent-scenarios.ts` | The prompt eval's scenarios (snapshot, messages) and their judges, which read accepted proposals and locks, never reply text |
+| `../../eval/theme-agent.eval.ts` | `pnpm eval:theme-agent`: the scenarios against the real model (`vitest.eval.config.ts`); never in CI |
 
 Guard rails:
 
@@ -123,17 +125,22 @@ Then reload Studio. Any value shows the button; only the right one starts a run.
 
 The task deploys by hand; nothing in CI deploys it. Redeploy after every change under `docs/trigger/` or to `docs/trigger.config.ts`, and with every change to `theme-agent/proposal.ts` or `custom-theme.ts`: a page that validates proposals more strictly than the deployed task refuses what that task accepted, and the agent then believes it changed the theme.
 
+Run the prompt eval first, and deploy only when every scenario passes. The unit tests pin the prompt's wording against a mock model, which returns whatever the test scripts; only the eval shows what the real model does with the prompt. A prompt that told the model never to propose locked values passed every unit test and left nothing for Studio to hold.
+
 ```bash
 cd docs
+pnpm eval:theme-agent         # the real model on fixed scenarios; needs ANTHROPIC_API_KEY
 pnpm exec trigger login        # once per machine
 pnpm exec trigger whoami       # confirm the account
 pnpm deploy:task              # trigger deploy --prod; full output in trigger-deploy.log
 ```
+
+The eval (`docs/eval/`) runs `themeAgentTurn()` with `THEME_AGENT_MODEL`, the model the task uses, on each scenario in `theme-agent-scenarios.ts`, and judges the answer in code from its accepted proposals, `splitLocked()` and the contrast check, never from the reply text. It prints PASS or FAIL per scenario with the reason, and the reply only for reading. `ANTHROPIC_API_KEY` comes from the environment or from `docs/.env` (gitignored; the environment wins); without it the eval fails, it never passes. It costs API tokens, so CI never runs it; `pnpm test` runs only the judges' unit tests. A new prompt bug found on a preview becomes a scenario there.
 
 The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with the normal docs deployment. Cost ceilings: the Anthropic monthly spend limit (Console), `maxOutputTokens` per step and at most `MAX_STEPS` (7) steps per answer, and `concurrency: { total: 1 }` in the task, and trigger.dev's free credit, which stops runs once spent.
 
 ## Testing
 
 ```bash
-cd docs && pnpm test   # Studio lib tests, the Theme Agent conversation module, access gate and agent turn (mock model)
+cd docs && pnpm test   # Studio lib tests, the Theme Agent conversation module, access gate, agent turn (mock model), eval judges
 ```

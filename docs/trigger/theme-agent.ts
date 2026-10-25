@@ -5,9 +5,7 @@ import {
   THEME_AGENT_TASK_ID,
 } from '../src/kigumi-studio/theme-agent/constants.js';
 import { themeAgentClientDataSchema } from '../src/kigumi-studio/theme-agent/custom-theme.js';
-import { themeAgentTurn } from './theme-agent-turn.js';
-
-const MODEL = 'claude-sonnet-5-5';
+import { THEME_AGENT_MODEL, themeAgentTurn } from './theme-agent-turn.js';
 
 /**
  * The Theme Agent conversation. One durable run per chat: each user message
@@ -40,7 +38,7 @@ export const themeAgent = chat.agent({
     status(THEME_AGENT_STATUS.drafting);
     return themeAgentTurn({
       streamText,
-      model: anthropic(MODEL),
+      model: anthropic(THEME_AGENT_MODEL),
       messages,
       snapshot: clientData,
       onStatus: status,

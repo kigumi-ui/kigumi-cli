@@ -196,11 +196,13 @@ function ratioOf(foreground: Rgba, background: Rgba): number | null {
 }
 
 /**
- * Every pair in `CONTRAST_PAIRS` that falls short of WCAG 2.1 AA in either
- * mode, read from the colours the Studio preview paints for `theme`. Values
- * the theme leaves out are Studio's defaults.
+ * The CSS custom properties the Studio preview paints for `theme` in `mode`,
+ * derived ones included. Values the theme leaves out are Studio's defaults.
  */
-export function checkContrast(theme: CustomTheme): ContrastViolation[] {
+export function paintedStyle(
+  theme: CustomTheme,
+  mode: ThemeMode
+): Record<string, string> {
   const values: Record<string, ThemeValue> = {};
   for (const [cssVar, value] of Object.entries(DEFAULT_VALUES)) {
     values[cssVar] = {
@@ -208,10 +210,18 @@ export function checkContrast(theme: CustomTheme): ContrastViolation[] {
       dark: theme.dark[cssVar] ?? value.dark,
     };
   }
+  return buildPreviewStyle(values, mode);
+}
 
+/**
+ * Every pair in `CONTRAST_PAIRS` that falls short of WCAG 2.1 AA in either
+ * mode, read from the colours the Studio preview paints for `theme`. Values
+ * the theme leaves out are Studio's defaults.
+ */
+export function checkContrast(theme: CustomTheme): ContrastViolation[] {
   const violations: ContrastViolation[] = [];
   for (const mode of ['light', 'dark'] as const) {
-    const style = buildPreviewStyle(values, mode);
+    const style = paintedStyle(theme, mode);
     for (const pair of CONTRAST_PAIRS) {
       const foregroundColor = style[pair.foreground] ?? '';
       const backgroundColor = style[pair.background] ?? '';

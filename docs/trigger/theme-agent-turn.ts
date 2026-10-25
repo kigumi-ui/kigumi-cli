@@ -36,6 +36,9 @@ import { AVAILABLE_FONTS } from '../src/kigumi-studio/lib/font-definitions.js';
 import { describeLocks } from '../src/kigumi-studio/lib/locks.js';
 import { SHADOW_COMPONENTS } from '../src/kigumi-studio/lib/shadow-components.js';
 
+/** The model the task answers with; the prompt eval (docs/eval) uses it too. */
+export const THEME_AGENT_MODEL = 'claude-sonnet-5-5';
+
 /** Invalid proposals per answer before the answer ends without one. */
 export const MAX_PROPOSAL_ATTEMPTS = 3;
 

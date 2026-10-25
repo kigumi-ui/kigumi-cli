@@ -22,6 +22,13 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts", "trigger.config.ts", "api", "trigger"],
+  "include": [
+    "vite.config.ts",
+    "vitest.eval.config.ts",
+    "trigger.config.ts",
+    "api",
+    "trigger",
+    "eval"
+  ],
   "exclude": ["**/*.test.ts"]
 }
