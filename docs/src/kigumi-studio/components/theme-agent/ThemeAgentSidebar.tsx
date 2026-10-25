@@ -141,7 +141,7 @@ function closeSession(chatId: string, keepalive = false) {
  * when the access cookie is present (see StudioLayout), so visitors never
  * download the AI SDK. Stays mounted while closed to keep the conversation.
  *
- * Owns the conversation's lifecycle: "New conversation" and a replaced theme
+ * Owns the conversation's lifecycle: "New chat" and a replaced theme
  * (a preset, Default, an import) end it and mount a fresh chat; the draft
  * message survives. A reload starts a fresh one anyway: the chat id is per
  * mount, the custom theme is Studio's and persists.
@@ -179,7 +179,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     if (open) chatRef.current?.focus();
   }, [open]);
 
-  // After "New conversation", into the fresh chat's message field.
+  // After "New chat", into the fresh chat's message field.
   useEffect(() => {
     if (!focusChat.current) return;
     focusChat.current = false;
@@ -189,7 +189,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   const newConversation = () => {
     focusChat.current = true;
     if (restart('new')) {
-      setNotice('New conversation started.');
+      setNotice('New chat started.');
     } else {
       chatRef.current?.focus();
     }
@@ -209,12 +209,12 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
         <div className="wa-cluster wa-gap-2xs">
           <Button
             size="small"
-            appearance="plain"
+            appearance="outlined"
             variant="neutral"
             onClick={newConversation}
           >
             <Icon slot="start" name="plus" />
-            New conversation
+            New chat
           </Button>
           <Button
             size="small"

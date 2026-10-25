@@ -168,7 +168,7 @@ export interface ThemeAgentConversation {
   /** The contrast violations an applied answer left; none once it is undone. */
   answerViolations(answerId: string): ContrastViolation[];
   /**
-   * End the conversation: "New conversation", or the custom theme replaced
+   * End the conversation: "New chat", or the custom theme replaced
    * as a whole (a preset, Default, an import). Its run may still finish an
    * answer, but nothing it does reaches the theme on screen any more: a late
    * answer is not applied, and no answer of it offers apply or Undo.
