@@ -34,7 +34,7 @@ KigumiStudio (page)
   StudioProvider (context: ~43 CSS properties, light/dark modes)
     StudioLayout
       StudioHeader (mode toggles, preset selector, import/export, reset)
-      StudioSidebar (scrollable editor sections)
+      StudioSidebar (scrollable; one Accordion, an EditorSection AccordionItem per property group)
       StudioPreview (live component showcase with applied theme)
 ```
 

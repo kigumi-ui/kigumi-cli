@@ -1,12 +1,7 @@
-/* .editor-section {
-  border-bottom: var(--wa-border-width-s) var(--wa-border-style) var(--wa-color-surface-border);
-} */
-
 .editor-section__content {
   display: flex;
   flex-direction: column;
   gap: var(--wa-space-m);
-  padding: var(--wa-space-s) 0;
 }
 
 .editor-section__properties {
