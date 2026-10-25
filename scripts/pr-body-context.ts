@@ -111,6 +111,8 @@ export interface BranchCommit {
   sha: string;
   /** Committer time, seconds since the epoch. A rebase or amend renews it. */
   committedAt: number;
+  /** First line of the commit message, for human-readable diagnostics. */
+  message: string;
 }
 
 /** The commits on the branch (`base..head`), newest first. */
@@ -119,10 +121,14 @@ export function branchCommits(
   base: string,
   head: string
 ): BranchCommit[] {
-  return lines(git(cwd, ['log', '--format=%H %ct', `${base}..${head}`])).map(
+  return lines(git(cwd, ['log', '--format=%H %ct %s', `${base}..${head}`])).map(
     (line) => {
-      const [sha, time] = line.split(' ');
-      return { sha, committedAt: Number(time) };
+      const [sha, time, ...messageParts] = line.split(' ');
+      return {
+        sha,
+        committedAt: Number(time),
+        message: messageParts.join(' '),
+      };
     }
   );
 }
