@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useStudio } from '../contexts/StudioContext';
-import type { LockedValues } from '../lib/locks';
-import { THEME_AGENT_MODES, type CustomTheme } from './custom-theme';
+import { THEME_MODES, type LockedValues } from '../lib/locks';
+import type { CustomTheme } from './custom-theme';
 
 /**
  * The Theme Agent's thin adapter onto Studio: read the custom theme and its
@@ -47,7 +47,7 @@ export function useThemeAgentStudio() {
     (theme: CustomTheme) => {
       const now = currentTheme();
       const imported: Record<string, { light?: string; dark?: string }> = {};
-      for (const mode of THEME_AGENT_MODES) {
+      for (const mode of THEME_MODES) {
         for (const [cssVar, value] of Object.entries(theme[mode])) {
           if (now[mode][cssVar] === value) continue;
           // Both modes: importValues copies a light-only value into dark

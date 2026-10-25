@@ -713,6 +713,30 @@ describe('Theme Agent conversation: locked values', () => {
     expect(undone?.relock).toEqual(brand);
   });
 
+  it('undo after unlock and apply leaves a value changed since, and unlocked', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [warmer],
+      studioDefaults(),
+      locks(brand, darkSurface)
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    const result = conversation.applyHeld('answer-1', outcome.theme);
+    // Unlocked by "Unlock and apply", the brand is tuned by hand.
+    const tuned = structuredClone(result!.theme);
+    tuned.light['--wa-color-brand'] = '#7c3aed';
+    tuned.dark['--wa-color-brand'] = '#7c3aed';
+
+    const undone = conversation.undo('answer-1', tuned);
+
+    expect(undone?.theme.dark['--wa-color-brand']).toBe('#7c3aed');
+    expect(undone?.theme.dark['--wa-color-surface-default']).toBe(
+      studioDefaults().dark['--wa-color-surface-default']
+    );
+    expect(undone?.relock).toEqual(darkSurface);
+  });
+
   it('undo of an answer that unlocked nothing locks nothing', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(

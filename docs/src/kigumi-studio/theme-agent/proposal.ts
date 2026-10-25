@@ -3,13 +3,9 @@ import {
   PROPERTIES_BY_VAR,
   type PropertyDefinition,
 } from '../lib/property-definitions';
-import type { LockedValues } from '../lib/locks';
+import { THEME_MODES, type LockedValues } from '../lib/locks';
 import { SHADOW_COMPONENTS } from '../lib/shadow-components';
-import {
-  cloneTheme,
-  THEME_AGENT_MODES,
-  type CustomTheme,
-} from './custom-theme';
+import { cloneTheme, type CustomTheme } from './custom-theme';
 
 // Shared by the browser and the trigger.dev task (docs/trigger): the task
 // rejects an invalid proposal and lets the model retry, the browser checks
@@ -214,7 +210,7 @@ export function splitLocked(
 ): { free: ThemeProposal; held: ThemeProposal } {
   const free: ThemeProposal = { light: {}, dark: {} };
   const held: ThemeProposal = { light: {}, dark: {} };
-  for (const mode of THEME_AGENT_MODES) {
+  for (const mode of THEME_MODES) {
     for (const [cssVar, value] of Object.entries(proposal[mode])) {
       (locked[mode].includes(cssVar) ? held : free)[mode][cssVar] = value;
     }

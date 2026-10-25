@@ -20,10 +20,6 @@ export const customThemeSchema = z.object({
   shadowComponents: z.array(z.string()),
 });
 
-export type ThemeAgentMode = 'light' | 'dark';
-
-export const THEME_AGENT_MODES: readonly ThemeAgentMode[] = ['light', 'dark'];
-
 /** One string per shadow component list; order and duplicates do not count. */
 export function componentListKey(list: string[]): string {
   return [...new Set(list)].sort().join('\n');
@@ -65,9 +61,9 @@ const previousAnswerSchema = z.object({
 export const themeAgentSnapshotSchema = z.object({
   theme: customThemeSchema,
   previous: previousAnswerSchema.optional(),
-  // A page from before per-mode locks sends none or a list; the task is
-  // deployed by hand, so it may be newer than the page talking to it. The
-  // prompt then lists no locks, and the page still holds what it locked.
+  // The task is deployed by hand, so the page talking to it may be older
+  // and send no locks, or another shape. Anything unreadable lists no locks
+  // in the prompt, and the page still holds what it locked.
   locked: z.unknown().optional().transform(parseLocks),
 });
 

@@ -3,17 +3,17 @@ import {
   NO_LOCKS,
   parseLocks,
   SHADOW_COMPONENTS_LOCK,
+  THEME_MODES,
   valueLock,
   withLocks,
   type LockedValues,
 } from '../lib/locks';
+import type { ThemeMode } from '../lib/defaults';
 import {
   cloneTheme,
   componentListKey,
-  THEME_AGENT_MODES,
   type CustomTheme,
   type PreviousAnswer,
-  type ThemeAgentMode,
   type ThemeAgentSnapshot,
 } from './custom-theme';
 import { checkContrast, type ContrastViolation } from './contrast';
@@ -39,9 +39,9 @@ export type HeldChange =
       kind: 'value';
       cssVar: string;
       /** The proposed value per locked mode it would change. */
-      proposed: Partial<Record<ThemeAgentMode, string>>;
+      proposed: Partial<Record<ThemeMode, string>>;
       /** The value in those modes when the answer arrived. */
-      was: Partial<Record<ThemeAgentMode, string>>;
+      was: Partial<Record<ThemeMode, string>>;
     }
   | { kind: 'shadowComponents'; proposed: string[]; was: string[] };
 
@@ -129,7 +129,8 @@ export interface ThemeAgentConversation {
    * `current` with the values `answerId` wrote put back as they were before
    * it, held changes it applied included, to apply, and the locks "Unlock and
    * apply" lifted, to lock again. A value changed since, by the user or a
-   * later answer, stays as it is. `undefined` when there is nothing to undo.
+   * later answer, stays as it is and is not locked again. `undefined` when
+   * there is nothing to undo.
    */
   undo(
     answerId: string,
@@ -145,7 +146,7 @@ export interface ThemeAgentConversation {
 /** What one answer did to the custom theme. */
 interface AnswerEffect {
   /** The values it wrote per mode, directly or by unlock and apply. */
-  wrote: Record<ThemeAgentMode, Map<string, string>>;
+  wrote: Record<ThemeMode, Map<string, string>>;
   /** The shadow component list it wrote, if it wrote one. */
   wroteShadowComponents?: string[];
   /** What it proposed for locked values, and what became of each. */
@@ -186,9 +187,9 @@ function heldFrom(held: ThemeProposal, current: CustomTheme): HeldChange[] {
     ...Object.keys(held.dark),
   ]);
   for (const cssVar of cssVars) {
-    const proposed: Partial<Record<ThemeAgentMode, string>> = {};
-    const was: Partial<Record<ThemeAgentMode, string>> = {};
-    for (const mode of THEME_AGENT_MODES) {
+    const proposed: Partial<Record<ThemeMode, string>> = {};
+    const was: Partial<Record<ThemeMode, string>> = {};
+    for (const mode of THEME_MODES) {
       const value = held[mode][cssVar];
       if (value === undefined || current[mode][cssVar] === value) continue;
       proposed[mode] = value;
@@ -215,7 +216,7 @@ function heldLock(change: HeldChange): LockedValues {
     ? SHADOW_COMPONENTS_LOCK
     : valueLock(
         change.cssVar,
-        THEME_AGENT_MODES.filter((mode) => mode in change.proposed)
+        THEME_MODES.filter((mode) => mode in change.proposed)
       );
 }
 
@@ -224,10 +225,31 @@ function unchangedSince(change: HeldChange, current: CustomTheme): boolean {
   if (change.kind === 'shadowComponents') {
     return sameList(current.shadowComponents, change.was);
   }
-  return THEME_AGENT_MODES.every(
+  return THEME_MODES.every(
     (mode) =>
       !(mode in change.proposed) ||
       current[mode][change.cssVar] === change.was[mode]
+  );
+}
+
+/**
+ * The lock undo puts back on an applied held change: where `current` still
+ * has the applied value, so undo restores it. A value changed since stays as
+ * it is, and unlocked.
+ */
+function restoredLock(change: HeldChange, current: CustomTheme): LockedValues {
+  if (change.kind === 'shadowComponents') {
+    return sameList(current.shadowComponents, change.proposed)
+      ? SHADOW_COMPONENTS_LOCK
+      : NO_LOCKS;
+  }
+  return valueLock(
+    change.cssVar,
+    THEME_MODES.filter(
+      (mode) =>
+        mode in change.proposed &&
+        current[mode][change.cssVar] === change.proposed[mode]
+    )
   );
 }
 
@@ -235,12 +257,12 @@ function unchangedSince(change: HeldChange, current: CustomTheme): boolean {
 function written(
   before: CustomTheme,
   theme: CustomTheme
-): Record<ThemeAgentMode, Map<string, string>> {
+): Record<ThemeMode, Map<string, string>> {
   const wrote = {
     light: new Map<string, string>(),
     dark: new Map<string, string>(),
   };
-  for (const mode of THEME_AGENT_MODES) {
+  for (const mode of THEME_MODES) {
     for (const [cssVar, value] of Object.entries(theme[mode])) {
       if (before[mode][cssVar] !== value) wrote[mode].set(cssVar, value);
     }
@@ -388,7 +410,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           theme.shadowComponents = [...change.proposed];
           effect.wroteShadowComponents = [...change.proposed];
         } else {
-          for (const mode of THEME_AGENT_MODES) {
+          for (const mode of THEME_MODES) {
             const value = change.proposed[mode];
             if (value === undefined) continue;
             theme[mode][change.cssVar] = value;
@@ -416,7 +438,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       if (!answer || !answer.before || answer.undone) return undefined;
       const { before, effect } = answer;
       const theme = cloneTheme(current);
-      for (const mode of THEME_AGENT_MODES) {
+      for (const mode of THEME_MODES) {
         for (const [cssVar, value] of effect.wrote[mode]) {
           // Changed since, by the user or a later answer: theirs stays.
           if (current[mode][cssVar] !== value) continue;
@@ -428,12 +450,14 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
         theme.shadowComponents = [...before.shadowComponents];
       }
       answer.undone = true;
-      return {
-        theme,
-        relock: locksOfEntries(
-          effect.held.filter((entry) => entry.state === 'applied')
-        ),
-      };
+      const relock = effect.held
+        .filter((entry) => entry.state === 'applied')
+        .reduce(
+          (locks, entry) =>
+            withLocks(locks, restoredLock(entry.change, current), true),
+          NO_LOCKS
+        );
+      return { theme, relock };
     },
 
     answerStatus(answerId) {

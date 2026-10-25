@@ -285,7 +285,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
           const text = messageText(message);
           const outcome =
             message.role === 'assistant'
-              ? answerOutcome(
+              ? answerReportKind(
                   message,
                   conversation.answerStatus(message.id),
                   !running || message.id !== lastMessage?.id
@@ -324,7 +324,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                 </Card>
               )}
               {outcome && (
-                <AnswerOutcome
+                <AnswerReport
                   outcome={outcome}
                   violations={conversation.answerViolations(message.id)}
                   reasons={
@@ -406,25 +406,25 @@ function heldAnnouncement(count: number): string {
     : ` ${count} locked values were not changed.`;
 }
 
-type AnswerOutcomeKind = AnswerStatus | 'refused';
+type AnswerReportKind = AnswerStatus | 'refused';
 
 /**
  * What an answer did to the custom theme: applied, undone, refused by the
  * browser (`rejected`) or by the task (`refused`, every attempt failed), or
  * nothing to show yet.
  */
-function answerOutcome(
+function answerReportKind(
   message: ThemeAgentMessage,
   status: AnswerStatus | undefined,
   finished: boolean
-): AnswerOutcomeKind | undefined {
+): AnswerReportKind | undefined {
   if (status) return status;
   if (finished && acceptedProposals(message) === null) return 'refused';
   return undefined;
 }
 
-interface AnswerOutcomeProps {
-  outcome: AnswerOutcomeKind;
+interface AnswerReportProps {
+  outcome: AnswerReportKind;
   reasons: string[];
   violations: ContrastViolation[];
   onUndo: () => void;
@@ -436,13 +436,13 @@ interface AnswerOutcomeProps {
  * Studio's report under an answer: its callouts first (accessibility
  * warning, locked values not changed), then what was applied, with Undo.
  */
-function AnswerOutcome({
+function AnswerReport({
   outcome,
   reasons,
   violations,
   onUndo,
   held,
-}: AnswerOutcomeProps) {
+}: AnswerReportProps) {
   const lockedCallout = held.length > 0 && (
     <LockedChangesCallouts entries={held} />
   );

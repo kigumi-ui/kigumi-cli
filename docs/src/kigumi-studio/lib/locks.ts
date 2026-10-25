@@ -31,7 +31,7 @@ export const SHADOW_COMPONENTS_LOCK: LockedValues = {
   shadowComponents: true,
 };
 
-const MODES: readonly ThemeMode[] = ['light', 'dark'];
+export const THEME_MODES: readonly ThemeMode[] = ['light', 'dark'];
 
 const STORAGE_KEY = 'kigumi-studio-locks';
 
@@ -40,7 +40,9 @@ const STORAGE_KEY = 'kigumi-studio-locks';
  * for a value set per mode, both for a mode-independent one.
  */
 export function lockModes(cssVar: string, editMode: ThemeMode): ThemeMode[] {
-  return PROPERTIES_BY_VAR.get(cssVar)?.modeDependent ? [editMode] : [...MODES];
+  return PROPERTIES_BY_VAR.get(cssVar)?.modeDependent
+    ? [editMode]
+    : [...THEME_MODES];
 }
 
 /** The lock of one property in `modes`, for `withLocks`. */
@@ -64,7 +66,10 @@ export function isLocked(
 }
 
 /**
- * `locked` with every lock in `change` added (`lock`) or removed. A
+ * `locked` with every lock in `change` added (`lock`) or removed; a lock
+ * `change` does not name stays as it is. `change` names values the way
+ * `valueLock()` and `SHADOW_COMPONENTS_LOCK` build them, so unlocking the
+ * shadow component list takes `SHADOW_COMPONENTS_LOCK`, never `NO_LOCKS`. A
  * mode-independent property changes in both modes, each list keeps sidebar
  * order, and a CSS variable that is not a Studio property is dropped.
  */
@@ -74,12 +79,9 @@ export function withLocks(
   lock: boolean
 ): LockedValues {
   const next = { light: new Set(locked.light), dark: new Set(locked.dark) };
-  for (const mode of MODES) {
+  for (const mode of THEME_MODES) {
     for (const cssVar of change[mode]) {
-      const modes = PROPERTIES_BY_VAR.get(cssVar)?.modeDependent
-        ? [mode]
-        : MODES;
-      for (const target of modes) {
+      for (const target of lockModes(cssVar, mode)) {
         if (lock) next[target].add(cssVar);
         else next[target].delete(cssVar);
       }

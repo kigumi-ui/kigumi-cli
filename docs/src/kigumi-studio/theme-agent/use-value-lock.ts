@@ -4,6 +4,7 @@ import {
   isLocked,
   lockModes,
   SHADOW_COMPONENTS_LOCK,
+  THEME_MODES,
   valueLock,
 } from '../lib/locks';
 
@@ -38,7 +39,7 @@ export function useShadowComponentsLock(): ValueLock {
   return {
     available: locksAvailable,
     locked: locksAvailable && lockedValues.shadowComponents,
-    modes: ['light', 'dark'],
+    modes: [...THEME_MODES],
     setLocked: (locked) => setLocked(SHADOW_COMPONENTS_LOCK, locked),
   };
 }
