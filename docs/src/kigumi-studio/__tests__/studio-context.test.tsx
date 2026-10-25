@@ -5,6 +5,13 @@ import { renderHook, act } from '@testing-library/react';
 import { StudioProvider, useStudio } from '../contexts/StudioContext';
 import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
+import {
+  NO_LOCKS,
+  SHADOW_COMPONENTS_LOCK,
+  valueLock,
+  withLocks,
+} from '../lib/locks';
+import { useValueLock } from '../theme-agent/use-value-lock';
 import { useThemeAgentStudio } from '../theme-agent/use-theme-agent-studio';
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -353,6 +360,20 @@ describe('Theme Agent adapter', () => {
     return { studio: useStudio(), agent: useThemeAgentStudio() };
   }
 
+  it('reads the locked values and unlocks them for unlock and apply', () => {
+    const { result } = renderHook(useBoth, { wrapper });
+    const brand = valueLock('--wa-color-brand', ['light', 'dark']);
+    act(() => {
+      result.current.studio.setLocked(brand, true);
+    });
+    expect(result.current.agent.locked()).toEqual(brand);
+
+    act(() => {
+      result.current.agent.setLocked(brand, false);
+    });
+    expect(result.current.studio.lockedValues).toEqual(NO_LOCKS);
+  });
+
   it('reads a sidebar edit into the custom theme it hands the Theme Agent', () => {
     const { result } = renderHook(useBoth, { wrapper });
     act(() => {
@@ -395,5 +416,113 @@ describe('Theme Agent adapter', () => {
     expect(shadowComponents).toEqual(['Button']);
     // The preview reads the same values.
     expect(getStyleObject('dark')['--wa-transition-fast']).toBe('100ms');
+  });
+});
+
+/** Set the Theme Agent's access cookie for `run`, then remove it. */
+function withAccessCookie(run: () => void) {
+  document.cookie = 'kigumi-theme-agent=test; path=/';
+  try {
+    run();
+  } finally {
+    document.cookie = 'kigumi-theme-agent=; path=/; max-age=0';
+  }
+}
+
+describe('useStudio - locked values', () => {
+  const darkSurface = valueLock('--wa-color-surface-default', ['dark']);
+
+  it('starts with nothing locked', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    expect(result.current.lockedValues).toEqual(NO_LOCKS);
+  });
+
+  it('locks a value per mode, a mode-independent one in both, and the shadow list', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      result.current.setLocked(darkSurface, true);
+      result.current.setLocked(valueLock('--wa-color-brand', ['dark']), true);
+      result.current.setLocked(SHADOW_COMPONENTS_LOCK, true);
+    });
+    expect(result.current.lockedValues).toEqual({
+      light: ['--wa-color-brand'],
+      dark: ['--wa-color-brand', '--wa-color-surface-default'],
+      shadowComponents: true,
+    });
+    act(() => {
+      result.current.setLocked(darkSurface, false);
+    });
+    // A lock the change does not name stays, the shadow list's included.
+    expect(result.current.lockedValues).toEqual({
+      light: ['--wa-color-brand'],
+      dark: ['--wa-color-brand'],
+      shadowComponents: true,
+    });
+  });
+
+  it('ignores keys that are not Studio values', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      result.current.setLocked(
+        { light: ['--wa-nonexistent'], dark: [], shadowComponents: false },
+        true
+      );
+    });
+    expect(result.current.lockedValues).toEqual(NO_LOCKS);
+  });
+
+  it('keeps locks through a reset, a group reset and a reload', () => {
+    const first = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      first.result.current.setLocked(darkSurface, true);
+    });
+    act(() => {
+      first.result.current.resetGroup('colors-surface');
+      first.result.current.resetAll();
+    });
+    const locked = withLocks(NO_LOCKS, darkSurface, true);
+    expect(first.result.current.lockedValues).toEqual(locked);
+    first.unmount();
+
+    const reloaded = renderHook(() => useStudio(), { wrapper });
+    expect(reloaded.result.current.lockedValues).toEqual(locked);
+  });
+
+  it('a switch locks the value in the mode being edited', () => {
+    withAccessCookie(() => {
+      const { result } = renderHook(
+        () => ({
+          studio: useStudio(),
+          lock: useValueLock('--wa-color-surface-default'),
+        }),
+        { wrapper }
+      );
+      act(() => result.current.studio.setEditMode('dark'));
+      act(() => result.current.lock.setLocked(true));
+      expect(result.current.lock.locked).toBe(true);
+
+      act(() => result.current.studio.setEditMode('light'));
+      expect(result.current.lock.locked).toBe(false);
+      expect(result.current.lock.modes).toEqual(['light']);
+    });
+  });
+
+  it('a locked value counts as locked only with the Theme Agent cookie', () => {
+    localStorage.setItem('kigumi-studio-locks', JSON.stringify(darkSurface));
+    const without = renderHook(
+      () => useValueLock('--wa-color-surface-default'),
+      { wrapper }
+    );
+    // Without the cookie there is no switch to unlock with.
+    expect(without.result.current.locked).toBe(false);
+    without.unmount();
+
+    withAccessCookie(() => {
+      const withCookie = renderHook(
+        () => useValueLock('--wa-color-surface-default'),
+        { wrapper }
+      );
+      expect(withCookie.result.current.locked).toBe(true);
+    });
   });
 });

@@ -1,0 +1,15 @@
+.lock-switch {
+  align-self: flex-start;
+  margin-block-end: var(--wa-space-xs);
+}
+
+.lock-switch__label {
+  font-size: var(--wa-font-size-s);
+  color: var(--wa-color-text-quiet);
+}
+
+/* A locked value's native inputs, disabled as Web Awesome shows a disabled control. */
+.property-row input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

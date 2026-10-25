@@ -157,11 +157,13 @@
 }
 
 .property-row__range::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--wa-color-brand) 25%, transparent);
+  box-shadow: 0 0 0 4px
+    color-mix(in oklab, var(--wa-color-brand) 25%, transparent);
 }
 
 .property-row__range::-moz-range-thumb:hover {
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--wa-color-brand) 25%, transparent);
+  box-shadow: 0 0 0 4px
+    color-mix(in oklab, var(--wa-color-brand) 25%, transparent);
 }
 
 .property-row__range:active::-webkit-slider-thumb {

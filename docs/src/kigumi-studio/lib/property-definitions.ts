@@ -680,6 +680,11 @@ export const PROPERTY_DEFINITIONS: PropertyDefinition[] = [
   },
 ];
 
+/** Sidebar section labels indexed by group key */
+export const PROPERTY_GROUP_LABELS = new Map(
+  PROPERTY_GROUPS.map((group) => [group.key, group.label])
+);
+
 /** Map of properties indexed by CSS variable name */
 export const PROPERTIES_BY_VAR = new Map(
   PROPERTY_DEFINITIONS.map((p) => [p.cssVar, p])

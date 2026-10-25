@@ -5,6 +5,8 @@ import type {
   PropertyDefinition,
   PropertyOption,
 } from '../../lib/property-definitions';
+import { useValueLock } from '../../theme-agent/use-value-lock';
+import { LockSwitch } from './LockSwitch';
 import './PropertyRow.css';
 
 interface PropertyRowProps {
@@ -16,6 +18,9 @@ export function PropertyRow({ property, style }: PropertyRowProps) {
   const { values, editMode, setProperty, isModified } = useStudio();
   const currentValue = values[property.cssVar]?.[editMode] ?? '';
   const modified = isModified(property.cssVar);
+  // Locked for the Theme Agent: disabled until unlocked, as Web Awesome
+  // shows a disabled control.
+  const lock = useValueLock(property.cssVar);
 
   return (
     <div className="property-row" style={style}>
@@ -30,9 +35,11 @@ export function PropertyRow({ property, style }: PropertyRowProps) {
         <PropertyControl
           property={property}
           value={currentValue}
+          disabled={lock.locked}
           onChange={(val) => setProperty(property.cssVar, val)}
         />
       </div>
+      <LockSwitch lock={lock} context={property.label} />
     </div>
   );
 }
@@ -40,17 +47,26 @@ export function PropertyRow({ property, style }: PropertyRowProps) {
 interface PropertyControlProps {
   property: PropertyDefinition;
   value: string;
+  disabled: boolean;
   onChange: (value: string) => void;
 }
 
-function PropertyControl({ property, value, onChange }: PropertyControlProps) {
+function PropertyControl({
+  property,
+  value,
+  disabled,
+  onChange,
+}: PropertyControlProps) {
   switch (property.inputType) {
     case 'color':
-      return <ColorControl value={value} onChange={onChange} />;
+      return (
+        <ColorControl value={value} disabled={disabled} onChange={onChange} />
+      );
     case 'slider':
       return (
         <SliderInputControl
           value={value}
+          disabled={disabled}
           onChange={onChange}
           min={property.min ?? 0}
           max={property.max ?? 1}
@@ -62,12 +78,15 @@ function PropertyControl({ property, value, onChange }: PropertyControlProps) {
       return (
         <SelectControl
           value={value}
+          disabled={disabled}
           onChange={onChange}
           options={property.options ?? []}
         />
       );
     case 'text':
-      return <TextControl value={value} onChange={onChange} />;
+      return (
+        <TextControl value={value} disabled={disabled} onChange={onChange} />
+      );
     default:
       return null;
   }
@@ -78,9 +97,11 @@ function PropertyControl({ property, value, onChange }: PropertyControlProps) {
 
 function ColorControl({
   value,
+  disabled,
   onChange,
 }: {
   value: string;
+  disabled: boolean;
   onChange: (v: string) => void;
 }) {
   const handlePicker = useCallback(
@@ -106,12 +127,14 @@ function ColorControl({
         type="color"
         className="property-row__color-picker"
         value={pickerValue}
+        disabled={disabled}
         onInput={handlePicker}
       />
       <input
         type="text"
         className="property-row__color-text"
         value={value}
+        disabled={disabled}
         onChange={handleText}
         spellCheck={false}
       />
@@ -124,6 +147,7 @@ function ColorControl({
 
 function SliderInputControl({
   value,
+  disabled,
   onChange,
   min,
   max,
@@ -131,6 +155,7 @@ function SliderInputControl({
   unit,
 }: {
   value: string;
+  disabled: boolean;
   onChange: (v: string) => void;
   min: number;
   max: number;
@@ -165,6 +190,7 @@ function SliderInputControl({
       <input
         type="range"
         className="property-row__range"
+        disabled={disabled}
         min={min}
         max={max}
         step={step}
@@ -175,6 +201,7 @@ function SliderInputControl({
         <input
           type="number"
           className="property-row__number"
+          disabled={disabled}
           min={min}
           max={max}
           step={step}
@@ -191,10 +218,12 @@ function SliderInputControl({
 
 function SelectControl({
   value,
+  disabled,
   onChange,
   options,
 }: {
   value: string;
+  disabled: boolean;
   onChange: (v: string) => void;
   options: PropertyOption[];
 }) {
@@ -242,7 +271,12 @@ function SelectControl({
     });
 
     return (
-      <Select value={value} size="small" onChange={handleChange}>
+      <Select
+        value={value}
+        size="small"
+        disabled={disabled}
+        onChange={handleChange}
+      >
         {flatOptions.map((opt) => (
           <Option key={opt.value} value={opt.value} disabled={opt.disabled}>
             {opt.label}
@@ -254,7 +288,12 @@ function SelectControl({
 
   // Web Awesome Select for non-categorized options
   return (
-    <Select value={value} size="small" onChange={handleChange}>
+    <Select
+      value={value}
+      size="small"
+      disabled={disabled}
+      onChange={handleChange}
+    >
       {options.map((opt) => (
         <Option key={opt.value} value={opt.value}>
           {opt.label}
@@ -269,9 +308,11 @@ function SelectControl({
 
 function TextControl({
   value,
+  disabled,
   onChange,
 }: {
   value: string;
+  disabled: boolean;
   onChange: (v: string) => void;
 }) {
   const handleChange = useCallback(
@@ -286,6 +327,7 @@ function TextControl({
       type="text"
       className="property-row__text-input"
       value={value}
+      disabled={disabled}
       onChange={handleChange}
     />
   );

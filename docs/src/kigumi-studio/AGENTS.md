@@ -57,6 +57,9 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 | `lib/css-generator.ts` | Generate CSS output |
 | `lib/preview-style.ts` | `buildPreviewStyle()`: the custom properties the preview sets, derived palettes included. `getStyleObject()` and the contrast check both read it |
 | `lib/preset-loader.ts` | Load preset CSS files via `import.meta.glob` |
+| `lib/locks.ts` | Locked values (`LockedValues`): CSS variables per mode plus the shadow component list; a mode-independent property locks in both modes. Stored apart from the theme (`kigumi-studio-locks`), so reset and presets leave them; never exported. `describeLocks()` is how the Theme Agent reads them |
+| `components/editor/LockSwitch.tsx` | The "Lock value" switch under each value and under the shadow component list; a value set per mode locks in the edited mode and the label names it. Only with the Theme Agent's access cookie |
+| `theme-agent/use-value-lock.ts` | `useValueLock()` / `useShadowComponentsLock()`: one row's lock in the edited mode, read once per row and handed to its control (disabled while locked) and its `LockSwitch` |
 | `themes/*.css` | Preset theme CSS files |
 
 ## Theme Agent
@@ -74,12 +77,14 @@ Browser (useChat + useTriggerChatTransport)
 | File | Purpose |
 | --- | --- |
 | `theme-agent/constants.ts` | Cookie name, task id, endpoint, tool name, status steps; shared by browser, function and task |
-| `theme-agent/custom-theme.ts` | The custom theme and the snapshot every message carries (types + Zod schema); shared with the task |
-| `theme-agent/proposal.ts` | Proposal shape and `validateProposal()`: Studio properties, Studio's font and shadow lists, values the sidebar offers. Shared with the task |
+| `theme-agent/custom-theme.ts` | The custom theme and the snapshot every message carries (theme and locked values; types + Zod schema); shared with the task |
+| `theme-agent/proposal.ts` | Proposal shape and `validateProposal()`: Studio properties, Studio's font and shadow lists, values the sidebar offers. `splitLocked()` splits a proposal into what the browser applies and what it holds; browser and task both use it. Shared with the task |
 | `theme-agent/contrast.ts` | `checkContrast()`: WCAG 2.1 AA pairs in both modes, read from `buildPreviewStyle()`; resolves hex, `rgb()`, `oklch()` and `var()`. Shared with the task |
-| `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply, contrast check of the applied theme, undo. No React, no network, no model |
-| `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme, apply one |
-| `components/theme-agent/ThemeAgentSidebar.tsx` | The chat, lazy-loaded only when the cookie is present |
+| `theme-agent/conversation.ts` | The conversation module: snapshot, validate-then-apply except locked values, held changes and unlock and apply per value or all, contrast check of the applied theme, undo of one answer's own values. No React, no network, no model |
+| `theme-agent/describe-held-change.ts` | The sidebar name of a held change |
+| `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme and its locked values, apply a theme; hands on Studio's `setLocked` |
+| `components/theme-agent/ThemeAgentSidebar.tsx` | The chat, lazy-loaded only when the cookie is present. A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card |
+| `components/theme-agent/LockedChanges.tsx` | `UnlockAndApply`, the answer's action inside its card: one button for one held value, one per value plus "Unlock and apply all" for more. `LockedChangesCallouts`, Studio's report below the card: a success callout for what was unlocked and applied, a neutral one for what stays locked |
 | `../../api/_lib/theme-agent-session.ts` | Access gate + request handling, tested with real `Request`s |
 | `../../trigger/theme-agent.ts` | The `chat.agent` task: limits, model, snapshot schema, status step |
 | `../../trigger/theme-agent-turn.ts` | One answer: prompt, the `propose_theme` tool, reject-and-retry loop, contrast correction rounds |
@@ -89,8 +94,14 @@ Guard rails:
 - The chat window uses `@/components/ui` wrappers only: no raw `wa-*` tags, no AI SDK UI components, no third-party chat UI. The AI SDK is used for `useChat` only.
 - Never render model output as HTML. `wa-markdown` injects marked's output unsanitised.
 - The model changes the theme only through the `propose_theme` tool, never through its reply text. The task validates every call with `validateProposal()` and sends the errors back for another attempt (at most 3 per answer). The browser validates again in the conversation module and never applies a proposal it refuses. `validateProposal()` refuses custom CSS until the `overrides` layer and its validator from ADR 0009 land.
-- Every accepted proposal is checked for contrast on the theme as the answer's proposals leave it: normal, quiet and link text on the raised, default and lowered surfaces at 4.5:1, the form control border on its background at 3:1, and the brand fill the preview paints (`--wa-color-brand-fill-loud`, derived from `--wa-color-brand`) under `--wa-color-brand-on-loud` at 4.5:1. The violations go back to the model for at most 2 correction rounds; a correction names only its fixes, so the browser applies an answer's accepted proposals in order. The browser checks the applied theme again, hand edits made during the run included, and lists what still fails in an accessibility warning; that warning, not the task's feedback, is what the theme on screen has. A colour the check cannot resolve counts as failing.
+- Every accepted proposal is checked for contrast on the theme as the answer's proposals leave it: normal, quiet and link text on the raised, default and lowered surfaces at 4.5:1, the form control border on its background at 3:1, and the brand fill the preview paints (`--wa-color-brand-fill-loud`, derived from `--wa-color-brand`) under `--wa-color-brand-on-loud` at 4.5:1. The violations go back to the model for at most 2 correction rounds, except the brand fill pair: the only fix is another brand hue, and the brand colour is the user's, so it is reported, never corrected unless the user's message asks for that fix (a locked brand is then held like any locked value); a correction names only its fixes, so the browser applies an answer's accepted proposals in order. The browser checks the applied theme again, hand edits made during the run included, and lists what still fails in an accessibility warning; that warning, not the task's feedback, is what the theme on screen has. A colour the check cannot resolve counts as failing.
 - Colours in a proposal are `#rrggbb`: the sidebar's picker, the brand palette and the shadow colour only work with that.
+- Locked values are protected in `conversation.ts`, never by the prompt (ADR 0007, ADR 0010). The user locks them in the sidebar, per mode; nothing is locked by default. An answer's proposal for a locked value is held, never applied, and only "Unlock and apply" under the answer applies it and unlocks it. A value changed since the answer is not applied and stays locked. Sending the next message keeps every change still held: only the latest answer offers "Unlock and apply".
+- The prompt lists the locked values and tells the model to leave them out unless the latest message asks to change one, and then to propose it anyway, so Studio holds it and offers "Unlock and apply". A prompt that forbids proposing them leaves nothing to hold and no button to press. The task checks contrast on the proposal without them, and nothing depends on the model obeying.
+- The agent hears what the browser did, since it cannot see it: the `propose_theme` result lists the proposal's locked values (`describeLocks()` of what `splitLocked()` holds), and every snapshot's `previous` says how Studio took the last answer (applied, nothing applied, refused with its errors, undone) and which locked values it held. `previous` is absent when the last answer proposed nothing (`answerFinished()`), so an older answer's outcome is never reported as the last one's. The prompt says that only the latest answer offers "Unlock and apply", so a change an earlier answer held is proposed again, not pointed at. The prompt turns both into instructions not to claim a change that did not land.
+- Locks are the user's own: a reset, a section reset and loading a preset leave them, and the export never contains them. Only the Theme Agent reads them.
+- Undo reverts one answer's own values, held changes it applied included, and leaves every value the user or a later answer changed since. What its "Unlock and apply" unlocked is locked again, except a value changed since, which stays unlocked.
+- The message field stays writable while an answer runs, so the next message can be prepared; only sending waits for the answer.
 - Every message carries a snapshot of the custom theme as the sidebar has it (`sendMessage` `metadata`, the task's `clientDataSchema`). The task builds its prompt from the snapshot, never from earlier turns, so hand edits between messages are seen.
 - `ANTHROPIC_API_KEY` lives only in trigger.dev, in its Production environment. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
 - `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.
@@ -108,7 +119,7 @@ Then reload Studio. Any value shows the button; only the right one starts a run.
 
 ### Deploying the task
 
-The task deploys by hand; nothing in CI deploys it. Redeploy after every change under `docs/trigger/` or to `docs/trigger.config.ts`:
+The task deploys by hand; nothing in CI deploys it. Redeploy after every change under `docs/trigger/` or to `docs/trigger.config.ts`, and with every change to `theme-agent/proposal.ts` or `custom-theme.ts`: a page that validates proposals more strictly than the deployed task refuses what that task accepted, and the agent then believes it changed the theme.
 
 ```bash
 cd docs
@@ -117,7 +128,7 @@ pnpm exec trigger whoami       # confirm the account
 pnpm exec trigger deploy --prod
 ```
 
-The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with the normal docs deployment. Cost ceilings: the Anthropic monthly spend limit (Console), `maxOutputTokens` per step and at most 4 steps per answer, and `concurrency: { total: 1 }` in the task, and trigger.dev's free credit, which stops runs once spent.
+The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with the normal docs deployment. Cost ceilings: the Anthropic monthly spend limit (Console), `maxOutputTokens` per step and at most `MAX_STEPS` (7) steps per answer, and `concurrency: { total: 1 }` in the task, and trigger.dev's free credit, which stops runs once spent.
 
 ## Testing
 

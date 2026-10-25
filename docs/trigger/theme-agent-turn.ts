@@ -15,15 +15,21 @@ import {
   checkContrast,
   violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast.js';
-import type { ThemeAgentSnapshot } from '../src/kigumi-studio/theme-agent/custom-theme.js';
+import type {
+  PreviousAnswer,
+  ThemeAgentSnapshot,
+} from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
   applyProposal,
+  locksOf,
+  splitLocked,
   themeProposalSchema,
   validateProposal,
   type ProposeThemeOutput,
 } from '../src/kigumi-studio/theme-agent/proposal.js';
 import { PROPERTY_DEFINITIONS } from '../src/kigumi-studio/lib/property-definitions.js';
 import { AVAILABLE_FONTS } from '../src/kigumi-studio/lib/font-definitions.js';
+import { describeLocks } from '../src/kigumi-studio/lib/locks.js';
 import { SHADOW_COMPONENTS } from '../src/kigumi-studio/lib/shadow-components.js';
 
 /** Invalid proposals per answer before the answer ends without one. */
@@ -48,7 +54,10 @@ const PROPOSE_DESCRIPTION = [
   'contrast; when it returns correctContrast: true, propose again with only',
   'the values that fix every pair listed in contrast. When contrast still',
   'lists pairs and correctContrast is false, do not propose again: name the',
-  'pairs that still fail in your explanation.',
+  'pairs that still fail in your explanation. Values listed in locked are',
+  'locked by the user: Studio holds them instead of applying them, and the',
+  'user decides with Unlock and apply. Never say you changed them; say they',
+  'are locked and wait for the user.',
 ].join(' ');
 
 /**
@@ -78,6 +87,7 @@ function proposeThemeTool(
           ],
           contrast: [],
           correctContrast: false,
+          locked: [],
         };
       }
       const validation = validateProposal(input);
@@ -88,20 +98,35 @@ function proposeThemeTool(
           errors: validation.errors,
           contrast: [],
           correctContrast: false,
+          locked: [],
         };
       }
       onStatus(THEME_AGENT_STATUS.checking);
-      theme = applyProposal(theme, validation.proposal);
-      const contrast = checkContrast(theme).map(violationFeedback);
+      // Locked values stay as they are in the browser; check what lands.
+      const { free, held } = splitLocked(validation.proposal, snapshot.locked);
+      theme = applyProposal(theme, free);
+      const violations = checkContrast(theme);
+      const contrast = violations.map(violationFeedback);
+      // A pair set by another value is the brand fill: Studio derives it
+      // from the brand at a fixed lightness, so the only fix is another
+      // brand hue, and the brand is the user's. It is reported, never
+      // corrected.
+      const correctable = violations.filter((violation) => !violation.setBy);
       const correctContrast =
-        contrast.length > 0 && corrections < MAX_CONTRAST_CORRECTIONS;
+        correctable.length > 0 && corrections < MAX_CONTRAST_CORRECTIONS;
       if (correctContrast) {
         corrections += 1;
         onStatus(THEME_AGENT_STATUS.fixing);
-      } else if (contrast.length > 0) {
+      } else if (correctable.length > 0) {
         settled = true;
       }
-      return { accepted: true, errors: [], contrast, correctContrast };
+      return {
+        accepted: true,
+        errors: [],
+        contrast,
+        correctContrast,
+        locked: describeLocks(locksOf(held)),
+      };
     },
   });
 
@@ -109,6 +134,35 @@ function proposeThemeTool(
     rejections >= MAX_PROPOSAL_ATTEMPTS;
 
   return { proposeTheme, outOfAttempts };
+}
+
+/** What Studio did with the last answer, which only the browser knows. */
+function previousAnswerLines(previous: PreviousAnswer | undefined): string[] {
+  if (!previous) return [];
+  const lines = ['What Studio did with your last answer:'];
+  switch (previous.status) {
+    case 'applied':
+      lines.push('- Applied to the theme.');
+      break;
+    case 'unchanged':
+      lines.push('- Nothing was applied.');
+      break;
+    case 'rejected':
+      lines.push(
+        '- Studio refused it and applied nothing. Do not treat those changes as made; propose again if the request still stands.',
+        ...previous.errors.map((error) => `  - ${error}`)
+      );
+      break;
+    case 'undone':
+      lines.push('- The user undid it.');
+      break;
+  }
+  if (previous.held.length > 0) {
+    lines.push(
+      `- Locked, so not changed, and kept locked now that the user wrote again: ${previous.held.join(', ')}. Propose them again if the user still wants them.`
+    );
+  }
+  return [...lines, ''];
 }
 
 function propertyLine(property: (typeof PROPERTY_DEFINITIONS)[number]): string {
@@ -142,6 +196,7 @@ function propertyLine(property: (typeof PROPERTY_DEFINITIONS)[number]): string {
 
 /** The system prompt for one turn, built around the snapshot sent with it. */
 export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
+  const locked = describeLocks(snapshot.locked);
   return [
     'You are the Theme Agent in Kigumi Studio, the visual theme builder of Kigumi.',
     'You help the user build a custom Kigumi theme for light and dark mode.',
@@ -150,7 +205,7 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     'How you answer:',
     `- To change the theme, call ${THEME_AGENT_PROPOSE_TOOL} once with only the values to change. A new theme covers brand, surfaces, text, form controls and shadow in both modes, plus fonts, radius and spacing where they fit the request.`,
     '- Keep the theme readable in both modes (WCAG 2.1 AA): normal, quiet and link text need 4.5:1 on the raised, default and lowered surfaces; the form control border needs 3:1 on the form control background; white text on the brand fill needs 4.5:1.',
-    '- Studio derives the brand fill from --wa-color-brand at a fixed lightness, so only its hue and saturation change that contrast. A surface or text colour left at its Studio default is derived from --wa-color-neutral.',
+    "- The brand colour is the user's: change --wa-color-brand only when the latest message asks about the brand or asks to fix a failing brand fill pair (such as the accessibility warning), never as part of a mood such as warmer or calmer, and never on your own to fix contrast. Studio derives the brand fill from it at a fixed lightness, so only another hue or saturation fixes that pair; unless the user asks, a failing brand fill pair is reported, not corrected. A surface or text colour left at its Studio default is derived from --wa-color-neutral.",
     `- If ${THEME_AGENT_PROPOSE_TOOL} returns accepted: false, fix every listed error and call it again.`,
     `- If it returns correctContrast: true, call it again with only the values that fix the listed contrast pairs. If contrast still lists pairs with correctContrast: false, stop proposing and name those pairs in your explanation.`,
     '- After the proposal is accepted, explain in two or three short sentences what changed and why. Do not list the values.',
@@ -158,6 +213,10 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     '- Reply in the language the user wrote in.',
     '- The current custom theme below is the truth. It may contain edits the user made by hand since your last answer; never rely on values from earlier in the conversation.',
     '',
+    "Locked values (the user locked these in the sidebar; a name without a mode is locked in both modes). Leave them out of a proposal unless the latest message asks to change one of them. When it does, propose that change anyway: Studio does not apply it, it holds it, and the user applies it with Unlock and apply under your answer. Then say it is locked and waits for the user; never say you changed it. Unlock and apply is offered only under your latest answer: once the user writes again, what an earlier answer held stays locked and cannot be applied from the chat, so if the user still wants it, propose it again. The user can also turn off a value's Lock value switch in the sidebar:",
+    ...(locked.length > 0 ? locked.map((line) => `- ${line}`) : ['- none']),
+    '',
+    ...previousAnswerLines(snapshot.previous),
     'Values you may set (nothing else, no custom CSS):',
     ...PROPERTY_DEFINITIONS.map(propertyLine),
     '',

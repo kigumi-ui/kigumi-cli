@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useEffect,
   useReducer,
   useRef,
@@ -29,6 +30,7 @@ import {
 import {
   createThemeAgentConversation,
   type AnswerStatus,
+  type HeldEntry,
 } from '../../theme-agent/conversation';
 import type {
   ProposeThemeOutput,
@@ -36,6 +38,7 @@ import type {
 } from '../../theme-agent/proposal';
 import { requestThemeAgentToken } from '../../theme-agent/session-client';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
+import { LockedChangesCallouts, UnlockAndApply } from './LockedChanges';
 import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
@@ -117,7 +120,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
   const [conversation] = useState(createThemeAgentConversation);
-  const { currentTheme, applyTheme } = useThemeAgentStudio();
+  const { currentTheme, locked, applyTheme, setLocked } = useThemeAgentStudio();
   // The conversation module is plain state; re-render after each event.
   const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
@@ -136,6 +139,9 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
       if (finishReason === 'length') {
         setCutOff((ids) => new Set(ids).add(message.id));
       }
+      // Recorded with or without a proposal, so the next message never
+      // reports an older answer's outcome as this one's.
+      conversation.answerFinished(message.id);
       // Only a finished answer is applied, never part of one.
       if (isAbort || isDisconnect || isError) return;
       const proposals = acceptedProposals(message);
@@ -145,7 +151,8 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
       const outcome = conversation.answerReceived(
         message.id,
         proposals,
-        currentTheme()
+        currentTheme(),
+        locked()
       );
       if (outcome.applied) applyTheme(outcome.theme);
       conversationChanged();
@@ -162,17 +169,18 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   // Empty while a reply streams, so the polite live region announces the
   // finished reply once instead of every token.
   const lastMessage = messages.at(-1);
+  const lastStatus = lastMessage && conversation.answerStatus(lastMessage.id);
   const lastWarnings = lastMessage
     ? conversation.answerViolations(lastMessage.id).length
     : 0;
+  const lastHeld = lastMessage
+    ? conversation
+        .heldChanges(lastMessage.id)
+        .filter((entry) => entry.state === 'held').length
+    : 0;
   const lastOutcome =
-    lastMessage && conversation.answerStatus(lastMessage.id) === 'applied'
-      ? lastWarnings > 0
-        ? ` Applied to the theme with ${lastWarnings} accessibility ${
-            lastWarnings === 1 ? 'warning' : 'warnings'
-          }.`
-        : ' Applied to the theme.'
-      : '';
+    (lastStatus === 'applied' ? appliedAnnouncement(lastWarnings) : '') +
+    heldAnnouncement(lastHeld);
   const announcement = notice
     ? notice
     : status === 'error'
@@ -200,17 +208,32 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     setStatusStep(null);
     void sendMessage(
       { text },
-      { metadata: conversation.messageSent(currentTheme()) }
+      { metadata: conversation.messageSent(currentTheme(), locked()) }
     );
     setDraft('');
   };
 
-  const undo = (answerId: string) => {
-    const before = conversation.undo(answerId);
-    if (!before) return;
-    applyTheme(before);
+  const unlockAndApply = (answerId: string, index?: number) => {
+    const result = conversation.applyHeld(answerId, currentTheme(), index);
+    if (!result) return;
+    setLocked(result.unlock, false);
+    applyTheme(result.theme);
     conversationChanged();
-    setNotice('Undone. The theme is back to how it was before that answer.');
+    setNotice(unlockAnnouncement(result.applied, result.changed));
+    // The button goes away; keep focus in the chat.
+    textareaRef.current?.focus({ preventScroll: true });
+  };
+
+  const undo = (answerId: string) => {
+    const reverted = conversation.undo(answerId, currentTheme());
+    if (!reverted) return;
+    applyTheme(reverted.theme);
+    // What its unlock and apply unlocked is locked again.
+    setLocked(reverted.relock, true);
+    conversationChanged();
+    setNotice(
+      "Undone. That answer's changes are reverted; values you changed since stay."
+    );
     // The Undo button goes away; keep focus in the chat.
     textareaRef.current?.focus({ preventScroll: true });
   };
@@ -262,41 +285,60 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
           const text = messageText(message);
           const outcome =
             message.role === 'assistant'
-              ? answerOutcome(
+              ? answerReportKind(
                   message,
                   conversation.answerStatus(message.id),
                   !running || message.id !== lastMessage?.id
                 )
               : undefined;
+          const heldEntries = conversation.heldChanges(message.id);
+          // Unlock and apply belongs to the message while a change is held.
+          const action = heldEntries.some(
+            (entry) => entry.state === 'held'
+          ) && (
+            <UnlockAndApply
+              entries={heldEntries}
+              onApply={(index) => unlockAndApply(message.id, index)}
+            />
+          );
           // An answer that has only started streaming shows nothing yet;
           // the status step below says the Theme Agent is working.
           if (!text && !outcome) return null;
+          // The message and its action in the card; what Studio did with
+          // it below the card, as Studio's own report.
           return (
-            <Card
-              key={message.id}
-              appearance={message.role === 'user' ? 'filled' : 'outlined'}
-              className={clsx(
-                'theme-agent__message',
-                `theme-agent__message--${message.role}`
+            <Fragment key={message.id}>
+              {(text || action) && (
+                <Card
+                  appearance={message.role === 'user' ? 'filled' : 'outlined'}
+                  className={clsx(
+                    'theme-agent__message',
+                    `theme-agent__message--${message.role}`
+                  )}
+                >
+                  <span className="wa-visually-hidden">
+                    {message.role === 'user' ? 'You:' : 'Theme Agent:'}
+                  </span>
+                  {text}
+                  {action}
+                </Card>
               )}
-            >
-              <span className="wa-visually-hidden">
-                {message.role === 'user' ? 'You:' : 'Theme Agent:'}
-              </span>
-              {text}
               {outcome && (
-                <AnswerOutcome
+                <AnswerReport
                   outcome={outcome}
                   violations={conversation.answerViolations(message.id)}
                   reasons={
                     outcome === 'refused'
                       ? refusalReasons(message, cutOff.has(message.id))
-                      : []
+                      : outcome === 'rejected'
+                        ? conversation.answerErrors(message.id)
+                        : []
                   }
                   onUndo={() => undo(message.id)}
+                  held={heldEntries}
                 />
               )}
-            </Card>
+            </Fragment>
           );
         })}
         {running && (
@@ -325,7 +367,6 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
           rows={3}
           resize="none"
           value={draft}
-          readonly={running}
           onInput={(event) =>
             setDraft((event.target as HTMLTextAreaElement).value)
           }
@@ -340,41 +381,75 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   );
 }
 
-type AnswerOutcomeKind = AnswerStatus | 'refused';
+function appliedAnnouncement(warnings: number): string {
+  if (warnings === 0) return ' Applied to the theme.';
+  return ` Applied to the theme with ${warnings} accessibility ${
+    warnings === 1 ? 'warning' : 'warnings'
+  }.`;
+}
+
+function unlockAnnouncement(applied: number, changed: number): string {
+  const skipped =
+    changed === 0
+      ? ''
+      : changed === 1
+        ? 'One value was not applied: you changed it since.'
+        : `${changed} values were not applied: you changed them since.`;
+  if (applied === 0) return skipped;
+  return skipped ? `Unlocked and applied. ${skipped}` : 'Unlocked and applied.';
+}
+
+function heldAnnouncement(count: number): string {
+  if (count === 0) return '';
+  return count === 1
+    ? ' One locked value was not changed.'
+    : ` ${count} locked values were not changed.`;
+}
+
+type AnswerReportKind = AnswerStatus | 'refused';
 
 /**
  * What an answer did to the custom theme: applied, undone, refused by the
  * browser (`rejected`) or by the task (`refused`, every attempt failed), or
  * nothing to show yet.
  */
-function answerOutcome(
+function answerReportKind(
   message: ThemeAgentMessage,
   status: AnswerStatus | undefined,
   finished: boolean
-): AnswerOutcomeKind | undefined {
+): AnswerReportKind | undefined {
   if (status) return status;
   if (finished && acceptedProposals(message) === null) return 'refused';
   return undefined;
 }
 
-interface AnswerOutcomeProps {
-  outcome: AnswerOutcomeKind;
+interface AnswerReportProps {
+  outcome: AnswerReportKind;
   reasons: string[];
   violations: ContrastViolation[];
   onUndo: () => void;
+  /** What the answer held because it is locked, and what became of it. */
+  held: HeldEntry[];
 }
 
-/** An answer's outcome, and its undo. */
-function AnswerOutcome({
+/**
+ * Studio's report under an answer: its callouts first (accessibility
+ * warning, locked values not changed), then what was applied, with Undo.
+ */
+function AnswerReport({
   outcome,
   reasons,
   violations,
   onUndo,
-}: AnswerOutcomeProps) {
+  held,
+}: AnswerReportProps) {
+  const lockedCallout = held.length > 0 && (
+    <LockedChangesCallouts entries={held} />
+  );
   switch (outcome) {
     case 'applied':
       return (
-        <div className="theme-agent__outcome wa-stack wa-gap-xs">
+        <div className="wa-stack wa-gap-xs">
           {violations.length > 0 && (
             <Callout variant="warning" size="small">
               <Icon slot="icon" name="universal-access" />
@@ -394,6 +469,7 @@ function AnswerOutcome({
               </ul>
             </Callout>
           )}
+          {lockedCallout}
           <div className="wa-cluster wa-gap-xs wa-align-items-center">
             <span className="theme-agent__outcome-text">
               Applied to the theme
@@ -405,26 +481,39 @@ function AnswerOutcome({
           </div>
         </div>
       );
+    case 'unchanged':
+      return (
+        <div className="wa-stack wa-gap-xs">
+          {lockedCallout || (
+            <span className="theme-agent__outcome-text">
+              No change to the theme
+            </span>
+          )}
+        </div>
+      );
     case 'undone':
       return (
-        <div className="theme-agent__outcome">
+        <div>
           <span className="theme-agent__outcome-text">Undone</span>
         </div>
       );
     case 'rejected':
       return (
-        <Callout variant="danger" size="small" className="theme-agent__outcome">
+        <Callout variant="danger" size="small">
           <Icon slot="icon" name="circle-exclamation" />
           Studio refused this proposal. Nothing was applied.
+          {reasons.length > 0 && (
+            <ul className="theme-agent__reasons">
+              {reasons.map((reason, index) => (
+                <li key={index}>{reason}</li>
+              ))}
+            </ul>
+          )}
         </Callout>
       );
     case 'refused':
       return (
-        <Callout
-          variant="warning"
-          size="small"
-          className="theme-agent__outcome"
-        >
+        <Callout variant="warning" size="small">
           <Icon slot="icon" name="triangle-exclamation" />
           No valid theme came back. Nothing was applied.
           {reasons.length > 0 && (
