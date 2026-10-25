@@ -70,11 +70,11 @@ interface StudioContextType {
   setSelectedPreset: (preset: string | null) => void;
   resetAll: () => void;
   /**
-   * How often the whole custom theme was replaced since the page loaded: a
-   * preset, Default or an import, all through `resetAll`. A Theme Agent
-   * conversation ends when it changes. Edits and a section reset do not count.
+   * Call `listener` whenever the whole custom theme is replaced: a preset,
+   * Default or an import, all through `resetAll`. A Theme Agent conversation
+   * ends then. Edits and a section reset do not count. Returns unsubscribe.
    */
-  themeReplacements: number;
+  onThemeReplaced: (listener: () => void) => () => void;
   resetGroup: (group: PropertyGroup) => void;
   /** Values the Theme Agent may not change, per mode (lib/locks.ts). */
   lockedValues: LockedValues;
@@ -183,7 +183,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     () => getPersistedOnce()?.selectedPreset ?? null
   );
   const [lockedValues, setLockedValues] = useState<LockedValues>(loadLocks);
-  const [themeReplacements, setThemeReplacements] = useState(0);
+  const themeReplacedListeners = useRef(new Set<() => void>());
+
+  const onThemeReplaced = useCallback((listener: () => void) => {
+    const listeners = themeReplacedListeners.current;
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, []);
   const [locksAvailable] = useState(() => hasThemeAgentAccess(document.cookie));
   const isFirstRender = useRef(true);
 
@@ -221,7 +229,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setShadowComponents([]);
     setCustomCSS(null);
     setSelectedPreset(null);
-    setThemeReplacements((count) => count + 1);
+    for (const listener of themeReplacedListeners.current) listener();
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch {
@@ -552,7 +560,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setCustomCSS,
       setSelectedPreset,
       resetAll,
-      themeReplacements,
+      onThemeReplaced,
       resetGroup,
       importValues,
       getStyleObject,
@@ -571,7 +579,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       locksAvailable,
       setProperty,
       resetAll,
-      themeReplacements,
+      onThemeReplaced,
       resetGroup,
       importValues,
       getStyleObject,

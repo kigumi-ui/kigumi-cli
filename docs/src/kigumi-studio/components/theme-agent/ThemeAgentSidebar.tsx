@@ -1,10 +1,13 @@
 import {
   Fragment,
+  useCallback,
   useEffect,
+  useImperativeHandle,
   useReducer,
   useRef,
   useState,
   type KeyboardEvent,
+  type Ref,
 } from 'react';
 import { useChat } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
@@ -41,7 +44,10 @@ import type {
   ProposeThemeOutput,
   ThemeProposalInput,
 } from '../../theme-agent/proposal';
-import { requestThemeAgentToken } from '../../theme-agent/session-client';
+import {
+  closeThemeAgentSession,
+  requestThemeAgentToken,
+} from '../../theme-agent/session-client';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
 import { LockedChangesCallouts, UnlockAndApply } from './LockedChanges';
 import './ThemeAgentSidebar.css';
@@ -49,6 +55,19 @@ import './ThemeAgentSidebar.css';
 interface ThemeAgentSidebarProps {
   open: boolean;
   onClose: () => void;
+}
+
+/** Why the conversation on screen started: the user asked, or the theme was replaced. */
+type ConversationStart = 'new' | 'theme-replaced';
+
+interface ThemeAgentChatHandle {
+  focus(): void;
+  /**
+   * End the conversation: nothing its run still sends reaches the theme, a
+   * running answer stops, and its trigger.dev session closes. `false`, and
+   * nothing done, when no message was sent: there is nothing to end.
+   */
+  end(): boolean;
 }
 
 type ThemeAgentMessage = UIMessage<
@@ -110,12 +129,135 @@ function acceptedProposals(
   return accepted.length > 0 ? accepted : null;
 }
 
+function closeSession(chatId: string, keepalive = false) {
+  closeThemeAgentSession(chatId, { keepalive }).catch((error: unknown) => {
+    // Not the user's problem: the run still ends after turnTimeout.
+    console.warn('Theme Agent session close failed:', error);
+  });
+}
+
 /**
  * The Theme Agent chat, in a sidebar to the right of the preview. Loaded only
  * when the access cookie is present (see StudioLayout), so visitors never
  * download the AI SDK. Stays mounted while closed to keep the conversation.
+ *
+ * Owns the conversation's lifecycle: "New conversation" and a replaced theme
+ * (a preset, Default, an import) end it and mount a fresh chat; the draft
+ * message survives. A reload starts a fresh one anyway: the chat id is per
+ * mount, the custom theme is Studio's and persists.
  */
 export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
+  const { onThemeReplaced } = useThemeAgentStudio();
+  const [conversation, setConversation] = useState<{
+    key: number;
+    startedBy?: ConversationStart;
+  }>({ key: 0 });
+  const [draft, setDraft] = useState('');
+  const [notice, setNotice] = useState('');
+  const chatRef = useRef<ThemeAgentChatHandle>(null);
+  const focusChat = useRef(false);
+
+  const restart = useCallback((startedBy: ConversationStart) => {
+    if (!chatRef.current?.end()) return false;
+    setConversation((current) => ({ key: current.key + 1, startedBy }));
+    return true;
+  }, []);
+
+  useEffect(
+    () =>
+      onThemeReplaced(() => {
+        if (restart('theme-replaced')) {
+          setNotice(
+            'The custom theme was replaced, so the conversation ended.'
+          );
+        }
+      }),
+    [onThemeReplaced, restart]
+  );
+
+  useEffect(() => {
+    if (open) chatRef.current?.focus();
+  }, [open]);
+
+  // After "New conversation", into the fresh chat's message field.
+  useEffect(() => {
+    if (!focusChat.current) return;
+    focusChat.current = false;
+    chatRef.current?.focus();
+  }, [conversation.key]);
+
+  const newConversation = () => {
+    focusChat.current = true;
+    if (restart('new')) {
+      setNotice('New conversation started.');
+    } else {
+      chatRef.current?.focus();
+    }
+  };
+
+  return (
+    <aside
+      className={clsx('theme-agent', !open && 'theme-agent--closed')}
+      aria-label="Theme Agent"
+      hidden={!open}
+    >
+      <div className="theme-agent__header wa-split wa-align-items-center">
+        <span className="wa-heading-s wa-cluster wa-gap-xs">
+          <Icon name="wand-magic-sparkles" />
+          Theme Agent
+        </span>
+        <div className="wa-cluster wa-gap-2xs">
+          <Button
+            size="small"
+            appearance="plain"
+            variant="neutral"
+            onClick={newConversation}
+          >
+            <Icon slot="start" name="plus" />
+            New conversation
+          </Button>
+          <Button
+            size="small"
+            appearance="plain"
+            variant="neutral"
+            onClick={onClose}
+          >
+            <Icon name="xmark" label="Close Theme Agent" />
+          </Button>
+        </div>
+      </div>
+      <div className="wa-visually-hidden" aria-live="polite">
+        {notice}
+      </div>
+      <ThemeAgentChat
+        key={conversation.key}
+        ref={chatRef}
+        startedBy={conversation.startedBy}
+        draft={draft}
+        onDraftChange={setDraft}
+        onActivity={() => setNotice('')}
+      />
+    </aside>
+  );
+}
+
+interface ThemeAgentChatProps {
+  ref: Ref<ThemeAgentChatHandle>;
+  startedBy: ConversationStart | undefined;
+  draft: string;
+  onDraftChange: (draft: string) => void;
+  /** The user sent a message: the shell's lifecycle notice is stale. */
+  onActivity: () => void;
+}
+
+/** One conversation: its chat id, run, conversation module and messages. */
+function ThemeAgentChat({
+  ref,
+  startedBy,
+  draft,
+  onDraftChange,
+  onActivity,
+}: ThemeAgentChatProps) {
   const [chatId] = useState(() => crypto.randomUUID());
   const transport = useTriggerChatTransport({
     task: THEME_AGENT_TASK_ID,
@@ -134,39 +276,39 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   // Answers that hit the per-step output limit.
   const [cutOff, setCutOff] = useState<ReadonlySet<string>>(() => new Set());
 
-  const { messages, sendMessage, status, error } = useChat<ThemeAgentMessage>({
-    id: chatId,
-    transport,
-    onData: (part) => {
-      if (part.type === 'data-status') setStatusStep(part.data.step);
-    },
-    onFinish: ({ message, isAbort, isDisconnect, isError, finishReason }) => {
-      setStatusStep(null);
-      if (finishReason === 'length') {
-        setCutOff((ids) => new Set(ids).add(message.id));
-      }
-      // Recorded with or without a proposal, so the next message never
-      // reports an older answer's outcome as this one's.
-      conversation.answerFinished(message.id);
-      // Only a finished answer is applied, never part of one.
-      if (isAbort || isDisconnect || isError) return;
-      const proposals = acceptedProposals(message);
-      if (!proposals) return;
-      // Validated and checked for contrast again here: an invalid proposal
-      // is never applied, and what fails contrast is applied with a warning.
-      const outcome = conversation.answerReceived(
-        message.id,
-        proposals,
-        currentTheme(),
-        locked()
-      );
-      if (outcome.applied) applyTheme(outcome.theme);
-      conversationChanged();
-    },
-    onError: () => setStatusStep(null),
-  });
+  const { messages, sendMessage, status, error, stop } =
+    useChat<ThemeAgentMessage>({
+      id: chatId,
+      transport,
+      onData: (part) => {
+        if (part.type === 'data-status') setStatusStep(part.data.step);
+      },
+      onFinish: ({ message, isAbort, isDisconnect, isError, finishReason }) => {
+        setStatusStep(null);
+        if (finishReason === 'length') {
+          setCutOff((ids) => new Set(ids).add(message.id));
+        }
+        // Recorded with or without a proposal, so the next message never
+        // reports an older answer's outcome as this one's.
+        conversation.answerFinished(message.id);
+        // Only a finished answer is applied, never part of one.
+        if (isAbort || isDisconnect || isError) return;
+        const proposals = acceptedProposals(message);
+        if (!proposals) return;
+        // Validated and checked for contrast again here: an invalid proposal
+        // is never applied, and what fails contrast is applied with a warning.
+        const outcome = conversation.answerReceived(
+          message.id,
+          proposals,
+          currentTheme(),
+          locked()
+        );
+        if (outcome.applied) applyTheme(outcome.theme);
+        conversationChanged();
+      },
+      onError: () => setStatusStep(null),
+    });
 
-  const [draft, setDraft] = useState('');
   const textareaRef = useRef<TextareaRef>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
 
@@ -203,20 +345,48 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
     if (list) list.scrollTop = list.scrollHeight;
   }, [messages]);
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      // A frame later: a chat mounted just now has not rendered the
+      // textarea inside its wa-textarea yet.
+      focus: () =>
+        requestAnimationFrame(() =>
+          textareaRef.current?.focus({ preventScroll: true })
+        ),
+      end: () => {
+        if (messages.length === 0) return false;
+        conversation.end();
+        if (running) stop();
+        if (transport.getSession(chatId)) closeSession(chatId);
+        return true;
+      },
+    }),
+    [messages.length, running, stop, conversation, transport, chatId]
+  );
+
+  // Leaving the page ends the conversation; one kept in the back/forward
+  // cache may come back, so it stays open (turnTimeout ends it otherwise).
   useEffect(() => {
-    if (open) textareaRef.current?.focus({ preventScroll: true });
-  }, [open]);
+    const onPageHide = (event: PageTransitionEvent) => {
+      if (event.persisted || !transport.getSession(chatId)) return;
+      closeSession(chatId, true);
+    };
+    window.addEventListener('pagehide', onPageHide);
+    return () => window.removeEventListener('pagehide', onPageHide);
+  }, [transport, chatId]);
 
   const send = () => {
     const text = draft.trim();
     if (!text || running) return;
     setNotice('');
+    onActivity();
     setStatusStep(null);
     void sendMessage(
       { text },
       { metadata: conversation.messageSent(currentTheme(), locked()) }
     );
-    setDraft('');
+    onDraftChange('');
   };
 
   const unlockAndApply = (answerId: string, index?: number) => {
@@ -257,32 +427,15 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
   };
 
   return (
-    <aside
-      className={clsx('theme-agent', !open && 'theme-agent--closed')}
-      aria-label="Theme Agent"
-      hidden={!open}
-    >
-      <div className="theme-agent__header wa-split wa-align-items-center">
-        <span className="wa-heading-s wa-cluster wa-gap-xs">
-          <Icon name="wand-magic-sparkles" />
-          Theme Agent
-        </span>
-        <Button
-          size="small"
-          appearance="plain"
-          variant="neutral"
-          onClick={onClose}
-        >
-          <Icon name="xmark" label="Close Theme Agent" />
-        </Button>
-      </div>
-
+    <>
       <div
         ref={messagesRef}
         className="theme-agent__messages wa-stack wa-gap-s"
       >
         {messages.length === 0 && (
           <p className="theme-agent__empty">
+            {startedBy === 'theme-replaced' &&
+              'The custom theme was replaced, so a new conversation started. '}
             Describe the theme you want, for example “calm fintech, brand
             #0891b2, rounded”.
           </p>
@@ -375,7 +528,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
           resize="none"
           value={draft}
           onInput={(event) =>
-            setDraft((event.target as HTMLTextAreaElement).value)
+            onDraftChange((event.target as HTMLTextAreaElement).value)
           }
           onKeyDown={handleKeyDown}
         />
@@ -384,7 +537,7 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
           Send
         </Button>
       </div>
-    </aside>
+    </>
   );
 }
 
