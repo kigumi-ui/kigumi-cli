@@ -452,7 +452,12 @@ describe('useStudio - locked values', () => {
     act(() => {
       result.current.setLocked(darkSurface, false);
     });
-    expect(result.current.lockedValues.dark).toEqual(['--wa-color-brand']);
+    // A lock the change does not name stays, the shadow list's included.
+    expect(result.current.lockedValues).toEqual({
+      light: ['--wa-color-brand'],
+      dark: ['--wa-color-brand'],
+      shadowComponents: true,
+    });
   });
 
   it('ignores keys that are not Studio values', () => {
