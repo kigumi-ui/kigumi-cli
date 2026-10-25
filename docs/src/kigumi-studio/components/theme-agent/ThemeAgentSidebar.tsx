@@ -309,7 +309,9 @@ export function ThemeAgentSidebar({ open, onClose }: ThemeAgentSidebarProps) {
                   reasons={
                     outcome === 'refused'
                       ? refusalReasons(message, cutOff.has(message.id))
-                      : []
+                      : outcome === 'rejected'
+                        ? conversation.answerErrors(message.id)
+                        : []
                   }
                   onUndo={() => undo(message.id)}
                   hasHeld={heldChanges.length > 0}
@@ -486,6 +488,13 @@ function AnswerOutcome({
         <Callout variant="danger" size="small" className="theme-agent__outcome">
           <Icon slot="icon" name="circle-exclamation" />
           Studio refused this proposal. Nothing was applied.
+          {reasons.length > 0 && (
+            <ul className="theme-agent__reasons">
+              {reasons.map((reason, index) => (
+                <li key={index}>{reason}</li>
+              ))}
+            </ul>
+          )}
         </Callout>
       );
     case 'refused':

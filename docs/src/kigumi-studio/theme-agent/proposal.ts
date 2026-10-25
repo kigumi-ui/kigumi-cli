@@ -224,6 +224,23 @@ export function withoutLocked(
   return result;
 }
 
+/** The lock keys `proposal` would change: what Studio will hold back. */
+export function lockedIn(
+  proposal: ThemeProposal,
+  locked: readonly string[]
+): string[] {
+  const isLocked = new Set(locked);
+  const keys = new Set(
+    [...Object.keys(proposal.light), ...Object.keys(proposal.dark)].filter(
+      (cssVar) => isLocked.has(cssVar)
+    )
+  );
+  if (proposal.shadowComponents && isLocked.has(SHADOW_COMPONENTS_LOCK)) {
+    keys.add(SHADOW_COMPONENTS_LOCK);
+  }
+  return [...keys];
+}
+
 /** What the task's `propose_theme` tool returns to the model and the browser. */
 export interface ProposeThemeOutput {
   accepted: boolean;
@@ -233,4 +250,6 @@ export interface ProposeThemeOutput {
   contrast: string[];
   /** `true` while the model is to correct `contrast` and propose again. */
   correctContrast: boolean;
+  /** Values of the proposal the user locked: Studio will not change them. */
+  locked: string[];
 }

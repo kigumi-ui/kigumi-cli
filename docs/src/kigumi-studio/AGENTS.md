@@ -96,6 +96,7 @@ Guard rails:
 - Every accepted proposal is checked for contrast on the theme as the answer's proposals leave it: normal, quiet and link text on the raised, default and lowered surfaces at 4.5:1, the form control border on its background at 3:1, and the brand fill the preview paints (`--wa-color-brand-fill-loud`, derived from `--wa-color-brand`) under `--wa-color-brand-on-loud` at 4.5:1. The violations go back to the model for at most 2 correction rounds, except the brand fill pair: the only fix is another brand hue, and the brand colour is the user's, so it is reported, never corrected; a correction names only its fixes, so the browser applies an answer's accepted proposals in order. The browser checks the applied theme again, hand edits made during the run included, and lists what still fails in an accessibility warning; that warning, not the task's feedback, is what the theme on screen has. A colour the check cannot resolve counts as failing.
 - Colours in a proposal are `#rrggbb`: the sidebar's picker, the brand palette and the shadow colour only work with that.
 - Locked values are protected in `conversation.ts`, never by the prompt (ADR 0007, ADR 0010). The user locks them in the sidebar; nothing is locked by default. An answer's proposal for a locked value is held, never applied, and only "Unlock and apply" under the answer applies it and unlocks it. The prompt lists the locked values so the model leaves them alone and can say so, and the task checks contrast on the proposal without them, but nothing depends on the model obeying.
+- The agent hears what the browser did, since it cannot see it: the `propose_theme` result lists the proposal's locked values (`lockedIn()`), and every snapshot's `previous` says how Studio took the last answer (applied, nothing applied, refused with its errors, undone) and which locked values it held. The prompt turns both into instructions not to claim a change that did not land.
 - Locks are the user's own: a reset, a section reset and loading a preset leave them, and the export never contains them. Only the Theme Agent reads them.
 - Undo reverts one answer's own values, held changes it applied included, and leaves every value the user or a later answer changed since.
 - Every message carries a snapshot of the custom theme as the sidebar has it (`sendMessage` `metadata`, the task's `clientDataSchema`). The task builds its prompt from the snapshot, never from earlier turns, so hand edits between messages are seen.
@@ -115,7 +116,7 @@ Then reload Studio. Any value shows the button; only the right one starts a run.
 
 ### Deploying the task
 
-The task deploys by hand; nothing in CI deploys it. Redeploy after every change under `docs/trigger/` or to `docs/trigger.config.ts`:
+The task deploys by hand; nothing in CI deploys it. Redeploy after every change under `docs/trigger/` or to `docs/trigger.config.ts`, and with every change to `theme-agent/proposal.ts` or `custom-theme.ts`: a page that validates proposals more strictly than the deployed task refuses what that task accepted, and the agent then believes it changed the theme.
 
 ```bash
 cd docs

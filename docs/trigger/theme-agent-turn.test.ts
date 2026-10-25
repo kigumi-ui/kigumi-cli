@@ -426,4 +426,58 @@ describe('Theme Agent turn: contrast', () => {
       'Light mode, quiet text on the raised surface'
     );
   });
+
+  it('tells the model which values of its proposal are locked and will not change', async () => {
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-color-brand': '#2f8f4e' },
+          dark: {},
+          shadowComponents: ['Card'],
+        }),
+        textStep('The brand is locked.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: lockedSnapshot,
+    });
+    await result.consumeStream();
+
+    const [output] = toolResults(model).map(
+      (o) => (o as { value: ProposeOutput & { locked: string[] } }).value
+    );
+    expect(output.accepted).toBe(true);
+    expect(output.locked).toEqual(['--wa-color-brand', 'shadowComponents']);
+  });
+
+  it('gives the model what Studio did with its last answer', async () => {
+    const model = new MockLanguageModelV4({ doStream: [textStep('Sorry.')] });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: {
+        ...snapshot,
+        previous: {
+          status: 'rejected',
+          held: ['--wa-color-brand'],
+          errors: ['proposal: Unrecognized key: "reasons"'],
+        },
+      },
+    });
+    await result.consumeStream();
+
+    const system = model.doStreamCalls[0].prompt.find(
+      (message) => message.role === 'system'
+    );
+    const text = typeof system?.content === 'string' ? system.content : '';
+    expect(text).toContain('proposal: Unrecognized key: "reasons"');
+    expect(text).toMatch(/last answer:\n- [^\n]*refused/i);
+    expect(text).toMatch(/not changed[^\n]*--wa-color-brand/);
+  });
 });

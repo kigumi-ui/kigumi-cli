@@ -609,3 +609,77 @@ describe('Theme Agent conversation: locked values', () => {
     expect(snapshot.locked).toEqual(['--wa-color-brand', 'shadowComponents']);
   });
 });
+
+describe('Theme Agent conversation: what the last answer did', () => {
+  const greenBrand = { light: { '--wa-color-brand': '#2f8f4e' }, dark: {} };
+
+  it('says nothing before the first answer', () => {
+    const snapshot = createThemeAgentConversation().messageSent(
+      studioDefaults(),
+      []
+    );
+    expect(snapshot.previous).toBeUndefined();
+  });
+
+  it('tells the agent its last answer was refused, and why', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.answerReceived(
+      'answer-1',
+      [{ ...greenBrand, reasons: { '--wa-color-brand': 'Green.' } }],
+      studioDefaults(),
+      []
+    );
+
+    const snapshot = conversation.messageSent(studioDefaults(), []);
+
+    expect(snapshot.previous).toEqual({
+      status: 'rejected',
+      held: [],
+      errors: ['proposal: Unrecognized key: "reasons"'],
+    });
+    expect(conversation.answerErrors('answer-1')).toEqual([
+      'proposal: Unrecognized key: "reasons"',
+    ]);
+  });
+
+  it('tells the agent which locked values its last answer did not change', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.answerReceived('answer-1', [greenBrand], studioDefaults(), [
+      '--wa-color-brand',
+    ]);
+
+    const snapshot = conversation.messageSent(studioDefaults(), [
+      '--wa-color-brand',
+    ]);
+
+    expect(snapshot.previous).toEqual({
+      status: 'unchanged',
+      held: ['--wa-color-brand'],
+      errors: [],
+    });
+  });
+
+  it('tells the agent once the user unlocked and applied, or undid the answer', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [greenBrand],
+      studioDefaults(),
+      ['--wa-color-brand']
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    const result = conversation.applyHeld('answer-1', outcome.theme);
+    expect(conversation.messageSent(result!.theme, []).previous).toEqual({
+      status: 'applied',
+      held: [],
+      errors: [],
+    });
+
+    conversation.undo('answer-1', result!.theme);
+    expect(conversation.messageSent(studioDefaults(), []).previous).toEqual({
+      status: 'undone',
+      held: [],
+      errors: [],
+    });
+  });
+});

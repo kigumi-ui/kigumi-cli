@@ -39,10 +39,31 @@ export interface ThemeAgentSnapshot {
    * `shadowComponents` for the shadow component list.
    */
   locked: string[];
+  /**
+   * What Studio did with the agent's last answer, which the task cannot see:
+   * applied, nothing applied, refused (with why), or undone by the user,
+   * and the locked values it held. Absent before the first answer.
+   */
+  previous?: PreviousAnswer;
 }
+
+export interface PreviousAnswer {
+  status: 'applied' | 'unchanged' | 'rejected' | 'undone';
+  /** Lock keys the answer proposed but Studio did not change. */
+  held: string[];
+  /** Why Studio refused it. */
+  errors: string[];
+}
+
+const previousAnswerSchema = z.object({
+  status: z.enum(['applied', 'unchanged', 'rejected', 'undone']),
+  held: z.array(z.string()),
+  errors: z.array(z.string()),
+});
 
 export const themeAgentSnapshotSchema = z.object({
   theme: customThemeSchema,
+  previous: previousAnswerSchema.optional(),
   // A page from before locks sends none; the task is deployed by hand, so
   // it may be newer than the page talking to it.
   locked: z.array(z.string()).default([]),

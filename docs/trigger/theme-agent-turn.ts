@@ -15,9 +15,13 @@ import {
   checkContrast,
   violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast.js';
-import type { ThemeAgentSnapshot } from '../src/kigumi-studio/theme-agent/custom-theme.js';
+import type {
+  PreviousAnswer,
+  ThemeAgentSnapshot,
+} from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
   applyProposal,
+  lockedIn,
   withoutLocked,
   themeProposalSchema,
   validateProposal,
@@ -49,7 +53,9 @@ const PROPOSE_DESCRIPTION = [
   'contrast; when it returns correctContrast: true, propose again with only',
   'the values that fix every pair listed in contrast. When contrast still',
   'lists pairs and correctContrast is false, do not propose again: name the',
-  'pairs that still fail in your explanation.',
+  'pairs that still fail in your explanation. Values listed in locked are',
+  'locked by the user and will not change: never say you changed them; say',
+  'they are locked.',
 ].join(' ');
 
 /**
@@ -79,6 +85,7 @@ function proposeThemeTool(
           ],
           contrast: [],
           correctContrast: false,
+          locked: [],
         };
       }
       const validation = validateProposal(input);
@@ -89,6 +96,7 @@ function proposeThemeTool(
           errors: validation.errors,
           contrast: [],
           correctContrast: false,
+          locked: [],
         };
       }
       onStatus(THEME_AGENT_STATUS.checking);
@@ -112,7 +120,13 @@ function proposeThemeTool(
       } else if (correctable.length > 0) {
         settled = true;
       }
-      return { accepted: true, errors: [], contrast, correctContrast };
+      return {
+        accepted: true,
+        errors: [],
+        contrast,
+        correctContrast,
+        locked: lockedIn(validation.proposal, snapshot.locked),
+      };
     },
   });
 
@@ -120,6 +134,33 @@ function proposeThemeTool(
     rejections >= MAX_PROPOSAL_ATTEMPTS;
 
   return { proposeTheme, outOfAttempts };
+}
+
+/** What Studio did with the last answer, which only the browser knows. */
+function previousAnswerLines(previous: PreviousAnswer | undefined): string[] {
+  if (!previous) return [];
+  const lines = ['What Studio did with your last answer:'];
+  switch (previous.status) {
+    case 'applied':
+      lines.push('- Applied to the theme.');
+      break;
+    case 'unchanged':
+      lines.push('- Nothing was applied.');
+      break;
+    case 'rejected':
+      lines.push(
+        '- Studio refused it and applied nothing. Do not treat those changes as made; propose again if the request still stands.',
+        ...previous.errors.map((error) => `  - ${error}`)
+      );
+      break;
+    case 'undone':
+      lines.push('- The user undid it.');
+      break;
+  }
+  if (previous.held.length > 0) {
+    lines.push(`- Locked, so not changed: ${previous.held.join(', ')}.`);
+  }
+  return [...lines, ''];
 }
 
 function propertyLine(property: (typeof PROPERTY_DEFINITIONS)[number]): string {
@@ -174,6 +215,7 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
       ? snapshot.locked.map((key) => `- ${key}`)
       : ['- none']),
     '',
+    ...previousAnswerLines(snapshot.previous),
     'Values you may set (nothing else, no custom CSS):',
     ...PROPERTY_DEFINITIONS.map(propertyLine),
     '',

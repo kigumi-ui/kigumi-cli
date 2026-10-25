@@ -5,6 +5,7 @@ import {
   componentListKey,
   THEME_AGENT_MODES,
   type CustomTheme,
+  type PreviousAnswer,
   type ThemeAgentMode,
   type ThemeAgentSnapshot,
 } from './custom-theme';
@@ -49,7 +50,10 @@ export type AnswerOutcome =
 export type AnswerStatus = 'applied' | 'unchanged' | 'undone' | 'rejected';
 
 export interface ThemeAgentConversation {
-  /** The snapshot that travels with a message, taken as it is now. */
+  /**
+   * The snapshot that travels with a message, taken as it is now, with what
+   * Studio did with the last answer.
+   */
   messageSent(
     theme: CustomTheme,
     locked: readonly string[]
@@ -87,6 +91,8 @@ export interface ThemeAgentConversation {
    */
   undo(answerId: string, current: CustomTheme): CustomTheme | undefined;
   answerStatus(answerId: string): AnswerStatus | undefined;
+  /** Why Studio refused an answer; none when it did not. */
+  answerErrors(answerId: string): string[];
   /** The contrast violations an applied answer left; none once it is undone. */
   answerViolations(answerId: string): ContrastViolation[];
 }
@@ -170,17 +176,45 @@ function written(before: CustomTheme, theme: CustomTheme): Map<string, string> {
   return wrote;
 }
 
+function heldKey(change: HeldChange): string {
+  return change.kind === 'shadowComponents'
+    ? SHADOW_COMPONENTS_LOCK
+    : change.cssVar;
+}
+
 export function createThemeAgentConversation(): ThemeAgentConversation {
   const answers: AnswerRecord[] = [];
   const find = (id: string) => answers.find((answer) => answer.id === id);
 
+  const statusOf = (answer: AnswerRecord): AnswerStatus => {
+    if (!answer.outcome.applied) return 'rejected';
+    if (answer.undone) return 'undone';
+    return answer.wrote.size > 0 || answer.wroteShadowComponents
+      ? 'applied'
+      : 'unchanged';
+  };
+
+  const previousAnswer = (): PreviousAnswer | undefined => {
+    const last = answers.at(-1);
+    if (!last) return undefined;
+    const status = statusOf(last);
+    return {
+      status,
+      held:
+        status === 'undone' || last.heldApplied ? [] : last.held.map(heldKey),
+      errors: last.outcome.applied ? [] : [...last.outcome.errors],
+    };
+  };
+
   return {
     messageSent(theme, locked) {
+      const previous = previousAnswer();
       return {
         theme: cloneTheme(theme),
         locked: locked.filter(
           (key) => key === SHADOW_COMPONENTS_LOCK || PROPERTIES_BY_VAR.has(key)
         ),
+        ...(previous ? { previous } : {}),
       };
     },
 
@@ -297,12 +331,12 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
 
     answerStatus(answerId) {
       const answer = find(answerId);
-      if (!answer) return undefined;
-      if (!answer.outcome.applied) return 'rejected';
-      if (answer.undone) return 'undone';
-      return answer.wrote.size > 0 || answer.wroteShadowComponents
-        ? 'applied'
-        : 'unchanged';
+      return answer ? statusOf(answer) : undefined;
+    },
+
+    answerErrors(answerId) {
+      const outcome = find(answerId)?.outcome;
+      return outcome && !outcome.applied ? [...outcome.errors] : [];
     },
 
     answerViolations(answerId) {
