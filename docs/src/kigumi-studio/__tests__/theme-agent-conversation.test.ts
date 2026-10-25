@@ -522,13 +522,14 @@ describe('Theme Agent conversation: locked values', () => {
     expect(outcome.held).toEqual([
       {
         kind: 'value',
+        reason: 'locked',
         cssVar: '--wa-color-surface-default',
         proposed: { dark: '#241a12' },
         was: { dark: '#1a1a1a' },
       },
     ]);
     expect(conversation.heldChanges('answer-1')).toEqual([
-      { change: outcome.held[0], state: 'held' },
+      { change: outcome.held[0], state: 'held', resolves: [] },
     ]);
   });
 
@@ -599,7 +600,12 @@ describe('Theme Agent conversation: locked values', () => {
     if (!outcome.applied) throw new Error('answer was not applied');
     expect(outcome.theme.shadowComponents).toEqual([]);
     expect(outcome.held).toEqual([
-      { kind: 'shadowComponents', proposed: ['Card'], was: [] },
+      {
+        kind: 'shadowComponents',
+        reason: 'locked',
+        proposed: ['Card'],
+        was: [],
+      },
     ]);
   });
 
@@ -889,5 +895,282 @@ describe('Theme Agent conversation: what the last answer did', () => {
     expect(
       conversation.messageSent(studioDefaults(), NO_LOCKS).previous
     ).toEqual({ status: 'undone', held: [], errors: [] });
+  });
+});
+
+describe('Theme Agent conversation: values changed while the answer ran', () => {
+  it('holds a value the user changed during the run instead of overwriting it', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    // Not locked, tuned in the sidebar while the answer was on its way.
+    const current = studioDefaults();
+    current.dark['--wa-color-surface-default'] = '#202020';
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: { '--wa-color-surface-default': '#fdf6ec' },
+          dark: { '--wa-color-surface-default': '#241a12' },
+        },
+      ],
+      current,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.dark['--wa-color-surface-default']).toBe('#202020');
+    // The light surface was not touched during the run: it changes.
+    expect(outcome.theme.light['--wa-color-surface-default']).toBe('#fdf6ec');
+    expect(outcome.held).toEqual([
+      {
+        kind: 'value',
+        reason: 'edited',
+        cssVar: '--wa-color-surface-default',
+        proposed: { dark: '#241a12' },
+        was: { dark: '#202020' },
+      },
+    ]);
+  });
+
+  it('holds a shadow component list the user changed during the run', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    const current = studioDefaults();
+    current.shadowComponents = ['Button'];
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: {}, dark: {}, shadowComponents: ['Card'] }],
+      current,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.shadowComponents).toEqual(['Button']);
+    expect(outcome.held).toEqual([
+      {
+        kind: 'shadowComponents',
+        reason: 'edited',
+        proposed: ['Card'],
+        was: ['Button'],
+      },
+    ]);
+  });
+
+  it('holds a mode-independent value changed during the run as one change for both modes', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    const current = studioDefaults();
+    current.light['--wa-color-brand'] = '#7c3aed';
+    current.dark['--wa-color-brand'] = '#7c3aed';
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-color-brand': '#d64228' }, dark: {} }],
+      current,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.dark['--wa-color-brand']).toBe('#7c3aed');
+    expect(outcome.held).toEqual([
+      expect.objectContaining({
+        reason: 'edited',
+        cssVar: '--wa-color-brand',
+        proposed: { light: '#d64228', dark: '#d64228' },
+      }),
+    ]);
+  });
+
+  it('a value the user changed before sending the message is not held', () => {
+    const conversation = createThemeAgentConversation();
+    const tuned = studioDefaults();
+    tuned.dark['--wa-color-surface-default'] = '#202020';
+    conversation.messageSent(tuned, NO_LOCKS);
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: {}, dark: { '--wa-color-surface-default': '#241a12' } }],
+      tuned,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.dark['--wa-color-surface-default']).toBe('#241a12');
+    expect(outcome.held).toEqual([]);
+  });
+
+  it('a value changed during the run and set back is not held', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    // Tuned and then set back: the answer was written for this value.
+    const current = studioDefaults();
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: {}, dark: { '--wa-color-surface-default': '#241a12' } }],
+      current,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.dark['--wa-color-surface-default']).toBe('#241a12');
+    expect(outcome.held).toEqual([]);
+  });
+
+  it('compares with the latest message, not an earlier one', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    conversation.answerFinished('answer-1');
+    // Tuned before the second message, so not during its answer.
+    const tuned = studioDefaults();
+    tuned.dark['--wa-color-surface-default'] = '#202020';
+    conversation.messageSent(tuned, NO_LOCKS);
+
+    const outcome = conversation.answerReceived(
+      'answer-2',
+      [{ light: {}, dark: { '--wa-color-surface-default': '#241a12' } }],
+      tuned,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.dark['--wa-color-surface-default']).toBe('#241a12');
+    expect(outcome.held).toEqual([]);
+  });
+
+  it('apply on a value changed during the run unlocks nothing, and undo locks nothing', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    const current = studioDefaults();
+    current.light['--wa-border-radius-scale'] = '0.5';
+    current.dark['--wa-border-radius-scale'] = '0.5';
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-border-radius-scale': '2.5' }, dark: {} }],
+      current,
+      NO_LOCKS
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.light['--wa-border-radius-scale']).toBe('0.5');
+
+    const result = conversation.applyHeld('answer-1', outcome.theme);
+
+    expect(result?.theme.dark['--wa-border-radius-scale']).toBe('2.5');
+    expect(result?.unlock).toEqual(NO_LOCKS);
+    const undone = conversation.undo('answer-1', result!.theme);
+    expect(undone?.theme.dark['--wa-border-radius-scale']).toBe('0.5');
+    expect(undone?.relock).toEqual(NO_LOCKS);
+  });
+
+  it('tells the agent which values it did not change because the user changed them during the run', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    const current = studioDefaults();
+    current.dark['--wa-color-surface-default'] = '#202020';
+    conversation.answerReceived(
+      'answer-1',
+      [{ light: {}, dark: { '--wa-color-surface-default': '#241a12' } }],
+      current,
+      NO_LOCKS
+    );
+
+    const snapshot = conversation.messageSent(current, NO_LOCKS);
+
+    expect(snapshot.previous).toEqual({
+      status: 'unchanged',
+      held: [],
+      edited: ['--wa-color-surface-default (dark mode)'],
+      errors: [],
+    });
+    // The task reads it from the message.
+    expect(themeAgentClientDataSchema.parse(snapshot)?.previous).toEqual(
+      snapshot.previous
+    );
+  });
+});
+
+describe('Theme Agent conversation: contrast a locked value causes', () => {
+  /** Light quiet text the user locked at #aaaaaa, which fails on every surface. */
+  function paleQuietText(): CustomTheme {
+    const theme = studioDefaults();
+    theme.light['--wa-color-text-quiet'] = '#aaaaaa';
+    return theme;
+  }
+  const quietText = valueLock('--wa-color-text-quiet', ['light']);
+  const describePair = (v: {
+    mode: string;
+    foreground: string;
+    background: string;
+  }) => `${v.mode} ${v.foreground} on ${v.background}`;
+
+  it('a held change names the violations applying it would fix', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: {
+            '--wa-color-text-quiet': '#595959',
+            '--wa-border-radius-scale': '2',
+          },
+          dark: {},
+        },
+      ],
+      paleQuietText(),
+      locks(quietText)
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+
+    const [entry] = conversation.heldChanges('answer-1');
+    expect(entry.resolves.map(describePair)).toEqual([
+      'light --wa-color-text-quiet on --wa-color-surface-raised',
+      'light --wa-color-text-quiet on --wa-color-surface-default',
+      'light --wa-color-text-quiet on --wa-color-surface-lowered',
+    ]);
+  });
+
+  it('a held change stops naming a pair another held change has fixed', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: {
+            '--wa-color-text-quiet': '#595959',
+            // Dark enough for the pale quiet text on its own.
+            '--wa-color-surface-raised': '#1a1a1a',
+          },
+          dark: {},
+        },
+      ],
+      paleQuietText(),
+      locks(quietText, valueLock('--wa-color-surface-raised', ['light']))
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    const fixesRaised = () =>
+      conversation
+        .heldChanges('answer-1')
+        .filter((entry) => entry.state === 'held')
+        .flatMap((entry) => entry.resolves)
+        .some((v) => v.background === '--wa-color-surface-raised');
+    expect(fixesRaised()).toBe(true);
+
+    // Unlock and apply the quiet text: every quiet text pair now passes.
+    conversation.applyHeld('answer-1', outcome.theme, 0);
+
+    expect(fixesRaised()).toBe(false);
+  });
+
+  it('a held change that fixes no failing pair names none', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-border-radius-scale': '2' }, dark: {} }],
+      studioDefaults(),
+      locks(valueLock('--wa-border-radius-scale', ['light', 'dark']))
+    );
+    expect(conversation.heldChanges('answer-1')[0].resolves).toEqual([]);
   });
 });

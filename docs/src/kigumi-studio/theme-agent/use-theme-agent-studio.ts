@@ -8,6 +8,7 @@ import type { CustomTheme } from './custom-theme';
  * locked values as the sidebar has them now, and apply a custom theme
  * through Studio's own value-setting path. `setLocked` is Studio's own, for
  * "Unlock and apply" and for Undo locking again what that unlocked.
+ * `lockedValues` is the render-time value, for what the chat shows.
  */
 export function useThemeAgentStudio() {
   const {
@@ -64,5 +65,5 @@ export function useThemeAgentStudio() {
     [currentTheme, importValues, setShadowComponents]
   );
 
-  return { currentTheme, locked, applyTheme, setLocked };
+  return { currentTheme, locked, lockedValues, applyTheme, setLocked };
 }

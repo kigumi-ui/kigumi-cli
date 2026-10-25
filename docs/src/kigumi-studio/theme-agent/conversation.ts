@@ -16,9 +16,15 @@ import {
   type PreviousAnswer,
   type ThemeAgentSnapshot,
 } from './custom-theme';
-import { checkContrast, type ContrastViolation } from './contrast';
+import {
+  checkContrast,
+  violationKey,
+  type ContrastViolation,
+} from './contrast';
 import {
   applyProposal,
+  emptyProposal,
+  mergeProposals,
   splitLocked,
   validateProposal,
   type ThemeProposal,
@@ -31,19 +37,33 @@ import {
 //
 // Locked values are protected here, in code, not by the prompt (ADR 0007,
 // ADR 0010): an answer never changes a locked value; what it would change is
-// held, and only the user's "Unlock and apply" applies it.
+// held, and only the user's "Unlock and apply" applies it. Nor does an answer
+// overwrite a value the user changed while it was being written (ADR 0011):
+// that is held too, and the user's "Apply" applies it.
 
-/** A change an answer proposed to a locked value, held back. */
+/**
+ * Why a change is held: the value is `locked`, or the user `edited` it while
+ * the answer was being written. A locked value needs unlocking to apply.
+ */
+export type HeldReason = 'locked' | 'edited';
+
+/** A change an answer proposed to a value it may not change, held back. */
 export type HeldChange =
   | {
       kind: 'value';
+      reason: HeldReason;
       cssVar: string;
-      /** The proposed value per locked mode it would change. */
+      /** The proposed value per held mode it would change. */
       proposed: Partial<Record<ThemeMode, string>>;
       /** The value in those modes when the answer arrived. */
       was: Partial<Record<ThemeMode, string>>;
     }
-  | { kind: 'shadowComponents'; proposed: string[]; was: string[] };
+  | {
+      kind: 'shadowComponents';
+      reason: HeldReason;
+      proposed: string[];
+      was: string[];
+    };
 
 /**
  * What became of a held change: still `held` and offered to unlock and
@@ -55,6 +75,12 @@ export type HeldState = 'held' | 'applied' | 'changed' | 'kept';
 export interface HeldEntry {
   change: HeldChange;
   state: HeldState;
+  /**
+   * The contrast violations of the applied theme that applying this change
+   * alone would fix, so a locked colour that fails contrast is named with
+   * the change that fixes it. Kept up to date while the change is held.
+   */
+  resolves: ContrastViolation[];
 }
 
 export type AnswerOutcome =
@@ -166,21 +192,12 @@ function sameList(a: string[], b: string[]): boolean {
   return componentListKey(a) === componentListKey(b);
 }
 
-/** An answer's proposals as one: later values win, as a correction intends. */
-function mergeProposals(proposals: ThemeProposal[]): ThemeProposal {
-  const merged: ThemeProposal = { light: {}, dark: {} };
-  for (const proposal of proposals) {
-    Object.assign(merged.light, proposal.light);
-    Object.assign(merged.dark, proposal.dark);
-    if (proposal.shadowComponents) {
-      merged.shadowComponents = [...proposal.shadowComponents];
-    }
-  }
-  return merged;
-}
-
 /** The changes `held` would make to `current`; equal values are none. */
-function heldFrom(held: ThemeProposal, current: CustomTheme): HeldChange[] {
+function heldFrom(
+  held: ThemeProposal,
+  current: CustomTheme,
+  reason: HeldReason
+): HeldChange[] {
   const changes: HeldChange[] = [];
   const cssVars = new Set([
     ...Object.keys(held.light),
@@ -196,13 +213,14 @@ function heldFrom(held: ThemeProposal, current: CustomTheme): HeldChange[] {
       was[mode] = current[mode][cssVar];
     }
     if (Object.keys(proposed).length > 0) {
-      changes.push({ kind: 'value', cssVar, proposed, was });
+      changes.push({ kind: 'value', reason, cssVar, proposed, was });
     }
   }
   const list = held.shadowComponents;
   if (list && !sameList(current.shadowComponents, list)) {
     changes.push({
       kind: 'shadowComponents',
+      reason,
       proposed: [...list],
       was: [...current.shadowComponents],
     });
@@ -210,14 +228,19 @@ function heldFrom(held: ThemeProposal, current: CustomTheme): HeldChange[] {
   return changes;
 }
 
-/** The locks a held change sits behind. */
-function heldLock(change: HeldChange): LockedValues {
+/** The values a held change names, as locks. */
+function namedValues(change: HeldChange): LockedValues {
   return change.kind === 'shadowComponents'
     ? SHADOW_COMPONENTS_LOCK
     : valueLock(
         change.cssVar,
         THEME_MODES.filter((mode) => mode in change.proposed)
       );
+}
+
+/** The locks a held change sits behind: none for a value edited during the run. */
+function heldLock(change: HeldChange): LockedValues {
+  return change.reason === 'locked' ? namedValues(change) : NO_LOCKS;
 }
 
 /** Whether `current` still has what the answer found when it held `change`. */
@@ -238,6 +261,7 @@ function unchangedSince(change: HeldChange, current: CustomTheme): boolean {
  * it is, and unlocked.
  */
 function restoredLock(change: HeldChange, current: CustomTheme): LockedValues {
+  if (change.reason !== 'locked') return NO_LOCKS;
   if (change.kind === 'shadowComponents') {
     return sameList(current.shadowComponents, change.proposed)
       ? SHADOW_COMPONENTS_LOCK
@@ -251,6 +275,53 @@ function restoredLock(change: HeldChange, current: CustomTheme): LockedValues {
         current[mode][change.cssVar] === change.proposed[mode]
     )
   );
+}
+
+/**
+ * The values `current` has that differ from `sent`, the theme the message
+ * carried: what the user changed while the answer was being written. A value
+ * changed and set back counts as unchanged: the answer was written for it.
+ */
+function editedSince(sent: CustomTheme, current: CustomTheme): LockedValues {
+  const changed = (mode: ThemeMode) =>
+    Object.keys(current[mode]).filter(
+      (cssVar) => current[mode][cssVar] !== sent[mode][cssVar]
+    );
+  return {
+    light: changed('light'),
+    dark: changed('dark'),
+    shadowComponents: !sameList(
+      sent.shadowComponents,
+      current.shadowComponents
+    ),
+  };
+}
+
+/** `theme` with `change` applied. */
+function withChange(theme: CustomTheme, change: HeldChange): CustomTheme {
+  const next = cloneTheme(theme);
+  if (change.kind === 'shadowComponents') {
+    next.shadowComponents = [...change.proposed];
+    return next;
+  }
+  for (const mode of THEME_MODES) {
+    const value = change.proposed[mode];
+    if (value !== undefined) next[mode][change.cssVar] = value;
+  }
+  return next;
+}
+
+/** The `violations` of `theme` that applying `change` alone would fix. */
+function resolvedBy(
+  change: HeldChange,
+  theme: CustomTheme,
+  violations: ContrastViolation[]
+): ContrastViolation[] {
+  if (violations.length === 0) return [];
+  const left = new Set(
+    checkContrast(withChange(theme, change)).map(violationKey)
+  );
+  return violations.filter((violation) => !left.has(violationKey(violation)));
 }
 
 /** What `theme` holds that `before` did not, per mode. */
@@ -270,9 +341,9 @@ function written(
   return wrote;
 }
 
-function locksOfEntries(entries: HeldEntry[]): LockedValues {
+function valuesOfEntries(entries: HeldEntry[]): LockedValues {
   return entries.reduce(
-    (locks, entry) => withLocks(locks, heldLock(entry.change), true),
+    (locks, entry) => withLocks(locks, namedValues(entry.change), true),
     NO_LOCKS
   );
 }
@@ -281,6 +352,8 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
   const answers: AnswerRecord[] = [];
   const find = (id: string) => answers.find((answer) => answer.id === id);
   let lastAnswerId: string | undefined;
+  // The theme the latest message carried, which its answer was written for.
+  let sentTheme: CustomTheme | undefined;
 
   const statusOf = (answer: AnswerRecord): AnswerStatus => {
     if (!answer.outcome.applied) return 'rejected';
@@ -295,13 +368,22 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
     const last = answers.at(-1);
     if (!last || last.id !== lastAnswerId) return undefined;
     const status = statusOf(last);
-    const notApplied = last.effect.held.filter(
-      (entry) => entry.state !== 'applied'
-    );
+    const notApplied = (reason: HeldReason) =>
+      status === 'undone'
+        ? []
+        : describeLocks(
+            valuesOfEntries(
+              last.effect.held.filter(
+                (entry) =>
+                  entry.state !== 'applied' && entry.change.reason === reason
+              )
+            )
+          );
+    const edited = notApplied('edited');
     return {
       status,
-      held:
-        status === 'undone' ? [] : describeLocks(locksOfEntries(notApplied)),
+      held: notApplied('locked'),
+      ...(edited.length > 0 ? { edited } : {}),
       errors: last.outcome.applied ? [] : [...last.outcome.errors],
     };
   };
@@ -317,6 +399,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           answer.outcome = { ...answer.outcome, held: [] };
         }
       }
+      sentTheme = cloneTheme(theme);
       return {
         theme: cloneTheme(theme),
         locked: parseLocks(locked),
@@ -349,17 +432,24 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
         return outcome;
       }
 
-      const { free, held: lockedPart } = splitLocked(
+      const { free: unlocked, held: lockedPart } = splitLocked(
         mergeProposals(valid),
         locked
       );
+      const { free, held: editedPart } = sentTheme
+        ? splitLocked(unlocked, editedSince(sentTheme, current))
+        : { free: unlocked, held: emptyProposal() };
       const theme = applyProposal(current, free);
-      const held = heldFrom(lockedPart, current);
+      const violations = checkContrast(theme);
+      const held = [
+        ...heldFrom(lockedPart, current, 'locked'),
+        ...heldFrom(editedPart, current, 'edited'),
+      ];
       const outcome: AnswerOutcome = {
         applied: true,
         theme,
         held,
-        violations: checkContrast(theme),
+        violations,
       };
       answers.push({
         id: answerId,
@@ -370,7 +460,11 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           ...(sameList(theme.shadowComponents, current.shadowComponents)
             ? {}
             : { wroteShadowComponents: [...theme.shadowComponents] }),
-          held: held.map((change) => ({ change, state: 'held' })),
+          held: held.map((change) => ({
+            change,
+            state: 'held',
+            resolves: resolvedBy(change, theme, violations),
+          })),
         },
         undone: false,
       });
@@ -397,7 +491,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       );
       if (chosen.length === 0) return undefined;
 
-      const theme = cloneTheme(current);
+      let theme = cloneTheme(current);
       let unlock = NO_LOCKS;
       let applied = 0;
       for (const entry of chosen) {
@@ -406,15 +500,14 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           entry.state = 'changed';
           continue;
         }
+        theme = withChange(theme, change);
         if (change.kind === 'shadowComponents') {
-          theme.shadowComponents = [...change.proposed];
           effect.wroteShadowComponents = [...change.proposed];
         } else {
           for (const mode of THEME_MODES) {
             const value = change.proposed[mode];
-            if (value === undefined) continue;
-            theme[mode][change.cssVar] = value;
-            effect.wrote[mode].set(change.cssVar, value);
+            if (value !== undefined)
+              effect.wrote[mode].set(change.cssVar, value);
           }
         }
         unlock = withLocks(unlock, heldLock(change), true);
@@ -423,12 +516,15 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       }
       // The theme changed, so its contrast is checked again, and the outcome
       // keeps only what is still held.
+      const violations = checkContrast(theme);
+      const stillHeld = effect.held.filter((entry) => entry.state === 'held');
+      for (const entry of stillHeld) {
+        entry.resolves = resolvedBy(entry.change, theme, violations);
+      }
       answer.outcome = {
         ...answer.outcome,
-        held: effect.held
-          .filter((entry) => entry.state === 'held')
-          .map((entry) => entry.change),
-        violations: checkContrast(theme),
+        held: stillHeld.map((entry) => entry.change),
+        violations,
       };
       return { theme, unlock, applied, changed: chosen.length - applied };
     },

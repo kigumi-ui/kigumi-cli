@@ -123,15 +123,19 @@ _Avoid_: preset agent, theme generator
 A value in the custom theme, for one mode, that the user locked with its
 "Lock value" switch in the Studio sidebar. A mode-independent value is locked
 in both modes, and the list of components that get a shadow is one value too.
-The Theme Agent may change every value that is not locked and never changes a
-locked one. Locks survive a reload and a reset, and are not part of the
+The Theme Agent never changes a locked value, and changes every other value
+except one the user changed while its answer was being written (a held
+change). Locks survive a reload and a reset, and are not part of the
 exported theme.
 _Avoid_: hand-set value, pinned value, protected value
 
 **Held change**:
-What an answer proposed for a locked value, held back instead of applied.
-Under the latest answer the user can unlock and apply each held change, or
-all of them; a value changed since the answer is not applied. Sending the
-next message keeps the rest locked, and undoing the answer locks again what
-it unlocked, unless that value changed since.
+What an answer proposed for a locked value, or for a value that differs, when
+the answer arrives, from the theme its message carried (the user changed it
+while the answer was being written), held back instead of applied. Under the
+latest answer the user can apply each held change, or all of them; applying a
+locked value unlocks it ("Unlock and apply"). A value changed since the answer
+is not applied. Sending the next message keeps the rest as they are, and
+undoing the answer locks again what it unlocked, unless that value changed
+since. A held change that would fix a failing contrast pair names that pair.
 _Avoid_: change request, suggestion

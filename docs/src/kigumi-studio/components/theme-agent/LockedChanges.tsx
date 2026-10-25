@@ -1,5 +1,6 @@
 import { Button, Callout, Icon } from '@/components/ui';
-import type { HeldEntry } from '../../theme-agent/conversation';
+import { violationPair } from '../../theme-agent/contrast';
+import type { HeldEntry, HeldReason } from '../../theme-agent/conversation';
 import { heldChangeLabel } from '../../theme-agent/describe-held-change';
 
 interface UnlockAndApplyProps {
@@ -9,41 +10,76 @@ interface UnlockAndApplyProps {
 }
 
 /**
+ * A held change's name; while it is held, with the contrast pairs applying
+ * it would fix: "Text Quiet (light), fixes Light mode, quiet text on the
+ * raised surface".
+ */
+function entryLabel(entry: HeldEntry): string {
+  const label = heldChangeLabel(entry.change);
+  if (entry.state !== 'held' || entry.resolves.length === 0) return label;
+  return `${label}, fixes ${entry.resolves.map(violationPair).join('; ')}`;
+}
+
+/**
  * Studio's report under the answer on its held changes: a success callout
- * for the ones applied with "Unlock and apply", and the locked values it did
- * not change.
+ * for the ones applied with "Unlock and apply" or "Apply", and the values it
+ * did not change because they are locked or because the user changed them
+ * while it was being written.
  */
 export function LockedChangesCallouts({ entries }: { entries: HeldEntry[] }) {
   const labels = (state: (entry: HeldEntry) => boolean) =>
-    entries
-      .filter(state)
-      .map((entry) => heldChangeLabel(entry.change))
-      .join(', ');
-  const applied = labels((entry) => entry.state === 'applied');
-  const notChanged = labels((entry) => entry.state !== 'applied');
+    entries.filter(state).map(entryLabel).join('; ');
+  const withReason =
+    (reason: HeldReason, applied: boolean) => (entry: HeldEntry) =>
+      entry.change.reason === reason && (entry.state === 'applied') === applied;
+  const unlocked = labels(withReason('locked', true));
+  const applied = labels(withReason('edited', true));
+  const locked = labels(withReason('locked', false));
+  const edited = labels(withReason('edited', false));
   return (
     <>
-      {applied && (
+      {unlocked && (
         <Callout variant="success" size="small">
           <Icon slot="icon" name="lock-open" />
-          Unlocked and applied: {applied}.
+          Unlocked and applied: {unlocked}.
         </Callout>
       )}
-      {notChanged && (
+      {applied && (
+        <Callout variant="success" size="small">
+          <Icon slot="icon" name="check" />
+          Applied: {applied}.
+        </Callout>
+      )}
+      {locked && (
         <Callout variant="neutral" size="small">
           <Icon slot="icon" name="lock" />
-          Locked, not changed: {notChanged}.
+          Locked, not changed: {locked}.
+        </Callout>
+      )}
+      {edited && (
+        <Callout variant="neutral" size="small">
+          <Icon slot="icon" name="pencil" />
+          You changed these while the answer was written, so they were not
+          changed: {edited}.
         </Callout>
       )}
     </>
   );
 }
 
+/** "Unlock and apply" for a locked value, "Apply" for one the user edited. */
+function applyLabel(entry: HeldEntry) {
+  return entry.change.reason === 'locked'
+    ? { icon: 'lock-open', text: 'Unlock and apply' }
+    : { icon: 'check', text: 'Apply' };
+}
+
 /**
  * The answer's own action, inside its card: the message says what it
  * proposes, so the button needs no copy around it. One held value has one
- * "Unlock and apply"; two or more add one button per value, named by it, and
- * "Unlock and apply all". Nothing once no change is held.
+ * button; two or more add one button per value, named by it, and one for
+ * all. A locked value's button unlocks it too. Nothing once no change is
+ * held.
  */
 export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
   const open = entries
@@ -53,6 +89,7 @@ export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
 
   if (open.length === 1) {
     const [{ entry, index }] = open;
+    const { icon, text } = applyLabel(entry);
     return (
       <div className="theme-agent__actions wa-cluster">
         <Button
@@ -60,8 +97,8 @@ export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
           appearance="outlined"
           onClick={() => onApply(index)}
         >
-          <Icon slot="start" name="lock-open" />
-          Unlock and apply
+          <Icon slot="start" name={icon} />
+          {text}
           <span className="wa-visually-hidden">
             : {heldChangeLabel(entry.change)}
           </span>
@@ -70,24 +107,28 @@ export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
     );
   }
 
+  const anyLocked = open.some(({ entry }) => entry.change.reason === 'locked');
   return (
     <div className="theme-agent__actions wa-cluster wa-gap-xs">
       <Button size="small" appearance="outlined" onClick={() => onApply()}>
-        <Icon slot="start" name="lock-open" />
-        Unlock and apply all
+        <Icon slot="start" name={anyLocked ? 'lock-open' : 'check'} />
+        {anyLocked ? 'Unlock and apply all' : 'Apply all'}
       </Button>
-      {open.map(({ entry, index }) => (
-        <Button
-          key={index}
-          size="small"
-          appearance="plain"
-          onClick={() => onApply(index)}
-        >
-          <Icon slot="start" name="lock-open" />
-          <span className="wa-visually-hidden">Unlock and apply </span>
-          {heldChangeLabel(entry.change)}
-        </Button>
-      ))}
+      {open.map(({ entry, index }) => {
+        const { icon, text } = applyLabel(entry);
+        return (
+          <Button
+            key={index}
+            size="small"
+            appearance="plain"
+            onClick={() => onApply(index)}
+          >
+            <Icon slot="start" name={icon} />
+            <span className="wa-visually-hidden">{text} </span>
+            {heldChangeLabel(entry.change)}
+          </Button>
+        );
+      })}
     </div>
   );
 }

@@ -13,7 +13,9 @@ import {
 } from '../src/kigumi-studio/theme-agent/constants.js';
 import {
   checkContrast,
+  lockedSources,
   violationFeedback,
+  violationKey,
 } from '../src/kigumi-studio/theme-agent/contrast.js';
 import type {
   PreviousAnswer,
@@ -21,7 +23,9 @@ import type {
 } from '../src/kigumi-studio/theme-agent/custom-theme.js';
 import {
   applyProposal,
+  emptyProposal,
   locksOf,
+  mergeProposals,
   splitLocked,
   themeProposalSchema,
   validateProposal,
@@ -57,8 +61,16 @@ const PROPOSE_DESCRIPTION = [
   'pairs that still fail in your explanation. Values listed in locked are',
   'locked by the user: Studio holds them instead of applying them, and the',
   'user decides with Unlock and apply. Never say you changed them; say they',
-  'are locked and wait for the user.',
+  'are locked and wait for the user. Pairs also listed in lockedContrast',
+  'fail because of locked values: fix them by proposing the locked values',
+  'anyway, so Studio holds the fix for the user.',
 ].join(' ');
+
+const NO_CONTRAST = {
+  contrast: [],
+  correctContrast: false,
+  lockedContrast: [],
+};
 
 /**
  * The `propose_theme` tool for one answer. It keeps the custom theme as the
@@ -70,6 +82,8 @@ function proposeThemeTool(
   onStatus: (step: string) => void
 ) {
   let theme = snapshot.theme;
+  // What the answer's proposals hold back for the user, merged in order.
+  let heldSoFar = emptyProposal();
   let corrections = 0;
   let rejections = 0;
   // Set once a theme went back with violations and no correction left.
@@ -85,8 +99,7 @@ function proposeThemeTool(
           errors: [
             'No contrast corrections are left in this answer; explain the pairs that still fail instead.',
           ],
-          contrast: [],
-          correctContrast: false,
+          ...NO_CONTRAST,
           locked: [],
         };
       }
@@ -96,8 +109,7 @@ function proposeThemeTool(
         return {
           accepted: false,
           errors: validation.errors,
-          contrast: [],
-          correctContrast: false,
+          ...NO_CONTRAST,
           locked: [],
         };
       }
@@ -105,13 +117,30 @@ function proposeThemeTool(
       // Locked values stay as they are in the browser; check what lands.
       const { free, held } = splitLocked(validation.proposal, snapshot.locked);
       theme = applyProposal(theme, free);
+      heldSoFar = mergeProposals([heldSoFar, held]);
       const violations = checkContrast(theme);
       const contrast = violations.map(violationFeedback);
+      // A pair the held values fix is fixed once the user applies them.
+      const fixedByHeld = new Set(violations.map(violationKey));
+      for (const left of checkContrast(applyProposal(theme, heldSoFar))) {
+        fixedByHeld.delete(violationKey(left));
+      }
       // A pair set by another value is the brand fill: Studio derives it
       // from the brand at a fixed lightness, so the only fix is another
       // brand hue, and the brand is the user's. It is reported, never
       // corrected.
-      const correctable = violations.filter((violation) => !violation.setBy);
+      const correctable = violations.filter(
+        (violation) =>
+          !violation.setBy && !fixedByHeld.has(violationKey(violation))
+      );
+      // Every value behind these is locked: the model proposes the fix all
+      // the same, and Studio holds it.
+      const lockedContrast = correctable.flatMap((violation) => {
+        const sources = lockedSources(violation, snapshot.locked);
+        return sources.length > 0
+          ? [`${violationFeedback(violation)}; locked: ${sources.join(', ')}`]
+          : [];
+      });
       const correctContrast =
         correctable.length > 0 && corrections < MAX_CONTRAST_CORRECTIONS;
       if (correctContrast) {
@@ -125,6 +154,7 @@ function proposeThemeTool(
         errors: [],
         contrast,
         correctContrast,
+        lockedContrast,
         locked: describeLocks(locksOf(held)),
       };
     },
@@ -160,6 +190,11 @@ function previousAnswerLines(previous: PreviousAnswer | undefined): string[] {
   if (previous.held.length > 0) {
     lines.push(
       `- Locked, so not changed, and kept locked now that the user wrote again: ${previous.held.join(', ')}. Propose them again if the user still wants them.`
+    );
+  }
+  if (previous.edited?.length) {
+    lines.push(
+      `- Changed by the user while you answered, so not changed, and the user's values stay now that the user wrote again: ${previous.edited.join(', ')}. Propose them again only if the user still wants them.`
     );
   }
   return [...lines, ''];
@@ -207,7 +242,7 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     '- Keep the theme readable in both modes (WCAG 2.1 AA): normal, quiet and link text need 4.5:1 on the raised, default and lowered surfaces; the form control border needs 3:1 on the form control background; white text on the brand fill needs 4.5:1.',
     "- The brand colour is the user's: change --wa-color-brand only when the latest message asks about the brand or asks to fix a failing brand fill pair (such as the accessibility warning), never as part of a mood such as warmer or calmer, and never on your own to fix contrast. Studio derives the brand fill from it at a fixed lightness, so only another hue or saturation fixes that pair; unless the user asks, a failing brand fill pair is reported, not corrected. A surface or text colour left at its Studio default is derived from --wa-color-neutral.",
     `- If ${THEME_AGENT_PROPOSE_TOOL} returns accepted: false, fix every listed error and call it again.`,
-    `- If it returns correctContrast: true, call it again with only the values that fix the listed contrast pairs. If contrast still lists pairs with correctContrast: false, stop proposing and name those pairs in your explanation.`,
+    `- If it returns correctContrast: true, call it again with only the values that fix the listed contrast pairs. A pair also in lockedContrast fails because of locked values: propose the locked value that fixes it anyway; Studio holds it, and your explanation says it is locked and that applying it fixes the pair. If contrast still lists pairs with correctContrast: false, stop proposing and name those pairs in your explanation.`,
     '- After the proposal is accepted, explain in two or three short sentences what changed and why. Do not list the values.',
     '- If the message needs no change to the theme, answer without calling the tool.',
     '- Reply in the language the user wrote in.',

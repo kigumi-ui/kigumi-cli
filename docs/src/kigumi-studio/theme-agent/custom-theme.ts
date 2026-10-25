@@ -36,7 +36,7 @@ export interface ThemeAgentSnapshot {
   /**
    * What Studio did with the agent's last answer, which the task cannot see:
    * applied, nothing applied, refused (with why), or undone by the user,
-   * and the locked values it held. Absent before the first answer.
+   * and the values it held. Absent before the first answer.
    */
   previous?: PreviousAnswer;
 }
@@ -48,6 +48,12 @@ export interface PreviousAnswer {
    * `describeLocks()` writes them.
    */
   held: string[];
+  /**
+   * The values it proposed that the user changed while it was being
+   * written, which Studio did not change either, written the same way.
+   * Absent when there are none.
+   */
+  edited?: string[];
   /** Why Studio refused it. */
   errors: string[];
 }
@@ -55,6 +61,7 @@ export interface PreviousAnswer {
 const previousAnswerSchema = z.object({
   status: z.enum(['applied', 'unchanged', 'rejected', 'undone']),
   held: z.array(z.string()),
+  edited: z.array(z.string()).optional(),
   errors: z.array(z.string()),
 });
 

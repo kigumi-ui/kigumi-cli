@@ -223,6 +223,27 @@ export function splitLocked(
   return { free, held };
 }
 
+/** A proposal that changes nothing. */
+export function emptyProposal(): ThemeProposal {
+  return { light: {}, dark: {} };
+}
+
+/**
+ * An answer's proposals as one: later values win, as a correction intends.
+ * The browser and the task both merge with this.
+ */
+export function mergeProposals(proposals: ThemeProposal[]): ThemeProposal {
+  const merged = emptyProposal();
+  for (const proposal of proposals) {
+    Object.assign(merged.light, proposal.light);
+    Object.assign(merged.dark, proposal.dark);
+    if (proposal.shadowComponents) {
+      merged.shadowComponents = [...proposal.shadowComponents];
+    }
+  }
+  return merged;
+}
+
 /** The values `proposal` names, as locks. */
 export function locksOf(proposal: ThemeProposal): LockedValues {
   return {
@@ -241,6 +262,11 @@ export interface ProposeThemeOutput {
   contrast: string[];
   /** `true` while the model is to correct `contrast` and propose again. */
   correctContrast: boolean;
+  /**
+   * The pairs of `contrast` to correct whose every value is locked, each
+   * naming them: the model proposes the fix anyway, and Studio holds it.
+   */
+  lockedContrast: string[];
   /**
    * Values of the proposal the user locked, as `describeLocks()` writes
    * them: Studio holds them for the user to unlock and apply.

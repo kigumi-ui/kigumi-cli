@@ -517,4 +517,151 @@ describe('Theme Agent turn: contrast', () => {
     expect(text).toMatch(/last answer:\n- [^\n]*refused/i);
     expect(text).toMatch(/not changed[^\n]*--wa-color-brand/);
   });
+
+  it('gives the model what the user changed while its last answer was written', async () => {
+    const text = await systemPrompt({
+      ...snapshot,
+      previous: {
+        status: 'applied',
+        held: [],
+        edited: ['--wa-color-surface-default (dark mode)'],
+        errors: [],
+      },
+    });
+    expect(text).toMatch(
+      /changed by the user while you answered[^\n]*--wa-color-surface-default \(dark mode\)/i
+    );
+  });
+});
+
+describe('Theme Agent turn: contrast a locked value causes', () => {
+  /** Light quiet text at 2.3:1, locked with all three light surfaces. */
+  const paleAndLocked: ThemeAgentSnapshot = {
+    ...snapshot,
+    theme: {
+      ...snapshot.theme,
+      light: unreadableProposal.light,
+      dark: unreadableProposal.dark,
+    },
+    locked: {
+      ...NO_LOCKS,
+      light: [
+        '--wa-color-surface-raised',
+        '--wa-color-surface-default',
+        '--wa-color-surface-lowered',
+        '--wa-color-text-quiet',
+      ],
+    },
+  };
+  type LockedOutput = ProposeOutput & {
+    locked: string[];
+    lockedContrast: string[];
+  };
+
+  it('asks the model once to propose the locked value that fixes a pair, which Studio holds', async () => {
+    const steps: string[] = [];
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-border-radius-scale': '2' },
+          dark: {},
+        }),
+        proposalStep('call-2', {
+          light: { '--wa-color-text-quiet': '#595959' },
+          dark: {},
+        }),
+        textStep('Quiet text is locked; unlock and apply the darker one.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: paleAndLocked,
+      onStatus: (step) => steps.push(step),
+    });
+    await result.consumeStream();
+
+    const [first, second] = toolResults(model).map(
+      (o) => (o as { value: LockedOutput }).value
+    );
+    expect(first.correctContrast).toBe(true);
+    expect(first.lockedContrast.join('\n')).toContain(
+      'Light mode, quiet text on the raised surface'
+    );
+    expect(first.lockedContrast[0]).toMatch(
+      /locked: --wa-color-text-quiet, --wa-color-surface-raised/
+    );
+    // The fix is held, so the pair still fails in the browser, but the
+    // model has proposed what fixes it: no further round.
+    expect(second.correctContrast).toBe(false);
+    expect(second.locked).toEqual(['--wa-color-text-quiet (light mode)']);
+    expect(model.doStreamCalls).toHaveLength(3);
+  });
+
+  it('needs no correction round when a held value already fixes the pair', async () => {
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-color-text-quiet': '#595959' },
+          dark: {},
+        }),
+        textStep('Locked.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: {
+        ...paleAndLocked,
+        locked: { ...NO_LOCKS, light: ['--wa-color-text-quiet'] },
+      },
+    });
+    await result.consumeStream();
+
+    const [output] = toolResults(model).map(
+      (o) => (o as { value: LockedOutput }).value
+    );
+    expect(output.contrast.join('\n')).toContain(
+      'quiet text on the raised surface'
+    );
+    expect(output.correctContrast).toBe(false);
+    expect(output.lockedContrast).toEqual([]);
+  });
+
+  it('counts a fix held by an earlier proposal of the same answer', async () => {
+    // The first proposal holds the light quiet text fix and makes the dark
+    // quiet text fail; the correction fixes only dark.
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-color-text-quiet': '#595959' },
+          dark: { '--wa-color-text-quiet': '#404040' },
+        }),
+        proposalStep('call-2', {
+          light: {},
+          dark: { '--wa-color-text-quiet': '#b0b0b0' },
+        }),
+        textStep('Done.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: paleAndLocked,
+    });
+    await result.consumeStream();
+
+    const [first, second] = toolResults(model).map(
+      (o) => (o as { value: LockedOutput }).value
+    );
+    expect(first.correctContrast).toBe(true);
+    expect(first.lockedContrast).toEqual([]);
+    expect(second.correctContrast).toBe(false);
+  });
 });

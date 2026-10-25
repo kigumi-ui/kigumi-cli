@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { checkContrast } from '../theme-agent/contrast';
+import { checkContrast, lockedSources } from '../theme-agent/contrast';
+import { NO_LOCKS, valueLock, withLocks } from '../lib/locks';
 import type { CustomTheme } from '../theme-agent/custom-theme';
 
 // Every checked colour set explicitly, and none equal to its Studio default,
@@ -159,5 +160,68 @@ describe('Theme Agent contrast check', () => {
       expect.objectContaining({ ratio: null }),
       expect.objectContaining({ ratio: null }),
     ]);
+  });
+});
+
+describe('Theme Agent contrast: locked values behind a violation', () => {
+  function paleQuiet() {
+    const theme = readableTheme();
+    theme.light['--wa-color-text-quiet'] = '#aaaaaa';
+    const violation = checkContrast(theme).find(
+      (v) => v.background === '--wa-color-surface-raised'
+    );
+    if (!violation) throw new Error('quiet text on raised does not fail');
+    return violation;
+  }
+  const quietText = valueLock('--wa-color-text-quiet', ['light']);
+  const raised = valueLock('--wa-color-surface-raised', ['light']);
+
+  it('names both colours when the user locked both, so the agent may not fix it', () => {
+    expect(
+      lockedSources(paleQuiet(), withLocks(quietText, raised, true))
+    ).toEqual(['--wa-color-text-quiet', '--wa-color-surface-raised']);
+  });
+
+  it('names none while one colour of the pair is free to change', () => {
+    expect(lockedSources(paleQuiet(), quietText)).toEqual([]);
+    expect(lockedSources(paleQuiet(), NO_LOCKS)).toEqual([]);
+  });
+
+  it('reads the lock in the mode that fails', () => {
+    const darkOnly = withLocks(
+      valueLock('--wa-color-text-quiet', ['dark']),
+      valueLock('--wa-color-surface-raised', ['dark']),
+      true
+    );
+    expect(lockedSources(paleQuiet(), darkOnly)).toEqual([]);
+  });
+
+  it('names the colours locked in dark mode for a dark mode pair', () => {
+    const theme = readableTheme();
+    theme.dark['--wa-color-text-quiet'] = '#3a3a3a';
+    const violation = checkContrast(theme).find(
+      (v) => v.mode === 'dark' && v.background === '--wa-color-surface-raised'
+    );
+    if (!violation) throw new Error('dark quiet text on raised does not fail');
+    const darkLocks = withLocks(
+      valueLock('--wa-color-text-quiet', ['dark']),
+      valueLock('--wa-color-surface-raised', ['dark']),
+      true
+    );
+    expect(lockedSources(violation, darkLocks)).toEqual([
+      '--wa-color-text-quiet',
+      '--wa-color-surface-raised',
+    ]);
+  });
+
+  it('names the brand behind the brand fill', () => {
+    const theme = readableTheme();
+    theme.light['--wa-color-brand'] = '#16a34a';
+    theme.dark['--wa-color-brand'] = '#16a34a';
+    const brandFill = checkContrast(theme).find((v) => v.setBy);
+    if (!brandFill) throw new Error('the brand fill does not fail');
+    expect(
+      lockedSources(brandFill, valueLock('--wa-color-brand', ['light', 'dark']))
+    ).toEqual(['--wa-color-brand']);
   });
 });
