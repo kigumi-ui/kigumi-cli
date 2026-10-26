@@ -87,7 +87,9 @@ function cannedTransport(answers: CannedAnswer[]): CannedTransport {
           if ('running' in answer) {
             // Started, never finished: the answer runs until it is stopped.
             controller.enqueue({ type: 'start', messageId: `answer-${sent}` });
-            abortSignal?.addEventListener('abort', () => controller.close());
+            abortSignal?.addEventListener('abort', () => controller.close(), {
+              once: true,
+            });
             return;
           }
           for (const chunk of answerChunks(
@@ -171,9 +173,7 @@ const meta = {
   decorators: [
     (Story) => (
       <StudioProvider>
-        <div style={{ height: '100vh', display: 'flex' }}>
-          <Story />
-        </div>
+        <Story />
       </StudioProvider>
     ),
   ],
@@ -272,12 +272,13 @@ export const TwoHeldChanges: Story = {
  * While an answer runs, the next message can be written; Enter does not
  * send it.
  */
+const neverFinishes = cannedTransport([{ running: true }]);
+
 export const TypingWhileAnswering: Story = {
-  args: { transport: cannedTransport([{ running: true }]) },
+  args: { transport: neverFinishes },
   beforeEach: withLockedValues(),
-  play: async ({ args, canvasElement }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const transport = args.transport as CannedTransport;
     await send(canvasElement, 'Make it warmer');
     await canvas.findByText('Thinking…');
     // Sending emptied the field. user-event never saw that: it tracks a
@@ -295,10 +296,12 @@ export const TypingWhileAnswering: Story = {
     expect(field.value).toBe('Rounder corners');
 
     await userEvent.keyboard('{Enter}');
-    // Nothing to wait for when nothing happens: give a send a moment to show.
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // A send clears the field and adds the message in the render after the
+    // key, and Web Awesome paints the field before the next frame: once that
+    // frame is here, a send would show.
+    await new Promise(requestAnimationFrame);
     expect(field.value).toBe('Rounder corners');
-    expect(transport.sent).toBe(1);
+    expect(neverFinishes.sent).toBe(1);
     expect(canvas.queryByText('Rounder corners')).not.toBeInTheDocument();
     expect(canvas.getByText('Thinking…')).toBeInTheDocument();
   },
