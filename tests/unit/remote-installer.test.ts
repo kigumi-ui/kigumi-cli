@@ -9,11 +9,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import { stripVTControlCharacters } from 'util';
 import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
 import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
 import type { GitHubRegistrySource } from '../../src/utils/github-fetcher.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
 import { createTestAddOptions } from './_helpers/add-options.js';
+import { createRecordingOutput } from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
 
 // ---------------------------------------------------------------------------
 // Module-level mocks
@@ -356,7 +359,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
     );
 
     // Should be skipped since all files are identical
-    expect(results[0].skipped).toBe(true);
+    expect(results[0].skipped).toBe('up-to-date');
 
     // No Modified/Unchanged labels shown (skipped entirely)
     const warnCalls = vi.mocked(output.warn).mock.calls.flat();
@@ -396,7 +399,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
     );
 
     // Should still skip -- force bypasses prompts, not identity checks
-    expect(results[0].skipped).toBe(true);
+    expect(results[0].skipped).toBe('up-to-date');
   });
 
   it('shows diffs for multiple modified files', async () => {
@@ -509,6 +512,91 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
 
     expect(snapshot).not.toBeNull();
     expect(snapshot!['MyCard.tsx']).toBe(diskContent);
+  });
+});
+
+describe('RemoteComponentInstaller - why a component was skipped (#177)', () => {
+  let tempDir: string;
+  let componentDir: string;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    tempDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-remote-skip-'))
+    );
+    componentDir = path.join(tempDir, 'src/components/MyCard');
+  });
+
+  afterEach(async () => {
+    const prompts = await import('../../src/prompts/index.js');
+    prompts.resetPromptsForTesting();
+    await fs.remove(tempDir);
+  });
+
+  async function install(
+    options: Parameters<typeof createTestAddOptions>[0]
+  ): Promise<{ skipped: unknown; lines: string[] }> {
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+    const output = createRecordingOutput();
+    const installer = new RemoteComponentInstaller(
+      tempDir,
+      testConfig,
+      testSource,
+      baseRegistry,
+      output
+    );
+    const results = await installer.installComponents(
+      ['my-card'],
+      createTestAddOptions(options)
+    );
+    return {
+      skipped: results[0].skipped,
+      lines: output.spinnerStops.map((m) => stripVTControlCharacters(m)),
+    };
+  }
+
+  it('says up to date when every file matches, even with --force', async () => {
+    await fs.outputFile(
+      path.join(componentDir, 'MyCard.tsx'),
+      '// fetched component'
+    );
+    await fs.outputFile(
+      path.join(componentDir, 'MyCard.css'),
+      '/* fetched css */'
+    );
+
+    const { skipped, lines } = await install({ force: true });
+
+    expect(skipped).toBe('up-to-date');
+    expect(lines).toEqual(['○ MyCard is already up to date']);
+  });
+
+  it('says the local version was kept when the user declines', async () => {
+    await fs.outputFile(path.join(componentDir, 'MyCard.tsx'), '// user edit');
+    const prompts = await import('../../src/prompts/index.js');
+    prompts.setPromptsForTesting(createTestPrompts({ confirm: [false] }));
+
+    const { skipped, lines } = await install({});
+
+    expect(skipped).toBe('declined');
+    expect(lines.at(-1)).toBe('○ Kept your local version of MyCard');
+    // Premise: the prompt was answered no, so the edit is still there.
+    expect(
+      await fs.readFile(path.join(componentDir, 'MyCard.tsx'), 'utf-8')
+    ).toBe('// user edit');
+  });
+
+  it('says how to overwrite under --all without --force', async () => {
+    await fs.outputFile(path.join(componentDir, 'MyCard.tsx'), '// user edit');
+
+    const { skipped, lines } = await install({ all: true });
+
+    expect(skipped).toBe('exists');
+    expect(lines).toEqual([
+      '○ Skipped MyCard (already installed, pass --force to overwrite)',
+    ]);
   });
 });
 

@@ -10,6 +10,7 @@
  * EXPORTS:
  * - ComponentInstaller - Class that handles component installation
  * - InstallResult - Result type for installation operations
+ * - SkipReason / skipMessage - Why a component was left alone, and its line
  *
  * @see AGENTS.md Rule #1 for templates-first development
  */
@@ -43,10 +44,33 @@ import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../schemas/config.js';
 import { ValidationError } from '../../errors/index.js';
 
+/**
+ * Why a component already on disk was left alone. Each one asks something
+ * different of the user, so each gets its own line (issue #177):
+ * - `exists`: `--all` without `--force` never touches an installed component
+ * - `declined`: the user answered no to the overwrite prompt
+ * - `up-to-date`: every file already matches, so there was nothing to write
+ */
+export type SkipReason = 'exists' | 'declined' | 'up-to-date';
+
+/** The spinner line for a skipped component. Shared with the remote installer. */
+export function skipMessage(name: string, reason: SkipReason): string {
+  const component = pc.cyan(name);
+  switch (reason) {
+    case 'exists':
+      return `${pc.yellow('○')} Skipped ${component} (already installed, pass --force to overwrite)`;
+    case 'declined':
+      return `${pc.yellow('○')} Kept your local version of ${component}`;
+    case 'up-to-date':
+      return `${pc.dim('○')} ${component} is already up to date`;
+  }
+}
+
 export interface InstallResult {
   name: string;
   success: boolean;
-  skipped?: boolean;
+  /** Set when the component was left alone, to say why */
+  skipped?: SkipReason;
   error?: string;
   /** Names of files that had local modifications when overwritten */
   modifiedFiles?: string[];
@@ -102,9 +126,7 @@ export class ComponentInstaller {
         const result = await this.installComponent(component, options, spinner);
 
         if (result.skipped) {
-          spinner.stop(
-            `${pc.yellow('○')} Skipped ${pc.cyan(componentName)} (already exists)`
-          );
+          spinner.stop(skipMessage(componentName, result.skipped));
         } else {
           spinner.stop(`${pc.green('✓')} Added ${pc.cyan(componentName)}`);
         }
@@ -170,7 +192,7 @@ export class ComponentInstaller {
     if (componentExists) {
       // --all without --force: silently skip existing components
       if (options.all && !options.force) {
-        return { name: component.name, success: true, skipped: true };
+        return { name: component.name, success: true, skipped: 'exists' };
       }
 
       const checks = await Promise.all([
@@ -222,7 +244,7 @@ export class ComponentInstaller {
           });
 
           if (p.isCancel(confirmed) || !confirmed) {
-            return { name: component.name, success: true, skipped: true };
+            return { name: component.name, success: true, skipped: 'declined' };
           }
         }
 
@@ -230,7 +252,7 @@ export class ComponentInstaller {
         spinner.start(`Overwriting ${pc.cyan(component.name)}...`);
       } else {
         // All files identical -- skip regardless of flags
-        return { name: component.name, success: true, skipped: true };
+        return { name: component.name, success: true, skipped: 'up-to-date' };
       }
     }
 

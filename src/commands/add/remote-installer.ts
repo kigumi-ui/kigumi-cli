@@ -34,7 +34,11 @@ import {
   CommunityComponentNotFoundError,
   CircularDependencyError,
 } from '../../errors/community-registry.js';
-import type { InstallResult } from './installer.js';
+import {
+  skipMessage,
+  type InstallResult,
+  type SkipReason,
+} from './installer.js';
 import {
   FrameworkMismatchError,
   InternalInvariantError,
@@ -175,7 +179,7 @@ export class RemoteComponentInstaller {
           continue;
         }
 
-        const wasSkipped = await this.installComponent(
+        const skipped = await this.installComponent(
           componentKey,
           component,
           framework,
@@ -183,11 +187,9 @@ export class RemoteComponentInstaller {
           spinner
         );
 
-        if (wasSkipped) {
-          spinner.stop(
-            `${pc.yellow('○')} Skipped ${pc.cyan(component.name)} (already exists)`
-          );
-          results.push({ name: component.name, success: true, skipped: true });
+        if (skipped) {
+          spinner.stop(skipMessage(component.name, skipped));
+          results.push({ name: component.name, success: true, skipped });
         } else {
           spinner.stop(`${pc.green('✓')} Added ${pc.cyan(component.name)}`);
           results.push({ name: component.name, success: true });
@@ -266,7 +268,7 @@ export class RemoteComponentInstaller {
 
   /**
    * Install a single component from the remote registry
-   * @returns true if skipped, false if installed
+   * @returns why the component was skipped, or undefined when it was written
    */
   private async installComponent(
     key: string,
@@ -274,7 +276,7 @@ export class RemoteComponentInstaller {
     framework: Framework,
     options: AddOptions,
     spinner: OutputSpinner
-  ): Promise<boolean> {
+  ): Promise<SkipReason | undefined> {
     const files = component.files[framework];
     if (!files) {
       throw new InternalInvariantError(`No files for framework ${framework}`, {
@@ -297,7 +299,7 @@ export class RemoteComponentInstaller {
     if (componentExists) {
       // --all without --force: silently skip
       if (options.all && !options.force) {
-        return true;
+        return 'exists';
       }
 
       // Download content first (without writing) for diff comparison
@@ -374,14 +376,14 @@ export class RemoteComponentInstaller {
           });
 
           if (p.isCancel(confirmed) || !confirmed) {
-            return true;
+            return 'declined';
           }
         }
 
         spinner.start(`Overwriting ${pc.cyan(component.name)}...`);
       } else {
         // All files identical -- skip regardless of flags
-        return true;
+        return 'up-to-date';
       }
 
       // Write the already-downloaded content
@@ -415,7 +417,7 @@ export class RemoteComponentInstaller {
       );
       await saveSnapshot(this.cwd, component.name, snapshotFiles);
 
-      return false;
+      return undefined;
     }
 
     // Fresh install -- download and write directly
@@ -452,7 +454,7 @@ export class RemoteComponentInstaller {
       throw error;
     }
 
-    return false;
+    return undefined;
   }
 
   /**

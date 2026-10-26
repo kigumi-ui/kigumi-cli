@@ -31,6 +31,8 @@ export interface OutputCall {
 
 export interface RecordingOutput extends OutputInterface {
   readonly calls: ReadonlyArray<OutputCall>;
+  /** Every message a spinner was stopped with, in order. */
+  readonly spinnerStops: ReadonlyArray<string>;
   reset(): void;
 }
 
@@ -41,15 +43,18 @@ export interface RecordingOutput extends OutputInterface {
  *   expect(output.calls.find((c) => c.method === 'success')?.args).toEqual([...]).
  * This lets tests register the instance via setOutputForTesting() without
  * touching the production module via a factory mock. The spinner() factory
- * returns a no-op spinner; spinner method calls themselves are not recorded
- * (only the factory invocation is).
+ * returns a spinner that records only the messages it is stopped with, in
+ * `spinnerStops`; its other methods are not recorded.
  */
 export function createRecordingOutput(): RecordingOutput {
   const calls: OutputCall[] = [];
-  const noopSpinner: OutputSpinner = {
+  const spinnerStops: string[] = [];
+  const spinner: OutputSpinner = {
     start: () => {},
     message: () => {},
-    stop: () => {},
+    stop: (m) => {
+      if (m !== undefined) spinnerStops.push(m);
+    },
     error: () => {},
   };
   const record = (method: keyof OutputInterface, args: unknown[]): void => {
@@ -68,13 +73,17 @@ export function createRecordingOutput(): RecordingOutput {
     debug: (m) => record('debug', [m]),
     spinner: (m) => {
       record('spinner', [m]);
-      return noopSpinner;
+      return spinner;
     },
     get calls() {
       return calls;
     },
+    get spinnerStops() {
+      return spinnerStops;
+    },
     reset() {
       calls.length = 0;
+      spinnerStops.length = 0;
     },
   };
 }

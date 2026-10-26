@@ -22,6 +22,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import { stripVTControlCharacters } from 'util';
 import { createTestAddOptions } from './_helpers/add-options.js';
 import { createTestKigumiConfig } from './_helpers/kigumi-config.js';
 import {
@@ -98,6 +99,11 @@ async function createInstaller(testDir: string) {
     installer: new ComponentInstaller(testDir, BASE_CONFIG, output, 'free'),
     output,
   };
+}
+
+/** The spinner lines, without colour codes (picocolors colours them in CI). */
+function spinnerLines(output: RecordingOutput): string[] {
+  return output.spinnerStops.map((m) => stripVTControlCharacters(m));
 }
 
 function warnMessages(output: RecordingOutput): string[] {
@@ -222,7 +228,7 @@ describe('ComponentInstaller', () => {
       'utf-8'
     );
 
-    const { installer } = await createInstaller(testDir);
+    const { installer, output } = await createInstaller(testDir);
 
     const results = await installer.installComponents(
       ['Button'],
@@ -233,7 +239,31 @@ describe('ComponentInstaller', () => {
     );
 
     expect(renderDiffSpy).not.toHaveBeenCalled();
-    expect(results[0].skipped).toBe(true);
+    expect(results[0].skipped).toBe('up-to-date');
+    // Issue #177: next to --force, "already exists" read as the flag being
+    // ignored. Nothing was written because nothing differed.
+    expect(spinnerLines(output)).toEqual(['○ Button is already up to date']);
+  });
+
+  it('leaves an installed component alone under --all without --force, and says how to overwrite it', async () => {
+    const componentDir = path.join(testDir, 'src/components/Button');
+    await fs.outputFile(path.join(componentDir, 'Button.tsx'), '// edited');
+    await fs.outputFile(path.join(componentDir, 'Button.css'), '/* css */');
+
+    const { installer, output } = await createInstaller(testDir);
+    const results = await installer.installComponents(
+      ['Button'],
+      createTestAddOptions({ all: true })
+    );
+
+    expect(results[0].skipped).toBe('exists');
+    expect(spinnerLines(output)).toEqual([
+      '○ Skipped Button (already installed, pass --force to overwrite)',
+    ]);
+    // Premise: the edit survived, so this really was the --all skip.
+    expect(
+      await fs.readFile(path.join(componentDir, 'Button.tsx'), 'utf-8')
+    ).toBe('// edited');
   });
 
   // ── Test 3: Snapshot saved after fresh install ──
@@ -325,7 +355,7 @@ describe('ComponentInstaller', () => {
     // Re-register prompts with confirm: [false] so the user declines.
     await registerPromptsSeam(createTestPrompts({ confirm: [false] }));
 
-    const { installer } = await createInstaller(testDir);
+    const { installer, output } = await createInstaller(testDir);
 
     // No --force: smart-add shows diff + prompt
     const results = await installer.installComponents(
@@ -333,8 +363,11 @@ describe('ComponentInstaller', () => {
       createTestAddOptions()
     );
 
-    // Skipped
-    expect(results[0].skipped).toBe(true);
+    // Skipped, and says it was the user's answer that kept the file
+    expect(results[0].skipped).toBe('declined');
+    expect(spinnerLines(output).at(-1)).toBe(
+      '○ Kept your local version of Button'
+    );
 
     // File unchanged
     const content = await fs.readFile(
