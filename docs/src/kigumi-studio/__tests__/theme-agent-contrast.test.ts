@@ -1,7 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { checkContrast, lockedSources } from '../theme-agent/contrast';
+import {
+  CONTRAST_PAIRS,
+  checkContrast,
+  correctableViolations,
+  lockedSources,
+  type ContrastViolation,
+} from '../theme-agent/contrast';
 import { NO_LOCKS, valueLock, withLocks } from '../lib/locks';
 import type { CustomTheme } from '../theme-agent/custom-theme';
+import { BRANDS_UNDER_AA_AT_STEP_50 } from './brand-fill-fixtures';
 
 // Every checked colour set explicitly, and none equal to its Studio default,
 // so the preview does not derive surfaces or text from neutral instead.
@@ -131,21 +138,25 @@ describe('Theme Agent contrast check', () => {
   });
 
   it('checks the brand fill the preview paints against its on-colour', () => {
-    const theme = readableTheme();
-    // A teal brand: Studio's fill for it carries white text at under 4.5:1.
-    theme.light['--wa-color-brand'] = '#0891b2';
-    theme.dark['--wa-color-brand'] = '#0891b2';
-
-    const violations = checkContrast(theme);
-
-    expect(violations.map((v) => [v.mode, v.foreground, v.background])).toEqual(
-      [
-        ['light', '--wa-color-brand-on-loud', '--wa-color-brand-fill-loud'],
-        ['dark', '--wa-color-brand-on-loud', '--wa-color-brand-fill-loud'],
-      ]
+    expect(CONTRAST_PAIRS).toContainEqual(
+      expect.objectContaining({
+        foreground: '--wa-color-brand-on-loud',
+        background: '--wa-color-brand-fill-loud',
+        minimum: 4.5,
+        setBy: '--wa-color-brand',
+      })
     );
-    expect(violations[0].ratio).toBeLessThan(4.5);
   });
+
+  it.each(BRANDS_UNDER_AA_AT_STEP_50)(
+    'passes the brand fill for %s in both modes',
+    (brand) => {
+      const theme = readableTheme();
+      theme.light['--wa-color-brand'] = brand;
+      theme.dark['--wa-color-brand'] = brand;
+      expect(checkContrast(theme)).toEqual([]);
+    }
+  );
 
   it('reports a colour it cannot resolve instead of passing it', () => {
     const theme = readableTheme();
@@ -160,6 +171,40 @@ describe('Theme Agent contrast check', () => {
       expect.objectContaining({ ratio: null }),
       expect.objectContaining({ ratio: null }),
     ]);
+  });
+});
+
+describe('Theme Agent contrast: which violations go back to the model', () => {
+  function violation(overrides: Partial<ContrastViolation>): ContrastViolation {
+    return {
+      mode: 'light',
+      foreground: '--wa-color-text-quiet',
+      background: '--wa-color-surface-raised',
+      label: 'quiet text on the raised surface',
+      foregroundColor: '#aaaaaa',
+      backgroundColor: '#fdfdfd',
+      ratio: 2.3,
+      minimum: 4.5,
+      ...overrides,
+    };
+  }
+
+  it('sends back a pair the theme sets itself', () => {
+    const quiet = violation({});
+    expect(correctableViolations([quiet], [quiet])).toEqual([quiet]);
+  });
+
+  it('never sends back a pair another value sets, such as the brand fill', () => {
+    const pair = CONTRAST_PAIRS.find((p) => p.setBy);
+    if (!pair) throw new Error('no checked pair is set by another value');
+    const brandFill = violation({ ...pair, ratio: 4.2 });
+    expect(correctableViolations([brandFill], [brandFill])).toEqual([]);
+  });
+
+  it('leaves out a pair the held values fix', () => {
+    const quiet = violation({});
+    const dark = violation({ mode: 'dark' });
+    expect(correctableViolations([quiet, dark], [dark])).toEqual([dark]);
   });
 });
 
@@ -215,11 +260,17 @@ describe('Theme Agent contrast: locked values behind a violation', () => {
   });
 
   it('names the brand behind the brand fill', () => {
-    const theme = readableTheme();
-    theme.light['--wa-color-brand'] = '#16a34a';
-    theme.dark['--wa-color-brand'] = '#16a34a';
-    const brandFill = checkContrast(theme).find((v) => v.setBy);
-    if (!brandFill) throw new Error('the brand fill does not fail');
+    // No brand fails the brand fill today; the pair is still checked, so a
+    // failing one names the value that sets it.
+    const pair = CONTRAST_PAIRS.find((p) => p.setBy);
+    if (!pair) throw new Error('no checked pair is set by another value');
+    const brandFill: ContrastViolation = {
+      ...pair,
+      mode: 'light',
+      foregroundColor: 'white',
+      backgroundColor: '#1478f2',
+      ratio: 4.2,
+    };
     expect(
       lockedSources(brandFill, valueLock('--wa-color-brand', ['light', 'dark']))
     ).toEqual(['--wa-color-brand']);

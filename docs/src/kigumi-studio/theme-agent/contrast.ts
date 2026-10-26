@@ -252,6 +252,24 @@ export function violationKey(violation: ContrastViolation): string {
 }
 
 /**
+ * The violations that go back to the model to correct: `violations` less the
+ * pairs the held values fix (those not in `leftWithHeld`, the violations of
+ * the theme with the held values applied) and less every pair another value
+ * sets. That is the brand fill, derived from the brand, which is the user's:
+ * it is reported, never corrected. Studio derives the fill where white text
+ * passes for every brand, so it fails only if that derivation changes.
+ */
+export function correctableViolations(
+  violations: ContrastViolation[],
+  leftWithHeld: ContrastViolation[]
+): ContrastViolation[] {
+  const left = new Set(leftWithHeld.map(violationKey));
+  return violations.filter(
+    (violation) => !violation.setBy && left.has(violationKey(violation))
+  );
+}
+
+/**
  * The locked Studio values behind `violation` when every value behind it is
  * locked in its mode, so the Theme Agent may not fix it; none while one is
  * free to change. Behind a pair are its two colours, or the value that sets

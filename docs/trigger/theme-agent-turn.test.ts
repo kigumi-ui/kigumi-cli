@@ -398,36 +398,6 @@ describe('Theme Agent turn: contrast', () => {
     ]);
   });
 
-  it('reports a failing brand fill without a correction round', async () => {
-    // Only the brand fill fails: Studio derives it from the brand at a fixed
-    // lightness, so the only fix is another brand hue, the user's choice.
-    const greenBrand = {
-      light: { ...readableProposal.light, '--wa-color-brand': '#16a34a' },
-      dark: readableProposal.dark,
-    };
-    const steps: string[] = [];
-    const model = new MockLanguageModelV4({
-      doStream: [proposalStep('call-1', greenBrand), textStep('Green brand.')],
-    });
-
-    const result = themeAgentTurn({
-      streamText,
-      model,
-      messages,
-      snapshot,
-      onStatus: (step) => steps.push(step),
-    });
-    await result.consumeStream();
-
-    expect(model.doStreamCalls).toHaveLength(2);
-    const [output] = toolResults(model).map(
-      (o) => (o as { value: ProposeOutput }).value
-    );
-    expect(output.correctContrast).toBe(false);
-    expect(output.contrast.join('\n')).toContain('text on the brand fill');
-    expect(steps).not.toContain(THEME_AGENT_STATUS.fixing);
-  });
-
   it('checks contrast on what lands, without the locked values', async () => {
     // The proposal would fix the quiet text, but the user locked it: the
     // browser keeps the failing value, so the task must not report a pass.

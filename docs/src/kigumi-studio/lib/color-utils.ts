@@ -269,7 +269,8 @@ interface SemanticMapping {
   literal?: string;
 }
 
-// Matches WA default.css light mode semantic mappings
+// Matches WA default.css light mode semantic mappings, except the brand fill
+// (BRAND_OVERRIDES)
 const LIGHT_SEMANTICS: Record<string, SemanticMapping> = {
   'fill-quiet': { step: '95' },
   'fill-normal': { step: '90' },
@@ -282,7 +283,8 @@ const LIGHT_SEMANTICS: Record<string, SemanticMapping> = {
   'on-loud': { literal: 'white' },
 };
 
-// Matches WA default.css dark mode semantic mappings
+// Matches WA default.css dark mode semantic mappings, except the brand fill
+// (BRAND_OVERRIDES)
 const DARK_SEMANTICS: Record<string, SemanticMapping> = {
   'fill-quiet': { step: '10' },
   'fill-normal': { step: '20' },
@@ -305,6 +307,13 @@ const DARK_NEUTRAL_OVERRIDES: Record<string, SemanticMapping> = {
   'on-loud': { step: '05' },
 };
 
+// The brand fill is step-40, not WA default's step-50: at step-50 white text
+// falls under 4.5:1 for most hues (the default brand included), at step-40 it
+// passes for every hue. Success, warning and danger keep step-50.
+const BRAND_OVERRIDES: Record<string, SemanticMapping> = {
+  'fill-loud': { step: '40' },
+};
+
 function resolveSemanticValue(
   mapping: SemanticMapping,
   palette: Record<PaletteStep, string>
@@ -322,6 +331,7 @@ function resolveSemanticValue(
  * - 11 palette steps: --wa-color-brand-05 through --wa-color-brand-95
  * - --wa-color-brand (the base color, mapped to step 50)
  * - 9 semantic variables: fill-quiet/normal/loud, border-quiet/normal/loud, on-quiet/normal/loud
+ *   (fill-loud is step-40, see BRAND_OVERRIDES)
  * - --wa-color-focus
  */
 export function generateBrandVariables(
@@ -329,7 +339,10 @@ export function generateBrandVariables(
   mode: 'light' | 'dark'
 ): Record<string, string> {
   const palette = generateBrandPalette(brandHex);
-  const semantics = mode === 'light' ? LIGHT_SEMANTICS : DARK_SEMANTICS;
+  const semantics = {
+    ...(mode === 'light' ? LIGHT_SEMANTICS : DARK_SEMANTICS),
+    ...BRAND_OVERRIDES,
+  };
 
   const vars: Record<string, string> = {};
 

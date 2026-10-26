@@ -1,9 +1,8 @@
 import type { ModelMessage } from 'ai';
 import { THEME_AGENT_PROPOSE_TOOL } from '../src/kigumi-studio/theme-agent/constants';
 import {
-  checkContrast,
+  CONTRAST_PAIRS,
   paintedStyle,
-  summarizeViolation,
   violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast';
 import type {
@@ -17,7 +16,11 @@ import {
   validateProposal,
   type ThemeProposal,
 } from '../src/kigumi-studio/theme-agent/proposal';
-import { hexToOklch } from '../src/kigumi-studio/lib/color-utils';
+import {
+  contrastRatio,
+  generateBrandPalette,
+  hexToOklch,
+} from '../src/kigumi-studio/lib/color-utils';
 import { DEFAULT_VALUES } from '../src/kigumi-studio/lib/defaults';
 import { NO_LOCKS } from '../src/kigumi-studio/lib/locks';
 
@@ -139,10 +142,9 @@ function redBrandHeld(
 }
 
 /**
- * The brand is proposed and held. Whether the held brand fixes the brand
- * fill is reported, not judged: Studio derives the fill at a fixed
- * lightness, so some hues cannot pass at all, and the task gives the model
- * no feedback on a held value.
+ * The brand is proposed and held, and it is another brand than the one the
+ * warning was about. Every brand passes the brand fill Studio derives, so
+ * any other brand fixes it.
  */
 function brandFillFixHeld(
   proposals: ThemeProposal[],
@@ -150,7 +152,7 @@ function brandFillFixHeld(
 ): Verdict {
   const verdict = brandHeld(proposals, snapshot);
   if (!verdict.pass) return verdict;
-  const { held, applied } = asStudioTakesIt(proposals, snapshot);
+  const { held } = asStudioTakesIt(proposals, snapshot);
   const brand = held.light[BRAND] ?? held.dark[BRAND];
   if (brand.toLowerCase() === snapshot.theme.light[BRAND].toLowerCase()) {
     return {
@@ -158,18 +160,7 @@ function brandFillFixHeld(
       reason: `${verdict.reason}, but it is the brand it already has`,
     };
   }
-  const left = checkContrast(applyProposal(applied, held)).filter(
-    (violation) => violation.setBy === BRAND
-  );
-  return {
-    pass: true,
-    reason:
-      left.length > 0
-        ? `${verdict.reason}; applied, it still fails: ${left
-            .map(summarizeViolation)
-            .join('; ')}`
-        : `${verdict.reason}; applied, it fixes the brand fill`,
-  };
+  return verdict;
 }
 
 /**
@@ -260,11 +251,29 @@ function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
 
 const BRAND_LOCKED = { light: [BRAND], dark: [BRAND], shadowComponents: false };
 
-/** A green whose brand fill falls short of 4.5:1 under white text. */
-const FAILING_GREEN = '#22c55e';
+/** A green brand, the subject of a brand fill warning. */
+const WARNED_GREEN = '#22c55e';
+const BRAND_FILL = CONTRAST_PAIRS.find((pair) => pair.setBy === BRAND);
+if (!BRAND_FILL) throw new Error('no checked pair is set by the brand');
+/**
+ * A brand fill warning for the green brand, written as the task writes one.
+ * No brand fails the brand fill Studio derives (palette step 40), so the
+ * warning is built from the green's step 50 under white text, where it
+ * fails: the scenario is the model's answer to "improve" after it.
+ */
+const GREEN_STEP_50 = generateBrandPalette(WARNED_GREEN)['50'];
+const GREEN_BRAND_FILL_WARNING = (['light', 'dark'] as const).map((mode) =>
+  violationFeedback({
+    ...BRAND_FILL,
+    mode,
+    foregroundColor: 'white',
+    backgroundColor: GREEN_STEP_50,
+    ratio: contrastRatio('#ffffff', GREEN_STEP_50),
+  })
+);
 const greenTheme = studioTheme({
-  light: { [BRAND]: FAILING_GREEN },
-  dark: { [BRAND]: FAILING_GREEN },
+  light: { [BRAND]: WARNED_GREEN },
+  dark: { [BRAND]: WARNED_GREEN },
 });
 
 /**
@@ -272,7 +281,7 @@ const greenTheme = studioTheme({
  * reported (never corrected unasked), as the task's tool returned it.
  */
 const greenAnswer: ModelMessage[] = [
-  { role: 'user', content: `A fresh green theme, brand ${FAILING_GREEN}.` },
+  { role: 'user', content: `A fresh green theme, brand ${WARNED_GREEN}.` },
   {
     role: 'assistant',
     content: [
@@ -280,7 +289,7 @@ const greenAnswer: ModelMessage[] = [
         type: 'tool-call',
         toolCallId: 'call-green',
         toolName: THEME_AGENT_PROPOSE_TOOL,
-        input: { light: { [BRAND]: FAILING_GREEN }, dark: {} },
+        input: { light: { [BRAND]: WARNED_GREEN }, dark: {} },
       },
     ],
   },
@@ -296,7 +305,7 @@ const greenAnswer: ModelMessage[] = [
           value: {
             accepted: true,
             errors: [],
-            contrast: checkContrast(greenTheme).map(violationFeedback),
+            contrast: GREEN_BRAND_FILL_WARNING,
             correctContrast: false,
             lockedContrast: [],
             locked: [],
@@ -308,7 +317,7 @@ const greenAnswer: ModelMessage[] = [
   {
     role: 'assistant',
     content:
-      'Your brand is now a fresh green. Text on the brand fill falls short of 4.5:1 in both modes; only another brand hue or saturation fixes that, and the brand is yours, so I left it as it is.',
+      'Your brand is now a fresh green. Text on the brand fill falls short of 4.5:1 in both modes; the brand is yours, so I left it as it is.',
   },
 ];
 
