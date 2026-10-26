@@ -24,7 +24,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.87",
     "@ai-sdk/react": "4.0.154",
-    "@awesome.me/webawesome-pro": "3.14.0",
+    "@awesome.me/webawesome-pro": "npm:@kigumi-ui/webawesome-pro@3.14.0",
     "@storybook/addon-themes": "^10.3.4",
     "@trigger.dev/sdk": "4.7.7",
     "ai": "7.0.150",

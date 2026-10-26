@@ -72,8 +72,31 @@ export const VITE_ENV_DTS_FILE = 'vite-env.d.ts';
 export const NPM_PUBLIC_REGISTRY = 'https://registry.npmjs.org/';
 
 /** Cloudsmith registry for Pro tier */
-export const NPM_PRO_REGISTRY =
+export const NPM_PRO_REGISTRY_DEFAULT =
   'https://npm.cloudsmith.io/fortawesome/webawesome-pro';
+
+/**
+ * Names a registry that serves the Pro package instead of Cloudsmith, such as
+ * a company mirror. CI points it at a local registry so the Pro consumer
+ * suites run `init` exactly as a Pro user does.
+ */
+export const PRO_REGISTRY_ENV_KEY = 'KIGUMI_PRO_REGISTRY';
+
+/**
+ * The Pro registry `value` names, without trailing slashes, or Cloudsmith
+ * when it is unset, empty or not an http(s) URL.
+ */
+export function resolveProRegistry(value: string | undefined): string {
+  const trimmed = value?.trim().replace(/\/+$/, '') ?? '';
+  return /^https?:\/\/[^/\s]+/.test(trimmed)
+    ? trimmed
+    : NPM_PRO_REGISTRY_DEFAULT;
+}
+
+/** The registry Pro installs use: `KIGUMI_PRO_REGISTRY`, else Cloudsmith. */
+export const NPM_PRO_REGISTRY = resolveProRegistry(
+  process.env[PRO_REGISTRY_ENV_KEY]
+);
 
 /**
  * The Pro registry as npm keys its auth in an npmrc (a "nerf dart"): no

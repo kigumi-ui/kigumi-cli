@@ -7,9 +7,11 @@
  * (src/utils/token.ts). A developer's global token would otherwise move a
  * Free suite onto Pro and fail its `@awesome.me/webawesome` assertions. The
  * projects these suites create have no `.env`, so blanking the other two is
- * enough.
+ * enough. KIGUMI_PRO_REGISTRY is blanked too, so the local registry CI
+ * serves the Pro consumers from never reaches a Free suite.
  */
 export const FREE_TIER_ENV: Readonly<Record<string, string>> = {
   WEBAWESOME_NPM_TOKEN: '',
   KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
+  KIGUMI_PRO_REGISTRY: '',
 };

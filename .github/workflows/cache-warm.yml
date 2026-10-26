@@ -28,6 +28,8 @@ on:
 
 permissions:
   contents: read
+  # The organization copy of Web Awesome Pro on GitHub Packages.
+  packages: read
 
 concurrency:
   group: cache-warm
@@ -51,25 +53,37 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      # A push to main has access to secrets, unlike a fork PR, so the Pro
-      # registry is reachable here. Guarded anyway so a repo without the
-      # secret configured skips rather than fails.
+      # A push to main can read the organization copy of Web Awesome Pro.
+      # When it cannot, the package's Actions access is missing, and the
+      # run fails instead of leaving the PR lane without a warm cache.
+      - name: Probe the Web Awesome Pro package
+        id: probe
+        continue-on-error: true
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/setup-npmrc.mjs --probe
+
+      # Unreadable is a skip only where it is expected: a fork or Dependabot
+      # pull request. Anywhere else the access is broken, and skipping would
+      # report a pass that verified nothing (docs/adr/0003).
       - name: Check Pro registry access
         id: pro
         env:
-          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+          PROBED: ${{ steps.probe.outcome }}
+          EVENT: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
         run: |
-          if [ -n "$WA_TOKEN" ]; then
+          if [ "$PROBED" = "success" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "$EVENT" = "pull_request" ] && { [ "$HEAD_REPO" != "$REPO" ] || [ "$ACTOR" = "dependabot[bot]" ]; }; then
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping cache warm: no Web Awesome Pro token."
+            echo "::notice::Cache warm NOT run: a fork or Dependabot pull request cannot read the Web Awesome Pro package."
+          else
+            echo "::error::The Web Awesome Pro package is not readable on a run that should read it. Check the package settings: Manage Actions access must list this repository with Read."
+            exit 1
           fi
-
-      - name: Configure Pro registry for docs
-        if: steps.pro.outputs.available == 'true'
-        run: |
-          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install docs dependencies
         if: steps.pro.outputs.available == 'true'

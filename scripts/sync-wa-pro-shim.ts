@@ -328,7 +328,7 @@ async function main() {
   if (!pro.found || pro.path === null) {
     console.error(
       '❌ Web Awesome Pro is not installed. Run `pnpm install` in docs/\n' +
-        '   with WEBAWESOME_NPM_TOKEN set (see `pnpm setup:npmrc`).\n'
+        '   after `pnpm setup:npmrc` (GitHub Packages read access).\n'
     );
     process.exit(1);
   }

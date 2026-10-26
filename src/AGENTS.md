@@ -198,7 +198,9 @@ npm and pnpm read the token from an npmrc. They never read `.env`, and a variabl
 
 `init --token`, or the (masked) interactive prompt, saves the token to the project `.env` and references the variable from `.npmrc`. `generateGitIgnore` makes sure `.env` is ignored.
 
-**Exception:** `docs/` has no committed `.npmrc`, so `docs/.npmrc` (gitignored, written by `pnpm run setup:npmrc`) carries its Pro registry line and the token; CI's docs jobs write only this file. Pnpm reads the global `~/.npmrc` auth line like npm does (checked with pnpm 10: a fresh Pro install succeeds with only that line and gets a 401 without it).
+**The Pro registry** is Cloudsmith (`NPM_PRO_REGISTRY_DEFAULT`) unless `KIGUMI_PRO_REGISTRY` names another http(s) registry, such as a company mirror. `resolveProRegistry()` in `constants.ts` reads it once at load; `NPM_PRO_REGISTRY`, its nerf dart and `NPM_PRO_AUTH_TOKEN_KEY` all derive from it, so the line `init` writes, the npmrc key a token is read from and the key npm authenticates with move together. CI's Pro consumer suites point it at a local registry (`scripts/local-pro-registry.mjs`).
+
+**Exception:** `docs/` does not use the Pro registry. It aliases `@awesome.me/webawesome-pro` to the organization copy `@kigumi-ui/webawesome-pro` on GitHub Packages, and `docs/.npmrc` (gitignored, written by `pnpm run setup:npmrc`) carries that scope's registry line and a GitHub token. Pnpm reads the global `~/.npmrc` auth line like npm does (checked with pnpm 10: a fresh Pro install succeeds with only that line and gets a 401 without it).
 
 **User Setup:**
 

@@ -15,8 +15,8 @@ importers:
         specifier: 4.0.154
         version: 4.0.154(react@19.2.4)(zod@4.5.4)
       '@awesome.me/webawesome-pro':
-        specifier: 3.14.0
-        version: 3.14.0(@floating-ui/utils@0.2.10)(@types/node@24.10.13)(@types/react@19.2.14)
+        specifier: npm:@kigumi-ui/webawesome-pro@3.14.0
+        version: '@kigumi-ui/webawesome-pro@3.14.0(@floating-ui/utils@0.2.10)(@types/node@24.10.13)(@types/react@19.2.14)'
       '@storybook/addon-themes':
         specifier: ^10.3.4
         version: 10.3.4(storybook@10.3.4(@testing-library/dom@10.4.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
@@ -195,10 +195,6 @@ packages:
 
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
-
-  '@awesome.me/webawesome-pro@3.14.0':
-    resolution: {integrity: sha512-lov2e0pSbCZ8Cpfb4AePt7bksMp6cilyvIgpE02jGRF/3LqX0HTy08bbbqytdR8UF8Xr+qDmbE+OxTUd6tfvNg==}
-    engines: {node: '>=14.17.0'}
 
   '@babel/code-frame@7.29.0':
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
@@ -841,6 +837,10 @@ packages:
 
   '@jsonhero/path@1.0.21':
     resolution: {integrity: sha512-gVUDj/92acpVoJwsVJ/RuWOaHyG4oFzn898WNGQItLCTQ+hOaVlEaImhwE1WqOTf+l3dGOUkbSiVKlb3q1hd1Q==}
+
+  '@kigumi-ui/webawesome-pro@3.14.0':
+    resolution: {integrity: sha512-hZkjUJOrmlmfQ09bZKvICri4WV6V90wG6XHIF1KIe3vna+ywqoS5fURVBjNZYBhXRl08axYLCSDrlSrEeim8jw==, tarball: https://npm.pkg.github.com/download/@kigumi-ui/webawesome-pro/3.14.0/e7034a6da6bf650983036478656491bfc99bc6dd}
+    engines: {node: '>=14.17.0'}
 
   '@konnorr/qr-creator@1.0.1':
     resolution: {integrity: sha512-EmRR9rny1ENBtQy7TLOguO/79h1EpzXUmqIdMTGp2BW8NkZtRRPr5hmQcE+n9QXYo4T8NjcaJ14hnZg+s/+K+A==}
@@ -3982,30 +3982,6 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@awesome.me/webawesome-pro@3.14.0(@floating-ui/utils@0.2.10)(@types/node@24.10.13)(@types/react@19.2.14)':
-    dependencies:
-      '@ctrl/tinycolor': 4.1.0
-      '@floating-ui/dom': 1.7.5
-      '@konnorr/qr-creator': 1.0.1
-      '@lit-labs/ssr': 4.1.0(@types/node@24.10.13)
-      '@lit-labs/ssr-client': 1.1.8
-      '@lit/context': 1.1.6
-      '@lit/react': 1.0.8(@types/react@19.2.14)
-      '@shoelace-style/animations': 1.2.0
-      '@shoelace-style/localize': 3.2.3
-      '@tanstack/table-core': 9.2.4
-      '@tanstack/virtual-core': 3.17.11
-      chart.js: 4.5.1
-      composed-offset-position: 0.0.6(@floating-ui/utils@0.2.10)
-      lit: 3.3.2
-      marked: 11.2.0
-      nanoid: 5.1.6
-      style-observer: 0.1.2
-    transitivePeerDependencies:
-      - '@floating-ui/utils'
-      - '@types/node'
-      - '@types/react'
-
   '@babel/code-frame@7.29.0':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
@@ -4494,6 +4470,30 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   '@jsonhero/path@1.0.21': {}
+
+  '@kigumi-ui/webawesome-pro@3.14.0(@floating-ui/utils@0.2.10)(@types/node@24.10.13)(@types/react@19.2.14)':
+    dependencies:
+      '@ctrl/tinycolor': 4.1.0
+      '@floating-ui/dom': 1.7.5
+      '@konnorr/qr-creator': 1.0.1
+      '@lit-labs/ssr': 4.1.0(@types/node@24.10.13)
+      '@lit-labs/ssr-client': 1.1.8
+      '@lit/context': 1.1.6
+      '@lit/react': 1.0.8(@types/react@19.2.14)
+      '@shoelace-style/animations': 1.2.0
+      '@shoelace-style/localize': 3.2.3
+      '@tanstack/table-core': 9.2.4
+      '@tanstack/virtual-core': 3.17.11
+      chart.js: 4.5.1
+      composed-offset-position: 0.0.6(@floating-ui/utils@0.2.10)
+      lit: 3.3.2
+      marked: 11.2.0
+      nanoid: 5.1.6
+      style-observer: 0.1.2
+    transitivePeerDependencies:
+      - '@floating-ui/utils'
+      - '@types/node'
+      - '@types/react'
 
   '@konnorr/qr-creator@1.0.1': {}
 

@@ -86,7 +86,8 @@ node dist/index.js add button --force
 | `tools/eslint-plugin-kigumi/` | Local ESLint plugin (plain directory, imported by relative path from `eslint.config.js`, not an npm package, no workspace). Rules are `.js` so `pnpm lint` needs no build step. Tested via RuleTester in `tests/unit/eslint-rules/` |
 | `scripts/deploy-theme-agent.mjs` | `pnpm deploy:task` in `docs/`: deploys the Theme Agent's trigger.dev task to prod, the full output to `docs/trigger-deploy.log`, only the deployed version (or on failure the log's last lines) to the terminal |
 | `scripts/sabotage.ts` | `pnpm sabotage <cases.json>`: bug injection for a PR's guards. Each case puts a bug back (`find` must occur exactly once), runs its test (under the case's `config` when it names one, for an interaction story), restores the file, and reads vitest's `Tests` summary: red, green, or did-not-run when no tests ran. Prints the Markdown table for the PR log |
-| `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
+| `scripts/setup-npmrc.mjs` | Write `docs/.npmrc` for the organization copy of Web Awesome Pro that `docs/package.json` aliases (`@kigumi-ui/webawesome-pro` on GitHub Packages): token from `GITHUB_PACKAGES_TOKEN` (Vercel, CI), else `gh auth token`. `--probe` exits 1 unless the pinned version is readable; CI's docs jobs skip on that |
+| `scripts/local-pro-registry.mjs` | E2E job: `fetch` packs the organization copy, `serve` runs Verdaccio on loopback and republishes it as `@awesome.me/webawesome-pro`, so the Pro consumer suites run `init` against `KIGUMI_PRO_REGISTRY` exactly as a Pro user's install runs |
 | `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
 | `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality (7 checks: version, component counts, pro list, template dirs, test files (the `tests/AGENTS.md` tree has a row for every test file under `tests/` outside `fixtures/`, matched by exact path or a glob row in the same directory, and every row names a file that exists), prose count claims in `templates/AGENTS.md`, and no "Last Updated" stamp or changelog in any tracked AGENTS.md/CLAUDE.md) |
 | `scripts/validate-cem-sync.ts` | `validate:cem-sync`. Two halves, reported separately: component presence (committed `COMPONENT_METADATA` vs. registry, always runs) and the manifest half (needs a complete CEM): prop-value drift (registry enums vs CEM attribute types), attribute-name drift (`checkAttributeDrift()`, #100), deprecation drift (`checkDeprecationDrift()`, `KIGUMI_DEPRECATIONS`, #133) and default drift (`checkDefaultDrift()`, #152). Only a run where both halves were verified prints a pass (#43, `docs/adr/0003`). The manifest half runs in CI's `freshness` job. |
@@ -358,32 +359,28 @@ async function detectTier(cwd: string): Promise<Tier> {
 
 Finding a token only selects the Pro tier. npm and pnpm read the token from an npmrc, never from `.env`, so installs authenticate through the project `.npmrc` (see `src/AGENTS.md` "Pro Authentication").
 
-**Token Setup (Architecture):**
+**Pro in this repository (docs/ and CI):**
 
-The repository includes `scripts/setup-npmrc.mjs` which reads tokens from `.env` files and writes them to:
-
-- Global `~/.npmrc` (for npm/yarn)
-- `docs/.npmrc` (gitignored) - the Pro registry line `docs/` needs, plus the token; CI's docs jobs write only this file
+This repository does not install Pro from Cloudsmith. The kigumi-ui organization hosts its licensed Web Awesome Pro as the private package `@kigumi-ui/webawesome-pro` on GitHub Packages, and `docs/package.json` aliases it (`"@awesome.me/webawesome-pro": "npm:@kigumi-ui/webawesome-pro@<version>"`), so every import keeps the Pro package's name. Only Creators of the Pro license may read it (Web Awesome Pro license); never make it public, link it to a repository, or grant access to anyone without a seat.
 
 ```bash
-# Setup token (after clone, or when .env changes)
+# Write docs/.npmrc (after clone; uses gh auth token with read:packages)
 pnpm run setup:npmrc
 ```
 
-This approach:
-
-- Works with npm, pnpm, AND yarn
-- Supports different tokens per machine (reads from `docs/.env` or root `.env`)
-- `docs/.npmrc` is gitignored and generated from `.env` (token never committed)
+- `docs/.npmrc` is gitignored and holds the `@kigumi-ui` registry line plus a GitHub token
+- Vercel (`kigumi-docs`, `kigumi-storybook`) runs `setup:npmrc` in its install command with the `GITHUB_PACKAGES_TOKEN` environment variable (a classic PAT with only `read:packages`)
+- CI's docs jobs probe the package with `setup:npmrc --probe` and the `GITHUB_TOKEN` (`packages: read`; the package grants the `kigumi-cli` repository read access under "Manage Actions access"). Unreadable is a skip only on a fork or Dependabot pull request; any other run that cannot read it fails, since a skip there would pass without verifying anything (`tests/unit/ci-pro-probe-steps.test.ts`)
+- The E2E job's Pro consumers install from a local registry (`scripts/local-pro-registry.mjs`) through `KIGUMI_PRO_REGISTRY`
 
 **docs/ vs. User Projects:**
 
 | Context | `.npmrc` location | Token source |
 | --- | --- | --- |
 | User project | Project root | No secret: registry URL, plus a `${WEBAWESOME_NPM_TOKEN}` reference on Pro; the token is the environment variable or the user npmrc, never `.env` |
-| docs/ (this repo) | `docs/.npmrc` | Gitignored; generated by `setup:npmrc` from `.env` |
+| docs/ (this repo) | `docs/.npmrc` | Gitignored; generated by `setup:npmrc` from `GITHUB_PACKAGES_TOKEN` or `gh auth token` |
 
-`kigumi init` writes a user project's `.npmrc` through `writeProjectNpmrc()` (`src/utils/npmrc.ts`): the registry line, plus on Pro a `${WEBAWESOME_NPM_TOKEN}` reference unless the user npmrc already holds the token. The file holds no secret. The docs app has no committed `.npmrc`, so `docs/.npmrc` carries its Pro registry line and the token. pnpm reads the user npmrc auth line like npm does (checked with pnpm 10: a fresh Pro install succeeds with only that line and gets a 401 without it).
+`kigumi init` writes a user project's `.npmrc` through `writeProjectNpmrc()` (`src/utils/npmrc.ts`): the registry line, plus on Pro a `${WEBAWESOME_NPM_TOKEN}` reference unless the user npmrc already holds the token. The file holds no secret. The registry is Cloudsmith unless `KIGUMI_PRO_REGISTRY` names another (`resolveProRegistry()` in `src/constants.ts`); every Pro constant derives from it. pnpm reads the user npmrc auth line like npm does (checked with pnpm 10: a fresh Pro install succeeds with only that line and gets a 401 without it).
 
 ### Migration Triggers
 
@@ -650,7 +647,7 @@ flowchart LR
 | Stale WA version | Config or package outdated? | Run `kigumi doctor` |
 | Version mismatch | `kigumiVersion` in config? | Run `kigumi upgrade` |
 | JSON parse fails | File has comments? | Use `readJSONWithComments()` |
-| 401 in docs/ | `docs/.npmrc` present? | Run `pnpm run setup:npmrc` |
+| 401 or 404 in docs/ | `docs/.npmrc` present? Does the token have `read:packages`? | Run `pnpm run setup:npmrc --probe`; locally `gh auth refresh -s read:packages` |
 | 401 installing Pro in a user project | `.npmrc` reads `${WEBAWESOME_NPM_TOKEN}`, is it set in the shell? Else does the user npmrc hold the token? | Set the variable, or re-run `kigumi init` to bring an old registry-only `.npmrc` in line (`kigumi upgrade` does too when it installs a new Web Awesome version) |
 | Broken error URLs | `https://https://` prefix? | Use constants from `src/constants.ts` (`GITHUB_ISSUES_URL`, `GITHUB_REPO_URL`) |
 | Unhandled error | `catch {}` swallows error? | Always capture: `catch (_error) {}` with descriptive comment |
@@ -692,7 +689,7 @@ flowchart LR
 | `src/web-awesome.d.ts` | Next.js-flavored variant of `vite-env.d.ts` (no `vite/client` reference) | Only on init (Next.js + TS) | ❌ No |
 | `src/styles/community-themes/*.css` | Downloaded community theme CSS | `kigumi theme install --from` | ❌ No |
 | `.npmrc` (user project) | Registry URL, plus a `${WEBAWESOME_NPM_TOKEN}` reference on Pro unless the user npmrc holds the token; no secret. Merged into the existing file | On init, and before every Kigumi install | ✅ Yes - other lines are kept |
-| `docs/.npmrc` | Registry + token (gitignored) | `pnpm run setup:npmrc` | ❌ No |
+| `docs/.npmrc` | `@kigumi-ui` registry + GitHub token (gitignored) | `pnpm run setup:npmrc` | ❌ No |
 
 **Key Points:**
 
@@ -851,6 +848,7 @@ The code/registry side is guarded by validators (`validate:cem-sync`, `validate:
 
 - [ ] **Pins** (now enforced — run `pnpm validate:wa-pins`): `package.json`, `docs/package.json`, `docs/kigumi.config.json`, root `kigumi.config.json` (dogfooding), `src/constants.ts` `DEFAULT_WEBAWESOME_VERSION`, `src/utils/version-map.ts` newest entry. All six must name the same exact version. **Adding the `version-map.ts` entry is not optional**: `kigumi upgrade` installs whatever the newest entry names, so skipping it makes upgrade hand users an older Web Awesome than the CLI ships.
 - [ ] **Starters** (merge before the bump PR): in `kigumi-ui/kigumi-{react,vue,angular,next}-starter`, set `@awesome.me/webawesome` in `package.json` and `webAwesome.version` in `kigumi.config.json` to the new exact version, `pnpm install`, then `pnpm run typecheck && pnpm run build`. The Starter job's `check:starter-wa-version` step fails while a starter is older than `DEFAULT_WEBAWESOME_VERSION`, and a Web Awesome bump changes `package.json`, so all four starters run on the bump PR. Regenerating a starter's components (`kigumi update`) changes files the Starter fixtures record: refresh them with `pnpm run update:starter-snapshots` against the updated starters after that, never before.
+- [ ] **Pro package**: the new Pro version must exist as `@kigumi-ui/webawesome-pro` on GitHub Packages before anything installs it. Repackage the Pro download as before (name `@kigumi-ui/webawesome-pro`, no `scripts`, no `repository`, `publishConfig.registry` GitHub Packages), publish it with `npm publish --ignore-scripts`, then set the version in the `docs/package.json` alias. The license covers only versions released while it is active
 - [ ] **Regenerate**: `pnpm generate:metadata && pnpm generate:templates && pnpm generate:skill-refs && pnpm generate:pro-shim`. The Pro typecheck shim is the step that used to be forgotten (it missed 3.10 and 3.13); `validate:generated-fresh` Check A now fails on a stale one
 - [ ] **New upstream components**: either full wrapper (run the "Before Adding New Component" checklist above, including the docs-site items) or an explicit entry in `INTENTIONALLY_UNWRAPPED` in `scripts/validate-cem-sync.ts` with rationale
 - [ ] **Changed props/defaults/enum values**: check every changelog line against templates, `docs/src/components/ui`, stories, and registry prop values (`validate:cem-sync` now holds registry defaults to the CEM, and `validate:stories` holds the argTypes `defaultValue` summaries to the registry) — new enum values need a demo story (e.g. Tree `leaf-multiple`)
