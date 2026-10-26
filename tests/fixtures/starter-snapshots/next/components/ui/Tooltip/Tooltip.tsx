@@ -151,18 +151,22 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
       if (!el) return;
 
       const handleWaShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleWaAfterShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleWaHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleWaAfterHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
