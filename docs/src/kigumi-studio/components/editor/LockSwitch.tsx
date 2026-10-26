@@ -16,10 +16,10 @@ interface LockSwitchProps {
  * the label says which. Only there with the Theme Agent's access cookie,
  * since locks mean nothing to anyone else.
  */
-export function LockSwitch({ lock, context, label: own }: LockSwitchProps) {
+export function LockSwitch({ lock, context, label }: LockSwitchProps) {
   if (!lock.available) return null;
-  const label =
-    own ??
+  const text =
+    label ??
     (lock.modes.length === 1 ? `Lock ${lock.modes[0]} value` : 'Lock value');
 
   return (
@@ -33,7 +33,7 @@ export function LockSwitch({ lock, context, label: own }: LockSwitchProps) {
     >
       <span className="lock-switch__label">
         <span className="wa-visually-hidden">{context}: </span>
-        {label}
+        {text}
       </span>
     </Switch>
   );

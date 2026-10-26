@@ -235,6 +235,12 @@ function brandLeftAlone(
   };
 }
 
+/** Custom CSS that names the card, by Kigumi wrapper class or tag. */
+const NAMES_CARD = /\.Card\b|wa-card\b/;
+
+/** Custom CSS that removes a border. */
+const REMOVES_BORDER = /border(-width|-style)?\s*:\s*(none|0)/;
+
 /**
  * Why `css` is not a bottom rule on the card's header part with the card's
  * own border gone, or `undefined` when it is. Read loosely: the model picks
@@ -242,14 +248,14 @@ function brandLeftAlone(
  */
 function headerRuleMissing(css: string | undefined): string | undefined {
   if (!css) return 'no custom CSS was proposed';
-  if (!/\.Card\b|wa-card\b/.test(css)) return 'the custom CSS names no card';
+  if (!NAMES_CARD.test(css)) return 'the custom CSS names no card';
   if (!/::part\(\s*header\s*\)/.test(css)) {
     return 'the custom CSS does not style the header part';
   }
   if (!/border-(bottom|block-end)/.test(css)) {
     return 'the custom CSS sets no bottom border';
   }
-  if (!/border(-width|-style)?\s*:\s*(none|0)/.test(css)) {
+  if (!REMOVES_BORDER.test(css)) {
     return 'the custom CSS does not remove the card border';
   }
   return undefined;
@@ -314,10 +320,10 @@ function cardBorderRemoved(
   if (!css || css === snapshot.theme.customCSS) {
     return { pass: false, reason: 'no custom CSS was applied' };
   }
-  if (!/\.Card\b|wa-card\b/.test(css)) {
+  if (!NAMES_CARD.test(css)) {
     return { pass: false, reason: 'the custom CSS names no card' };
   }
-  if (!/border(-width|-style)?\s*:\s*(none|0)/.test(css)) {
+  if (!REMOVES_BORDER.test(css)) {
     return {
       pass: false,
       reason: 'the custom CSS does not remove the card border',

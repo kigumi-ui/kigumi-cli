@@ -216,3 +216,37 @@ describe("custom CSS from the Theme Agent: Studio's own classes", () => {
     ).toEqual([]);
   });
 });
+
+describe('custom CSS from the Theme Agent: comments', () => {
+  // A browser reads a comment as a space, so it must not join the words
+  // around it into one the colour check does not know.
+  it.each([
+    ['a named colour', '.Card { border: 1px solid/**/red; }', '"red"'],
+    [
+      'a colour function',
+      '.Card { border: 1px solid/**/rgb(255 0 0); }',
+      '"rgb("',
+    ],
+    [
+      'a vendor keyword',
+      '.Card { color:/* x */-webkit-link; }',
+      '"-webkit-link"',
+    ],
+  ])('reads %s after a comment', (_name, css, literal) => {
+    expect(validateAgentCSS(css).join('\n')).toContain(literal);
+  });
+});
+
+describe('custom CSS from the Theme Agent: colours mixed from --wa- values', () => {
+  // Every input is a --wa- value, but the result is a colour of its own that
+  // the contrast check on the theme's values never sees (ADR 0009).
+  it.each([
+    'oklch(from var(--wa-color-brand) l c h / 50%)',
+    'color-mix(in oklab, var(--wa-color-brand), var(--wa-color-surface-default))',
+    'light-dark(var(--wa-color-brand), var(--wa-color-surface-default))',
+  ])('refuses %s', (value) => {
+    expect(validateAgentCSS(`.Card { color: ${value}; }`).join('\n')).toMatch(
+      /makes a colour of its own, which the contrast check does not see/
+    );
+  });
+});

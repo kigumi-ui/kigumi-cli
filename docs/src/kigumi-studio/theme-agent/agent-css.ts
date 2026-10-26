@@ -32,7 +32,11 @@ const SCRIPT_LIKE = [
   /\\/,
 ];
 
-/** Functions that make a colour of their own. */
+/**
+ * Functions that make a colour of their own, also from --wa- values:
+ * color-mix(var(--wa-a), var(--wa-b)) paints a colour the contrast check on
+ * the theme's values never sees (ADR 0009).
+ */
 const COLOUR_FUNCTION =
   /(?<![\w-])(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark|device-cmyk|contrast-color)\s*\(/i;
 
@@ -105,12 +109,17 @@ function declarationErrors(selector: string, declaration: string): string[] {
   const value = declaration.slice(colon + 1).replace(STRING, '""');
   const literal =
     HEX_COLOUR.exec(value)?.[0] ??
-    COLOUR_FUNCTION.exec(value)?.[0].replace(/\s+/g, '') ??
     value.match(IDENTIFIER)?.find((id) => NAMED_COLOURS.has(id.toLowerCase()));
+  const mixed = COLOUR_FUNCTION.exec(value)?.[0].replace(/\s+/g, '');
   const errors: string[] = [];
   if (literal) {
     errors.push(
       `${where}: "${literal}" is a colour literal; ${TAKE_WA_COLOURS}`
+    );
+  }
+  if (mixed) {
+    errors.push(
+      `${where}: "${mixed}" makes a colour of its own, which the contrast check does not see; ${TAKE_WA_COLOURS} as it is`
     );
   }
   const vendor = VENDOR_IDENTIFIER.exec(value)?.[0];
@@ -145,7 +154,9 @@ function nodeErrors(nodes: CssNode[]): string[] {
         `${node.selector}: a nested rule is not allowed; write each rule at the top level or inside @media, @supports or @container`,
       ];
     }
-    return splitTopLevel(node.body.replace(/\/\*[\s\S]*?\*\//g, ''), ';')
+    // A comment reads as a space: removed outright it would join the words
+    // around it (solid/**/red) into one the colour check does not know.
+    return splitTopLevel(node.body.replace(/\/\*[\s\S]*?\*\//g, ' '), ';')
       .map((declaration) => declaration.replace(/\s+/g, ' '))
       .flatMap((declaration) => declarationErrors(node.selector, declaration));
   });
