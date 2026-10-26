@@ -222,6 +222,7 @@ describe('nothing locked, make it warmer', () => {
       light: [],
       dark: [],
       shadowComponents: false,
+      customCSS: false,
     });
   });
 
@@ -241,5 +242,166 @@ describe('nothing locked, make it warmer', () => {
     );
     expect(verdict.pass).toBe(false);
     expect(verdict.reason).toContain('--wa-color-brand');
+  });
+});
+
+const HEADER_RULE = [
+  '.Card::part(base) { border: none; }',
+  '.Card::part(header) { border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border); }',
+].join('\n');
+
+describe('nothing locked, a change no value can express', () => {
+  const s = scenario('card-header-rule');
+
+  it('passes when the header rule lands as custom CSS', () => {
+    expect(
+      s.judge([{ light: {}, dark: {}, customCSS: HEADER_RULE }], s.snapshot)
+    ).toMatchObject({ pass: true });
+  });
+
+  it.each([
+    ['no custom CSS', { light: { '--wa-border-width-scale': '0' }, dark: {} }],
+    [
+      'no header part',
+      { light: {}, dark: {}, customCSS: '.Card { border: none; }' },
+    ],
+    [
+      'the card border kept',
+      {
+        light: {},
+        dark: {},
+        customCSS:
+          '.Card::part(header) { border-bottom: 1px solid var(--wa-color-surface-border); }',
+      },
+    ],
+  ])('fails with %s', (_name, proposal) => {
+    expect(s.judge([proposal], s.snapshot).pass).toBe(false);
+  });
+
+  it('fails when nothing is proposed', () => {
+    expect(s.judge([], s.snapshot).pass).toBe(false);
+  });
+});
+
+describe('custom CSS locked, the same request', () => {
+  const s = scenario('locked-custom-css-header-rule');
+  const complete = `${s.snapshot.theme.customCSS}\n${HEADER_RULE}`;
+
+  it('locks the custom CSS', () => {
+    expect(s.snapshot.locked.customCSS).toBe(true);
+  });
+
+  it('passes when the complete custom CSS is proposed, and so held', () => {
+    expect(
+      s.judge([{ light: {}, dark: {}, customCSS: complete }], s.snapshot)
+    ).toMatchObject({ pass: true });
+  });
+
+  it('fails when the proposal drops the rule the user wrote', () => {
+    const verdict = s.judge(
+      [{ light: {}, dark: {}, customCSS: HEADER_RULE }],
+      s.snapshot
+    );
+    expect(verdict.pass).toBe(false);
+    expect(verdict.reason).toContain('complete custom CSS');
+  });
+
+  it('fails when no custom CSS is proposed, so nothing is held', () => {
+    const verdict = s.judge(
+      [{ light: { '--wa-border-width-scale': '0' }, dark: {} }],
+      s.snapshot
+    );
+    expect(verdict.pass).toBe(false);
+    expect(verdict.reason).toContain('holds no custom CSS');
+  });
+});
+
+describe('nothing locked, no card border plus a + pattern', () => {
+  const s = scenario('card-border-plus-pattern');
+
+  it('passes when custom CSS removes the card border', () => {
+    expect(
+      s.judge(
+        [
+          {
+            light: {},
+            dark: {},
+            customCSS: '.Card::part(base) { border: none; }',
+          },
+        ],
+        s.snapshot
+      )
+    ).toMatchObject({ pass: true });
+  });
+
+  it.each([
+    ['nothing proposed', []],
+    [
+      'no custom CSS',
+      [{ light: { '--wa-color-surface-default': '#fafafa' }, dark: {} }],
+    ],
+    [
+      'the card border kept',
+      [
+        {
+          light: {},
+          dark: {},
+          customCSS:
+            '.Card { background-image: radial-gradient(var(--wa-color-surface-border) 1px, transparent 1px); }',
+        },
+      ],
+    ],
+  ])('fails with %s', (_name, proposals) => {
+    expect(s.judge(proposals, s.snapshot).pass).toBe(false);
+  });
+});
+
+describe('nothing locked, a dot pattern on the page background', () => {
+  const s = scenario('page-dot-pattern');
+  const dots =
+    'radial-gradient(var(--wa-color-surface-border) 1px, transparent 1px)';
+
+  it.each(['body', 'html', ':root'])(
+    'passes with the pattern on %s',
+    (page) => {
+      expect(
+        s.judge(
+          [
+            {
+              light: {},
+              dark: {},
+              customCSS: `${page} { background-image: ${dots}; background-size: 16px 16px; }`,
+            },
+          ],
+          s.snapshot
+        )
+      ).toMatchObject({ pass: true });
+    }
+  );
+
+  it.each([
+    ['nothing proposed', []],
+    [
+      'the pattern on a component',
+      [
+        {
+          light: {},
+          dark: {},
+          customCSS: `.Card { background-image: ${dots}; }`,
+        },
+      ],
+    ],
+    [
+      'a plain page colour',
+      [
+        {
+          light: {},
+          dark: {},
+          customCSS: 'body { background: var(--wa-color-surface-lowered); }',
+        },
+      ],
+    ],
+  ])('fails with %s', (_name, proposals) => {
+    expect(s.judge(proposals, s.snapshot).pass).toBe(false);
   });
 });

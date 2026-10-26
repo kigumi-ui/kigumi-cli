@@ -11,7 +11,12 @@ import {
   type CustomThemeState,
 } from '../lib/theme-css';
 import type { PresetJSON } from '../lib/preset-schema';
-import { SHADOW_COMPONENTS_LOCK, valueLock, withLocks } from '../lib/locks';
+import {
+  CUSTOM_CSS_LOCK,
+  SHADOW_COMPONENTS_LOCK,
+  valueLock,
+  withLocks,
+} from '../lib/locks';
 import { buildPreviewStyle } from '../lib/preview-style';
 
 const THEMES_DIR = join(__dirname, '../themes');
@@ -257,6 +262,19 @@ describe('Theme CSS edits', () => {
       ],
       values: { '--wa-color-surface-default': { light: '#fafafa' } },
     });
+  });
+
+  it('keeps locked custom CSS as it is, and says so', () => {
+    const before = themeText(state({ customCSS: '.Card { gap: 0; }' }));
+    const after = before.replace('.Card { gap: 0; }', '.Card { gap: 1rem; }');
+    expect(after).not.toBe(before);
+
+    expect(themeEdits(before, after, CUSTOM_CSS_LOCK)).toEqual({
+      errors: [],
+      warnings: ['The custom CSS is locked and keeps its rules.'],
+      values: {},
+    });
+    expect(themeEdits(before, after).customCSS).toContain('gap: 1rem');
   });
 
   it('applies a mode-independent value edited only in :root to dark mode too', () => {

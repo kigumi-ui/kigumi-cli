@@ -6,6 +6,8 @@ interface LockSwitchProps {
   lock: ValueLock;
   /** What it locks, for screen readers, e.g. "Brand Color". */
   context: string;
+  /** The visible label, when "Lock value" does not fit what it locks. */
+  label?: string;
 }
 
 /**
@@ -14,10 +16,11 @@ interface LockSwitchProps {
  * the label says which. Only there with the Theme Agent's access cookie,
  * since locks mean nothing to anyone else.
  */
-export function LockSwitch({ lock, context }: LockSwitchProps) {
+export function LockSwitch({ lock, context, label }: LockSwitchProps) {
   if (!lock.available) return null;
-  const label =
-    lock.modes.length === 1 ? `Lock ${lock.modes[0]} value` : 'Lock value';
+  const text =
+    label ??
+    (lock.modes.length === 1 ? `Lock ${lock.modes[0]} value` : 'Lock value');
 
   return (
     <Switch
@@ -30,7 +33,7 @@ export function LockSwitch({ lock, context }: LockSwitchProps) {
     >
       <span className="lock-switch__label">
         <span className="wa-visually-hidden">{context}: </span>
-        {label}
+        {text}
       </span>
     </Switch>
   );
