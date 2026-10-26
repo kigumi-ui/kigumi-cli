@@ -129,6 +129,8 @@ export function isLandingFile(file) {
  */
 export function buildReasons(target, files, versionChanged) {
   const reasons = versionChanged ? ['package.json (CLI version)'] : [];
+  // Storybook's install (setup-npmrc, then `pnpm install` in docs/) is the
+  // docs project's too, so every docs build exercises it before a release.
   if (target === 'storybook') return reasons;
   return [...reasons, ...files.filter(isLandingFile)];
 }
@@ -159,26 +161,40 @@ function hasCommit(sha) {
 }
 
 /**
+ * @param {unknown} error from `git()`
+ * @returns {string} the first line git printed, else the error message
+ */
+function gitError(error) {
+  const stderr = /** @type {{ stderr?: unknown }} */ (error)?.stderr;
+  const text =
+    typeof stderr === 'string' && stderr.trim() ? stderr : String(error);
+  return text.trim().split('\n')[0];
+}
+
+/**
  * The commit to diff against: the branch's last successful deployment. Without
  * one, main compares with its parent (a commit whose build was skipped changed
  * nothing relevant), and any other branch with where it forked from main.
  * Vercel clones shallowly, so every path may need to fetch history first.
  * @param {string} branch
- * @returns {{ base: string, source: string } | null}
+ * @returns {{ base: string, source: string } | { reason: string }} the base,
+ *   or why there is none
  */
 function resolveBase(branch) {
   const previous = process.env.VERCEL_GIT_PREVIOUS_SHA;
   let missing = 'VERCEL_GIT_PREVIOUS_SHA is not set';
   if (previous) {
+    let why = 'not in the clone';
     try {
       if (!hasCommit(previous))
         git('fetch', '--quiet', '--depth=1', 'origin', previous);
       if (hasCommit(previous))
         return { base: git('rev-parse', previous), source: 'last deployment' };
-    } catch (_error) {
-      // Fall through; a force-push can orphan the SHA.
+    } catch (error) {
+      // A force-push can orphan the SHA.
+      why = gitError(error);
     }
-    missing = `last deployment ${previous.slice(0, 8)} is not fetchable`;
+    missing = `last deployment ${previous.slice(0, 8)} is not fetchable: ${why}`;
   }
 
   if (branch === PRODUCTION_BRANCH) {
@@ -189,8 +205,8 @@ function resolveBase(branch) {
         // Already a full clone; the parent is there.
       }
       return { base: git('rev-parse', 'HEAD^'), source: `parent; ${missing}` };
-    } catch (_error) {
-      return null;
+    } catch (error) {
+      return { reason: `${missing}; no parent: ${gitError(error)}` };
     }
   }
 
@@ -202,29 +218,27 @@ function resolveBase(branch) {
       // Already a full clone; nothing to deepen.
     }
     const base = git('merge-base', 'FETCH_HEAD', 'HEAD');
-    // A branch with no commits of its own: an empty diff proves nothing, so
-    // build.
-    if (base === git('rev-parse', 'HEAD')) return null;
+    // An empty diff proves nothing, so build.
+    if (base === git('rev-parse', 'HEAD'))
+      return { reason: `${missing}; the branch has no commits of its own` };
     return { base, source: `merge-base with main; ${missing}` };
-  } catch (_error) {
-    return null;
+  } catch (error) {
+    return {
+      reason: `${missing}; no merge-base with main: ${gitError(error)}`,
+    };
   }
 }
 
 /**
  * @param {string} base
- * @returns {boolean | null} whether the root package.json `version` differs
- *   between `base` and HEAD; null when either cannot be read
+ * @returns {boolean} whether the root package.json `version` differs between
+ *   `base` and HEAD; throws when either cannot be read
  */
 function versionChanged(base) {
-  try {
-    /** @param {string} rev */
-    const version = (rev) =>
-      JSON.parse(git('show', `${rev}:package.json`)).version;
-    return version(base) !== version('HEAD');
-  } catch (_error) {
-    return null;
-  }
+  /** @param {string} rev */
+  const version = (rev) =>
+    JSON.parse(git('show', `${rev}:package.json`)).version;
+  return version(base) !== version('HEAD');
 }
 
 /**
@@ -247,8 +261,10 @@ function main(argv) {
   }
 
   const resolved = resolveBase(branch);
-  if (!resolved) {
-    console.log(`[${target}] Build: no base commit to compare against.`);
+  if ('reason' in resolved) {
+    console.log(
+      `[${target}] Build: no base commit to compare against (${resolved.reason}).`
+    );
     return 1;
   }
 
@@ -258,13 +274,17 @@ function main(argv) {
       .split('\n')
       .filter(Boolean);
   } catch (error) {
-    console.log(`[${target}] Build: git diff failed (${String(error)}).`);
+    console.log(`[${target}] Build: git diff failed (${gitError(error)}).`);
     return 1;
   }
 
-  const bumped = versionChanged(resolved.base);
-  if (bumped === null) {
-    console.log(`[${target}] Build: could not compare the CLI version.`);
+  let bumped;
+  try {
+    bumped = versionChanged(resolved.base);
+  } catch (error) {
+    console.log(
+      `[${target}] Build: could not compare the CLI version (${gitError(error)}).`
+    );
     return 1;
   }
 
