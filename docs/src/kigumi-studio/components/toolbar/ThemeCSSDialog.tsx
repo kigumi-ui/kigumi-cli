@@ -104,7 +104,10 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
     <Dialog
       open={open}
       label="Customize theme CSS"
-      onHide={onClose}
+      onHide={(event) => {
+        // wa-hide bubbles: the download menu closing is not the dialog.
+        if (event.target === event.currentTarget) onClose();
+      }}
       className="theme-css-dialog"
     >
       <div className="theme-css-dialog__content">
@@ -180,9 +183,8 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
                 appearance="outlined"
                 size="small"
                 disabled={edited}
-                with-caret
               >
-                <span className="wa-visually-hidden">More downloads</span>
+                <Icon name="chevron-down" label="More downloads" />
               </Button>
               <DropdownItem value="theme.css">Download theme.css</DropdownItem>
               <DropdownItem value="overrides.css">
