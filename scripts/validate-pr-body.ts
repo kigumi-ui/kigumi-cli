@@ -37,6 +37,8 @@ import {
   checkEditHistory,
   checkRewrite,
   isExempt,
+  isTrustedAuthor,
+  logRounds,
   mentionedIssues,
   type BodyContext,
   type BodyFinding,
@@ -99,6 +101,7 @@ function gatherContext(input: Input): { ctx: BodyContext; evidence: string } {
       existingIssues: new Set(),
       knownPaths: new Set(),
       commentIds: new Set(),
+      logRounds: new Set(),
     };
     const evidence = input.exempt
       ? `exempt (${input.exempt}): only the attribution rule checked`
@@ -107,21 +110,28 @@ function gatherContext(input: Input): { ctx: BodyContext; evidence: string } {
   }
   const cwd = process.cwd();
   const mentioned = mentionedIssues(input.body);
+  const comments = input.pr ? prComments(input.pr.number) : [];
   const ctx: BodyContext = {
     exempt: null,
     draft: false,
     changesetBump: changesetBump(cwd, input.base, input.head),
     existingIssues: new Set(mentioned.filter((issue) => issueExists(issue))),
     knownPaths: knownPaths(cwd, input.base, input.head),
-    commentIds: new Set(
-      input.pr ? prComments(input.pr.number).map((c) => c.id) : []
+    commentIds: new Set(comments.map((c) => c.id)),
+    logRounds: logRounds(
+      comments.map((c) => ({
+        id: c.id,
+        body: c.body,
+        trusted: isTrustedAuthor(c.authorAssociation),
+      }))
     ),
   };
   // Every number here is read from the evidence, so a run that looked
   // nothing up cannot print the same line as one that did (ADR 0003).
   const evidence =
     `changesets bump ${ctx.changesetBump}; ${mentioned.length} #N looked up; ` +
-    `${ctx.knownPaths.size} repo paths; ${ctx.commentIds.size} PR comments`;
+    `${ctx.knownPaths.size} repo paths; ${ctx.commentIds.size} PR comments; ` +
+    `${ctx.logRounds.size} log rounds`;
   return { ctx, evidence };
 }
 

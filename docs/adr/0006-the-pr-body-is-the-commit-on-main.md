@@ -50,7 +50,12 @@ two guards hold them:
   token whose first segment is a top-level entry; a bare name could be any
   nested file, so it is not checked; `docs/adr/NNNN` counts when exactly one
   ADR has that number, as AGENTS.md cites them), and a Verification that
-  reads `CI only` or links a log comment on this PR.
+  reads `CI only`, names log rounds (`Round 1`) or links log comments that
+  exist on this PR. That Verification points at something at all is
+  checked on a draft too: the pointer is written when the PR opens, and
+  finding it missing only when the PR is marked ready made that click fail.
+  A round can be named before its comment exists, a link cannot, so a body
+  that names its rounds needs no edit when they are posted.
   It runs on `edited`, which `ci.yml` does not, so it also carries the PR-body
   half of the attribution check (#97), which never saw a body edited after
   the last push. On every body edit it posts the old-to-new diff itself, from
@@ -66,7 +71,15 @@ two guards hold them:
   the time, so rewritten commits need one. It runs on
   `issue_comment` too, since posting the comment is what fixes it, and a
   comment-triggered job is attached to main rather than the PR, so it reports
-  the `pr-log` commit status instead of a job result.
+  the `pr-log` commit status instead of a job result. A round names the
+  commits its push brought, so it can only be posted after the push; until
+  then the status is `pending`, not `failure`. Pending blocks the merge as
+  a failure does, so a forgotten round still stops it, without a red check
+  after every push. A merge of the base branch that resolves nothing by hand
+  (every parent but the first already in the base, and no hunk in
+  `git diff-tree --cc`, as GitHub's "Update branch" makes) brings nothing of
+  the PR's own and needs no round; a resolved conflict is new work and
+  does.
 
 Bots and this repository's changesets release PR (not a fork's branch of
 the same name) are exempt from the structure and claim rules and from the

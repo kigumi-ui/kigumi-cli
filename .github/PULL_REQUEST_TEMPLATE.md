@@ -24,4 +24,4 @@ Summary, 2-4 sentences, no heading: what changed and why.
 
 ## Verification
 
-<!-- "CI only", or a link to the log comment holding the evidence. -->
+<!-- "CI only", or the log round holding the evidence ("Round 1"), which can be named before it is posted, or a link to that log comment. -->

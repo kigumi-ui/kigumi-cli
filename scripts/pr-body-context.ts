@@ -113,6 +113,43 @@ export interface BranchCommit {
   committedAt: number;
   /** First line of the commit message, for human-readable diagnostics. */
   message: string;
+  /**
+   * A merge of the base branch that resolves nothing by hand, as GitHub's
+   * "Update branch" makes: it brings only commits main already has, so it
+   * needs no log round.
+   */
+  baseMerge: boolean;
+}
+
+function isAncestor(cwd: string, commit: string, of: string): boolean {
+  try {
+    git(cwd, ['merge-base', '--is-ancestor', commit, of]);
+    return true;
+  } catch (_error) {
+    // Exit 1 means "not an ancestor"; anything else counts as not one either,
+    // so an unreadable merge still needs a round.
+    return false;
+  }
+}
+
+/**
+ * Every parent but the first is already in `base`, and `git diff-tree --cc`
+ * shows no hunk: the merge result differs from no parent in a way git did
+ * not make itself, so a conflict resolved by hand needs a round.
+ */
+function isBaseMerge(
+  cwd: string,
+  sha: string,
+  parents: string[],
+  base: string
+): boolean {
+  if (parents.length < 2) return false;
+  if (!parents.slice(1).every((parent) => isAncestor(cwd, parent, base))) {
+    return false;
+  }
+  return (
+    git(cwd, ['diff-tree', '--cc', '--no-commit-id', '-p', sha]).trim() === ''
+  );
 }
 
 /** The commits on the branch (`base..head`), newest first. */
@@ -121,16 +158,17 @@ export function branchCommits(
   base: string,
   head: string
 ): BranchCommit[] {
-  return lines(git(cwd, ['log', '--format=%H %ct %s', `${base}..${head}`])).map(
-    (line) => {
-      const [sha, time, ...messageParts] = line.split(' ');
-      return {
-        sha,
-        committedAt: Number(time),
-        message: messageParts.join(' '),
-      };
-    }
-  );
+  return lines(
+    git(cwd, ['log', '--format=%H%x09%ct%x09%P%x09%s', `${base}..${head}`])
+  ).map((line) => {
+    const [sha, time, parents, ...messageParts] = line.split('\t');
+    return {
+      sha,
+      committedAt: Number(time),
+      message: messageParts.join('\t'),
+      baseMerge: isBaseMerge(cwd, sha, parents.split(' '), base),
+    };
+  });
 }
 
 function resolves(cwd: string, ref: string): boolean {

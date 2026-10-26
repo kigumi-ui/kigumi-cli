@@ -30,9 +30,18 @@ does.
 2. Write the body to a file in the shape of `.github/PULL_REQUEST_TEMPLATE.md`,
    deleting its HTML comments. The summary says what changed and why, as
    something still true after the merge. `## Deviations from #N` only exists
-   when the PR deliberately departs from the issue.
+   when the PR deliberately departs from the issue. `## Verification` names
+   the round that will hold the evidence (`Bug injection: Round 1.`), or reads
+   `CI only`: a round can be named before its comment exists, so the body
+   needs no edit when the round lands. The draft check already requires one
+   of the two.
 3. Run `pnpm validate:pr-body --body-file <file> --draft`. Done when it exits 0.
 4. `gh pr create --draft --title "<conventional title>" --body-file <file>`.
+5. When Verification names `Round 1`, post it now with the evidence, as a
+   round covering the whole branch:
+   `**Round 1** · Covers: <merge-base with main>..<head>`. A PR is marked
+   ready without another push often enough, and then no later round would
+   exist for the name to point at.
 
 ## After every push: one round
 
@@ -58,8 +67,12 @@ A **round** is one push session. Each round gets exactly one new log comment.
      `pnpm sabotage <cases.json>` prints the bug-injection table, and
      reports a case whose test never ran as did-not-run.
 5. `gh pr comment <pr> --body-file <file>`.
-6. Run `pnpm check:pr-log --pr <pr>`. Done when it reports no commit outside
-   a Covers range (a draft reports `pending`, which is expected).
+6. Run `pnpm check:pr-log --pr <pr>`. Done when it exits 0. It exits 1 while
+   a commit sits outside every Covers range; on GitHub that same state shows
+   as a waiting `pending`, not a failure, because a round can only follow
+   its push. A merge of the base branch that resolves nothing by hand
+   (GitHub's "Update branch") needs no round; a merge that resolves a
+   conflict does.
 
 Only log comments by people with write access count (`OWNER`, `MEMBER`,
 `COLLABORATOR`). On a PR from a fork, a maintainer posts the rounds.
@@ -89,14 +102,17 @@ later run until the PR goes back to draft and is marked ready again
 (`gh pr ready <pr> --undo`, then `gh pr ready <pr>`). With `--pr`, the local
 run measures your edit against the body on GitHub before you post it.
 
-Once a round has evidence, point `## Verification` at it: a link to that log
-comment. `CI only` is the whole section when CI is the only evidence.
+`## Verification` points at the evidence by round (`Round 1`, `Round 1 and
+Round 2`) or by a link to the log comment; on a PR ready for review, each
+named round and each link must be a log comment on this PR. `CI only` is the
+whole section when CI is the only evidence.
 
 ## Marking a PR ready for review
 
 Readiness switches on the full checks: `## Impact` and `## Verification` are
 required, and every claim is matched against the diff (Impact against the
-changesets, each `#N`, each backticked repo path, the Verification link). Run
+changesets, each `#N`, each backticked repo path, each round or link in
+Verification). Run
 `pnpm validate:pr-body --body-file <file> --pr <pr>` without `--draft`, and
 `pnpm check:pr-log --pr <pr>`, and hand the PR over when both pass.
 

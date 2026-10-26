@@ -35,6 +35,8 @@ export interface BodyContext {
   knownPaths: ReadonlySet<string>;
   /** IDs of the comments on this PR. */
   commentIds: ReadonlySet<number>;
+  /** Round numbers of the log comments on this PR (`logRounds()`). */
+  logRounds: ReadonlySet<number>;
 }
 
 export interface BodyFinding {
@@ -393,19 +395,27 @@ function checkPaths(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
   return findings;
 }
 
+const ROUND_MENTION = /\bRound (\d+)\b/g;
+
+/**
+ * `## Verification` points at evidence: "CI only", a log round ("Round 1"),
+ * or a link to a log comment. The pointer is written when the PR opens, so
+ * its presence is checked on a draft too; whether a round or a comment exists
+ * only once the PR is ready. A round can be named before its comment exists,
+ * a link cannot, so a body naming its rounds needs no edit when they land.
+ */
 function checkVerification(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
   const section = findSection(lines, /^## Verification$/);
   if (!section) return [];
   const text = section.content.map((l) => l.text.trim()).join(' ');
   if (/^ci only\.?$/i.test(text)) return [];
   const findings: BodyFinding[] = [];
-  let linksHere = 0;
+  let pointers = 0;
   for (const line of section.content) {
     for (const match of line.text.matchAll(/#issuecomment-(\d+)/g)) {
+      pointers += 1;
       const id = Number(match[1]);
-      if (ctx.commentIds.has(id)) {
-        linksHere += 1;
-      } else {
+      if (!ctx.draft && !ctx.commentIds.has(id)) {
         findings.push({
           rule: 'verification',
           line: line.number,
@@ -413,13 +423,24 @@ function checkVerification(lines: BodyLine[], ctx: BodyContext): BodyFinding[] {
         });
       }
     }
+    for (const match of line.text.matchAll(ROUND_MENTION)) {
+      pointers += 1;
+      const round = Number(match[1]);
+      if (!ctx.draft && !ctx.logRounds.has(round)) {
+        findings.push({
+          rule: 'verification',
+          line: line.number,
+          message: `Round ${round} is not a log comment on this PR`,
+        });
+      }
+    }
   }
-  if (linksHere === 0 && findings.length === 0) {
+  if (pointers === 0) {
     findings.push({
       rule: 'verification',
       line: (section.content[0] ?? section.heading).number,
       message:
-        '"## Verification" must read "CI only" or link a log comment on this PR',
+        '"## Verification" must read "CI only", name a log round ("Round 1") or link a log comment on this PR',
     });
   }
   return findings;
@@ -438,6 +459,7 @@ export function checkBody(rawBody: string, ctx: BodyContext): BodyFinding[] {
     ...checkConstructs(lines),
     ...checkAttribution(body),
     ...checkSize(body),
+    ...checkVerification(lines, ctx),
   ];
   if (ctx.draft) return findings;
   return [
@@ -446,7 +468,6 @@ export function checkBody(rawBody: string, ctx: BodyContext): BodyFinding[] {
     ...checkImpact(lines, ctx),
     ...checkIssues(lines, ctx),
     ...checkPaths(lines, ctx),
-    ...checkVerification(lines, ctx),
   ];
 }
 
@@ -632,6 +653,14 @@ export function checkEditHistory(
 const LOG_HEADER =
   /^\*\*Round (\d+)\*\* · Covers: ([0-9a-f]{7,40})\.\.([0-9a-f]{7,40})$/;
 
+/** Comment authors whose log headers count: people with write access. */
+const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+
+/** Whether a comment by this GitHub author association counts as a log comment. */
+export function isTrustedAuthor(authorAssociation: string): boolean {
+  return TRUSTED_ASSOCIATIONS.has(authorAssociation);
+}
+
 export interface LogComment {
   id: number;
   body: string;
@@ -655,6 +684,30 @@ export interface LogCoverage {
  * some log comment's Covers range. `resolveRange` lists the commits a range
  * covers, or returns null when either end no longer exists.
  */
+/** A trusted comment's log header, or null when it is none; `'unparseable'` when it starts like one. */
+function logHeader(
+  comment: LogComment
+): RegExpExecArray | 'unparseable' | null {
+  if (!comment.trusted) return null;
+  const header = comment.body
+    .replace(/\r\n?/g, '\n')
+    .trim()
+    .split('\n')[0]
+    .trim();
+  if (!header.startsWith('**Round')) return null;
+  return LOG_HEADER.exec(header) ?? 'unparseable';
+}
+
+/** The round numbers of the trusted, parseable log comments, for `## Verification`. */
+export function logRounds(comments: readonly LogComment[]): Set<number> {
+  const rounds = new Set<number>();
+  for (const comment of comments) {
+    const match = logHeader(comment);
+    if (match && match !== 'unparseable') rounds.add(Number(match[1]));
+  }
+  return rounds;
+}
+
 export function logCoverage(
   required: readonly string[],
   comments: readonly LogComment[],
@@ -668,15 +721,9 @@ export function logCoverage(
     rounds: 0,
   };
   for (const comment of comments) {
-    if (!comment.trusted) continue;
-    const header = comment.body
-      .replace(/\r\n?/g, '\n')
-      .trim()
-      .split('\n')[0]
-      .trim();
-    if (!header.startsWith('**Round')) continue;
-    const match = LOG_HEADER.exec(header);
-    if (!match) {
+    const match = logHeader(comment);
+    if (match === null) continue;
+    if (match === 'unparseable') {
       result.unparseable.push(comment.id);
       continue;
     }
@@ -710,10 +757,37 @@ export function isExempt(pr: {
   return null;
 }
 
+/**
+ * The commits a log round has to cover: committed after the PR opened
+ * (committer time stands in for push time), except merges of the base
+ * branch that resolve nothing by hand, which bring nothing of the PR's own.
+ */
+export function requiredCommits(
+  commits: readonly { sha: string; committedAt: number; baseMerge: boolean }[],
+  openedAt: number
+): { required: string[]; baseMerges: number } {
+  const afterOpening = commits.filter((c) => c.committedAt > openedAt);
+  const required = afterOpening.filter((c) => !c.baseMerge).map((c) => c.sha);
+  return { required, baseMerges: afterOpening.length - required.length };
+}
+
 export interface LogStatus {
   state: 'success' | 'failure' | 'pending' | 'error';
   /** GitHub truncates status descriptions at 140 characters. */
   description: string;
+}
+
+/**
+ * `check:pr-log`'s exit code on a local run. An uncovered commit fails it
+ * although the status on GitHub only waits: the author running it locally
+ * is the one to post the round.
+ */
+export function logExitCode(status: LogStatus, coverage: LogCoverage): number {
+  return status.state === 'failure' ||
+    status.state === 'error' ||
+    coverage.uncovered.length > 0
+    ? 1
+    : 0;
 }
 
 /**
@@ -726,9 +800,12 @@ export function logStatus(input: {
   draft: boolean;
   branchCommits: number;
   required: number;
+  /** Merges of the base branch that resolve nothing by hand: they need no round. */
+  baseMerges: number;
   coverage: LogCoverage;
 }): LogStatus {
-  const { exempt, draft, branchCommits, required, coverage } = input;
+  const { exempt, draft, branchCommits, required, baseMerges, coverage } =
+    input;
   if (exempt)
     return { state: 'success', description: `Not checked: exempt (${exempt})` };
   if (draft) {
@@ -745,28 +822,33 @@ export function logStatus(input: {
         'No commits between base and head: the range or the checkout is wrong',
     };
   }
-  const problems: string[] = [];
-  if (coverage.uncovered.length > 0) {
-    problems.push(
-      `${coverage.uncovered.length} commit(s) in no log comment's Covers range`
-    );
-  }
+  const uncovered = `${coverage.uncovered.length} commit(s) in no log comment's Covers range`;
   if (coverage.unparseable.length > 0) {
-    problems.push(
-      `unparseable log header in comment ${coverage.unparseable.join(', ')}`
-    );
-  }
-  if (problems.length > 0) {
+    const problems = [
+      ...(coverage.uncovered.length > 0 ? [uncovered] : []),
+      `unparseable log header in comment ${coverage.unparseable.join(', ')}`,
+    ];
     return { state: 'failure', description: problems.join('; ').slice(0, 140) };
   }
+  // A round names the commits a push brought, so it can only follow the
+  // push: until it is posted the status waits. Pending blocks the merge as
+  // failure does, without a red check after every push.
+  if (coverage.uncovered.length > 0) {
+    return {
+      state: 'pending',
+      description: `${uncovered} yet: waiting for this push's round`,
+    };
+  }
+  const merges =
+    baseMerges > 0 ? `; ${baseMerges} merge(s) of the base need none` : '';
   if (required === 0) {
     return {
       state: 'success',
-      description: `No commits committed after the PR opened (${branchCommits} on the branch)`,
+      description: `No commits committed after the PR opened (${branchCommits} on the branch)${merges}`,
     };
   }
   return {
     state: 'success',
-    description: `All ${required} commit(s) committed after the PR opened are covered by ${coverage.rounds} log comment(s)`,
+    description: `All ${required} commit(s) committed after the PR opened are covered by ${coverage.rounds} log comment(s)${merges}`,
   };
 }

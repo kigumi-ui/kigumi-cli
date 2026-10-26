@@ -15,8 +15,11 @@ import {
   checkRewrite,
   isExempt,
   logCoverage,
+  logExitCode,
+  logRounds,
   logStatus,
   mentionedIssues,
+  requiredCommits,
   type BodyContext,
   type BodyFinding,
   type LogComment,
@@ -30,6 +33,7 @@ function context(overrides: Partial<BodyContext> = {}): BodyContext {
     existingIssues: new Set([6, 150]),
     knownPaths: new Set(['scripts/event-types.ts', 'AGENTS.md']),
     commentIds: new Set([5870061109]),
+    logRounds: new Set([1, 2]),
     ...overrides,
   };
 }
@@ -447,7 +451,28 @@ describe('checkBody: Verification', () => {
         rule: 'verification',
         line: 9,
         message:
-          '"## Verification" must read "CI only" or link a log comment on this PR',
+          '"## Verification" must read "CI only", name a log round ("Round 1") or link a log comment on this PR',
+      },
+    ]);
+  });
+
+  it('accepts a log round that is on this PR, written before its link exists', () => {
+    expect(
+      checkBody(
+        withSections('none', 'Bug injection: Round 1, re-run in Round 2.'),
+        context()
+      )
+    ).toEqual([]);
+  });
+
+  it('rejects a log round this PR does not have', () => {
+    expect(
+      checkBody(withSections('none', 'Evidence in Round 3.'), context())
+    ).toEqual([
+      {
+        rule: 'verification',
+        line: 9,
+        message: 'Round 3 is not a log comment on this PR',
       },
     ]);
   });
@@ -471,25 +496,105 @@ describe('checkBody: drafts', () => {
   it('does not check claims on a draft, where the work is still moving', () => {
     const body = withSections(
       'Breaking.',
-      'All gates pass.',
+      'Round 1',
       'See #999 and `scripts/nope.ts`.\n'
     );
     expect(
-      checkBody(body, context({ draft: true, changesetBump: 'minor' }))
+      checkBody(
+        body,
+        context({ draft: true, changesetBump: 'minor', logRounds: new Set() })
+      )
     ).toEqual([]);
+  });
+
+  it('checks on a draft that Verification points at something', () => {
+    // The pointer is written when the PR opens; finding a missing one only
+    // when the PR is marked ready fails the check at that click.
+    expect(
+      checkBody(
+        withSections('none', 'All gates pass.'),
+        context({ draft: true, logRounds: new Set() })
+      )
+    ).toEqual([
+      {
+        rule: 'verification',
+        line: 9,
+        message:
+          '"## Verification" must read "CI only", name a log round ("Round 1") or link a log comment on this PR',
+      },
+    ]);
+  });
+});
+
+describe('requiredCommits: what a log round has to cover', () => {
+  it('takes commits after opening, except clean merges of the base', () => {
+    const commits = [
+      { sha: 'merge', committedAt: 300, baseMerge: true },
+      { sha: 'fix', committedAt: 200, baseMerge: false },
+      { sha: 'before', committedAt: 50, baseMerge: false },
+      { sha: 'old-merge', committedAt: 40, baseMerge: true },
+    ];
+    expect(requiredCommits(commits, 100)).toEqual({
+      required: ['fix'],
+      baseMerges: 1,
+    });
+  });
+});
+
+describe('logExitCode: a local run', () => {
+  const coverage = { uncovered: [], unparseable: [], stale: [], rounds: 1 };
+
+  it('fails on an uncovered commit, which GitHub only shows as waiting', () => {
+    expect(
+      logExitCode(
+        { state: 'pending', description: 'x' },
+        { ...coverage, uncovered: ['d'.repeat(40)] }
+      )
+    ).toBe(1);
+  });
+
+  it('passes a draft, which nothing is checked on yet', () => {
+    expect(logExitCode({ state: 'pending', description: 'x' }, coverage)).toBe(
+      0
+    );
+  });
+
+  it('fails on failure and error', () => {
+    expect(logExitCode({ state: 'failure', description: 'x' }, coverage)).toBe(
+      1
+    );
+    expect(logExitCode({ state: 'error', description: 'x' }, coverage)).toBe(1);
+  });
+});
+
+describe('logRounds: the round numbers a Verification may name', () => {
+  it('reads trusted, parseable log headers only', () => {
+    const comments: LogComment[] = [
+      {
+        id: 1,
+        body: '**Round 1** · Covers: aaaaaaa..bbbbbbb\n\nx',
+        trusted: true,
+      },
+      { id: 2, body: '**Round 2** · Covers: bbbbbbb..ccccccc', trusted: false },
+      { id: 3, body: '**Round 3** covers everything', trusted: true },
+      { id: 4, body: 'Round 4 · Covers: ccccccc..ddddddd', trusted: true },
+      { id: 5, body: '**Round 5** · Covers: ccccccc..ddddddd', trusted: true },
+    ];
+    expect([...logRounds(comments)]).toEqual([1, 5]);
   });
 });
 
 describe('checkBody: AI attribution', () => {
   it('rejects an attribution line, which the squash would copy onto main', () => {
+    // Inside the summary, so the trailer is not part of Verification's text.
     const findings = checkBody(
-      `${VALID}\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`,
+      valid('🤖 Generated with [Claude Code](https://claude.com/claude-code)'),
       context({ draft: true })
     );
     expect(findings).toEqual([
       {
         rule: 'attribution',
-        line: 11,
+        line: 5,
         message:
           'AI generator attribution: 🤖 Generated with [Claude Code](https://claude.com/claude-code)',
       },
@@ -677,12 +782,55 @@ describe('logStatus: the commit status, never a pass for work not done', () => {
         draft: false,
         branchCommits: 5,
         required: 3,
+        baseMerges: 0,
         coverage: covered,
       })
     ).toEqual({
       state: 'success',
       description:
         'All 3 commit(s) committed after the PR opened are covered by 2 log comment(s)',
+    });
+  });
+
+  it('waits for the round of a push instead of failing it', () => {
+    // A round names the pushed commits, so it can only follow the push: the
+    // status between the two is a wait, not a failure. Pending still blocks
+    // the merge, as the status is required.
+    expect(
+      logStatus({
+        exempt: null,
+        draft: false,
+        branchCommits: 5,
+        required: 3,
+        baseMerges: 0,
+        coverage: {
+          uncovered: ['d'.repeat(40), 'e'.repeat(40)],
+          unparseable: [],
+          stale: [],
+          rounds: 1,
+        },
+      })
+    ).toEqual({
+      state: 'pending',
+      description:
+        "2 commit(s) in no log comment's Covers range yet: waiting for this push's round",
+    });
+  });
+
+  it('counts merges of the base branch as needing no round', () => {
+    expect(
+      logStatus({
+        exempt: null,
+        draft: false,
+        branchCommits: 5,
+        required: 2,
+        baseMerges: 1,
+        coverage: covered,
+      })
+    ).toEqual({
+      state: 'success',
+      description:
+        'All 2 commit(s) committed after the PR opened are covered by 2 log comment(s); 1 merge(s) of the base need none',
     });
   });
 
@@ -699,6 +847,7 @@ describe('logStatus: the commit status, never a pass for work not done', () => {
         draft: false,
         branchCommits: 5,
         required: 3,
+        baseMerges: 0,
         coverage,
       })
     ).toEqual({
@@ -715,6 +864,7 @@ describe('logStatus: the commit status, never a pass for work not done', () => {
         draft: true,
         branchCommits: 5,
         required: 3,
+        baseMerges: 0,
         coverage: covered,
       }).state
     ).toBe('pending');
@@ -727,6 +877,7 @@ describe('logStatus: the commit status, never a pass for work not done', () => {
         draft: false,
         branchCommits: 1,
         required: 0,
+        baseMerges: 0,
         coverage: covered,
       })
     ).toEqual({
@@ -742,6 +893,7 @@ describe('logStatus: the commit status, never a pass for work not done', () => {
         draft: false,
         branchCommits: 0,
         required: 0,
+        baseMerges: 0,
         coverage: covered,
       })
     ).toEqual({
@@ -758,6 +910,7 @@ describe('logStatus: the commit status, never a pass for work not done', () => {
         draft: false,
         branchCommits: 4,
         required: 0,
+        baseMerges: 0,
         coverage: covered,
       })
     ).toEqual({

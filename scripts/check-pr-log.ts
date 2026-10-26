@@ -33,8 +33,11 @@ import {
 } from './pr-body-context.js';
 import {
   isExempt,
+  isTrustedAuthor,
   logCoverage,
+  logExitCode,
   logStatus,
+  requiredCommits,
   type LogCoverage,
   type LogStatus,
 } from './pr-body-rules.js';
@@ -46,9 +49,6 @@ import {
 } from './pr-github.js';
 
 const CONTEXT = 'pr-log';
-
-/** Comment authors whose log headers count: people with write access. */
-const TRUSTED = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 
 function flag(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -75,6 +75,7 @@ function check(pr: PullRequestInfo): {
       draft: pr.draft,
       branchCommits: 0,
       required: 0,
+      baseMerges: 0,
       coverage: NOTHING,
     });
     return { status, coverage: NOTHING, commits: [] };
@@ -82,13 +83,11 @@ function check(pr: PullRequestInfo): {
 
   const base = prMergeBase(process.cwd(), pr);
   const commits = branchCommits(process.cwd(), base, pr.headSha);
-  const required = commits
-    .filter((c) => c.committedAt > pr.createdAt)
-    .map((c) => c.sha);
+  const { required, baseMerges } = requiredCommits(commits, pr.createdAt);
   const comments = prComments(prNumber).map((c) => ({
     id: c.id,
     body: c.body,
-    trusted: TRUSTED.has(c.authorAssociation),
+    trusted: isTrustedAuthor(c.authorAssociation),
   }));
   const coverage = logCoverage(
     required,
@@ -100,6 +99,7 @@ function check(pr: PullRequestInfo): {
     draft: false,
     branchCommits: commits.length,
     required: required.length,
+    baseMerges,
     coverage,
   });
   return { status, coverage, commits };
@@ -158,9 +158,7 @@ function main(): number {
         targetUrl: runUrl,
       });
     if (post) return 0;
-    return result.status.state === 'failure' || result.status.state === 'error'
-      ? 1
-      : 0;
+    return logExitCode(result.status, result.coverage);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(pc.red(`check-pr-log: ${message}`));
