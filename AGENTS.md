@@ -47,7 +47,7 @@ node dist/index.js add button --force
 | `src/commands/theme/show.ts` | Show current theme details |
 | `src/commands/list.ts` | List all available components (`--json` supported) |
 | `src/commands/status.ts` | Project status (`--json` supported) |
-| `src/commands/upgrade.ts` | Version upgrade + dependency installation |
+| `src/commands/upgrade.ts` | Version upgrade + dependency installation; brings in `overrides.css` and its layer |
 | `src/commands/diff.ts` | Compare installed components vs current templates |
 | `src/commands/update.ts` | Three-way merge update for installed components |
 | `src/utils/diff-renderer.ts` | Colored unified diff output using node-diff3 diffPatch |
@@ -698,7 +698,7 @@ flowchart LR
 
 - `layers.css` uses CSS `@layer` for cascade control (base < theme < overrides), and imports `overrides.css` last. On the Next.js Pages Router the imports carry no `layer(…)` qualifier, so `overrides.css` wins by source order only, at equal or higher specificity
 - A rule in an `@layer overrides { … }` block inside `theme.css` would be the sublayer `theme.overrides` and lose to the rest of `theme.css`: custom rules go in `overrides.css`
-- Every command that writes `layers.css`, and `upgrade`, runs `ensureOverridesLayer()` (`src/utils/overrides-css.ts`): it creates `overrides.css` when missing and adds the layer to an older `layers.css` in place, after its `theme.css` import, warning when there is none
+- `regenerateKigumiSetup()` (init, theme, brand, palette) and `upgrade` run `ensureOverridesLayer()` (`src/utils/overrides-css.ts`), which creates `overrides.css` when missing. Theme, brand and palette rewrite `layers.css` with the layer; a `layers.css` the command keeps (`init` preserves an existing one, `upgrade` never rewrites it) gets the layer added in place, after its `theme.css` import, with a warning when there is none
 - `layers.css` distinguishes built-in themes (from WA package) vs community themes (from `community-themes/` dir)
 - `theme.css` is preserved on re-init - existing user styles won't be overwritten
 - Theme/brand commands regenerate `kigumi.ts` + `layers.css` but preserve `theme.css`

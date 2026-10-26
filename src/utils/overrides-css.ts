@@ -26,13 +26,42 @@ export interface OverridesLayerResult {
   layers: OverridesLayerStatus;
 }
 
-// Relative ('./theme.css') or through the project alias ('@/styles/theme.css'),
-// which older CLI versions wrote. Group 1 is the directory part.
+// Matched on the file with its comments blanked out (`maskComments`), so a
+// commented-out import or the "@layer" in a comment's URL never counts.
+// Relative ('./theme.css'), through the project alias ('@/styles/theme.css'),
+// which older CLI versions wrote, or in url(). Group 1 is the directory part.
 const OVERRIDES_IMPORT =
   /@import\s+(?:url\(\s*)?['"](?:[^'"]*\/)?overrides\.css['"]/;
-const THEME_IMPORT = /@import\s+['"]((?:[^'"]*\/)?)theme\.css['"]([^;]*);/;
-// A statement on a line of its own, never the "@layer" in a comment's URL.
-const LAYER_ORDER = /^([ \t]*@layer[ \t]+[^;{\n]*\btheme\b)([^;{\n]*;)/m;
+const THEME_IMPORT =
+  /@import\s+(?:url\(\s*)?['"]((?:[^'"]*\/)?)theme\.css['"]\s*\)?([^;]*);/;
+// The order statement, possibly across lines; group 1 ends at `theme`.
+const LAYER_ORDER = /^([ \t]*@layer[ \t]+[^;{]*\btheme\b)[^;{]*;/m;
+
+/** How `layers.css` introduces the `overrides.css` import. */
+const OVERRIDES_COMMENT =
+  '/* Layer 3: Your custom CSS rules, which beat the theme (sibling of layers.css) */';
+
+/**
+ * The commented `overrides.css` import `layers.css` ends with, shared by
+ * `generateLayersCSS` and `addOverridesLayer` so the two never differ.
+ */
+export function overridesImport(
+  directory: string,
+  qualifier: string,
+  eol = '\n'
+): string {
+  return `${OVERRIDES_COMMENT}${eol}@import '${directory}overrides.css'${qualifier};`;
+}
+
+/**
+ * `css` with every comment blanked out, newlines kept, so indices into the
+ * result are indices into `css`.
+ */
+function maskComments(css: string): string {
+  return css.replace(/\/\*[\s\S]*?\*\//g, (comment) =>
+    comment.replace(/[^\r\n]/g, ' ')
+  );
+}
 
 /** The content of a new `overrides.css`: comments, no rule. */
 export function generateOverridesCSS(): string {
@@ -60,22 +89,34 @@ export function generateOverridesCSS(): string {
  * it has no `theme.css` import to add it after. Only two things change: the
  * `@layer` order statement names `overrides` right after `theme`, and the
  * `overrides.css` import follows the `theme.css` import, from the same
- * directory and qualified the same way (unqualified on the Next.js Pages Router path, where it wins by source
- * order). Everything else stays as the user has it.
+ * directory, with the same qualifier and the file's own line endings.
+ * Everything else stays as the user has it.
  */
 export function addOverridesLayer(content: string): string | undefined {
-  const themeImport = THEME_IMPORT.exec(content);
+  const masked = maskComments(content);
+  const themeImport = THEME_IMPORT.exec(masked);
   if (!themeImport) return undefined;
   const [, directory, rest] = themeImport;
   const qualifier = /\blayer\(/.test(rest) ? ' layer(overrides)' : '';
-  const end = themeImport.index + themeImport[0].length;
-  const withImport =
-    content.slice(0, end) +
-    `\n\n/* Layer 3: Your custom CSS rules, which beat the theme (sibling of layers.css) */\n@import '${directory}overrides.css'${qualifier};` +
-    content.slice(end);
-  return /\boverrides\b/.test(LAYER_ORDER.exec(withImport)?.[0] ?? '')
-    ? withImport
-    : withImport.replace(LAYER_ORDER, '$1, overrides$2');
+  const eol = content.includes('\r\n') ? '\r\n' : '\n';
+
+  // Insertions as [index, text], applied from the end so earlier indices hold.
+  const insertions: [number, string][] = [
+    [
+      themeImport.index + themeImport[0].length,
+      `${eol}${eol}${overridesImport(directory, qualifier, eol)}`,
+    ],
+  ];
+  const order = LAYER_ORDER.exec(masked);
+  if (order && !/\boverrides\b/.test(order[0])) {
+    insertions.push([order.index + order[1].length, ', overrides']);
+  }
+  return insertions
+    .sort(([a], [b]) => b - a)
+    .reduce(
+      (css, [index, text]) => css.slice(0, index) + text + css.slice(index),
+      content
+    );
 }
 
 /**
@@ -100,7 +141,9 @@ export async function ensureOverridesLayer(
   const layersPath = path.join(cwd, stylesDir, 'layers.css');
   if (!(await fs.pathExists(layersPath))) return { created, layers: 'absent' };
   const content = await fs.readFile(layersPath, 'utf-8');
-  if (OVERRIDES_IMPORT.test(content)) return { created, layers: 'present' };
+  if (OVERRIDES_IMPORT.test(maskComments(content))) {
+    return { created, layers: 'present' };
+  }
   const next = addOverridesLayer(content);
   if (next === undefined) return { created, layers: 'unrecognized' };
   await fs.writeFile(layersPath, next);
@@ -128,7 +171,7 @@ export function reportOverridesLayer(
   if (result.layers === 'unrecognized') {
     output.warning(
       `${stylesDir}/layers.css has no theme.css import to add the overrides layer after, so it was left as it is.\n` +
-        `Add this line after your theme.css import, or rules in overrides.css will not load:\n` +
+        `Import overrides.css right after your theme.css import, with the same layer qualifier, or rules in overrides.css will not load. For example:\n` +
         `  @import './overrides.css' layer(overrides);`
     );
   }

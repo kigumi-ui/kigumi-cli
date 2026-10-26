@@ -5,7 +5,7 @@
 ### Added
 
 - **Styles**: A Kigumi project gets `overrides.css` next to `theme.css`, for custom CSS rules no `--wa-*` token expresses. `layers.css` imports it last, into a new `overrides` cascade layer after `theme`, so a rule there beats the same rule in `theme.css` whatever their specificity. On the Next.js Pages Router, which drops the layers, it wins by coming later, so give it at least the same specificity. Like `theme.css`, the file is yours: Kigumi creates it once and never overwrites it.
-- **Upgrade**: `kigumi init`, `theme`, `brand`, `palette` and `kigumi upgrade` create `overrides.css` when it is missing. In an existing `layers.css` they add the layer in place, right after its `theme.css` import, and leave the rest of the file as it is. If your `layers.css` has no `theme.css` import, Kigumi warns and names the line to add.
+- **Upgrade**: `kigumi init`, `theme`, `brand`, `palette` and `kigumi upgrade` create `overrides.css` when it is missing. `theme`, `brand` and `palette` rewrite `layers.css` with the new layer, as they always rewrite it. `kigumi upgrade`, and `kigumi init` when it keeps your `layers.css`, add the layer in place instead, right after the `theme.css` import, and leave the rest of the file as it is. If your `layers.css` has no `theme.css` import, Kigumi warns and says what to add.
 
 ### Changed
 

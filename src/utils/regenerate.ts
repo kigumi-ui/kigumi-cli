@@ -35,6 +35,7 @@ import { toKigumiAlias } from './project-config.js';
 import { LayersCssRewriteError } from '../errors/layers-css.js';
 import {
   ensureOverridesLayer,
+  overridesImport,
   type OverridesLayerResult,
 } from './overrides-css.js';
 
@@ -268,8 +269,7 @@ export async function generateLayersCSS(
 /* Layer 2: Your theme customization (sibling of layers.css) */
 @import './theme.css'${themeLayer};
 
-/* Layer 3: Your custom CSS rules, which beat the theme (sibling of layers.css) */
-@import './overrides.css'${overridesLayer};
+${overridesImport('./', overridesLayer)}
 `;
 }
 

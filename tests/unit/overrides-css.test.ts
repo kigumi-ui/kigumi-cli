@@ -151,6 +151,87 @@ describe('ensureOverridesLayer: a layers.css without the overrides layer', () =>
     expect(await fs.readFile(stylesFile('layers.css'), 'utf-8')).toBe(current);
   });
 
+  it('skips a theme.css import that is commented out', async () => {
+    // Matching inside the comment would close it early with the inserted
+    // comment and leave a stray */ that breaks the next rule.
+    await fs.writeFile(
+      stylesFile('layers.css'),
+      "@layer base, theme;\n/* @import './old-theme/theme.css' layer(theme); */\n@import './theme.css' layer(theme);\n"
+    );
+
+    await ensureOverridesLayer(cwd, STYLES_DIR);
+
+    const content = await fs.readFile(stylesFile('layers.css'), 'utf-8');
+    expect(content).toContain(
+      "/* @import './old-theme/theme.css' layer(theme); */\n@import './theme.css' layer(theme);"
+    );
+    expect(content.indexOf("@import './overrides.css'")).toBeGreaterThan(
+      content.indexOf("@import './theme.css'")
+    );
+    expect(content).toContain('@layer base, theme, overrides;');
+  });
+
+  it('does not count a commented-out overrides.css import as present', async () => {
+    await fs.writeFile(
+      stylesFile('layers.css'),
+      "@layer base, theme;\n@import './theme.css' layer(theme);\n/* @import './overrides.css' layer(overrides); */\n"
+    );
+
+    const result = await ensureOverridesLayer(cwd, STYLES_DIR);
+
+    expect(result.layers).toBe('added');
+  });
+
+  it('reports a layers.css whose only theme.css import is commented out', async () => {
+    const commented = "/* @import './theme.css' layer(theme); */\n";
+    await fs.writeFile(stylesFile('layers.css'), commented);
+
+    const result = await ensureOverridesLayer(cwd, STYLES_DIR);
+
+    expect(result.layers).toBe('unrecognized');
+    expect(await fs.readFile(stylesFile('layers.css'), 'utf-8')).toBe(
+      commented
+    );
+  });
+
+  it('keeps CRLF line endings', async () => {
+    await fs.writeFile(
+      stylesFile('layers.css'),
+      layersBeforeOverrides(true).replace(/\n/g, '\r\n')
+    );
+
+    await ensureOverridesLayer(cwd, STYLES_DIR);
+
+    const content = await fs.readFile(stylesFile('layers.css'), 'utf-8');
+    expect(content).toContain("@import './overrides.css' layer(overrides);");
+    expect(content.replace(/\r\n/g, '')).not.toContain('\n');
+  });
+
+  it('updates a layer statement written across lines', async () => {
+    await fs.writeFile(
+      stylesFile('layers.css'),
+      "@layer base,\n  theme;\n@import './theme.css' layer(theme);\n"
+    );
+
+    await ensureOverridesLayer(cwd, STYLES_DIR);
+
+    const content = await fs.readFile(stylesFile('layers.css'), 'utf-8');
+    expect(content).toContain('@layer base,\n  theme, overrides;');
+  });
+
+  it('follows a theme.css import written with url()', async () => {
+    await fs.writeFile(
+      stylesFile('layers.css'),
+      '@layer base, theme;\n@import url("./theme.css") layer(theme);\n'
+    );
+
+    const result = await ensureOverridesLayer(cwd, STYLES_DIR);
+
+    expect(result.layers).toBe('added');
+    const content = await fs.readFile(stylesFile('layers.css'), 'utf-8');
+    expect(content).toContain("@import './overrides.css' layer(overrides);");
+  });
+
   it('leaves a layers.css that already imports overrides.css as it is', async () => {
     const current = `@layer base, theme, overrides;\n@import './theme.css' layer(theme);\n@import './overrides.css' layer(overrides);\n`;
     await fs.writeFile(stylesFile('layers.css'), current);

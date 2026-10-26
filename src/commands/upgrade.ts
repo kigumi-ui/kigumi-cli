@@ -11,7 +11,7 @@
 import * as p from '../prompts/index.js';
 import pc from 'picocolors';
 import { CLI_VERSION } from '../constants.js';
-import { getOutput } from '../output/index.js';
+import { getOutput, type OutputInterface } from '../output/index.js';
 import {
   ensureOverridesLayer,
   reportOverridesLayer,
@@ -37,9 +37,6 @@ interface UpgradeOptions {
 /**
  * Upgrade command - show upgrade guide and update project version
  */
-const OVERRIDES_DRY_RUN = (stylesDir: string) =>
-  `Dry run: would make sure ${stylesDir}/overrides.css exists and layers.css imports it`;
-
 export async function upgradeCommand(options: UpgradeOptions = {}) {
   const output = getOutput();
   output.intro('kigumi upgrade');
@@ -72,7 +69,7 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
 
       if (options.dryRun) {
         output.info('Dry run: would pin kigumiVersion to ' + CLI_VERSION);
-        output.info(OVERRIDES_DRY_RUN(config.stylesDir));
+        await applyOverridesLayer(cwd, config.stylesDir, output, true);
         output.outro('Dry run complete');
         return;
       }
@@ -82,11 +79,7 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
         : await promptConfirm(`Pin your project to kigumi@${CLI_VERSION}?`);
 
       if (shouldPin) {
-        reportOverridesLayer(
-          await ensureOverridesLayer(cwd, config.stylesDir),
-          config.stylesDir,
-          output
-        );
+        await applyOverridesLayer(cwd, config.stylesDir, output, false);
         await saveConfig({ kigumiVersion: CLI_VERSION }, cwd);
         config.kigumiVersion = CLI_VERSION;
         output.success(`Pinned kigumiVersion to ${CLI_VERSION}`);
@@ -99,16 +92,12 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
     // 3. Already up to date?
     if (projectVersion === CLI_VERSION) {
       output.success(`Already up to date (${CLI_VERSION})`);
-      // A project on this version can still predate the overrides layer.
-      if (options.dryRun) {
-        output.info(OVERRIDES_DRY_RUN(config.stylesDir));
-      } else {
-        reportOverridesLayer(
-          await ensureOverridesLayer(cwd, config.stylesDir),
-          config.stylesDir,
-          output
-        );
-      }
+      await applyOverridesLayer(
+        cwd,
+        config.stylesDir,
+        output,
+        Boolean(options.dryRun)
+      );
       output.outro('No upgrade needed');
       return;
     }
@@ -174,7 +163,7 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
           `Dry run: would install Web Awesome ${toEntry.webAwesomeVersion}`
         );
       }
-      output.info(OVERRIDES_DRY_RUN(config.stylesDir));
+      await applyOverridesLayer(cwd, config.stylesDir, output, true);
       output.outro('Dry run complete');
       return;
     }
@@ -233,11 +222,7 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
     // 10c. Bring in the overrides layer (ADR 0009) before saving, so a
     // failed write is retried by the next run. layers.css is otherwise left
     // as the user has it.
-    reportOverridesLayer(
-      await ensureOverridesLayer(cwd, config.stylesDir),
-      config.stylesDir,
-      output
-    );
+    await applyOverridesLayer(cwd, config.stylesDir, output, false);
 
     await saveConfig(upgradePatch, cwd);
     output.success(`Updated kigumiVersion to ${CLI_VERSION}`);
@@ -254,6 +239,30 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
   } catch (error) {
     handleError(error, output);
   }
+}
+
+/**
+ * Bring in the overrides layer (ADR 0009): create `overrides.css` when it is
+ * missing and add its import to an older `layers.css`. A dry run only says
+ * so. A project already on this CLI version can still predate the layer.
+ */
+async function applyOverridesLayer(
+  cwd: string,
+  stylesDir: string,
+  output: OutputInterface,
+  dryRun: boolean
+): Promise<void> {
+  if (dryRun) {
+    output.info(
+      `Dry run: would make sure ${stylesDir}/overrides.css exists and layers.css imports it`
+    );
+    return;
+  }
+  reportOverridesLayer(
+    await ensureOverridesLayer(cwd, stylesDir),
+    stylesDir,
+    output
+  );
 }
 
 async function promptConfirm(message: string): Promise<boolean> {

@@ -36,7 +36,7 @@ src/
 │   ├── doctor.ts         # Diagnose/fix imports + version alignment
 │   ├── status.ts         # Project status (supports --json)
 │   ├── list.ts            # List all available components (supports --json)
-│   ├── upgrade.ts        # Version upgrade + dependency installation
+│   ├── upgrade.ts        # Version upgrade + dependency installation; brings in overrides.css and its layer (also on a project already on this version)
 │   ├── diff.ts           # Compare components against current templates (snapshot-aware)
 │   ├── update.ts         # Three-way merge update for installed components; records the CLI version in installedComponents for each component it leaves at the current Templates
 │   └── ...
