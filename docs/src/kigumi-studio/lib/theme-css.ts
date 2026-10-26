@@ -178,7 +178,7 @@ export interface ThemeEdits {
  * showed (`before`) to the text at Apply (`after`). Only what changed is
  * applied, so the unchanged text changes nothing, and a change elsewhere
  * since the dialog opened (a Theme Agent answer) is not overwritten. A
- * `locked` value or shadow list keeps what it has, with a warning (ADR 0010:
+ * `locked` value, shadow list or custom CSS keeps what it has, with a warning (ADR 0010:
  * what the user locked cannot drift by an edit).
  */
 export function themeEdits(
@@ -243,7 +243,11 @@ export function themeEdits(
     }
   }
   if (was.customCSS !== now.customCSS) {
-    edits.customCSS = now.customCSS || null;
+    if (locked.customCSS) {
+      warnings.push('The custom CSS is locked and keeps its rules.');
+    } else {
+      edits.customCSS = now.customCSS || null;
+    }
   }
   return edits;
 }

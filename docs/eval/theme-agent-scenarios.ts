@@ -19,7 +19,7 @@ import {
 } from '../src/kigumi-studio/theme-agent/proposal';
 import { hexToOklch } from '../src/kigumi-studio/lib/color-utils';
 import { DEFAULT_VALUES } from '../src/kigumi-studio/lib/defaults';
-import { NO_LOCKS } from '../src/kigumi-studio/lib/locks';
+import { CUSTOM_CSS_LOCK, NO_LOCKS } from '../src/kigumi-studio/lib/locks';
 
 // The Theme Agent prompt eval (issue #203): fixed snapshots and messages for
 // the real model, each judged in code from the answer's accepted proposals
@@ -81,6 +81,7 @@ function describeProposal(proposal: ThemeProposal): string {
     )
   );
   if (proposal.shadowComponents) values.push('shadowComponents');
+  if (proposal.customCSS !== undefined) values.push('customCSS');
   return values.length > 0 ? values.join(', ') : 'nothing';
 }
 
@@ -241,9 +242,77 @@ function brandLeftAlone(
   };
 }
 
+/**
+ * Why `css` is not a bottom rule on the card's header part with the card's
+ * own border gone, or `undefined` when it is. Read loosely: the model picks
+ * the selectors (a Kigumi wrapper class or the tag) and the property names.
+ */
+function headerRuleMissing(css: string | undefined): string | undefined {
+  if (!css) return 'no custom CSS was proposed';
+  if (!/\.Card\b|wa-card\b/.test(css)) return 'the custom CSS names no card';
+  if (!/::part\(\s*header\s*\)/.test(css)) {
+    return 'the custom CSS does not style the header part';
+  }
+  if (!/border-(bottom|block-end)/.test(css)) {
+    return 'the custom CSS sets no bottom border';
+  }
+  if (!/border(-width|-style)?\s*:\s*(none|0)/.test(css)) {
+    return 'the custom CSS does not remove the card border';
+  }
+  return undefined;
+}
+
+/** The request no value can express is answered with custom CSS that lands. */
+function headerRuleApplied(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+): Verdict {
+  if (proposals.length === 0) return NO_PROPOSAL;
+  const { applied } = asStudioTakesIt(proposals, snapshot);
+  const missing = headerRuleMissing(
+    applied.customCSS === snapshot.theme.customCSS
+      ? undefined
+      : applied.customCSS
+  );
+  if (missing) return { pass: false, reason: missing };
+  return { pass: true, reason: 'custom CSS applied: header rule, no border' };
+}
+
+/**
+ * With the custom CSS locked, the same request is proposed anyway, as the
+ * complete custom CSS, so Studio holds it for Unlock and apply.
+ */
+function headerRuleHeld(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+): Verdict {
+  if (proposals.length === 0) return NO_PROPOSAL;
+  const { held } = asStudioTakesIt(proposals, snapshot);
+  const missing = headerRuleMissing(held.customCSS);
+  if (missing) {
+    return {
+      pass: false,
+      reason: `${missing}, so Studio holds no custom CSS to unlock and apply`,
+    };
+  }
+  if (!held.customCSS?.includes('text-transform')) {
+    return {
+      pass: false,
+      reason:
+        'the held custom CSS drops the rule the user wrote; a proposal is the complete custom CSS',
+    };
+  }
+  return { pass: true, reason: 'complete custom CSS proposed and held' };
+}
+
 /** Every sidebar value, as the browser sends the custom theme. */
 function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
-  const theme: CustomTheme = { light: {}, dark: {}, shadowComponents: [] };
+  const theme: CustomTheme = {
+    light: {},
+    dark: {},
+    shadowComponents: [],
+    customCSS: '',
+  };
   for (const [cssVar, value] of Object.entries(DEFAULT_VALUES)) {
     theme.light[cssVar] = value.light;
     theme.dark[cssVar] = value.dark;
@@ -255,10 +324,14 @@ function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
     light: { ...theme.light, ...overrides.light },
     dark: { ...theme.dark, ...overrides.dark },
     shadowComponents: overrides.shadowComponents ?? theme.shadowComponents,
+    customCSS: overrides.customCSS ?? theme.customCSS,
   };
 }
 
-const BRAND_LOCKED = { light: [BRAND], dark: [BRAND], shadowComponents: false };
+const CARD_HEADER_RULE =
+  'No border on cards, only a bottom rule on the header part.';
+
+const BRAND_LOCKED = { ...NO_LOCKS, light: [BRAND], dark: [BRAND] };
 
 /** A green whose brand fill falls short of 4.5:1 under white text. */
 const FAILING_GREEN = '#22c55e';
@@ -339,7 +412,7 @@ export const SCENARIOS: EvalScenario[] = [
       'Dark surface locked, "make it warmer": the light surface changes, the dark surface is held or left alone',
     snapshot: {
       theme: studioTheme({ dark: { [SURFACE]: '#1c1917' } }),
-      locked: { light: [], dark: [SURFACE], shadowComponents: false },
+      locked: { ...NO_LOCKS, dark: [SURFACE] },
     },
     messages: [{ role: 'user', content: 'Make it warmer.' }],
     judge: lightSurfaceChanged,
@@ -351,5 +424,26 @@ export const SCENARIOS: EvalScenario[] = [
     snapshot: { theme: studioTheme(), locked: NO_LOCKS },
     messages: [{ role: 'user', content: 'Make it warmer.' }],
     judge: brandLeftAlone,
+  },
+  {
+    id: 'card-header-rule',
+    description:
+      'Nothing locked, a change no value can express: answered with custom CSS that is applied',
+    snapshot: { theme: studioTheme(), locked: NO_LOCKS },
+    messages: [{ role: 'user', content: CARD_HEADER_RULE }],
+    judge: headerRuleApplied,
+  },
+  {
+    id: 'locked-custom-css-header-rule',
+    description:
+      'Custom CSS locked, the same request: the complete custom CSS is proposed and held',
+    snapshot: {
+      theme: studioTheme({
+        customCSS: '.Button { text-transform: uppercase; }',
+      }),
+      locked: CUSTOM_CSS_LOCK,
+    },
+    messages: [{ role: 'user', content: CARD_HEADER_RULE }],
+    judge: headerRuleHeld,
   },
 ];

@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { ThemeAgentSidebar } from '@/kigumi-studio/components/theme-agent/ThemeAgentSidebar';
 import type { ThemeAgentTransport } from '@/kigumi-studio/components/theme-agent/ThemeAgentChat';
 import { StudioProvider } from '@/kigumi-studio/contexts/StudioContext';
+import { CUSTOM_CSS_LOCK, type LockedValues } from '@/kigumi-studio/lib/locks';
 import { THEME_AGENT_PROPOSE_TOOL } from '@/kigumi-studio/theme-agent/constants';
 import type {
   ProposeThemeOutput,
@@ -114,19 +115,22 @@ const STATE_KEY = 'kigumi-studio-state';
  * "Lock value" switches store them; the page's storage is put back after.
  */
 function withLockedValues(...cssVars: string[]) {
+  return withStoredLocks({
+    light: cssVars,
+    dark: cssVars,
+    shadowComponents: false,
+    customCSS: false,
+  });
+}
+
+/** Start from Studio's defaults with `locks` stored, as the switches store them. */
+function withStoredLocks(locks: LockedValues) {
   return () => {
     const saved = [LOCKS_KEY, STATE_KEY].map(
       (key) => [key, localStorage.getItem(key)] as const
     );
     localStorage.removeItem(STATE_KEY);
-    localStorage.setItem(
-      LOCKS_KEY,
-      JSON.stringify({
-        light: cssVars,
-        dark: cssVars,
-        shadowComponents: false,
-      })
-    );
+    localStorage.setItem(LOCKS_KEY, JSON.stringify(locks));
     return () => {
       for (const [key, value] of saved) {
         if (value === null) localStorage.removeItem(key);
@@ -265,6 +269,59 @@ export const TwoHeldChanges: Story = {
     ).not.toBeInTheDocument();
     const rest = within(card).getByText('Unlock and apply');
     expect(rest.textContent).toContain('Radius Scale');
+  },
+};
+
+const HEADER_RULE =
+  'No value draws a rule under one part of a card, so this is custom CSS.';
+
+/**
+ * Locked custom CSS: the answer's custom CSS is one held change, its diff in
+ * the card above its "Unlock and apply", which replaces the custom CSS whole.
+ */
+export const HeldCustomCSS: Story = {
+  args: {
+    transport: cannedTransport([
+      {
+        text: HEADER_RULE,
+        proposal: {
+          light: {},
+          dark: {},
+          customCSS: [
+            '.Card::part(base) { border: none; }',
+            '.Card::part(header) { border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border); }',
+          ].join('\n'),
+        },
+      },
+    ]),
+  },
+  beforeEach: withStoredLocks(CUSTOM_CSS_LOCK),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await send(
+      canvasElement,
+      'No border on cards, only a rule under the header'
+    );
+
+    const card = await canvas.findByText(HEADER_RULE);
+    // React sets `summary` as the element's property, not an attribute.
+    const diff = card.querySelector<HTMLElement & { summary: string }>(
+      'wa-details'
+    );
+    if (!diff) throw new Error('no custom CSS diff in the card');
+    expect(diff.summary).toBe('Custom CSS changes');
+    const added = diff.querySelectorAll('ins');
+    expect(added).toHaveLength(2);
+    expect(added[0].textContent).toBe(
+      'Added: + .Card::part(base) { border: none; }'
+    );
+    expect(diff.querySelectorAll('del')).toHaveLength(0);
+    await canvas.findByText('Locked, not changed: Custom CSS.');
+
+    await userEvent.click(within(card).getByText('Unlock and apply'));
+
+    await canvas.findByText('Unlocked and applied: Custom CSS.');
+    expect(card.querySelector('wa-details')).toBeNull();
   },
 };
 

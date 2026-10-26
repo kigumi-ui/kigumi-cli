@@ -7,6 +7,7 @@ import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 import { PALETTE_STEPS } from '../lib/color-utils';
 import {
   NO_LOCKS,
+  CUSTOM_CSS_LOCK,
   SHADOW_COMPONENTS_LOCK,
   valueLock,
   withLocks,
@@ -415,6 +416,32 @@ describe('Theme Agent adapter', () => {
     expect(theme.shadowComponents).toEqual(['Card']);
   });
 
+  it('hands the Theme Agent the custom CSS and applies the custom CSS of an answer', () => {
+    const { result } = renderHook(useBoth, { wrapper });
+    expect(result.current.agent.currentTheme().customCSS).toBe('');
+    act(() => {
+      result.current.studio.setCustomCSS('.Button { gap: 0; }');
+    });
+    expect(result.current.agent.currentTheme().customCSS).toBe(
+      '.Button { gap: 0; }'
+    );
+
+    const theme = result.current.agent.currentTheme();
+    theme.customCSS = '.Card::part(base) { border: none; }';
+    act(() => {
+      result.current.agent.applyTheme(theme);
+    });
+    // What the Custom CSS editor and the export read.
+    expect(result.current.studio.customCSS).toBe(
+      '.Card::part(base) { border: none; }'
+    );
+
+    act(() => {
+      result.current.agent.applyTheme({ ...theme, customCSS: '' });
+    });
+    expect(result.current.studio.customCSS).toBeNull();
+  });
+
   it('applies a custom theme to the editor values in both modes', () => {
     const { result } = renderHook(useBoth, { wrapper });
     const theme = result.current.agent.currentTheme();
@@ -462,34 +489,43 @@ describe('useStudio - locked values', () => {
     expect(result.current.lockedValues).toEqual(NO_LOCKS);
   });
 
-  it('locks a value per mode, a mode-independent one in both, and the shadow list', () => {
+  it('locks a value per mode, a mode-independent one in both, the shadow list and the custom CSS', () => {
     const { result } = renderHook(() => useStudio(), { wrapper });
     act(() => {
       result.current.setLocked(darkSurface, true);
       result.current.setLocked(valueLock('--wa-color-brand', ['dark']), true);
       result.current.setLocked(SHADOW_COMPONENTS_LOCK, true);
+      result.current.setLocked(CUSTOM_CSS_LOCK, true);
     });
     expect(result.current.lockedValues).toEqual({
       light: ['--wa-color-brand'],
       dark: ['--wa-color-brand', '--wa-color-surface-default'],
       shadowComponents: true,
+      customCSS: true,
     });
     act(() => {
       result.current.setLocked(darkSurface, false);
     });
-    // A lock the change does not name stays, the shadow list's included.
+    // A lock the change does not name stays, the shadow list's and the
+    // custom CSS's included.
     expect(result.current.lockedValues).toEqual({
       light: ['--wa-color-brand'],
       dark: ['--wa-color-brand'],
       shadowComponents: true,
+      customCSS: true,
     });
+    act(() => {
+      result.current.setLocked(CUSTOM_CSS_LOCK, false);
+    });
+    expect(result.current.lockedValues.customCSS).toBe(false);
+    expect(result.current.lockedValues.shadowComponents).toBe(true);
   });
 
   it('ignores keys that are not Studio values', () => {
     const { result } = renderHook(() => useStudio(), { wrapper });
     act(() => {
       result.current.setLocked(
-        { light: ['--wa-nonexistent'], dark: [], shadowComponents: false },
+        { ...NO_LOCKS, light: ['--wa-nonexistent'] },
         true
       );
     });

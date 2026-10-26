@@ -43,6 +43,7 @@ export function lockedValueLabel(cssVar: string, mode: ThemeMode): string {
 /** The sidebar name of a held change, as `valueLabel()` writes it. */
 export function heldChangeLabel(change: HeldChange): string {
   if (change.kind === 'shadowComponents') return 'Components with a shadow';
+  if (change.kind === 'customCSS') return 'Custom CSS';
   return valueLabel(
     change.cssVar,
     THEME_MODES.filter((mode) => mode in change.proposed)

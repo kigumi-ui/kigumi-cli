@@ -16,24 +16,27 @@ export function useThemeAgentStudio() {
   const {
     values,
     shadowComponents,
+    customCSS,
     lockedValues,
     importValues,
     setShadowComponents,
+    setCustomCSS,
     setLocked,
     onThemeReplaced,
   } = useStudio();
 
   // Read at event time (send, answer finished), not at render time.
-  const latest = useRef({ values, shadowComponents, lockedValues });
+  const latest = useRef({ values, shadowComponents, customCSS, lockedValues });
   useEffect(() => {
-    latest.current = { values, shadowComponents, lockedValues };
-  }, [values, shadowComponents, lockedValues]);
+    latest.current = { values, shadowComponents, customCSS, lockedValues };
+  }, [values, shadowComponents, customCSS, lockedValues]);
 
   const currentTheme = useCallback((): CustomTheme => {
     const theme: CustomTheme = {
       light: {},
       dark: {},
       shadowComponents: [...latest.current.shadowComponents],
+      customCSS: latest.current.customCSS ?? '',
     };
     for (const [cssVar, value] of Object.entries(latest.current.values)) {
       theme.light[cssVar] = value.light;
@@ -64,8 +67,11 @@ export function useThemeAgentStudio() {
       }
       importValues(imported);
       setShadowComponents([...theme.shadowComponents]);
+      if (theme.customCSS !== now.customCSS) {
+        setCustomCSS(theme.customCSS || null);
+      }
     },
-    [currentTheme, importValues, setShadowComponents]
+    [currentTheme, importValues, setShadowComponents, setCustomCSS]
   );
 
   return {

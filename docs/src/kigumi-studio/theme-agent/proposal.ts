@@ -5,6 +5,7 @@ import {
 } from '../lib/property-definitions';
 import { THEME_MODES, type LockedValues } from '../lib/locks';
 import { SHADOW_COMPONENTS } from '../lib/shadow-components';
+import { validateAgentCSS } from './agent-css';
 import { cloneTheme, type CustomTheme } from './custom-theme';
 
 // Shared by the browser and the trigger.dev task (docs/trigger): the task
@@ -13,8 +14,8 @@ import { cloneTheme, type CustomTheme } from './custom-theme';
 
 /**
  * The shape of a Theme Agent proposal: the values to change per mode and,
- * optionally, the full list of components that get a shadow. Like
- * `PresetJSON` without custom CSS; any other key is refused.
+ * optionally, the full list of components that get a shadow and the
+ * complete custom CSS. Like `PresetJSON`; any other key is refused.
  */
 export const themeProposalSchema = z.strictObject({
   light: z
@@ -29,6 +30,12 @@ export const themeProposalSchema = z.strictObject({
     .describe(
       'The complete list of components that get a shadow; omit to keep the current list'
     ),
+  customCSS: z
+    .string()
+    .optional()
+    .describe(
+      'The complete custom CSS, replacing the current one, for what no value can express; omit to keep the current custom CSS'
+    ),
 });
 
 export type ThemeProposalInput = z.infer<typeof themeProposalSchema>;
@@ -38,6 +45,8 @@ export interface ThemeProposal {
   light: Record<string, string>;
   dark: Record<string, string>;
   shadowComponents?: string[];
+  /** The complete custom CSS; `''` removes it. */
+  customCSS?: string;
 }
 
 export type ProposalValidation =
@@ -100,8 +109,9 @@ function withoutUnit(property: PropertyDefinition, value: string): string {
 /**
  * Check a proposal against what the Studio sidebar offers: keys must be
  * Studio properties, fonts must come from Studio's font list, shadow
- * components from Studio's list, and values must parse for their property
- * type. The errors are written for the model to correct its proposal.
+ * components from Studio's list, values must parse for their property type,
+ * and custom CSS must pass `validateAgentCSS()`. The errors are written for
+ * the model to correct its proposal.
  */
 export function validateProposal(input: unknown): ProposalValidation {
   const parsed = themeProposalSchema.safeParse(input);
@@ -167,11 +177,15 @@ export function validateProposal(input: unknown): ProposalValidation {
     shadowComponents = [...new Set(parsed.data.shadowComponents)];
   }
 
+  const customCSS = parsed.data.customCSS?.trim();
+  if (customCSS !== undefined) errors.push(...validateAgentCSS(customCSS));
+
   if (
     errors.length === 0 &&
     Object.keys(light).length === 0 &&
     Object.keys(dark).length === 0 &&
-    shadowComponents === undefined
+    shadowComponents === undefined &&
+    customCSS === undefined
   ) {
     errors.push('proposal: changes nothing');
   }
@@ -179,9 +193,12 @@ export function validateProposal(input: unknown): ProposalValidation {
   if (errors.length > 0) return { valid: false, errors };
   return {
     valid: true,
-    proposal: shadowComponents
-      ? { light, dark, shadowComponents }
-      : { light, dark },
+    proposal: {
+      light,
+      dark,
+      ...(shadowComponents ? { shadowComponents } : {}),
+      ...(customCSS !== undefined ? { customCSS } : {}),
+    },
   };
 }
 
@@ -196,6 +213,7 @@ export function applyProposal(
   if (proposal.shadowComponents) {
     next.shadowComponents = [...proposal.shadowComponents];
   }
+  if (proposal.customCSS !== undefined) next.customCSS = proposal.customCSS;
   return next;
 }
 
@@ -220,6 +238,9 @@ export function splitLocked(
       ...proposal.shadowComponents,
     ];
   }
+  if (proposal.customCSS !== undefined) {
+    (locked.customCSS ? held : free).customCSS = proposal.customCSS;
+  }
   return { free, held };
 }
 
@@ -240,6 +261,7 @@ export function mergeProposals(proposals: ThemeProposal[]): ThemeProposal {
     if (proposal.shadowComponents) {
       merged.shadowComponents = [...proposal.shadowComponents];
     }
+    if (proposal.customCSS !== undefined) merged.customCSS = proposal.customCSS;
   }
   return merged;
 }
@@ -250,6 +272,7 @@ export function locksOf(proposal: ThemeProposal): LockedValues {
     light: Object.keys(proposal.light),
     dark: Object.keys(proposal.dark),
     shadowComponents: proposal.shadowComponents !== undefined,
+    customCSS: proposal.customCSS !== undefined,
   };
 }
 

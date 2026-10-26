@@ -132,7 +132,7 @@ function parseCss(css: string): ParsedCss {
 }
 
 /** Split on `separator` outside parentheses, brackets, braces and strings. */
-function splitTopLevel(text: string, separator: string): string[] {
+export function splitTopLevel(text: string, separator: string): string[] {
   const parts: string[] = [];
   let depth = 0;
   let quote = '';

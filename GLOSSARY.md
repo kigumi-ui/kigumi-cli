@@ -123,6 +123,8 @@ _Avoid_: preset agent, theme generator
 A value in the custom theme, for one mode, that the user locked with its
 "Lock value" switch in the Studio sidebar. A mode-independent value is locked
 in both modes, and the list of components that get a shadow is one value too.
+So is the custom CSS, locked for both modes with "Lock custom CSS" in the
+Customize theme CSS dialog.
 The Theme Agent never changes a locked value, and changes every other value
 except one the user changed while its answer was being written (a held
 change). Locks survive a reload and a reset, and are not part of the
@@ -138,4 +140,6 @@ locked value unlocks it ("Unlock and apply"). A value changed since the answer
 is not applied. Sending the next message keeps the rest as they are, and
 undoing the answer locks again what it unlocked, unless that value changed
 since. A held change that would fix a failing contrast pair names that pair.
+Held custom CSS is one change, shown as a diff, and applying it replaces the
+custom CSS whole.
 _Avoid_: change request, suggestion

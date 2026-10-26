@@ -5,19 +5,23 @@ import { parseLocks, type LockedValues } from '../lib/locks';
 
 /**
  * The custom theme being edited: every sidebar value per mode, as Studio
- * stores it (sliders without their unit), plus the components that get a
- * shadow (`className` values from `SHADOW_COMPONENTS`).
+ * stores it (sliders without their unit), the components that get a shadow
+ * (`className` values from `SHADOW_COMPONENTS`), and the custom CSS, unscoped
+ * as the export writes it, `''` when there is none.
  */
 export interface CustomTheme {
   light: Record<string, string>;
   dark: Record<string, string>;
   shadowComponents: string[];
+  customCSS: string;
 }
 
 export const customThemeSchema = z.object({
   light: z.record(z.string(), z.string()),
   dark: z.record(z.string(), z.string()),
   shadowComponents: z.array(z.string()),
+  // A page older than custom CSS in answers sends none.
+  customCSS: z.string().default(''),
 });
 
 /** One string per shadow component list; order and duplicates do not count. */
@@ -79,6 +83,7 @@ export function cloneTheme(theme: CustomTheme): CustomTheme {
     light: { ...theme.light },
     dark: { ...theme.dark },
     shadowComponents: [...theme.shadowComponents],
+    customCSS: theme.customCSS,
   };
 }
 

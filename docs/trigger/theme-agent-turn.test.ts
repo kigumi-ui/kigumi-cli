@@ -76,6 +76,7 @@ const snapshot: ThemeAgentSnapshot = {
       '--wa-color-surface-default': '#1c1917',
     },
     shadowComponents: ['Card'],
+    customCSS: '.Button { text-transform: uppercase; }',
   },
   locked: NO_LOCKS,
 };
@@ -87,6 +88,7 @@ const lockedSnapshot: ThemeAgentSnapshot = {
     light: ['--wa-color-brand'],
     dark: ['--wa-color-brand', '--wa-color-surface-default'],
     shadowComponents: true,
+    customCSS: true,
   },
 };
 
@@ -151,25 +153,81 @@ describe('Theme Agent turn', () => {
     expect(await result.text).toContain('A calm teal brand.');
   });
 
-  it('sends a proposal with custom CSS back to the model', async () => {
+  it.each([
+    [
+      'a url()',
+      '.Card { background: url(https://example.com/x.png); }',
+      'customCSS: url() loads a resource and is not allowed',
+    ],
+    [
+      'a literal colour',
+      '.Card::part(header) { border-bottom: 1px solid #d4d4d4; }',
+      '.Card::part(header) border-bottom: \\"#d4d4d4\\" is a colour literal',
+    ],
+  ])(
+    'sends custom CSS with %s back to the model and accepts the corrected one',
+    async (_name, refused, error) => {
+      const corrected =
+        '.Card::part(header) { border-bottom: 1px solid var(--wa-color-surface-border); }';
+      const model = new MockLanguageModelV4({
+        doStream: [
+          proposalStep('call-1', { light: {}, dark: {}, customCSS: refused }),
+          proposalStep('call-2', { light: {}, dark: {}, customCSS: corrected }),
+          textStep('A rule under the card header; no value draws one.'),
+        ],
+      });
+
+      const result = themeAgentTurn({ streamText, model, messages, snapshot });
+      await result.consumeStream();
+
+      expect(model.doStreamCalls).toHaveLength(3);
+      const [rejected, accepted] = toolResults(model);
+      expect(JSON.stringify(rejected)).toContain('"accepted":false');
+      expect(JSON.stringify(rejected)).toContain(error);
+      expect(JSON.stringify(accepted)).toContain('"accepted":true');
+    }
+  );
+
+  it('tells the model its custom CSS is locked when the user locked it', async () => {
     const model = new MockLanguageModelV4({
       doStream: [
         proposalStep('call-1', {
-          light: { '--wa-color-brand': '#0891b2' },
+          light: {},
           dark: {},
-          customCSS: 'body { color: red }',
+          customCSS: '.Card::part(base) { border: none; }',
         }),
-        textStep('Sorry.'),
+        textStep('Your custom CSS is locked.'),
       ],
     });
 
-    const result = themeAgentTurn({ streamText, model, messages, snapshot });
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: lockedSnapshot,
+    });
     await result.consumeStream();
 
-    expect(model.doStreamCalls).toHaveLength(2);
-    const [rejected] = toolResults(model);
-    expect(JSON.stringify(rejected)).toContain('customCSS');
-    expect(JSON.stringify(rejected)).not.toContain('"accepted":true');
+    const [output] = toolResults(model);
+    expect(JSON.stringify(output)).toContain('"accepted":true');
+    expect(JSON.stringify(output)).toMatch(/"locked":\[[^\]]*"customCSS"/);
+  });
+
+  it('gives the model the current custom CSS and how it may write custom CSS', async () => {
+    const text = await systemPrompt(snapshot);
+    expect(text).toContain('.Button { text-transform: uppercase; }');
+    const rules = text.slice(text.indexOf('Custom CSS'));
+    // Only when no value can express it, said in the explanation.
+    expect(rules).toMatch(/only for what no value[^.]*can express/);
+    expect(rules).toMatch(/explanation says why no value could/);
+    // Always the whole text, never a patch.
+    expect(rules).toMatch(/complete custom CSS/);
+    // Kigumi wrapper classes or wa-* tags for the host, ::part() inside.
+    expect(rules).toMatch(/Kigumi wrapper class/);
+    expect(rules).toMatch(/wa-\*/);
+    expect(rules).toMatch(/::part\(\)/);
+    expect(rules).toMatch(/var\(--wa-\*\)/);
+    expect(text).not.toMatch(/no custom CSS\)/);
   });
 
   it(`stops after ${MAX_PROPOSAL_ATTEMPTS} rejected proposals`, async () => {
@@ -204,7 +262,7 @@ describe('Theme Agent turn', () => {
   it("gives the model the snapshot's locked values, per mode", async () => {
     const text = await systemPrompt(lockedSnapshot);
     expect(text).toMatch(
-      /Locked values[^\n]*\n- --wa-color-brand\n- --wa-color-surface-default \(dark mode\)\n- shadowComponents\n/
+      /Locked values[^\n]*\n- --wa-color-brand\n- --wa-color-surface-default \(dark mode\)\n- shadowComponents\n- customCSS\n/
     );
   });
 
