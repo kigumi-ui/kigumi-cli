@@ -36,6 +36,7 @@ import {
   isTrustedAuthor,
   logCoverage,
   logExitCode,
+  logInputs,
   logStatus,
   requiredCommits,
   type LogCoverage,
@@ -62,12 +63,16 @@ const NOTHING: LogCoverage = {
   rounds: 0,
 };
 
-function check(pr: PullRequestInfo): {
+type PrComment = ReturnType<typeof prComments>[number];
+
+function check(
+  pr: PullRequestInfo,
+  prCommentList: readonly PrComment[]
+): {
   status: LogStatus;
   coverage: LogCoverage;
   commits: ReturnType<typeof branchCommits>;
 } {
-  const prNumber = pr.number;
   const exempt = isExempt(pr);
   if (exempt || pr.draft) {
     const status = logStatus({
@@ -84,7 +89,7 @@ function check(pr: PullRequestInfo): {
   const base = prMergeBase(process.cwd(), pr);
   const commits = branchCommits(process.cwd(), base, pr.headSha);
   const { required, baseMerges } = requiredCommits(commits, pr.createdAt);
-  const comments = prComments(prNumber).map((c) => ({
+  const comments = prCommentList.map((c) => ({
     id: c.id,
     body: c.body,
     trusted: isTrustedAuthor(c.authorAssociation),
@@ -149,15 +154,30 @@ function main(): number {
   try {
     const pr = pullRequest(prNumber);
     headSha = pr.headSha;
-    const result = check(pr);
+    const comments = prComments(prNumber);
+    const read = logInputs(pr, comments);
+    const result = check(pr, comments);
     report(result.status, result.coverage, result.commits);
-    if (post)
+    if (post) {
+      // No run is cancelled (a cancelled push run stays red on the head), so
+      // an older run may finish after a newer one: it writes only while what
+      // it read is still current, and otherwise the newer run reports.
+      const now = pullRequest(prNumber);
+      if (logInputs(now, prComments(prNumber)) !== read) {
+        console.log(
+          pc.yellow(
+            `${CONTEXT}: not posted: the PR changed while this run checked it; the run for that change reports`
+          )
+        );
+        return 0;
+      }
       setStatus(headSha, {
         context: CONTEXT,
         ...result.status,
         targetUrl: runUrl,
       });
-    if (post) return 0;
+      return 0;
+    }
     return logExitCode(result.status, result.coverage);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

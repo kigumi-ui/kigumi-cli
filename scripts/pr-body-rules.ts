@@ -778,6 +778,23 @@ export interface LogStatus {
 }
 
 /**
+ * What a `pr-log` result is computed from: the PR's head, whether it is a
+ * draft, and its comments. The workflow cancels no run, so an older run can
+ * finish after a newer one; it posts its status only while these are still
+ * what GitHub has, and otherwise leaves the word to the newer run.
+ */
+export function logInputs(
+  pr: { headSha: string; draft: boolean },
+  comments: readonly { id: number; body: string }[]
+): string {
+  return JSON.stringify([
+    pr.headSha,
+    pr.draft,
+    comments.map((c) => [c.id, c.body]),
+  ]);
+}
+
+/**
  * `check:pr-log`'s exit code on a local run. An uncovered commit fails it
  * although the status on GitHub only waits: the author running it locally
  * is the one to post the round.

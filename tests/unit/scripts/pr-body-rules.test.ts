@@ -16,6 +16,7 @@ import {
   isExempt,
   logCoverage,
   logExitCode,
+  logInputs,
   logRounds,
   logStatus,
   mentionedIssues,
@@ -538,6 +539,39 @@ describe('requiredCommits: what a log round has to cover', () => {
       required: ['fix'],
       baseMerges: 1,
     });
+  });
+});
+
+describe('logInputs: whether a status is still the latest word', () => {
+  // pr-log runs are not cancelled, so an older run may finish after a newer
+  // one; it writes only while what it read is still what GitHub has.
+  const pr = { headSha: 'a'.repeat(40), draft: false };
+  const comments = [{ id: 1, body: '**Round 1** · Covers: aaaaaaa..bbbbbbb' }];
+  const read = logInputs(pr, comments);
+
+  it('is unchanged when nothing changed', () => {
+    expect(logInputs({ ...pr }, [{ ...comments[0] }])).toBe(read);
+  });
+
+  it.each([
+    ['a push', logInputs({ ...pr, headSha: 'b'.repeat(40) }, comments)],
+    ['marked ready or draft', logInputs({ ...pr, draft: true }, comments)],
+    [
+      'a new comment',
+      logInputs(pr, [
+        ...comments,
+        { id: 2, body: '**Round 2** · Covers: x..y' },
+      ]),
+    ],
+    [
+      'an edited comment',
+      logInputs(pr, [
+        { id: 1, body: '**Round 1** · Covers: aaaaaaa..ccccccc' },
+      ]),
+    ],
+    ['a deleted comment', logInputs(pr, [])],
+  ])('changes with %s', (_event, after) => {
+    expect(after).not.toBe(read);
   });
 });
 

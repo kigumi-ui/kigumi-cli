@@ -79,7 +79,11 @@ two guards hold them:
   (every parent but the first already in the base, and no hunk in
   `git diff-tree --cc`, as GitHub's "Update branch" makes) brings nothing of
   the PR's own and needs no round; a resolved conflict is new work and
-  does.
+  does. No run is cancelled: the comment's run cancelling the push's left
+  the cancelled push run red on the PR's head, where no comment run can
+  replace it. A run posts its status only while the PR's head, draft state
+  and comments are still what it read, so an older run that finishes last
+  never overwrites a newer result.
 
 Bots and this repository's changesets release PR (not a fork's branch of
 the same name) are exempt from the structure and claim rules and from the
