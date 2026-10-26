@@ -8,7 +8,7 @@ import {
   Icon,
 } from '@/components/ui';
 import { NO_LOCKS } from '../../lib/locks';
-import { themeEdits, themeFiles, themeText } from '../../lib/theme-css';
+import { themeEdits, themeText } from '../../lib/theme-css';
 import { useStudio } from '../../contexts/StudioContext';
 import './ThemeCSSDialog.css';
 
@@ -18,8 +18,8 @@ interface ThemeCSSDialogProps {
 }
 
 /**
- * The whole custom theme as the CSS a project gets, theme.css then
- * overrides.css, in one text field to read, edit and copy. Apply takes only
+ * The "Custom CSS" dialog: the whole custom theme as the CSS a project gets,
+ * theme.css then overrides.css, in one text field to read, edit and copy. Apply takes only
  * the edits made to the text (`themeEdits`). Mounted afresh on every open
  * (StudioLayout keys it), so the text starts from the custom theme as it is.
  */
@@ -40,7 +40,6 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   const [draft, setDraft] = useState(shown);
   const [errors, setErrors] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
-  const files = themeFiles(current);
   const edited = draft !== shown;
 
   const apply = () => {
@@ -68,7 +67,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   return (
     <Dialog
       open={open}
-      label="Theme CSS"
+      label="Custom CSS"
       onHide={onClose}
       className="theme-css-dialog"
     >
@@ -80,19 +79,28 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
           takes what you changed.
         </p>
 
-        <Textarea
-          className="theme-css-dialog__editor"
-          label="Theme CSS"
-          rows={18}
-          resize="vertical"
-          spellcheck={false}
-          value={draft}
-          onInput={(event) => {
-            setDraft((event.target as HTMLTextAreaElement).value);
-            setErrors([]);
-            setWarnings([]);
-          }}
-        />
+        <div className="theme-css-dialog__textarea-wrapper">
+          <Textarea
+            className="theme-css-dialog__editor"
+            label="Custom CSS"
+            rows={18}
+            resize="vertical"
+            spellcheck={false}
+            value={draft}
+            onInput={(event) => {
+              setDraft((event.target as HTMLTextAreaElement).value);
+              setErrors([]);
+              setWarnings([]);
+            }}
+          />
+          <div className="theme-css-dialog__copy-wrapper">
+            <CopyButton
+              value={draft}
+              copy-label="Copy CSS"
+              success-label="Copied!"
+            />
+          </div>
+        </div>
 
         {errors.length > 0 && (
           <Callout variant="danger" appearance="outlined" size="small">
@@ -119,32 +127,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
         )}
       </div>
 
-      <div slot="footer" className="theme-css-dialog__footer wa-split">
-        <div className="wa-cluster wa-gap-s wa-align-items-center">
-          <span className="theme-css-dialog__copy">
-            theme.css
-            <CopyButton
-              value={files.theme}
-              disabled={edited || !files.theme}
-              copy-label="Copy theme.css"
-              success-label="Copied"
-            />
-          </span>
-          <span className="theme-css-dialog__copy">
-            overrides.css
-            <CopyButton
-              value={files.overrides}
-              disabled={edited || !files.overrides}
-              copy-label="Copy overrides.css"
-              success-label="Copied"
-            />
-          </span>
-          {edited && (
-            <span className="theme-css-dialog__hint">
-              Apply to copy your edits
-            </span>
-          )}
-        </div>
+      <div slot="footer" className="theme-css-dialog__footer">
         <div className="wa-cluster wa-gap-s">
           <Button
             variant="neutral"
