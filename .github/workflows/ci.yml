@@ -15,9 +15,13 @@ permissions:
   # The organization copy of Web Awesome Pro on GitHub Packages.
   packages: read
 
+# Only a newer commit cancels a running run. "Ready for review" or a label
+# seconds after a push queues behind its run: cancelling it left the cancelled
+# jobs red on the head, and a matrix job cancelled before its matrix resolved
+# keeps a name no later run reuses ("Starter E2E (${{ matrix.framework }})").
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event.action == 'synchronize' }}
 
 jobs:
   changes:

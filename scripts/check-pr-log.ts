@@ -33,8 +33,12 @@ import {
 } from './pr-body-context.js';
 import {
   isExempt,
+  isTrustedAuthor,
   logCoverage,
+  logExitCode,
+  logInputs,
   logStatus,
+  requiredCommits,
   type LogCoverage,
   type LogStatus,
 } from './pr-body-rules.js';
@@ -46,9 +50,6 @@ import {
 } from './pr-github.js';
 
 const CONTEXT = 'pr-log';
-
-/** Comment authors whose log headers count: people with write access. */
-const TRUSTED = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 
 function flag(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -62,12 +63,16 @@ const NOTHING: LogCoverage = {
   rounds: 0,
 };
 
-function check(pr: PullRequestInfo): {
+type PrComment = ReturnType<typeof prComments>[number];
+
+function check(
+  pr: PullRequestInfo,
+  prCommentList: readonly PrComment[]
+): {
   status: LogStatus;
   coverage: LogCoverage;
   commits: ReturnType<typeof branchCommits>;
 } {
-  const prNumber = pr.number;
   const exempt = isExempt(pr);
   if (exempt || pr.draft) {
     const status = logStatus({
@@ -75,6 +80,7 @@ function check(pr: PullRequestInfo): {
       draft: pr.draft,
       branchCommits: 0,
       required: 0,
+      baseMerges: 0,
       coverage: NOTHING,
     });
     return { status, coverage: NOTHING, commits: [] };
@@ -82,13 +88,11 @@ function check(pr: PullRequestInfo): {
 
   const base = prMergeBase(process.cwd(), pr);
   const commits = branchCommits(process.cwd(), base, pr.headSha);
-  const required = commits
-    .filter((c) => c.committedAt > pr.createdAt)
-    .map((c) => c.sha);
-  const comments = prComments(prNumber).map((c) => ({
+  const { required, baseMerges } = requiredCommits(commits, pr.createdAt);
+  const comments = prCommentList.map((c) => ({
     id: c.id,
     body: c.body,
-    trusted: TRUSTED.has(c.authorAssociation),
+    trusted: isTrustedAuthor(c.authorAssociation),
   }));
   const coverage = logCoverage(
     required,
@@ -100,6 +104,7 @@ function check(pr: PullRequestInfo): {
     draft: false,
     branchCommits: commits.length,
     required: required.length,
+    baseMerges,
     coverage,
   });
   return { status, coverage, commits };
@@ -149,18 +154,31 @@ function main(): number {
   try {
     const pr = pullRequest(prNumber);
     headSha = pr.headSha;
-    const result = check(pr);
+    const comments = prComments(prNumber);
+    const read = logInputs(pr, comments);
+    const result = check(pr, comments);
     report(result.status, result.coverage, result.commits);
-    if (post)
+    if (post) {
+      // No run is cancelled (a cancelled push run stays red on the head), so
+      // an older run may finish after a newer one: it writes only while what
+      // it read is still current, and otherwise the newer run reports.
+      const now = pullRequest(prNumber);
+      if (logInputs(now, prComments(prNumber)) !== read) {
+        console.log(
+          pc.yellow(
+            `${CONTEXT}: not posted: the PR changed while this run checked it; the run for that change reports`
+          )
+        );
+        return 0;
+      }
       setStatus(headSha, {
         context: CONTEXT,
         ...result.status,
         targetUrl: runUrl,
       });
-    if (post) return 0;
-    return result.status.state === 'failure' || result.status.state === 'error'
-      ? 1
-      : 0;
+      return 0;
+    }
+    return logExitCode(result.status, result.coverage);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(pc.red(`check-pr-log: ${message}`));

@@ -178,9 +178,94 @@ describe('branchCommits', () => {
     const b = commit('b', 1_000);
     const c = commit('c message line', 2_000);
     expect(branchCommits(repo, base, c)).toEqual([
-      { sha: c, committedAt: 2_000, message: 'c message line' },
-      { sha: b, committedAt: 1_000, message: 'b' },
+      {
+        sha: c,
+        committedAt: 2_000,
+        message: 'c message line',
+        baseMerge: false,
+      },
+      { sha: b, committedAt: 1_000, message: 'b', baseMerge: false },
     ]);
+  });
+
+  /** A feature branch off `main`, and main moved on since; returns both tips. */
+  function divergedBranches(): { feature: string; mainTip: string } {
+    write('shared.txt', 'one\n');
+    commit('base', 500);
+    git(['switch', '-q', '-c', 'feature']);
+    write('feature.txt', 'feature\n');
+    const feature = commit('feature work', 1_000);
+    git(['switch', '-q', 'main']);
+    write('main.txt', 'main\n');
+    const mainTip = commit('main moves on', 1_500);
+    git(['switch', '-q', 'feature']);
+    return { feature, mainTip };
+  }
+
+  function mergeMain(): string {
+    git(['merge', '-q', '--no-ff', '-m', "Merge branch 'main'", 'main'], {
+      GIT_COMMITTER_DATE: '@2000 +0000',
+    });
+    return git(['rev-parse', 'HEAD']);
+  }
+
+  it('marks a merge of the base branch that resolves nothing by hand', () => {
+    // GitHub's "Update branch" and a local `git merge main` both make this.
+    const { feature, mainTip } = divergedBranches();
+    const merge = mergeMain();
+    // As the checker reads it: the base is the merge base with main.
+    const base = git(['merge-base', 'main', merge]);
+    expect(base).toBe(mainTip);
+    expect(
+      branchCommits(repo, base, merge).map((c) => [c.sha, c.baseMerge])
+    ).toEqual([
+      [merge, true],
+      [feature, false],
+    ]);
+  });
+
+  it('does not mark a merge that resolves a conflict: the resolution is new work', () => {
+    write('shared.txt', 'one\n');
+    commit('base', 500);
+    git(['switch', '-q', '-c', 'feature']);
+    write('shared.txt', 'feature\n');
+    commit('feature edits shared', 1_000);
+    git(['switch', '-q', 'main']);
+    write('shared.txt', 'main\n');
+    commit('main edits shared', 1_500);
+    git(['switch', '-q', 'feature']);
+    expect(() =>
+      git(['merge', '-q', '--no-ff', '-m', 'Merge main', 'main'])
+    ).toThrow();
+    write('shared.txt', 'resolved by hand\n');
+    const merge = commit('Merge main, resolved', 2_000);
+    // Premise: a real two-parent merge, not a plain commit.
+    expect(
+      git(['rev-list', '--parents', '-n', '1', merge]).split(' ')
+    ).toHaveLength(3);
+    const base = git(['merge-base', 'main', merge]);
+    expect(branchCommits(repo, base, merge)[0]).toMatchObject({
+      sha: merge,
+      baseMerge: false,
+    });
+  });
+
+  it('does not mark a merge of another branch', () => {
+    const { mainTip } = divergedBranches();
+    git(['switch', '-q', '-c', 'other', mainTip]);
+    write('other.txt', 'other\n');
+    commit('other work', 1_600);
+    git(['switch', '-q', 'feature']);
+    git(['merge', '-q', '--no-ff', '-m', 'Merge other', 'other'], {
+      GIT_COMMITTER_DATE: '@2000 +0000',
+    });
+    const merge = git(['rev-parse', 'HEAD']);
+    // main is not merged: the base stays the fork point.
+    const base = git(['merge-base', 'main', 'feature~1']);
+    expect(branchCommits(repo, base, merge)[0]).toMatchObject({
+      sha: merge,
+      baseMerge: false,
+    });
   });
 });
 
