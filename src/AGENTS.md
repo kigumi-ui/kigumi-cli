@@ -17,6 +17,7 @@ src/
 │   │   ├── validator.ts          # Validate component exists, tier access
 │   │   ├── component-selector.ts # Interactive component picker (built-in)
 │   │   ├── installer.ts          # Copy templates, run transforms
+│   │   ├── skip-reasons.ts       # Why a component was skipped, and its lines
 │   │   ├── remote-installer.ts   # Download + install from GitHub (no template substitution)
 │   │   └── remote-component-selector.ts  # Interactive picker (community)
 │   ├── theme.ts          # Theme command group (set + install)
@@ -395,6 +396,7 @@ if (previousTier !== newTier) {
 | `validator.ts` | Validate component exists, tier access |
 | `component-selector.ts` | Interactive component picker (built-in registry) |
 | `installer.ts` | Copy templates, run transforms, detect modifications |
+| `skip-reasons.ts` | `SkipReason` (`exists` / `declined` / `up-to-date`) with each reason's spinner and summary line, read by both installers and `printSummary` |
 | `remote-installer.ts` | Download + install from GitHub (no template substitution) |
 | `remote-component-selector.ts` | Interactive picker (community registry) |
 
