@@ -44,7 +44,7 @@ function reEmitting(options: {
   emits: string[];
   emitAs: string;
   cleanupHook?: typeof onBeforeUnmount;
-  /** Re-emit a descendant's bubbled event too, as Templates did before #213. */
+  /** Re-emit a descendant's bubbled event too, which the harness must report. */
   forwardDescendants?: boolean;
 }): InlineTemplate {
   const cleanupHook = options.cleanupHook ?? onBeforeUnmount;

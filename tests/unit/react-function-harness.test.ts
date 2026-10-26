@@ -389,7 +389,7 @@ function LeakyShow(props: {
 
 /**
  * Forwards every `wa-show` that reaches the host, a descendant's included,
- * as the Templates did before #213.
+ * so the harness has a bubbled event to report.
  */
 function ForwardingShow(props: {
   className?: string;

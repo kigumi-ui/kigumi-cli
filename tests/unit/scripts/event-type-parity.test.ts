@@ -41,14 +41,14 @@ function escape(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/** The guard every generated handler opens with (#213), as a pattern. */
+const OWN_TARGET = 'if \\(e\\.target !== e\\.currentTarget\\) return;\\s*';
+
 /**
  * The React prop an event feeds, found through the generated listener that
  * subscribes to it, never by deriving the name: a test that computed the name
  * with the generator's own helper could not catch a bug in that helper.
  */
-/** The guard every generated handler opens with (#213), as a pattern. */
-const OWN_TARGET = 'if \\(e\\.target !== e\\.currentTarget\\) return;\\s*';
-
 function reactListener(
   source: string,
   eventName: string
