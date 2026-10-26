@@ -157,7 +157,7 @@ export function ThemeAgentChat({
   draft,
   onDraftChange,
   onActivity,
-  transport: cannedTransport,
+  transport: storyTransport,
 }: ThemeAgentChatProps) {
   const [chatId] = useState(() => crypto.randomUUID());
   const triggerTransport = useTriggerChatTransport({
@@ -167,7 +167,7 @@ export function ThemeAgentChat({
     }),
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
-  const transport = cannedTransport ?? triggerTransport;
+  const transport = storyTransport ?? triggerTransport;
   const [conversation] = useState(createThemeAgentConversation);
   const { currentTheme, locked, lockedValues, applyTheme, setLocked } =
     useThemeAgentStudio();

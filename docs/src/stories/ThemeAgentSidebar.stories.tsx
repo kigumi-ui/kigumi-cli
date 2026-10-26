@@ -111,7 +111,7 @@ const STATE_KEY = 'kigumi-studio-state';
  * Start from Studio's defaults with `cssVars` locked in both modes, as the
  * "Lock value" switches store them; the page's storage is put back after.
  */
-function lockedValues(...cssVars: string[]) {
+function withLockedValues(...cssVars: string[]) {
   return () => {
     const saved = [LOCKS_KEY, STATE_KEY].map(
       (key) => [key, localStorage.getItem(key)] as const
@@ -203,7 +203,7 @@ export const OneHeldChange: Story = {
   args: {
     transport: cannedTransport([{ text: WARMER, proposal: warmerProposal }]),
   },
-  beforeEach: lockedValues('--wa-color-brand'),
+  beforeEach: withLockedValues('--wa-color-brand'),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await send(canvasElement, 'Make it warmer');
@@ -244,7 +244,7 @@ export const TwoHeldChanges: Story = {
   args: {
     transport: cannedTransport([{ text: WARMER, proposal: warmerProposal }]),
   },
-  beforeEach: lockedValues('--wa-color-brand', '--wa-border-radius-scale'),
+  beforeEach: withLockedValues('--wa-color-brand', '--wa-border-radius-scale'),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await send(canvasElement, 'Make it warmer');
@@ -274,7 +274,7 @@ export const TwoHeldChanges: Story = {
  */
 export const TypingWhileAnswering: Story = {
   args: { transport: cannedTransport([{ running: true }]) },
-  beforeEach: lockedValues(),
+  beforeEach: withLockedValues(),
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     const transport = args.transport as CannedTransport;
