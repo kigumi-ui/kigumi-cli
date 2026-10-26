@@ -78,8 +78,10 @@ export class RandomContentComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleContentChange = (e: Event) =>
+    const handleContentChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.contentChange.emit(e as WaContentChangeEvent);
+    };
     el.addEventListener('wa-content-change', handleContentChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-content-change', handleContentChange)

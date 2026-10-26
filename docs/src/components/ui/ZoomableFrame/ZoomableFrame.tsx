@@ -166,10 +166,12 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
       if (!el) return;
 
       const handleLoad = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onLoad) onLoad(e);
       };
 
       const handleError = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e);
       };
 

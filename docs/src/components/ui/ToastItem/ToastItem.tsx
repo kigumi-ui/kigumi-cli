@@ -100,12 +100,22 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
       const el = toastItemRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as WaShowEvent);
-      const handleAfterShow = (e: Event) =>
+      const handleShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
+        onShow?.(e as WaShowEvent);
+      };
+      const handleAfterShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         onAfterShow?.(e as WaAfterShowEvent);
-      const handleHide = (e: Event) => onHide?.(e as WaHideEvent);
-      const handleAfterHide = (e: Event) =>
+      };
+      const handleHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
+        onHide?.(e as WaHideEvent);
+      };
+      const handleAfterHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         onAfterHide?.(e as WaAfterHideEvent);
+      };
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

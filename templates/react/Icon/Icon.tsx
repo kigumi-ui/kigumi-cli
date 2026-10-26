@@ -111,10 +111,12 @@ export const Icon = forwardRef<IconRef, IconProps>(
       if (!el) return;
 
       const handleWaLoad = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleWaError = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e as WaErrorEvent);
       };
 

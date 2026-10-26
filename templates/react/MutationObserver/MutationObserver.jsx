@@ -17,7 +17,10 @@ export const MutationObserver = React.forwardRef(
       const el = observerRef.current;
       if (!el) return;
 
-      const handleMutation = (e) => onMutation?.(e);
+      const handleMutation = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onMutation?.(e);
+      };
       el.addEventListener('wa-mutation', handleMutation);
 
       return () => {

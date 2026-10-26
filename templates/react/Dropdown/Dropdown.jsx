@@ -61,11 +61,26 @@ export const Dropdown = React.forwardRef(
       const el = dropdownRef.current;
       if (!el) return;
 
-      const handleShow = (e) => onShow?.(e);
-      const handleAfterShow = (e) => onAfterShow?.(e);
-      const handleHide = (e) => onHide?.(e);
-      const handleAfterHide = (e) => onAfterHide?.(e);
-      const handleSelect = (e) => onSelect?.(e);
+      const handleShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onShow?.(e);
+      };
+      const handleAfterShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterShow?.(e);
+      };
+      const handleHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onHide?.(e);
+      };
+      const handleAfterHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterHide?.(e);
+      };
+      const handleSelect = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onSelect?.(e);
+      };
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

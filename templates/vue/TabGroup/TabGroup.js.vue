@@ -55,8 +55,14 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaTabShow = (e) => emit('wa-tab-show', e);
-const handleWaTabHide = (e) => emit('wa-tab-hide', e);
+const handleWaTabShow = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-tab-show', e);
+};
+const handleWaTabHide = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-tab-hide', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

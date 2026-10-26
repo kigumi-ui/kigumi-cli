@@ -63,6 +63,7 @@ export const Checkbox = React.forwardRef(
       if (!el) return;
 
       const handleInvalid = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e);
       };
 

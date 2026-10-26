@@ -263,30 +263,37 @@ export const Video = forwardRef<VideoRef, VideoProps>(
       if (!el) return;
 
       const handleTimeupdate = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onTimeupdate) onTimeupdate(e);
       };
 
       const handlePlay = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onPlay) onPlay(e);
       };
 
       const handlePause = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onPause) onPause(e);
       };
 
       const handleVolumechange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onVolumechange) onVolumechange(e);
       };
 
       const handleError = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e);
       };
 
       const handleEnded = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onEnded) onEnded(e);
       };
 
       const handleLoadedmetadata = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onLoadedmetadata) onLoadedmetadata(e);
       };
 

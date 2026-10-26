@@ -79,14 +79,18 @@ export class StepperComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleBeforeStepChange = (e: Event) =>
+    const handleBeforeStepChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.beforeStepChange.emit(e as WaBeforeStepChangeEvent);
+    };
     el.addEventListener('wa-before-step-change', handleBeforeStepChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-before-step-change', handleBeforeStepChange)
     );
-    const handleStepChange = (e: Event) =>
+    const handleStepChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.stepChange.emit(e as WaStepChangeEvent);
+    };
     el.addEventListener('wa-step-change', handleStepChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-step-change', handleStepChange)

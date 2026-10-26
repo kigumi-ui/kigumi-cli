@@ -1,6 +1,7 @@
 import { useStudio } from '../contexts/StudioContext';
 import type { ThemeMode } from '../lib/defaults';
 import {
+  CUSTOM_CSS_LOCK,
   isLocked,
   lockModes,
   SHADOW_COMPONENTS_LOCK,
@@ -41,5 +42,16 @@ export function useShadowComponentsLock(): ValueLock {
     locked: locksAvailable && lockedValues.shadowComponents,
     modes: [...THEME_MODES],
     setLocked: (locked) => setLocked(SHADOW_COMPONENTS_LOCK, locked),
+  };
+}
+
+/** The lock of the custom CSS, one unit for both modes. */
+export function useCustomCSSLock(): ValueLock {
+  const { lockedValues, setLocked, locksAvailable } = useStudio();
+  return {
+    available: locksAvailable,
+    locked: locksAvailable && lockedValues.customCSS,
+    modes: [...THEME_MODES],
+    setLocked: (locked) => setLocked(CUSTOM_CSS_LOCK, locked),
   };
 }

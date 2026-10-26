@@ -62,8 +62,10 @@ export class TreeComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleSelectionChange = (e: Event) =>
+    const handleSelectionChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.selectionChange.emit(e as WaSelectionChangeEvent);
+    };
     el.addEventListener('wa-selection-change', handleSelectionChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-selection-change', handleSelectionChange)

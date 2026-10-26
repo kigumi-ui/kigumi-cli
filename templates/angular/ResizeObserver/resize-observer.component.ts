@@ -62,7 +62,10 @@ export class ResizeObserverComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleResize = (e: Event) => this.resize.emit(e as WaResizeEvent);
+    const handleResize = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.resize.emit(e as WaResizeEvent);
+    };
     el.addEventListener('wa-resize', handleResize);
     this.cleanups.push(() => el.removeEventListener('wa-resize', handleResize));
   }

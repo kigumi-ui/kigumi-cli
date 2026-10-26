@@ -77,7 +77,10 @@ export class TagComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleRemove = (e: Event) => this.remove.emit(e as WaRemoveEvent);
+    const handleRemove = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.remove.emit(e as WaRemoveEvent);
+    };
     el.addEventListener('wa-remove', handleRemove);
     this.cleanups.push(() => el.removeEventListener('wa-remove', handleRemove));
   }

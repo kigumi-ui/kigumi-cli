@@ -79,14 +79,17 @@ export const Animation = React.forwardRef(
       if (!el) return;
 
       const handleCancel = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onCancel) onCancel(e);
       };
 
       const handleFinish = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onFinish) onFinish(e);
       };
 
       const handleStart = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onStart) onStart(e);
       };
 

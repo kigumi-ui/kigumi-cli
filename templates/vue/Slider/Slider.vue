@@ -88,14 +88,27 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e: Event) => emit('change', e);
-const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+const handleChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('change', e);
+};
+const handleBlur = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('blur', e as FocusEvent);
+};
+const handleFocus = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('focus', e as FocusEvent);
+};
 const handleInput = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   model.value = (e.target as HTMLElement & { value: number }).value;
   emit('input', e as InputEvent);
 };
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
+const handleWaInvalid = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-invalid', e as WaInvalidEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

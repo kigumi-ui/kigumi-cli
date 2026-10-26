@@ -77,11 +77,18 @@ onMounted(() => {
 });
 
 const handleInput = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   model.value = (e.target as HTMLElement & { value: string }).value;
   emit('input', e as InputEvent);
 };
-const handleChange = (e: Event) => emit('change', e);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
+const handleChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('change', e);
+};
+const handleWaInvalid = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-invalid', e as WaInvalidEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

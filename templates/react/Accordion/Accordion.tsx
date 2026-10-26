@@ -127,18 +127,22 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
       if (!el) return;
 
       const handleWaExpand = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onExpand) onExpand(e as WaAccordionExpandEvent);
       };
 
       const handleWaAfterExpand = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterExpand) onAfterExpand(e as WaAccordionAfterExpandEvent);
       };
 
       const handleWaCollapse = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onCollapse) onCollapse(e as WaAccordionCollapseEvent);
       };
 
       const handleWaAfterCollapse = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterCollapse)
           onAfterCollapse(e as WaAccordionAfterCollapseEvent);
       };

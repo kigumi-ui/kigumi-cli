@@ -88,18 +88,22 @@ export const Accordion = React.forwardRef(
       if (!el) return;
 
       const handleWaExpand = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onExpand) onExpand(e);
       };
 
       const handleWaAfterExpand = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterExpand) onAfterExpand(e);
       };
 
       const handleWaCollapse = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onCollapse) onCollapse(e);
       };
 
       const handleWaAfterCollapse = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterCollapse) onAfterCollapse(e);
       };
 

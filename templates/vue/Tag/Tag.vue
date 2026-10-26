@@ -62,7 +62,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaRemove = (e: Event) => emit('wa-remove', e as WaRemoveEvent);
+const handleWaRemove = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-remove', e as WaRemoveEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

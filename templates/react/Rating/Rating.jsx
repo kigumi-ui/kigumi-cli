@@ -29,8 +29,14 @@ export const Rating = React.forwardRef(
       const el = ratingRef.current;
       if (!el) return;
 
-      const handleChange = (e) => onChange?.(e);
-      const handleHover = (e) => onHover?.(e);
+      const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onChange?.(e);
+      };
+      const handleHover = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onHover?.(e);
+      };
 
       el.addEventListener('change', handleChange);
       el.addEventListener('wa-hover', handleHover);

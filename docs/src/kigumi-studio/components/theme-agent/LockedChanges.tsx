@@ -1,6 +1,11 @@
-import { Button, Callout, Icon } from '@/components/ui';
+import { Button, Callout, CopyButton, Details, Icon } from '@/components/ui';
 import { violationPair } from '../../theme-agent/contrast';
-import type { HeldEntry, HeldReason } from '../../theme-agent/conversation';
+import type {
+  HeldCustomCSSChange,
+  HeldEntry,
+  HeldReason,
+} from '../../theme-agent/conversation';
+import { lineDiff } from '../../theme-agent/css-diff';
 import { heldChangeLabel } from '../../theme-agent/describe-held-change';
 
 interface UnlockAndApplyProps {
@@ -75,18 +80,59 @@ function applyLabel(entry: HeldEntry) {
 }
 
 /**
- * The answer's own action, inside its card: the message says what it
- * proposes, so the button needs no copy around it. One held value has one
- * button; two or more add one button per value, named by it, and one for
- * all. A locked value's button unlocks it too. Nothing once no change is
- * held.
+ * What a held custom CSS change would do, line by line: the custom CSS is
+ * replaced whole, so the diff shows what goes and what comes. Removed and
+ * added lines say so in text too, not by colour alone. Copy takes the
+ * custom CSS as proposed, without the removed lines, to adjust by hand.
  */
-export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
-  const open = entries
-    .map((entry, index) => ({ entry, index }))
-    .filter(({ entry }) => entry.state === 'held');
-  if (open.length === 0) return null;
+function CustomCSSDiff({ change }: { change: HeldCustomCSSChange }) {
+  return (
+    <Details summary="Custom CSS changes" className="theme-agent__diff">
+      <div className="theme-agent__diff-body">
+        <CopyButton
+          className="theme-agent__diff-copy"
+          value={change.proposed}
+          copy-label="Copy proposed custom CSS"
+          success-label="Copied"
+        />
+        <pre className="theme-agent__diff-lines">
+          {lineDiff(change.was, change.proposed).map((line, i) =>
+            line.kind === 'removed' ? (
+              <del key={i}>
+                <span className="wa-visually-hidden">Removed: </span>
+                {`- ${line.text}`}
+              </del>
+            ) : line.kind === 'added' ? (
+              <ins key={i}>
+                <span className="wa-visually-hidden">Added: </span>
+                {`+ ${line.text}`}
+              </ins>
+            ) : (
+              <span key={i}>{`  ${line.text}`}</span>
+            )
+          )}
+        </pre>
+      </div>
+    </Details>
+  );
+}
 
+/** The held custom CSS change of `entries`, if it holds one. */
+function heldCustomCSS(entries: HeldEntry[]): HeldCustomCSSChange | undefined {
+  for (const { change, state } of entries) {
+    if (state === 'held' && change.kind === 'customCSS') return change;
+  }
+  return undefined;
+}
+
+/** One button for one held change; with more, one for all and one each. */
+function ApplyButtons({
+  open,
+  onApply,
+}: {
+  open: { entry: HeldEntry; index: number }[];
+  onApply: (index?: number) => void;
+}) {
   if (open.length === 1) {
     const [{ entry, index }] = open;
     const { icon, text } = applyLabel(entry);
@@ -130,5 +176,26 @@ export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
         );
       })}
     </div>
+  );
+}
+
+/**
+ * The answer's own action, inside its card: the message says what it
+ * proposes, so the button needs no copy around it. One held value has one
+ * button; two or more add one button per value, named by it, and one for
+ * all. A locked value's button unlocks it too. A held custom CSS change
+ * shows its diff above the buttons. Nothing once no change is held.
+ */
+export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
+  const open = entries
+    .map((entry, index) => ({ entry, index }))
+    .filter(({ entry }) => entry.state === 'held');
+  if (open.length === 0) return null;
+  const customCSS = heldCustomCSS(entries);
+  return (
+    <>
+      {customCSS && <CustomCSSDiff change={customCSS} />}
+      <ApplyButtons open={open} onApply={onApply} />
+    </>
   );
 }

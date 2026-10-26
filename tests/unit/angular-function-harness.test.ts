@@ -53,6 +53,8 @@ interface InlineOptions {
   style?: 'move' | 'copy' | 'drop';
   /** Skip removing listeners on destroy. */
   leak?: boolean;
+  /** Re-emit a descendant's bubbled event too, which the harness must report. */
+  forwardDescendants?: boolean;
   /** Raw template, replacing the generated `<wa-probe>` markup. */
   template?: string;
   styleUrl?: string;
@@ -128,7 +130,12 @@ function inlineTemplate(options: InlineOptions = {}): Type<unknown> {
         const emitter = (
           this as unknown as Record<string, EventEmitter<Event>>
         )[property];
-        const handler = (e: Event) => emitter.emit(e);
+        const handler = (e: Event) => {
+          if (!options.forwardDescendants && e.target !== e.currentTarget) {
+            return;
+          }
+          emitter.emit(e);
+        };
         const host = this.host;
         host.addEventListener(event, handler);
         this.cleanups.push(() => host.removeEventListener(event, handler));
@@ -248,6 +255,26 @@ describe('proveAngularTemplate', () => {
       methods: 0,
       formControl: 0,
     });
+  });
+
+  it("reports a Template that forwards a descendant's bubbled event", async () => {
+    const { violations } = await proveAngularTemplate({
+      Template: inlineTemplate({
+        outputs: { [SHOW.name]: 'afterShow' },
+        forwardDescendants: true,
+      }),
+      metadata: {
+        tagName: 'wa-probe',
+        attributes: [],
+        events: [SHOW],
+        methods: [],
+      },
+      omittedInputs: [],
+    });
+
+    expect(violations).toEqual([
+      "a descendant's bubbling wa-after-show invoked afterShow",
+    ]);
   });
 
   it('reports a Template that does not compile instead of throwing', async () => {

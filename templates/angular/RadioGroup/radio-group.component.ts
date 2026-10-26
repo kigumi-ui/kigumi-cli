@@ -111,15 +111,22 @@ export class RadioGroupComponent
       host.style.display = 'inline';
     }
 
-    const handleInputEvent = (e: Event) =>
+    const handleInputEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.inputEvent.emit(e as InputEvent);
+    };
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e);
+    const handleChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.change.emit(e);
+    };
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleInvalidEvent = (e: Event) =>
+    const handleInvalidEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.invalidEvent.emit(e as WaInvalidEvent);
+    };
     el.addEventListener('wa-invalid', handleInvalidEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalidEvent)

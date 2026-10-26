@@ -27,7 +27,10 @@ export const Tree = React.forwardRef(
       const el = treeRef.current;
       if (!el) return;
 
-      const handleSelectionChange = (e) => onSelectionChange?.(e);
+      const handleSelectionChange = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onSelectionChange?.(e);
+      };
 
       el.addEventListener('wa-selection-change', handleSelectionChange);
 

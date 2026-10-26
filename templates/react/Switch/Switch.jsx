@@ -30,8 +30,14 @@ export const Switch = React.forwardRef(
       const el = switchRef.current;
       if (!el) return;
 
-      const handleChange = (e) => onChange?.(e);
-      const handleInvalid = (e) => onInvalid?.(e);
+      const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onChange?.(e);
+      };
+      const handleInvalid = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onInvalid?.(e);
+      };
 
       el.addEventListener('change', handleChange);
       el.addEventListener('wa-invalid', handleInvalid);

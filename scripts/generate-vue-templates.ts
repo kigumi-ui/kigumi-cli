@@ -29,6 +29,7 @@ import {
   formatEventTypeImports,
   formatParameters,
   handlerArgument,
+  OWN_TARGET_GUARD,
   enumeratedProps,
   generateCssTemplate,
   keywordPairLiteral,
@@ -186,36 +187,36 @@ function buildListenerEntries(
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { model.value = ${readValue}; emit('${event.name}', ${handlerArgument(eventType)}); }`,
-        jsBody: `(e) => { model.value = e.target.value; emit('${event.name}', e); }`,
+        tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} model.value = ${readValue}; emit('${event.name}', ${handlerArgument(eventType)}); }`,
+        jsBody: `(e) => { ${OWN_TARGET_GUARD} model.value = e.target.value; emit('${event.name}', e); }`,
       });
     } else if (hasCheckedModel && event.name === 'change') {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { model.value = ${readChecked}; emit('${event.name}', ${handlerArgument(eventType)}); }`,
-        jsBody: `(e) => { model.value = e.target.checked; emit('${event.name}', e); }`,
+        tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} model.value = ${readChecked}; emit('${event.name}', ${handlerArgument(eventType)}); }`,
+        jsBody: `(e) => { ${OWN_TARGET_GUARD} model.value = e.target.checked; emit('${event.name}', e); }`,
       });
     } else if (hasOpenModel && event.name === 'wa-show') {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { open.value = true; emit('${event.name}', ${handlerArgument(eventType)}); }`,
-        jsBody: `(e) => { open.value = true; emit('${event.name}', e); }`,
+        tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} open.value = true; emit('${event.name}', ${handlerArgument(eventType)}); }`,
+        jsBody: `(e) => { ${OWN_TARGET_GUARD} open.value = true; emit('${event.name}', e); }`,
       });
     } else if (hasOpenModel && event.name === 'wa-hide') {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { open.value = false; emit('${event.name}', ${handlerArgument(eventType)}); }`,
-        jsBody: `(e) => { open.value = false; emit('${event.name}', e); }`,
+        tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} open.value = false; emit('${event.name}', ${handlerArgument(eventType)}); }`,
+        jsBody: `(e) => { ${OWN_TARGET_GUARD} open.value = false; emit('${event.name}', e); }`,
       });
     } else {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => emit('${event.name}', ${handlerArgument(eventType)})`,
-        jsBody: `(e) => emit('${event.name}', e)`,
+        tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} emit('${event.name}', ${handlerArgument(eventType)}); }`,
+        jsBody: `(e) => { ${OWN_TARGET_GUARD} emit('${event.name}', e); }`,
       });
     }
   }
@@ -227,8 +228,8 @@ function buildListenerEntries(
       entries.push({
         event: inputEvent,
         handlerName: 'handleModelInput',
-        tsBody: `(e: Event) => { model.value = ${readValue}; }`,
-        jsBody: `(e) => { model.value = e.target.value; }`,
+        tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} model.value = ${readValue}; }`,
+        jsBody: `(e) => { ${OWN_TARGET_GUARD} model.value = e.target.value; }`,
       });
     }
   }
@@ -236,8 +237,8 @@ function buildListenerEntries(
     entries.push({
       event: 'change',
       handlerName: 'handleModelChange',
-      tsBody: `(e: Event) => { model.value = ${readChecked}; }`,
-      jsBody: `(e) => { model.value = e.target.checked; }`,
+      tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} model.value = ${readChecked}; }`,
+      jsBody: `(e) => { ${OWN_TARGET_GUARD} model.value = e.target.checked; }`,
     });
   }
   if (hasOpenModel) {
@@ -245,16 +246,16 @@ function buildListenerEntries(
       entries.push({
         event: 'wa-show',
         handlerName: 'handleOpenShow',
-        tsBody: `() => { open.value = true; }`,
-        jsBody: `() => { open.value = true; }`,
+        tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} open.value = true; }`,
+        jsBody: `(e) => { ${OWN_TARGET_GUARD} open.value = true; }`,
       });
     }
     if (!usedEvents.has('wa-hide')) {
       entries.push({
         event: 'wa-hide',
         handlerName: 'handleOpenHide',
-        tsBody: `() => { open.value = false; }`,
-        jsBody: `() => { open.value = false; }`,
+        tsBody: `(e: Event) => { ${OWN_TARGET_GUARD} open.value = false; }`,
+        jsBody: `(e) => { ${OWN_TARGET_GUARD} open.value = false; }`,
       });
     }
   }

@@ -155,6 +155,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
       if (!el) return;
 
       const handleSlideChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onSlideChange) onSlideChange(e as WaSlideChangeEvent);
       };
 

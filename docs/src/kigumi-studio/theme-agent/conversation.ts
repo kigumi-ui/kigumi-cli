@@ -1,4 +1,5 @@
 import {
+  CUSTOM_CSS_LOCK,
   describeLocks,
   NO_LOCKS,
   parseLocks,
@@ -63,7 +64,17 @@ export type HeldChange =
       reason: HeldReason;
       proposed: string[];
       was: string[];
+    }
+  | {
+      /** The complete custom CSS, one unit for both modes. */
+      kind: 'customCSS';
+      reason: HeldReason;
+      proposed: string;
+      was: string;
     };
+
+/** A held change to the custom CSS. */
+export type HeldCustomCSSChange = Extract<HeldChange, { kind: 'customCSS' }>;
 
 /**
  * What became of a held change: still `held` and offered to unlock and
@@ -182,6 +193,8 @@ interface AnswerEffect {
   wrote: Record<ThemeMode, Map<string, string>>;
   /** The shadow component list it wrote, if it wrote one. */
   wroteShadowComponents?: string[];
+  /** The custom CSS it wrote, if it wrote any. */
+  wroteCustomCSS?: string;
   /** What it proposed for locked values, and what became of each. */
   held: HeldEntry[];
 }
@@ -232,17 +245,31 @@ function heldFrom(
       was: [...current.shadowComponents],
     });
   }
+  const css = held.customCSS;
+  if (css !== undefined && css !== current.customCSS) {
+    changes.push({
+      kind: 'customCSS',
+      reason,
+      proposed: css,
+      was: current.customCSS,
+    });
+  }
   return changes;
 }
 
 /** The values a held change names, as locks. */
 function namedValues(change: HeldChange): LockedValues {
-  return change.kind === 'shadowComponents'
-    ? SHADOW_COMPONENTS_LOCK
-    : valueLock(
+  switch (change.kind) {
+    case 'shadowComponents':
+      return SHADOW_COMPONENTS_LOCK;
+    case 'customCSS':
+      return CUSTOM_CSS_LOCK;
+    case 'value':
+      return valueLock(
         change.cssVar,
         THEME_MODES.filter((mode) => mode in change.proposed)
       );
+  }
 }
 
 /** The locks a held change sits behind: none for a value edited during the run. */
@@ -252,14 +279,18 @@ function heldLock(change: HeldChange): LockedValues {
 
 /** Whether `current` still has what the answer found when it held `change`. */
 function unchangedSince(change: HeldChange, current: CustomTheme): boolean {
-  if (change.kind === 'shadowComponents') {
-    return sameList(current.shadowComponents, change.was);
+  switch (change.kind) {
+    case 'shadowComponents':
+      return sameList(current.shadowComponents, change.was);
+    case 'customCSS':
+      return current.customCSS === change.was;
+    case 'value':
+      return THEME_MODES.every(
+        (mode) =>
+          !(mode in change.proposed) ||
+          current[mode][change.cssVar] === change.was[mode]
+      );
   }
-  return THEME_MODES.every(
-    (mode) =>
-      !(mode in change.proposed) ||
-      current[mode][change.cssVar] === change.was[mode]
-  );
 }
 
 /**
@@ -269,19 +300,23 @@ function unchangedSince(change: HeldChange, current: CustomTheme): boolean {
  */
 function restoredLock(change: HeldChange, current: CustomTheme): LockedValues {
   if (change.reason !== 'locked') return NO_LOCKS;
-  if (change.kind === 'shadowComponents') {
-    return sameList(current.shadowComponents, change.proposed)
-      ? SHADOW_COMPONENTS_LOCK
-      : NO_LOCKS;
+  switch (change.kind) {
+    case 'shadowComponents':
+      return sameList(current.shadowComponents, change.proposed)
+        ? SHADOW_COMPONENTS_LOCK
+        : NO_LOCKS;
+    case 'customCSS':
+      return current.customCSS === change.proposed ? CUSTOM_CSS_LOCK : NO_LOCKS;
+    case 'value':
+      return valueLock(
+        change.cssVar,
+        THEME_MODES.filter(
+          (mode) =>
+            mode in change.proposed &&
+            current[mode][change.cssVar] === change.proposed[mode]
+        )
+      );
   }
-  return valueLock(
-    change.cssVar,
-    THEME_MODES.filter(
-      (mode) =>
-        mode in change.proposed &&
-        current[mode][change.cssVar] === change.proposed[mode]
-    )
-  );
 }
 
 /**
@@ -301,19 +336,25 @@ function editedSince(sent: CustomTheme, current: CustomTheme): LockedValues {
       sent.shadowComponents,
       current.shadowComponents
     ),
+    customCSS: sent.customCSS !== current.customCSS,
   };
 }
 
 /** `theme` with `change` applied. */
 function withChange(theme: CustomTheme, change: HeldChange): CustomTheme {
   const next = cloneTheme(theme);
-  if (change.kind === 'shadowComponents') {
-    next.shadowComponents = [...change.proposed];
-    return next;
-  }
-  for (const mode of THEME_MODES) {
-    const value = change.proposed[mode];
-    if (value !== undefined) next[mode][change.cssVar] = value;
+  switch (change.kind) {
+    case 'shadowComponents':
+      next.shadowComponents = [...change.proposed];
+      break;
+    case 'customCSS':
+      next.customCSS = change.proposed;
+      break;
+    case 'value':
+      for (const mode of THEME_MODES) {
+        const value = change.proposed[mode];
+        if (value !== undefined) next[mode][change.cssVar] = value;
+      }
   }
   return next;
 }
@@ -329,6 +370,23 @@ function resolvedBy(
     checkContrast(withChange(theme, change)).map(violationKey)
   );
   return violations.filter((violation) => !left.has(violationKey(violation)));
+}
+
+/** Record in `effect` what applying `change` wrote. */
+function recordWrite(effect: AnswerEffect, change: HeldChange): void {
+  switch (change.kind) {
+    case 'shadowComponents':
+      effect.wroteShadowComponents = [...change.proposed];
+      return;
+    case 'customCSS':
+      effect.wroteCustomCSS = change.proposed;
+      return;
+    case 'value':
+      for (const mode of THEME_MODES) {
+        const value = change.proposed[mode];
+        if (value !== undefined) effect.wrote[mode].set(change.cssVar, value);
+      }
+  }
 }
 
 /** What `theme` holds that `before` did not, per mode. */
@@ -368,8 +426,11 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
   const statusOf = (answer: AnswerRecord): AnswerStatus => {
     if (!answer.outcome.applied) return 'rejected';
     if (answer.undone) return 'undone';
-    const { wrote, wroteShadowComponents } = answer.effect;
-    return wrote.light.size > 0 || wrote.dark.size > 0 || wroteShadowComponents
+    const { wrote, wroteShadowComponents, wroteCustomCSS } = answer.effect;
+    return wrote.light.size > 0 ||
+      wrote.dark.size > 0 ||
+      wroteShadowComponents ||
+      wroteCustomCSS !== undefined
       ? 'applied'
       : 'unchanged';
   };
@@ -430,8 +491,10 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
 
       const valid: ThemeProposal[] = [];
       const errors: string[] = [];
+      // The user's own rules, as the answer saw them, are not the agent's.
+      const keptCSS = (sentTheme ?? current).customCSS;
       for (const proposal of proposals) {
-        const validation = validateProposal(proposal);
+        const validation = validateProposal(proposal, keptCSS);
         if (validation.valid) valid.push(validation.proposal);
         else errors.push(...validation.errors);
       }
@@ -476,6 +539,9 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           ...(sameList(theme.shadowComponents, current.shadowComponents)
             ? {}
             : { wroteShadowComponents: [...theme.shadowComponents] }),
+          ...(theme.customCSS === current.customCSS
+            ? {}
+            : { wroteCustomCSS: theme.customCSS }),
           held: held.map((change) => ({
             change,
             state: 'held',
@@ -517,15 +583,7 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
           continue;
         }
         theme = withChange(theme, change);
-        if (change.kind === 'shadowComponents') {
-          effect.wroteShadowComponents = [...change.proposed];
-        } else {
-          for (const mode of THEME_MODES) {
-            const value = change.proposed[mode];
-            if (value !== undefined)
-              effect.wrote[mode].set(change.cssVar, value);
-          }
-        }
+        recordWrite(effect, change);
         unlock = withLocks(unlock, heldLock(change), true);
         entry.state = 'applied';
         applied += 1;
@@ -560,6 +618,12 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
       const list = effect.wroteShadowComponents;
       if (list && sameList(current.shadowComponents, list)) {
         theme.shadowComponents = [...before.shadowComponents];
+      }
+      if (
+        effect.wroteCustomCSS !== undefined &&
+        current.customCSS === effect.wroteCustomCSS
+      ) {
+        theme.customCSS = before.customCSS;
       }
       answer.undone = true;
       const relock = effect.held

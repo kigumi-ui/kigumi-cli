@@ -64,6 +64,7 @@ export const Tree = forwardRef<TreeRef, TreeProps>(
       if (!el) return;
 
       const handleSelectionChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onSelectionChange) onSelectionChange(e as WaSelectionChangeEvent);
       };
 

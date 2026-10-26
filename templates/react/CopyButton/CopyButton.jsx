@@ -28,10 +28,12 @@ export const CopyButton = React.forwardRef(
       if (!el) return;
 
       const handleCopy = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onCopy) onCopy(e);
       };
 
       const handleError = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e);
       };
 

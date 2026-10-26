@@ -34,6 +34,7 @@ tests/
 │   ├── display-options.test.ts      # Theme/palette/brand display data
 │   ├── doctor.test.ts               # Doctor command (import fixes)
 │   ├── docs-wrapper-callback-refs.test.ts # Docs UI wrappers must use callback refs on wa-* hosts (WA 3.13 JSX)
+│   ├── hand-maintained-own-target-guard.test.ts # Every handler a `.jsx` Template or docs wrapper registers opens with the own-target guard, so a nested component's bubbled event is not forwarded (#213); the harnesses do not run these files
 │   ├── edge-cases.test.ts           # Edge case handling
 │   ├── error-classes.test.ts        # Error class hierarchy
 │   ├── errors.test.ts               # Error formatting
@@ -104,7 +105,7 @@ tests/
 │   ├── enumerated-boolean-attributes.test.ts # The enumerated-boolean pin against the real Free runtime (every Free element's Lit `elementProperties`, both directions, keywords read back) and the registry `keywords` against the pin (issue #101)
 │   ├── enumerated-boolean-templates.test.ts # `spellcheck`/`autocorrect` through every React and Vue variant incl. `.jsx`/`.js.vue` and the docs-site wrappers, moved true -> false -> unset on one mount: keyword, keyword, removed (issue #101)
 │   ├── template-registry-props.test.ts # Every registry prop is a member of the React `<Name>Props` interface, a declared prop of the `.vue` Template (`modelValue` in place of the `v-model` attribute), and, where a hand-maintained `.jsx` documents its props, an entry there: a `@property` of its `<Name>Props` JSDoc typedef (pinned both ways as `JSX_PROPS_TYPEDEFS`) or an `@param` of its `@param {Object} props` list (`JSX_PROPS_PARAMS`, #102); the Angular half is the Angular registry harness (issue #101)
-│   ├── template-function-harness.ts # proveTemplate: the framework-neutral CEM function contract all three adapters share, incl. the host add/removeEventListener log; `className: null` skips the class check for an adapter with no class seam yet (Angular, #125) (not a test file)
+│   ├── template-function-harness.ts # proveTemplate: the framework-neutral CEM function contract all three adapters share, incl. the host add/removeEventListener log and a bubbling event from a child of the host that no callback may receive (#213); `className: null` skips the class check for an adapter with no class seam yet (Angular, #125) (not a test file)
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
 │   ├── theme-install-local-source.test.ts  # `theme install --from` with a local registry
@@ -148,7 +149,7 @@ tests/
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
 │   ├── vue-function-harness.ts      # proveVueTemplate: the Vue adapter (`onWaAfterHide`, defineExpose, declared emits) over template-function-harness.ts (not a test file)
 │   ├── vue-function-harness.test.ts # The Vue adapter alone, on inline components: callback naming, undeclared emits, a leak Vue's post-unmount emit would hide (issue #76)
-│   ├── vue-function-harness-registry.test.ts # Loops proveVueTemplate over every LOCAL_REGISTRY component's `.vue` Template (issue #76); pins the v-model Templates and the attribute each model carries
+│   ├── vue-function-harness-registry.test.ts # Loops proveVueTemplate over every LOCAL_REGISTRY component's `.vue` Template (issue #76); pins the v-model Templates and the attribute each model carries, and holds every `v-model:open` Template to updating `open` only for its own `wa-show` / `wa-hide` (#213)
 │   ├── vue-js-host-defaults.test.ts # Every `.js.vue` mounted with no props writes the same host attributes as its `.vue`: no registry default reaches the host (#152)
 │   ├── vue-templates.test.ts        # Every .vue and .js.vue Template forwards through hostAttributes() and cleans up in onBeforeUnmount
 │   ├── scripts/

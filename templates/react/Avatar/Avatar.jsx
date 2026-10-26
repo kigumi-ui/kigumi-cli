@@ -46,6 +46,7 @@ export const Avatar = React.forwardRef(
       if (!el || !onError) return;
 
       const handleError = (e) => {
+        if (e.target !== e.currentTarget) return;
         onError(e);
       };
 

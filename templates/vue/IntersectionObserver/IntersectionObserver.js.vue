@@ -57,7 +57,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaIntersect = (e) => emit('wa-intersect', e);
+const handleWaIntersect = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-intersect', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

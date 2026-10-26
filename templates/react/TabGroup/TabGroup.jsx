@@ -17,8 +17,14 @@ export const TabGroup = React.forwardRef(
       const el = groupRef.current;
       if (!el) return;
 
-      const handleTabShow = (e) => onTabShow?.(e);
-      const handleTabHide = (e) => onTabHide?.(e);
+      const handleTabShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onTabShow?.(e);
+      };
+      const handleTabHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onTabHide?.(e);
+      };
 
       el.addEventListener('wa-tab-show', handleTabShow);
       el.addEventListener('wa-tab-hide', handleTabHide);

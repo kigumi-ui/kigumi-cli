@@ -124,18 +124,22 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
       if (!el) return;
 
       const handleShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleAfterShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleAfterHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 

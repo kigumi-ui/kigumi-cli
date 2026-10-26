@@ -18,6 +18,8 @@ import {
   type CustomThemeState,
 } from '../../lib/theme-css';
 import { useStudio } from '../../contexts/StudioContext';
+import { useCustomCSSLock } from '../../theme-agent/use-value-lock';
+import { LockSwitch } from '../editor/LockSwitch';
 import './ThemeCSSDialog.css';
 
 interface ThemeCSSDialogProps {
@@ -70,6 +72,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
     setShadowComponents,
     setCustomCSS,
   } = useStudio();
+  const customCSSLock = useCustomCSSLock();
   const current = { values, shadowComponents, customCSS };
   // What the text showed when it was last applied, or when the dialog opened.
   const [shown, setShown] = useState(() => themeText(current));
@@ -114,10 +117,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
     <Dialog
       open={open}
       label="Customize theme CSS"
-      onHide={(event) => {
-        // wa-hide bubbles: the download menu closing is not the dialog.
-        if (event.target === event.currentTarget) onClose();
-      }}
+      onHide={onClose}
       className="theme-css-dialog"
     >
       <div className="theme-css-dialog__content">
@@ -140,6 +140,14 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
             setErrors([]);
             setWarnings([]);
           }}
+        />
+
+        {/* Only with the Theme Agent's access cookie; keeps overrides.css
+            from the Theme Agent and from edits here. */}
+        <LockSwitch
+          lock={customCSSLock}
+          context="overrides.css"
+          label="Lock custom CSS"
         />
 
         {errors.length > 0 && (

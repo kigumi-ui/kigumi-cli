@@ -152,14 +152,17 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleWaHover = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onHover) onHover(e as WaHoverEvent);
       };
 
       const handleWaInvalid = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 

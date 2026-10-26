@@ -83,8 +83,10 @@ export class SplitPanelComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleReposition = (e: Event) =>
+    const handleReposition = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.reposition.emit(e as WaRepositionEvent);
+    };
     el.addEventListener('wa-reposition', handleReposition);
     this.cleanups.push(() =>
       el.removeEventListener('wa-reposition', handleReposition)

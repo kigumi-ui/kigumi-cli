@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { ThemeAgentSidebar } from '@/kigumi-studio/components/theme-agent/ThemeAgentSidebar';
 import type { ThemeAgentTransport } from '@/kigumi-studio/components/theme-agent/ThemeAgentChat';
 import { StudioProvider } from '@/kigumi-studio/contexts/StudioContext';
+import { CUSTOM_CSS_LOCK, type LockedValues } from '@/kigumi-studio/lib/locks';
 import { THEME_AGENT_PROPOSE_TOOL } from '@/kigumi-studio/theme-agent/constants';
 import type {
   ProposeThemeOutput,
@@ -18,7 +19,9 @@ import type {
 
 /** One canned answer: its text and proposal, or one that never finishes. */
 type CannedAnswer =
-  { text: string; proposal: ThemeProposalInput } | { running: true };
+  | { text: string; proposal: ThemeProposalInput }
+  | { running: true }
+  | { thinkingOnly: true };
 
 interface CannedTransport extends ThemeAgentTransport {
   /** How many messages the conversation on screen sent to its run. */
@@ -84,6 +87,23 @@ function cannedTransport(answers: CannedAnswer[]): CannedTransport {
       if (!answer) throw new Error(`No canned answer for message ${sent}`);
       return new ReadableStream<UIMessageChunk>({
         start(controller) {
+          if ('thinkingOnly' in answer) {
+            // The model spent its whole output limit thinking: no text, no
+            // proposal, a finish for the length limit (captured on a preview).
+            const id = `answer-${sent}`;
+            for (const chunk of [
+              { type: 'start', messageId: id },
+              { type: 'start-step' },
+              { type: 'reasoning-start', id: `${id}-reasoning` },
+              { type: 'reasoning-end', id: `${id}-reasoning` },
+              { type: 'finish-step' },
+              { type: 'finish', finishReason: 'length' },
+            ] satisfies UIMessageChunk[]) {
+              controller.enqueue(chunk);
+            }
+            controller.close();
+            return;
+          }
           if ('running' in answer) {
             // Started, never finished: the answer runs until it is stopped.
             controller.enqueue({ type: 'start', messageId: `answer-${sent}` });
@@ -114,19 +134,22 @@ const STATE_KEY = 'kigumi-studio-state';
  * "Lock value" switches store them; the page's storage is put back after.
  */
 function withLockedValues(...cssVars: string[]) {
+  return withStoredLocks({
+    light: cssVars,
+    dark: cssVars,
+    shadowComponents: false,
+    customCSS: false,
+  });
+}
+
+/** Start from Studio's defaults with `locks` stored, as the switches store them. */
+function withStoredLocks(locks: LockedValues) {
   return () => {
     const saved = [LOCKS_KEY, STATE_KEY].map(
       (key) => [key, localStorage.getItem(key)] as const
     );
     localStorage.removeItem(STATE_KEY);
-    localStorage.setItem(
-      LOCKS_KEY,
-      JSON.stringify({
-        light: cssVars,
-        dark: cssVars,
-        shadowComponents: false,
-      })
-    );
+    localStorage.setItem(LOCKS_KEY, JSON.stringify(locks));
     return () => {
       for (const [key, value] of saved) {
         if (value === null) localStorage.removeItem(key);
@@ -268,6 +291,94 @@ export const TwoHeldChanges: Story = {
   },
 };
 
+const HEADER_RULE =
+  'No value draws a rule under one part of a card, so this is custom CSS.';
+
+/**
+ * Locked custom CSS: the answer's custom CSS is one held change, its diff in
+ * the card above its "Unlock and apply", which replaces the custom CSS whole.
+ */
+export const HeldCustomCSS: Story = {
+  args: {
+    transport: cannedTransport([
+      {
+        text: HEADER_RULE,
+        proposal: {
+          light: {},
+          dark: {},
+          customCSS: [
+            '.Card::part(base) { border: none; }',
+            '.Card::part(header) { border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border); }',
+          ].join('\n'),
+        },
+      },
+    ]),
+  },
+  beforeEach: withStoredLocks(CUSTOM_CSS_LOCK),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await send(
+      canvasElement,
+      'No border on cards, only a rule under the header'
+    );
+
+    const card = await canvas.findByText(HEADER_RULE);
+    // React sets `summary` as the element's property, not an attribute.
+    const diff = card.querySelector<HTMLElement & { summary: string }>(
+      'wa-details'
+    );
+    if (!diff) throw new Error('no custom CSS diff in the card');
+    expect(diff.summary).toBe('Custom CSS changes');
+    const added = diff.querySelectorAll('ins');
+    expect(added).toHaveLength(2);
+    expect(added[0].textContent).toBe(
+      'Added: + .Card::part(base) { border: none; }'
+    );
+    expect(diff.querySelectorAll('del')).toHaveLength(0);
+    // Long lines wrap, so every highlight spans the whole block and
+    // nothing scrolls sideways.
+    diff.setAttribute('open', '');
+    await waitFor(() => {
+      const pre = diff.querySelector('pre');
+      if (!pre || pre.clientWidth === 0) throw new Error('diff not shown');
+      expect(pre.scrollWidth).toBeLessThanOrEqual(pre.clientWidth);
+      for (const line of pre.children) {
+        expect((line as HTMLElement).offsetWidth).toBe(pre.clientWidth);
+      }
+    });
+    // Copy takes the custom CSS as proposed, without the removed lines.
+    const copy = diff.querySelector<HTMLElement & { value: string }>(
+      'wa-copy-button'
+    );
+    // An icon button alone, in the code block's top right corner.
+    const pre = diff.querySelector('pre');
+    if (!copy || !pre) throw new Error('no copy button or code block');
+    expect(
+      [...(copy.parentElement?.childNodes ?? [])].filter(
+        (node) => node !== copy && node !== pre && node.textContent?.trim()
+      )
+    ).toEqual([]);
+    const button = copy.getBoundingClientRect();
+    const block = pre.getBoundingClientRect();
+    expect(block.right - button.right).toBeLessThan(16);
+    expect(button.top - block.top).toBeLessThan(16);
+    expect(button.right).toBeLessThanOrEqual(block.right);
+    expect(button.top).toBeGreaterThanOrEqual(block.top);
+    expect(copy?.value).toBe(
+      [
+        '.Card::part(base) { border: none; }',
+        '.Card::part(header) { border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border); }',
+      ].join('\n')
+    );
+    await canvas.findByText('Locked, not changed: Custom CSS.');
+
+    await userEvent.click(within(card).getByText('Unlock and apply'));
+
+    await canvas.findByText('Unlocked and applied: Custom CSS.');
+    expect(card.querySelector('wa-details')).toBeNull();
+  },
+};
+
 /**
  * While an answer runs, the next message can be written; Enter does not
  * send it.
@@ -304,5 +415,30 @@ export const TypingWhileAnswering: Story = {
     expect(neverFinishes.sent).toBe(1);
     expect(canvas.queryByText('Rounder corners')).not.toBeInTheDocument();
     expect(canvas.getByText('Thinking…')).toBeInTheDocument();
+  },
+};
+
+/**
+ * An answer that ran out of output while thinking says so below the user's
+ * message: it has no text and no proposal, and once rendered nothing at all.
+ */
+export const AnswerOutOfOutput: Story = {
+  args: { transport: cannedTransport([{ thinkingOnly: true }]) },
+  beforeEach: withLockedValues(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await send(canvasElement, 'No border on cards');
+
+    const report = await canvas.findByText(
+      'No valid theme came back. Nothing was applied.',
+      { exact: false }
+    );
+    expect(report.closest('wa-callout')?.getAttribute('variant')).toBe(
+      'warning'
+    );
+    await canvas.findByText(
+      'The answer hit its length limit before the proposal was complete.'
+    );
+    expect(canvas.queryByText('Thinking…')).not.toBeInTheDocument();
   },
 };

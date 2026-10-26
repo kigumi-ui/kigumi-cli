@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createThemeAgentConversation } from '../theme-agent/conversation';
 import {
+  CUSTOM_CSS_LOCK,
   NO_LOCKS,
   SHADOW_COMPONENTS_LOCK,
   valueLock,
@@ -32,6 +33,7 @@ function studioDefaults(): CustomTheme {
       '--wa-transition-fast': '75',
     },
     shadowComponents: [],
+    customCSS: '',
   };
 }
 
@@ -136,9 +138,23 @@ describe('Theme Agent conversation: rejected proposals', () => {
       'light --wa-border-style: "wavy" is not one of: solid, dashed, dotted, double, groove, ridge, none',
     ],
     [
-      'custom CSS',
+      'custom CSS with a literal colour',
       { light: {}, dark: {}, customCSS: '.Card { color: red }' },
-      'proposal: Unrecognized key: "customCSS"',
+      '.Card color: "red" is a colour literal',
+    ],
+    [
+      'custom CSS that loads a url()',
+      {
+        light: {},
+        dark: {},
+        customCSS: '.Card { background: url(https://example.com/x.png) }',
+      },
+      'customCSS: url() loads a resource and is not allowed',
+    ],
+    [
+      'custom CSS with an @import',
+      { light: {}, dark: {}, customCSS: '@import "x.css";' },
+      'customCSS: @import is not allowed',
     ],
     [
       'different light and dark values for a mode-independent property',
@@ -490,6 +506,16 @@ describe('Theme Agent snapshot schema', () => {
     // trigger.dev parses the run's boot and preload payloads with the same
     // schema; they never carry a message's metadata.
     expect(themeAgentClientDataSchema.safeParse(undefined).success).toBe(true);
+  });
+
+  it('reads a snapshot from a page that predates custom CSS as having none', () => {
+    const theme: Partial<CustomTheme> = studioDefaults();
+    delete theme.customCSS;
+    const parsed = themeAgentClientDataSchema.safeParse({
+      theme,
+      locked: NO_LOCKS,
+    });
+    expect(parsed.success && parsed.data?.theme.customCSS).toBe('');
   });
 
   it('accepts a snapshot from a page that predates locks', () => {
@@ -844,6 +870,7 @@ describe('Theme Agent conversation: locked values', () => {
       light: [],
       dark: ['--wa-color-surface-default'],
       shadowComponents: true,
+      customCSS: false,
     });
   });
 });
@@ -1224,5 +1251,283 @@ describe('Theme Agent conversation: contrast a locked value causes', () => {
       locks(valueLock('--wa-border-radius-scale', ['light', 'dark']))
     );
     expect(conversation.heldChanges('answer-1')[0].resolves).toEqual([]);
+  });
+});
+
+describe('Theme Agent conversation: custom CSS', () => {
+  const headerRule = [
+    '.Card::part(base) { border: none; }',
+    '.Card::part(header) { border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border); }',
+  ].join('\n');
+  const cardsOnly = {
+    light: { '--wa-border-radius-scale': '0.5' },
+    dark: {},
+    customCSS: headerRule,
+  };
+  const handWritten = '.Button { text-transform: uppercase; }';
+
+  /** Studio's defaults with the user's own custom CSS. */
+  function withHandWritten(): CustomTheme {
+    return { ...studioDefaults(), customCSS: handWritten };
+  }
+
+  it('applies custom CSS and values from one answer in one step', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      studioDefaults(),
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.customCSS).toBe(headerRule);
+    expect(outcome.theme.light['--wa-border-radius-scale']).toBe('0.5');
+    expect(outcome.held).toEqual([]);
+    expect(conversation.answerStatus('answer-1')).toBe('applied');
+  });
+
+  it('replaces the custom CSS whole: a proposal is the complete custom CSS', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(withHandWritten(), NO_LOCKS);
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: {}, dark: {}, customCSS: headerRule }],
+      withHandWritten(),
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.customCSS).toBe(headerRule);
+  });
+
+  it('keeps the custom CSS when a proposal names none', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
+      withHandWritten(),
+      NO_LOCKS
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.customCSS).toBe(handWritten);
+  });
+
+  it("keeps the user's own rules the subset would refuse, when the proposal carries them unchanged", () => {
+    const own = '@font-face { font-family: Brand; src: url(/brand.woff2); }';
+    const conversation = createThemeAgentConversation();
+    const sent = { ...studioDefaults(), customCSS: own };
+    conversation.messageSent(sent, NO_LOCKS);
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: {}, dark: {}, customCSS: `${own}\n${headerRule}` }],
+      sent,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error(outcome.errors.join('; '));
+    expect(outcome.theme.customCSS).toBe(`${own}\n${headerRule}`);
+  });
+
+  it('undo restores the custom CSS together with the values', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      withHandWritten(),
+      NO_LOCKS
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+
+    const reverted = conversation.undo('answer-1', outcome.theme);
+
+    expect(reverted?.theme.customCSS).toBe(handWritten);
+    expect(reverted?.theme.light['--wa-border-radius-scale']).toBe('1');
+    expect(conversation.answerStatus('answer-1')).toBe('undone');
+  });
+
+  it('undo leaves custom CSS the user changed after the answer', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      studioDefaults(),
+      NO_LOCKS
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    const edited = { ...outcome.theme, customCSS: handWritten };
+
+    const reverted = conversation.undo('answer-1', edited);
+
+    expect(reverted?.theme.customCSS).toBe(handWritten);
+    expect(reverted?.theme.light['--wa-border-radius-scale']).toBe('1');
+  });
+
+  it('locked custom CSS is never changed: its proposal is one held change with both texts', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(withHandWritten(), CUSTOM_CSS_LOCK);
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      withHandWritten(),
+      CUSTOM_CSS_LOCK
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.customCSS).toBe(handWritten);
+    // The values beside it are not locked, and land.
+    expect(outcome.theme.light['--wa-border-radius-scale']).toBe('0.5');
+    expect(outcome.held).toEqual([
+      {
+        kind: 'customCSS',
+        reason: 'locked',
+        proposed: headerRule,
+        was: handWritten,
+      },
+    ]);
+  });
+
+  it('unlock and apply replaces locked custom CSS whole and unlocks it', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      withHandWritten(),
+      CUSTOM_CSS_LOCK
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+
+    const result = conversation.applyHeld('answer-1', outcome.theme);
+
+    expect(result?.theme.customCSS).toBe(headerRule);
+    expect(result?.unlock).toEqual(CUSTOM_CSS_LOCK);
+    expect(conversation.heldChanges('answer-1')[0].state).toBe('applied');
+  });
+
+  it('the next message keeps locked custom CSS as it is', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      withHandWritten(),
+      CUSTOM_CSS_LOCK
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+
+    const snapshot = conversation.messageSent(outcome.theme, CUSTOM_CSS_LOCK);
+
+    expect(snapshot.theme.customCSS).toBe(handWritten);
+    expect(snapshot.previous?.held).toEqual(['customCSS']);
+    expect(conversation.heldChanges('answer-1')[0].state).toBe('kept');
+    expect(conversation.applyHeld('answer-1', outcome.theme)).toBeUndefined();
+  });
+
+  it('unlock and apply leaves custom CSS changed since, and its lock', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      withHandWritten(),
+      CUSTOM_CSS_LOCK
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    const rewritten = { ...outcome.theme, customCSS: '.Badge { gap: 0; }' };
+
+    const result = conversation.applyHeld('answer-1', rewritten);
+
+    expect(result?.theme.customCSS).toBe('.Badge { gap: 0; }');
+    expect(result?.unlock).toEqual(NO_LOCKS);
+    expect(result).toMatchObject({ applied: 0, changed: 1 });
+  });
+
+  it('undo after unlock and apply puts the custom CSS back and locks it again', () => {
+    const conversation = createThemeAgentConversation();
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      withHandWritten(),
+      CUSTOM_CSS_LOCK
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+    const result = conversation.applyHeld('answer-1', outcome.theme);
+
+    const reverted = conversation.undo('answer-1', result!.theme);
+
+    expect(reverted?.theme.customCSS).toBe(handWritten);
+    expect(reverted?.relock).toEqual(CUSTOM_CSS_LOCK);
+  });
+
+  it('holds custom CSS the user changed in the editor while the answer was written, locked or not', () => {
+    for (const locked of [NO_LOCKS, CUSTOM_CSS_LOCK]) {
+      const conversation = createThemeAgentConversation();
+      conversation.messageSent(studioDefaults(), NO_LOCKS);
+
+      const outcome = conversation.answerReceived(
+        'answer-1',
+        [cardsOnly],
+        withHandWritten(),
+        locked
+      );
+
+      if (!outcome.applied) throw new Error('answer was not applied');
+      expect(outcome.theme.customCSS).toBe(handWritten);
+      expect(outcome.held).toEqual([
+        {
+          kind: 'customCSS',
+          reason: locked.customCSS ? 'locked' : 'edited',
+          proposed: headerRule,
+          was: handWritten,
+        },
+      ]);
+    }
+  });
+
+  it('apply on custom CSS changed during the run unlocks nothing, and undo locks nothing', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      withHandWritten(),
+      NO_LOCKS
+    );
+    if (!outcome.applied) throw new Error('answer was not applied');
+
+    const result = conversation.applyHeld('answer-1', outcome.theme);
+    expect(result?.theme.customCSS).toBe(headerRule);
+    expect(result?.unlock).toEqual(NO_LOCKS);
+
+    // Back to the user's edit, as the answer found it.
+    const reverted = conversation.undo('answer-1', result!.theme);
+    expect(reverted?.theme.customCSS).toBe(handWritten);
+    expect(reverted?.relock).toEqual(NO_LOCKS);
+
+    const snapshot = conversation.messageSent(reverted!.theme, NO_LOCKS);
+    expect(snapshot.previous?.status).toBe('undone');
+  });
+
+  it('tells the agent its custom CSS was not changed because the user edited it during the run', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    conversation.answerReceived(
+      'answer-1',
+      [cardsOnly],
+      withHandWritten(),
+      NO_LOCKS
+    );
+
+    const snapshot = conversation.messageSent(withHandWritten(), NO_LOCKS);
+
+    expect(snapshot.previous).toEqual({
+      status: 'applied',
+      held: [],
+      edited: ['customCSS'],
+      errors: [],
+    });
   });
 });

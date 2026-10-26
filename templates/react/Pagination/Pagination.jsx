@@ -40,10 +40,12 @@ export const Pagination = React.forwardRef(
       if (!el) return;
 
       const handleWaBeforePageChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onBeforePageChange) onBeforePageChange(e);
       };
 
       const handleWaPageChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onPageChange) onPageChange(e);
       };
 

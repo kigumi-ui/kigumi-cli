@@ -83,8 +83,10 @@ export class MutationObserverComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleMutation = (e: Event) =>
+    const handleMutation = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.mutation.emit(e as WaMutationEvent);
+    };
     el.addEventListener('wa-mutation', handleMutation);
     this.cleanups.push(() =>
       el.removeEventListener('wa-mutation', handleMutation)

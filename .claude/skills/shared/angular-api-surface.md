@@ -25,7 +25,7 @@ Actions | free | Buttons represent actions that are available to the user
 wa-button -> <Button> (selector: k-button)
 
 **Props:** variant(neutral|brand|success|warning|danger=neutral), appearance(accent|filled-outlined|filled|outlined|plain=accent), size(small|medium|large|xs|s|m|l|xl=m), pill(boolean=false), disabled(boolean=false), loading(boolean=false), with-caret(boolean=false), href(string), target(_blank|_self|_parent|_top), download(string), rel(string), type(button|submit|reset=button), name(string), value(string), formaction(string), formenctype(string), formmethod(string), formnovalidate(boolean=false), formtarget(string), title(string), custom-error(string)
-**Outputs:** (focusEvent), (invalid), (blurEvent)
+**Outputs:** (blurEvent), (focusEvent), (invalid)
 **Slots:** default, start, end
 **Methods:** click(), focus(), blur()
 **Parts:** base, button, start, label, end, caret, spinner
@@ -44,7 +44,7 @@ Form Controls | free | Inputs collect data from the user
 wa-input -> <Input> (selector: k-input)
 
 **Props:** type(text|email|password|number|date|tel|url|search=text), label(string), hint(string), placeholder(string), value(string), appearance(filled|filled-outlined|outlined=outlined), size(small|medium|large|xs|s|m|l|xl=m), pill(boolean=false), disabled(boolean=false), with-clear(boolean=false), password-toggle(boolean=false), password-visible(boolean=false), readonly(boolean=false), required(boolean=false), name(string), pattern(string), minlength(number), maxlength(number), min(string), max(string), step(string), without-spin-buttons(boolean=false), autocomplete(string), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean), autofocus(boolean=false), inputmode(none|text|decimal|numeric|tel|search|email|url), enterkeyhint(enter|done|go|next|previous|search|send), title(string), spellcheck(boolean), custom-error(string)
-**Outputs:** (change), (blurEvent), (focusEvent), (clear), (invalid), (inputEvent)
+**Outputs:** (inputEvent), (change), (blurEvent), (focusEvent), (clear), (invalid)
 **Slots:** label, start, end, clear-icon, show-password-icon, hide-password-icon, hint
 **Methods:** focus(), blur(), select(), setSelectionRange(), setRangeText(), showPicker(), stepUp(), stepDown()
 **Parts:** form-control-label, label, hint, base, input-wrapper, input, start, clear-button, password-toggle-button, end
@@ -64,7 +64,7 @@ Overlays | free | Dialogs display important prompts and information
 wa-dialog -> <Dialog> (selector: k-dialog)
 
 **Props:** open(boolean=false), label(string='', required), without-header(boolean=false), light-dismiss(boolean=false)
-**Outputs:** (afterShow), (hide), (afterHide), (show)
+**Outputs:** (show), (afterShow), (hide), (afterHide)
 **Slots:** default, label, header-actions, footer
 **Methods:** show(), requestClose()
 **Parts:** dialog, header, header-actions, title, close-button, close-button__base, body, footer
@@ -75,7 +75,7 @@ Display | free | A component for displaying animated GIFs and WEBPs that play an
 wa-animated-image -> <AnimatedImage> (selector: k-animated-image)
 
 **Props:** src(string, required), alt(string, required), play(boolean=false)
-**Outputs:** (error), (load)
+**Outputs:** (load), (error)
 **Slots:** play-icon, pause-icon
 **Parts:** control-box
 **CSS:** --control-box-size, --icon-size
@@ -86,7 +86,7 @@ Display | free | Animate elements declaratively with nearly 100 baked-in presets
 wa-animation -> <Animation> (selector: k-animation)
 
 **Props:** name(string=none), play(boolean=false), delay(number=0), direction(normal|reverse|alternate|alternate-reverse=normal), duration(number=1000), easing(string=linear), end-delay(number=0), fill(auto|backwards|both|forwards|none=auto), iterations(number=Infinity), iteration-start(number=0), playback-rate(number=1)
-**Outputs:** (finishEvent), (start), (cancelEvent)
+**Outputs:** (cancelEvent), (finishEvent), (start)
 **Slots:** default
 **Methods:** cancel(), finish()
 
@@ -132,7 +132,7 @@ Navigation | free | Pagination splits long lists of content into pages, letting 
 wa-pagination -> <Pagination> (selector: k-pagination)
 
 **Props:** total(number=0), page-size(number=10), page(number=1), sibling-count(number=2), boundary-count(number=1), without-nav(boolean=false), with-edges(boolean=false), with-summary(boolean=false), format(standard|compact=standard), href-template(string=''), hide-single-page(boolean=false), label(string=''), appearance(outlined|filled|plain=outlined), disabled(boolean=false)
-**Outputs:** (pageChange), (beforePageChange)
+**Outputs:** (beforePageChange), (pageChange)
 **Slots:** previous-icon, next-icon, first-icon, last-icon
 **Parts:** base, pagination, button, previous-button, next-button, first-button, last-button, pages, page, page-current, ellipsis, summary, label
 **Requires:** Icon
@@ -142,7 +142,7 @@ Display | free | Icons are symbols that can be used to represent various options
 wa-icon -> <Icon> (selector: k-icon)
 
 **Props:** name(string), library(string=default), src(string), label(string=''), family(string), variant(string), canvas(fixed|auto|square|roomy), auto-width(boolean=false, deprecated), swap-opacity(boolean=false), rotate(number), flip(horizontal|vertical|both), animation(string)
-**Outputs:** (error), (load)
+**Outputs:** (load), (error)
 **Parts:** svg, use
 **CSS:** --animation-delay(0), --animation-direction(normal), --animation-duration(1s), --animation-iteration-count(infinite), --animation-timing, --beat-fade-opacity, --beat-fade-scale, --beat-scale, --bounce-height, --bounce-jump-scale-x, --bounce-jump-scale-y, --bounce-land-scale-x, --bounce-land-scale-y, --bounce-rebound, --bounce-start-scale-x, --bounce-start-scale-y, --fade-opacity, --flip-angle, --flip-x, --flip-y, --flip-z, --flip-anticipation-scale, --flip-overshoot, --bounce-anticipation, --buzz-distance, --wag-angle, --swing-angle, --jello-scale-x, --jello-scale-y, --float-height, --float-drift, --float-tilt, --float-squash-x, --float-squash-y, --float-stretch-x, --float-stretch-y, --primary-color(currentColor), --primary-opacity(1), --secondary-color(currentColor), --secondary-opacity(0.4)
 
@@ -171,7 +171,7 @@ Form Controls | free | Checkboxes allow the user to toggle an option on or off
 wa-checkbox -> <Checkbox> (selector: k-checkbox)
 
 **Props:** checked(boolean=false), disabled(boolean=false), hint(string=''), indeterminate(boolean=false), name(string), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), value(string), title(string), custom-error(string)
-**Outputs:** (blurEvent), (focusEvent), (inputEvent), (invalid), (change)
+**Outputs:** (change), (blurEvent), (focusEvent), (inputEvent), (invalid)
 **Slots:** default, hint
 **Methods:** click(), focus(), blur()
 **Parts:** base, checkbox, control, checked-icon, indeterminate-icon, label, hint
@@ -193,7 +193,7 @@ Form Controls | free | Color pickers allow the user to select a color
 wa-color-picker -> <ColorPicker> (selector: k-color-picker)
 
 **Props:** value(string), format(hex|rgb|hsl|hsv=hex), opacity(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), label(string=''), hint(string=''), name(string), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), swatches(string=''), uppercase(boolean=false), without-format-toggle(boolean=false), inline(boolean=false), custom-error(string)
-**Outputs:** (inputEvent), (showEvent), (afterShow), (hideEvent), (afterHide), (blurEvent), (focusEvent), (invalid), (change)
+**Outputs:** (change), (inputEvent), (showEvent), (afterShow), (hideEvent), (afterHide), (blurEvent), (focusEvent), (invalid)
 **Slots:** label, hint
 **Methods:** getHexString(), focus(), blur(), getFormattedValue(), show(), hide()
 **Parts:** base, color-picker, trigger, trigger-container, form-control, form-control-label, form-control-input, hint, swatches, swatch, grid, grid-handle, slider, slider-handle, hue-slider, hue-slider-handle, opacity-slider, opacity-slider-handle, preview, input, eyedropper-button, eyedropper-button__base, eyedropper-button__start, eyedropper-button__label, eyedropper-button__end, eyedropper-button__caret, format-button, format-button__base, format-button__start, format-button__label, format-button__end, format-button__caret
@@ -206,7 +206,7 @@ Form Controls | pro | Combines a text input with a listbox for filtering and sel
 wa-combobox -> <Combobox> (selector: k-combobox)
 
 **Props:** allow-custom-value(boolean=false), appearance(filled|outlined|filled-outlined=outlined), allow-create(boolean=false), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean), disabled(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), hint(string=''), inputmode(none|text|decimal|numeric|tel|search|email|url), label(string=''), max-options-visible(number=3), multiple(boolean=false), name(string=''), open(boolean=false), pill(boolean=false), placeholder(string=''), placement(top|bottom=bottom), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), spellcheck(boolean), with-clear(boolean=false), value(string), custom-error(string), server(boolean=false), loading(boolean=false), filter-debounce(number=250)
-**Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (create), (invalid), (optionsRequest), (optionsError), (inputEvent)
+**Outputs:** (inputEvent), (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (create), (invalid), (optionsRequest), (optionsError)
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint, loading, no-results, empty, error
 **Methods:** reload(), show(), hide(), focus(), blur()
 **Parts:** form-control, form-control-label, label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon, spinner, status, loading, no-results, empty, error
@@ -240,7 +240,7 @@ Actions | free | Copies text data to the clipboard when clicked
 wa-copy-button -> <CopyButton> (selector: k-copy-button)
 
 **Props:** value(string=''), from(string=''), disabled(boolean=false), copy-label(string=''), success-label(string=''), error-label(string=''), feedback-duration(number=1000), tooltip(full|copy|none=full), tooltip-placement(top|right|bottom|left=top)
-**Outputs:** (error), (copy)
+**Outputs:** (copy), (error)
 **Slots:** default, copy-icon, success-icon, error-icon
 **Parts:** button, copy-icon, success-icon, error-icon, feedback
 **Requires:** Icon, Tooltip
@@ -250,7 +250,7 @@ Organization | free | Shows a brief summary and expands to show additional conte
 wa-details -> <Details> (selector: k-details)
 
 **Props:** open(boolean=false), summary(string), disabled(boolean=false), appearance(filled|outlined|filled-outlined|plain=outlined), icon-placement(start|end=end), name(string)
-**Outputs:** (afterShow), (hideEvent), (afterHide), (showEvent)
+**Outputs:** (showEvent), (afterShow), (hideEvent), (afterHide)
 **Slots:** default, summary, expand-icon, collapse-icon
 **Methods:** show(), hide()
 **Parts:** base, details, header, summary, icon, content
@@ -271,7 +271,7 @@ Overlays | free | Drawers slide in from a container edge to expose additional op
 wa-drawer -> <Drawer> (selector: k-drawer)
 
 **Props:** open(boolean=false), label(string=''), placement(top|end|bottom|start=end), light-dismiss(boolean=false), without-header(boolean=false)
-**Outputs:** (afterShow), (hide), (afterHide), (show)
+**Outputs:** (show), (afterShow), (hide), (afterHide)
 **Slots:** default, label, header-actions, footer
 **Methods:** show(), requestClose()
 **Parts:** dialog, header, header-actions, title, close-button, close-button__base, body, footer
@@ -283,7 +283,7 @@ Overlays | free | Dropdowns expose additional content that pops up when the user
 wa-dropdown -> <Dropdown> (selector: k-dropdown)
 
 **Props:** open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), disabled(boolean=false), stay-open-on-select(boolean=false), distance(number=0), skidding(number=0), hoist(boolean=false), size(small|medium|large|xs|s|m|l|xl=m)
-**Outputs:** (afterShow), (hide), (afterHide), (select), (show)
+**Outputs:** (show), (afterShow), (hide), (afterHide), (select)
 **Slots:** default, trigger
 **Parts:** base, menu
 **CSS:** --show-duration, --hide-duration
@@ -294,7 +294,7 @@ Overlays | free | Dropdown items are used inside dropdowns to represent individu
 wa-dropdown-item -> <DropdownItem> (selector: k-dropdown-item)
 
 **Props:** type(normal|checkbox=normal), checked(boolean=false), value(string), disabled(boolean=false), loading(boolean=false), variant(default|danger=default), href(string), target(_blank|_parent|_self|_top), rel(string), download(string)
-**Outputs:** (focus), (blur)
+**Outputs:** (blur), (focus)
 **Slots:** default, icon, details, submenu
 **Methods:** openSubmenu(), closeSubmenu()
 **Parts:** checkmark, icon, label, details, submenu-icon, submenu
@@ -323,7 +323,7 @@ Utilities | free | Includes give you the power to embed external HTML files into
 wa-include -> <Include> (selector: k-include)
 
 **Props:** src(string), mode(cors|no-cors|same-origin=cors), allow-scripts(boolean=false)
-**Outputs:** (includeError), (load)
+**Outputs:** (load), (includeError)
 
 ## IntersectionObserver
 Utilities | free | Observes changes in the intersection of a target element with an ancestor
@@ -361,7 +361,7 @@ Overlays | free | Popovers display additional content when users interact with a
 wa-popover -> <Popover> (selector: k-popover)
 
 **Props:** open(boolean=false), disabled(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=top), trigger(string=click), distance(number=8), skidding(number=0), with-arrow(boolean=false), without-arrow(boolean=false), for(string)
-**Outputs:** (afterShow), (hideEvent), (afterHide), (showEvent)
+**Outputs:** (showEvent), (afterShow), (hideEvent), (afterHide)
 **Slots:** default
 **Methods:** show(), hide()
 **Parts:** dialog, body, popup, popup__popup, popup__arrow
@@ -409,7 +409,7 @@ Form Controls | free | Radio groups are used to group multiple radios so only on
 wa-radio-group -> <RadioGroup> (selector: k-radio-group)
 
 **Props:** label(string=''), hint(string=''), name(string), value(string), size(small|medium|large|xs|s|m|l|xl), required(boolean=false), orientation(horizontal|vertical=vertical), disabled(boolean=false), invalid(boolean=false), help-text(string=''), custom-error(string)
-**Outputs:** (change), (invalidEvent), (inputEvent)
+**Outputs:** (inputEvent), (change), (invalidEvent)
 **Slots:** default, label, hint
 **Methods:** focus()
 **Parts:** form-control, form-control-label, form-control-input, hint
@@ -421,7 +421,7 @@ Form Controls | free | Radios allow the user to select a single option from a gr
 wa-radio -> <Radio> (selector: k-radio)
 
 **Props:** value(string), disabled(boolean=false), size(small|medium|large|xs|s|m|l|xl), appearance(default|button=default), name(string), custom-error(string)
-**Outputs:** (focus), (blur)
+**Outputs:** (blur), (focus)
 **Slots:** default
 **Parts:** control, checked-icon, label
 **CSS:** --checked-icon-color, --checked-icon-scale
@@ -442,7 +442,7 @@ Form Controls | free | Ratings give users a way to quickly view and provide feed
 wa-rating -> <Rating> (selector: k-rating)
 
 **Props:** label(string=''), value(number=0), default-value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), name(string), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), custom-error(string)
-**Outputs:** (hover), (invalid), (change)
+**Outputs:** (change), (hover), (invalid)
 **Parts:** base, rating
 **CSS:** --symbol-color, --symbol-color-active, --symbol-spacing
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
@@ -468,7 +468,7 @@ Form Controls | free | Selects allow you to choose items from a menu of predefin
 wa-select -> <Select> (selector: k-select)
 
 **Props:** name(string=''), value(string), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=m), placeholder(string=''), multiple(boolean=false), max-options-visible(number=3), disabled(boolean=false), with-clear(boolean=false), open(boolean=false), hoist(boolean=false), placement(top|bottom=bottom), pill(boolean=false), label(string=''), hint(string=''), required(boolean=false), invalid(boolean=false), help-text(string=''), custom-error(string)
-**Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (invalidEvent), (inputEvent)
+**Outputs:** (inputEvent), (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (invalidEvent)
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
 **Parts:** form-control, form-control-label, label, form-control-input, hint, combobox, start, end, display-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon
@@ -499,7 +499,7 @@ Form Controls | free | Sliders allow the user to select a value within a range
 wa-slider -> <Slider> (selector: k-slider)
 
 **Props:** name(string), value(number), label(string=''), hint(string=''), min(number=0), max(number=100), step(number=1), orientation(horizontal|vertical=horizontal), disabled(boolean=false), readonly(boolean=false), range(boolean=false), min-value(number), max-value(number), indicator-offset(number), with-markers(boolean=false), with-tooltip(boolean=false), tooltip-distance(number=8), tooltip-placement(top|right|bottom|left=top), size(small|medium|large|xs|s|m|l|xl=m), autofocus(boolean=false), custom-error(string)
-**Outputs:** (blurEvent), (focusEvent), (inputEvent), (invalid), (change)
+**Outputs:** (change), (blurEvent), (focusEvent), (inputEvent), (invalid)
 **Slots:** label, hint, reference
 **Methods:** focus(), blur(), stepDown(), stepUp()
 **Parts:** label, hint, slider, track, indicator, markers, marker, references, thumb, thumb-min, thumb-max, tooltip, tooltip__tooltip, tooltip__body, tooltip__arrow
@@ -530,7 +530,7 @@ Form Controls | free | Switches allow the user to toggle an option on or off
 wa-switch -> <Switch> (selector: k-switch)
 
 **Props:** name(string), value(string), size(small|medium|large|xs|s|m|l|xl=m), disabled(boolean=false), checked(boolean=false), required(boolean=false), hint(string=''), title(string), custom-error(string)
-**Outputs:** (inputEvent), (blurEvent), (focusEvent), (invalid), (change)
+**Outputs:** (change), (inputEvent), (blurEvent), (focusEvent), (invalid)
 **Slots:** default, hint
 **Methods:** click(), focus(), blur()
 **Parts:** base, switch, control, thumb, label, hint
@@ -542,7 +542,7 @@ Navigation | free | Tab groups organize content into a container that shows one 
 wa-tab-group -> <TabGroup> (selector: k-tab-group)
 
 **Props:** placement(top|bottom|start|end=top), activation(auto|manual=auto), without-scroll-controls(boolean=false), active(string)
-**Outputs:** (tabHide), (tabShow)
+**Outputs:** (tabShow), (tabHide)
 **Slots:** default, nav
 **Parts:** base, tab-group, nav, tabs, body, scroll-button, scroll-button-start, scroll-button-end, scroll-button__base
 **CSS:** --indicator-color, --track-color, --track-width
@@ -571,7 +571,7 @@ Navigation | free | Steppers walk users through a multi-stage process and show w
 wa-stepper -> <Stepper> (selector: k-stepper)
 
 **Props:** active(string=''), orientation(horizontal|vertical|auto=horizontal), linear(boolean=false), clickable(boolean=false), label(string='')
-**Outputs:** (stepChange), (beforeStepChange)
+**Outputs:** (beforeStepChange), (stepChange)
 **Slots:** default
 **Methods:** goTo(), next(), previous()
 **Parts:** stepper, summary, steps
@@ -602,7 +602,7 @@ Form Controls | free | Tag inputs collect a list of short values, such as keywor
 wa-tag-input -> <TagInput> (selector: k-tag-input)
 
 **Props:** label(string=''), hint(string=''), value(string), placeholder(string=''), delimiter(string=,), max-tags(number), min-tags(number), allow-duplicates(boolean=false), with-clear(boolean=false), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=m), pill(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), name(string), autocomplete(string), autocapitalize(off|none|on|sentences|words|characters), enterkeyhint(enter|done|go|next|previous|search|send), inputmode(none|text|decimal|numeric|tel|search|email|url), autocorrect(boolean), spellcheck(boolean), custom-error(string)
-**Outputs:** (change), (blurEvent), (focusEvent), (create), (clear), (invalid), (inputEvent)
+**Outputs:** (inputEvent), (change), (blurEvent), (focusEvent), (create), (clear), (invalid)
 **Slots:** label, start, end, clear-icon, hint
 **Methods:** focus(), blur()
 **Parts:** form-control-label, tag-input, start, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, input, clear-button, end, hint
@@ -614,7 +614,7 @@ Form Controls | free | Textareas collect multi-line text data from the user
 wa-textarea -> <Textarea> (selector: k-textarea)
 
 **Props:** name(string), value(string), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=m), label(string=''), hint(string=''), placeholder(string=''), rows(number=4), resize(none|vertical|horizontal|both|auto=vertical), disabled(boolean=false), readonly(boolean=false), required(boolean=false), minlength(number), maxlength(number), spellcheck(boolean), with-count(boolean=false), title(string), autocomplete(string), autocapitalize(off|none|on|sentences|words|characters), autofocus(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), inputmode(none|text|decimal|numeric|tel|search|email|url), autocorrect(boolean), custom-error(string)
-**Outputs:** (change), (focusEvent), (inputEvent), (invalid), (blurEvent)
+**Outputs:** (blurEvent), (change), (focusEvent), (inputEvent), (invalid)
 **Slots:** label, hint
 **Methods:** focus(), blur(), select(), scrollPosition(), setSelectionRange(), setRangeText()
 **Parts:** form-control-label, label, hint, textarea, base, textarea-wrapper, textarea-adjuster, count
@@ -625,7 +625,7 @@ Overlays | free | Tooltips display additional information based on a specific ac
 wa-tooltip -> <Tooltip> (selector: k-tooltip)
 
 **Props:** placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=top), disabled(boolean=false), distance(number=8), open(boolean=false), skidding(number=0), trigger(string=hover focus), without-arrow(boolean=false), show-delay(number=150), hide-delay(number=0), for(string)
-**Outputs:** (afterShow), (hideEvent), (afterHide), (showEvent)
+**Outputs:** (showEvent), (afterShow), (hideEvent), (afterHide)
 **Slots:** default
 **Methods:** show(), hide()
 **Parts:** base, tooltip, base__popup, base__arrow, body
@@ -647,7 +647,7 @@ Navigation | free | Tree items are used inside trees to represent hierarchical i
 wa-tree-item -> <TreeItem> (selector: k-tree-item)
 
 **Props:** expanded(boolean=false), selected(boolean=false), disabled(boolean=false), lazy(boolean=false)
-**Outputs:** (afterExpand), (collapse), (afterCollapse), (lazyChange), (lazyLoad), (expand)
+**Outputs:** (expand), (afterExpand), (collapse), (afterCollapse), (lazyChange), (lazyLoad)
 **Slots:** default, expand-icon, collapse-icon
 **Methods:** getChildrenItems()
 **Parts:** base, tree-item, item, indentation, expand-button, spinner, spinner__base, label, children, checkbox, checkbox__base, checkbox__control, checkbox__checked-icon, checkbox__indeterminate-icon, checkbox__label
@@ -659,7 +659,7 @@ Display | free | Zoomable frames display iframe content with zoom controls
 wa-zoomable-frame -> <ZoomableFrame> (selector: k-zoomable-frame)
 
 **Props:** src(string), srcdoc(string), zoom(number=1), zoom-levels(string=25% 50% 75% 100% 125% 150% 175% 200%), allowfullscreen(boolean=false), loading(eager|lazy=eager), without-controls(boolean=false), without-interaction(boolean=false), sandbox(string), referrerpolicy(string), allow(string), name(string), label(string='')
-**Outputs:** (error), (load)
+**Outputs:** (load), (error)
 **Slots:** zoom-in-icon, zoom-out-icon
 **Methods:** zoomIn(), zoomOut()
 **Parts:** iframe, controls, zoom-in-button, zoom-out-button
@@ -678,7 +678,7 @@ Form Controls | pro | File inputs allow users to select and upload files from th
 wa-file-input -> <FileInput> (selector: k-file-input)
 
 **Props:** label(string), hint(string), accept(string), capture(user|environment), multiple(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), name(string), custom-error(string)
-**Outputs:** (change), (focusEvent), (blurEvent), (invalid), (inputEvent)
+**Outputs:** (inputEvent), (change), (focusEvent), (blurEvent), (invalid)
 **Slots:** label, hint, dropzone
 **Methods:** focus(), blur()
 **Parts:** form-control-label, label, hint, base, file-input, dropzone, dropzone-icon, dropzone-text, file-list, file, file-thumbnail, file-image, file-icon, file-details, file-name, file-size, remove-button
@@ -689,7 +689,7 @@ Form Controls | pro | Number inputs allow users to enter numeric values with opt
 wa-number-input -> <NumberInput> (selector: k-number-input)
 
 **Props:** label(string), hint(string), value(number), min(number), max(number), step(number=1), disabled(boolean=false), required(boolean=false), placeholder(string), size(small|medium|large|xs|s|m|l|xl=m), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), without-steppers(boolean=false), title(string), name(string), readonly(boolean=false), autocomplete(string), autofocus(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), inputmode(numeric|decimal), custom-error(string)
-**Outputs:** (change), (blurEvent), (focusEvent), (beforeinput), (invalid), (inputEvent)
+**Outputs:** (inputEvent), (change), (blurEvent), (focusEvent), (beforeinput), (invalid)
 **Slots:** label, start, end, increment-icon, decrement-icon, hint
 **Methods:** focus(), blur(), select(), stepUp(), stepDown()
 **Parts:** form-control-label, label, hint, base, number-input, input, start, end, stepper, stepper-increment, stepper-decrement
@@ -700,7 +700,7 @@ Form Controls | free | OTP inputs collect one-time passcodes, PINs, and other fi
 wa-otp-input -> <OtpInput> (selector: k-otp-input)
 
 **Props:** label(string=''), hint(string=''), value(string), length(number=6), format(string=''), type(numeric|alpha|alphanumeric=numeric), case(preserve|upper|lower=preserve), appearance(outlined|filled|filled-outlined|contained=outlined), size(small|medium|large|xs|s|m|l|xl=m), mask(boolean=false), with-mask(boolean=false), autocomplete(string=one-time-code), autosubmit(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), name(string), autofocus(boolean=false), custom-error(string)
-**Outputs:** (change), (focusEvent), (blurEvent), (complete), (clearEvent), (invalid), (inputEvent)
+**Outputs:** (inputEvent), (change), (focusEvent), (blurEvent), (complete), (clearEvent), (invalid)
 **Slots:** label, hint
 **Methods:** clear(), focus(), blur(), select()
 **Parts:** label, hint, segments, segment, segment-literal
@@ -803,7 +803,7 @@ Feedback | pro | A single notification banner that can be stacked inside a Toast
 wa-toast-item -> <ToastItem> (selector: k-toast-item)
 
 **Props:** variant(brand|success|warning|danger|neutral=neutral), size(small|medium|large|xs|s|m|l|xl=m), duration(number=5000)
-**Outputs:** (afterShow), (hideEvent), (afterHide), (show)
+**Outputs:** (show), (afterShow), (hideEvent), (afterHide)
 **Slots:** default, icon
 **Methods:** hide()
 **Parts:** toast-item, accent, icon, content, close-button, progress-ring, progress-ring__base, progress-ring__label, progress-ring__track, progress-ring__indicator, close-icon, close-icon__svg
@@ -814,7 +814,7 @@ Organization | free | Accordions group related disclosure panels and control how
 wa-accordion -> <Accordion> (selector: k-accordion)
 
 **Props:** mode(single|single-collapsible|multiple=multiple), icon-placement(start|end=end), heading-level(string=3), appearance(filled|outlined|filled-outlined|plain=outlined)
-**Outputs:** (afterExpand), (collapse), (afterCollapse), (expand)
+**Outputs:** (expand), (afterExpand), (collapse), (afterCollapse)
 **Slots:** default
 **Methods:** expandAll(), collapseAll()
 **Requires:** AccordionItem
@@ -834,7 +834,7 @@ Form Controls | free | Time inputs collect a time of day from the user
 wa-time-input -> <TimeInput> (selector: k-time-input)
 
 **Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), with-clear(boolean=false), with-now(boolean=false), min(string=''), max(string=''), step(number=60), hour-format(auto|12|24=auto), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start), distance(number=0), autocomplete(string), custom-error(string)
-**Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (invalid), (inputEvent)
+**Outputs:** (inputEvent), (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (invalid)
 **Slots:** label, hint, start, end, clear-icon, expand-icon, footer
 **Methods:** focus(), blur(), show(), hide()
 **Parts:** form-control, form-control-label, label, form-control-input, hint, base, time-input, input-wrapper, start, end, input, segment, segment-literal, clear-button, expand-button, expand-icon, popup, columns, column, column-item, column-item-selected, now-button
@@ -845,7 +845,7 @@ Form Controls | free | Known dates collect a calendar date the user already know
 wa-known-date -> <KnownDate> (selector: k-known-date)
 
 **Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), min(string=''), max(string=''), locale(string=''), autocomplete(string), custom-error(string)
-**Outputs:** (change), (blurEvent), (focusEvent), (invalid), (inputEvent)
+**Outputs:** (inputEvent), (change), (blurEvent), (focusEvent), (invalid)
 **Slots:** label, hint
 **Methods:** focus(), blur()
 **Parts:** form-control, form-control-label, form-control-input, hint, label, base, known-date, fieldset, legend, fields, field, field-day, field-month, field-year, field-label, field-input
@@ -855,7 +855,7 @@ Media | pro | Displays a video player with customizable controls, captions, and 
 wa-video -> <Video> (selector: k-video)
 
 **Props:** controls(none|standard|full=standard), src(string), poster(string), title(string), thumbnails(string), playing(boolean=false), muted(boolean=false), volume(number=1), autoplay(boolean=false), loop(boolean=false), autoplay-muted(boolean=false), autoplay-on-visible(boolean=false), preload(auto|metadata|none=metadata), icon-library(string=system)
-**Outputs:** (playEvent), (pauseEvent), (volumechange), (error), (ended), (loadedmetadata), (timeupdate)
+**Outputs:** (timeupdate), (playEvent), (pauseEvent), (volumechange), (error), (ended), (loadedmetadata)
 **Slots:** default, controls-start, controls-after-play, poster-icon, play-icon, pause-icon, volume-icon, mute-icon, fullscreen-icon, exit-fullscreen-icon
 **Methods:** play(), pause(), togglePlay(), toggleMute(), seek(), setVolume(), setPlaybackRate(), requestFullscreen(), exitFullscreen(), getVideoElement(), getState()
 **Parts:** base, video-wrapper, video, controls, controls-overlay, timeline, thumbnail, poster-overlay, poster-play-button, video-title-overlay, caption-overlay, caption, timeline-track, timeline-indicator, timeline-thumb
@@ -878,7 +878,7 @@ Form Controls | pro | An inline calendar for selecting a single date or a date r
 wa-date-picker -> <DatePicker> (selector: k-date-picker)
 
 **Props:** mode(single|range=single), value(string), min(string), max(string), today(string), focused-date(string), view(months|days|years=days), months(1|2=1), page-by(single|months=months), first-day-of-week(auto|sun|mon|tue|wed|thu|fri|sat=auto), with-outside-days(boolean=false), with-week-numbers(boolean=false), weekday-format(narrow|short|long=short), disabled(boolean=false), readonly(boolean=false), disabled-dates(string), disabled-days-of-week(string), disable-past(boolean=false), disable-future(boolean=false), min-range(number=0), max-range(number=0), size(xs|s|m|l|xl=m), locale(string)
-**Outputs:** (change), (focusDay), (viewChange), (inputEvent)
+**Outputs:** (inputEvent), (change), (focusDay), (viewChange)
 **Slots:** previous-icon, next-icon, header, footer
 **Methods:** focus(), goToDate(), goToToday(), clear()
 **Parts:** base, date-picker, header, title, nav, previous, next, months, month, month-label, weekdays, weekday, weeknumbers, weeknumber, grid, day, day-today, day-outside, day-weekend, day-disabled, day-selected, day-range-start, day-range-end, day-range-inner, day-range-preview, day-label, day-placeholder, view-grid, view-row, view-cell, view-item, view-item-today, view-item-selected, view-item-disabled, footer
@@ -889,7 +889,7 @@ Form Controls | pro | A segmented date field with an optional popup calendar, fo
 wa-date-input -> <DateInput> (selector: k-date-input)
 
 **Props:** name(string), value(string), mode(single|range=single), label(string), hint(string), size(xs|s|m|l|xl=m), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), autocomplete(string), with-clear(boolean=false), min(string), max(string), today(string), first-day-of-week(auto|sun|mon|tue|wed|thu|fri|sat=auto), disabled-dates(string), disabled-days-of-week(string), disable-past(boolean=false), disable-future(boolean=false), min-range(number=0), max-range(number=0), months(1|2=1), page-by(months|single=months), with-outside-days(boolean=false), with-week-numbers(boolean=false), weekday-format(narrow|short|long=short), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start), distance(number=0), custom-error(string)
-**Outputs:** (change), (focusEvent), (blurEvent), (clearEvent), (showEvent), (afterShow), (hideEvent), (afterHide), (invalid), (inputEvent)
+**Outputs:** (inputEvent), (change), (focusEvent), (blurEvent), (clearEvent), (showEvent), (afterShow), (hideEvent), (afterHide), (invalid)
 **Slots:** label, hint, start, end, clear-icon, expand-icon, footer, previous-icon, next-icon, day-YYYY-MM-DD
 **Methods:** focus(), blur(), show(), hide(), clear()
 **Parts:** form-control, form-control-label, label, form-control-input, hint, base, date-input, input-wrapper, start, end, input, segment, segment-literal, range-separator, clear-button, expand-button, expand-icon, popup, date-picker

@@ -72,3 +72,51 @@
   padding-inline-start: var(--wa-space-m);
   overflow-wrap: anywhere;
 }
+
+/* A held custom CSS change: the text it replaces and the text it brings. */
+.theme-agent__diff {
+  margin-top: var(--wa-space-s);
+  white-space: normal;
+}
+
+.theme-agent__diff-body {
+  position: relative;
+}
+
+/* An icon button in the code block's top right corner. */
+.theme-agent__diff-copy {
+  position: absolute;
+  inset-block-start: var(--wa-space-2xs);
+  inset-inline-end: var(--wa-space-2xs);
+}
+
+.theme-agent__diff-lines {
+  margin: 0;
+  /* The inline padding sits on the lines, so their highlights reach the
+     block's edges. */
+  padding-inline: 0;
+  font-family: var(--wa-font-family-code);
+  font-size: var(--wa-font-size-xs);
+  /* Wrapped, not scrolled, so every highlight spans the whole block. A
+     wrapped line hangs under its text, past the +/- sign. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+
+  & > * {
+    display: block;
+    /* The end leaves room for the copy button over the first lines. */
+    padding-inline: calc(var(--wa-space-s) + 2ch) var(--wa-space-2xl);
+    text-indent: -2ch;
+    text-decoration: none;
+  }
+
+  & del {
+    background: var(--wa-color-danger-fill-quiet);
+    color: var(--wa-color-danger-on-quiet);
+  }
+
+  & ins {
+    background: var(--wa-color-success-fill-quiet);
+    color: var(--wa-color-success-on-quiet);
+  }
+}

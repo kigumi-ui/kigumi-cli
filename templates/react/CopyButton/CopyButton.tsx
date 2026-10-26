@@ -98,10 +98,12 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
       if (!el) return;
 
       const handleWaCopy = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onCopy) onCopy(e as WaCopyEvent);
       };
 
       const handleWaError = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e as WaErrorEvent);
       };
 

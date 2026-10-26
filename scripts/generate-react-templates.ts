@@ -24,6 +24,7 @@ import {
   enumeratedProps,
   generateCssTemplate,
   handlerArgument,
+  OWN_TARGET_GUARD,
   keywordPairLiteral,
   writeFormatted,
   propJsdocLines,
@@ -191,6 +192,7 @@ ${ownProps}
       const reactName = toReactEventName(event.name);
       const eventType = event.eventType;
       return `      const ${toHandlerName(event.name)} = (e: Event) => {
+        ${OWN_TARGET_GUARD}
         if (${reactName}) ${reactName}(${handlerArgument(eventType)});
       };`;
     })

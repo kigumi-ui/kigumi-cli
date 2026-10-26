@@ -83,6 +83,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
       if (!el) return;
 
       const handleRemove = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onRemove) onRemove(e as WaRemoveEvent);
       };
 

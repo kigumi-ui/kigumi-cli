@@ -134,25 +134,58 @@ onMounted(() => {
 });
 
 const handleInput = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   model.value = (e.target as HTMLElement & { value: string }).value;
   emit('input', e as InputEvent);
 };
-const handleChange = (e: Event) => emit('change', e);
-const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleWaClear = (e: Event) => emit('wa-clear', e as WaClearEvent);
-const handleWaShow = (e: Event) => emit('wa-show', e as WaShowEvent);
-const handleWaAfterShow = (e: Event) =>
+const handleChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('change', e);
+};
+const handleFocus = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('focus', e as FocusEvent);
+};
+const handleBlur = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('blur', e as FocusEvent);
+};
+const handleWaClear = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-clear', e as WaClearEvent);
+};
+const handleWaShow = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-show', e as WaShowEvent);
+};
+const handleWaAfterShow = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-after-show', e as WaAfterShowEvent);
-const handleWaHide = (e: Event) => emit('wa-hide', e as WaHideEvent);
-const handleWaAfterHide = (e: Event) =>
+};
+const handleWaHide = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-hide', e as WaHideEvent);
+};
+const handleWaAfterHide = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-after-hide', e as WaAfterHideEvent);
-const handleWaCreate = (e: Event) => emit('wa-create', e as WaCreateEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
-const handleWaOptionsRequest = (e: Event) =>
+};
+const handleWaCreate = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-create', e as WaCreateEvent);
+};
+const handleWaInvalid = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-invalid', e as WaInvalidEvent);
+};
+const handleWaOptionsRequest = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-options-request', e as WaOptionsRequestEvent);
-const handleWaOptionsError = (e: Event) =>
+};
+const handleWaOptionsError = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-options-error', e as WaOptionsErrorEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

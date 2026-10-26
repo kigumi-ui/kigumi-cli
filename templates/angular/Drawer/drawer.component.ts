@@ -85,20 +85,30 @@ export class DrawerComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleShow = (e: Event) => this.show.emit(e as WaShowEvent);
+    const handleShow = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.show.emit(e as WaShowEvent);
+    };
     el.addEventListener('wa-show', handleShow);
     this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
-    const handleAfterShow = (e: Event) =>
+    const handleAfterShow = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterShow.emit(e as WaAfterShowEvent);
+    };
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-show', handleAfterShow)
     );
-    const handleHide = (e: Event) => this.hide.emit(e as WaHideEvent);
+    const handleHide = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.hide.emit(e as WaHideEvent);
+    };
     el.addEventListener('wa-hide', handleHide);
     this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
-    const handleAfterHide = (e: Event) =>
+    const handleAfterHide = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterHide.emit(e as WaAfterHideEvent);
+    };
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-hide', handleAfterHide)

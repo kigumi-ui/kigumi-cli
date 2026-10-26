@@ -97,6 +97,7 @@ export const RandomContent = forwardRef<RandomContentRef, RandomContentProps>(
       if (!el) return;
 
       const handleContentChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onContentChange) onContentChange(e as WaContentChangeEvent);
       };
 

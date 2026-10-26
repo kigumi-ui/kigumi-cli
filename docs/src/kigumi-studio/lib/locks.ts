@@ -10,25 +10,34 @@ import {
 
 /**
  * What the user locked: CSS custom properties per mode, and whether the list
- * of components that get a shadow is locked. A mode-independent property is
- * locked in both modes or in neither.
+ * of components that get a shadow and the custom CSS are locked. A
+ * mode-independent property is locked in both modes or in neither; the
+ * custom CSS is one unit for both modes.
  */
 export interface LockedValues {
   light: string[];
   dark: string[];
   shadowComponents: boolean;
+  customCSS: boolean;
 }
 
 export const NO_LOCKS: LockedValues = {
   light: [],
   dark: [],
   shadowComponents: false,
+  customCSS: false,
 };
 
 /** The lock of the list of components that get a shadow, for `withLocks`. */
 export const SHADOW_COMPONENTS_LOCK: LockedValues = {
   ...NO_LOCKS,
   shadowComponents: true,
+};
+
+/** The lock of the custom CSS, for `withLocks`. */
+export const CUSTOM_CSS_LOCK: LockedValues = {
+  ...NO_LOCKS,
+  customCSS: true,
 };
 
 export const THEME_MODES: readonly ThemeMode[] = ['light', 'dark'];
@@ -54,6 +63,7 @@ export function valueLock(
     light: modes.includes('light') ? [cssVar] : [],
     dark: modes.includes('dark') ? [cssVar] : [],
     shadowComponents: false,
+    customCSS: false,
   };
 }
 
@@ -68,10 +78,11 @@ export function isLocked(
 /**
  * `locked` with every lock in `change` added (`lock`) or removed; a lock
  * `change` does not name stays as it is. `change` names values the way
- * `valueLock()` and `SHADOW_COMPONENTS_LOCK` build them, so unlocking the
- * shadow component list takes `SHADOW_COMPONENTS_LOCK`, never `NO_LOCKS`. A
- * mode-independent property changes in both modes, each list keeps sidebar
- * order, and a CSS variable that is not a Studio property is dropped.
+ * `valueLock()`, `SHADOW_COMPONENTS_LOCK` and `CUSTOM_CSS_LOCK` build them,
+ * so unlocking the shadow component list takes `SHADOW_COMPONENTS_LOCK`,
+ * never `NO_LOCKS`. A mode-independent property changes in both modes, each
+ * list keeps sidebar order, and a CSS variable that is not a Studio
+ * property is dropped.
  */
 export function withLocks(
   locked: LockedValues,
@@ -95,13 +106,17 @@ export function withLocks(
     light: inOrder(next.light),
     dark: inOrder(next.dark),
     shadowComponents: change.shadowComponents ? lock : locked.shadowComponents,
+    customCSS: change.customCSS ? lock : locked.customCSS,
   };
 }
 
 /** Whether `locked` locks anything at all. */
 export function hasLocks(locked: LockedValues): boolean {
   return (
-    locked.light.length > 0 || locked.dark.length > 0 || locked.shadowComponents
+    locked.light.length > 0 ||
+    locked.dark.length > 0 ||
+    locked.shadowComponents ||
+    locked.customCSS
   );
 }
 
@@ -119,6 +134,7 @@ export function parseLocks(value: unknown): LockedValues {
       light: strings(record.light),
       dark: strings(record.dark),
       shadowComponents: record.shadowComponents === true,
+      customCSS: record.customCSS === true,
     },
     true
   );
@@ -127,7 +143,8 @@ export function parseLocks(value: unknown): LockedValues {
 /**
  * Locks as the Theme Agent reads them: a property name alone is locked in
  * both modes, `(light mode)` or `(dark mode)` names the one it is locked in,
- * and `shadowComponents` is the shadow component list.
+ * `shadowComponents` is the shadow component list and `customCSS` the
+ * custom CSS.
  */
 export function describeLocks(locked: LockedValues): string[] {
   const lines = PROPERTY_DEFINITIONS.flatMap(({ cssVar }) => {
@@ -139,6 +156,7 @@ export function describeLocks(locked: LockedValues): string[] {
     return [];
   });
   if (locked.shadowComponents) lines.push('shadowComponents');
+  if (locked.customCSS) lines.push('customCSS');
   return lines;
 }
 
