@@ -30,24 +30,29 @@ function files(dir: string, extension: string): string[] {
 
 /**
  * The handlers a source registers with `addEventListener('<event>', name)`
- * and whether each one's body opens with the guard.
+ * and whether each one's body opens with the guard. A call that passes
+ * anything but a named handler (an inline arrow, a bound method) cannot be
+ * read, so it counts as unguarded rather than going unseen.
  */
 function unguardedHandlers(source: string): {
   registered: number;
   unguarded: string[];
 } {
-  const names = new Set(
-    [...source.matchAll(/addEventListener\(\s*'[^']+',\s*(\w+)/g)].map(
-      (match) => match[1]
-    )
-  );
+  const calls = [...source.matchAll(/addEventListener\(\s*([^)]*)/g)];
+  const names = new Set<string>();
+  const unreadable: string[] = [];
+  for (const [, args] of calls) {
+    const named = /^'[^']+',\s*(\w+)\s*$/.exec(args.trim());
+    if (named) names.add(named[1]);
+    else unreadable.push(`addEventListener(${args.trim()}`);
+  }
   const unguarded = [...names].filter((name) => {
     const definition = new RegExp(
       `const ${name} = \\((?:e|e: Event)\\) => \\{\\s*([^\\n]*)`
     ).exec(source);
     return definition?.[1]?.trim() !== GUARD;
   });
-  return { registered: names.size, unguarded };
+  return { registered: calls.length, unguarded: [...unguarded, ...unreadable] };
 }
 
 describe('unguardedHandlers', () => {
@@ -61,6 +66,11 @@ describe('unguardedHandlers', () => {
       registered: 1,
       unguarded: ['handleHide'],
     });
+  });
+
+  it('reports an inline listener it cannot read', () => {
+    const source = `el.addEventListener('wa-hide', (e) => onHide?.(e));`;
+    expect(unguardedHandlers(source).unguarded).toHaveLength(1);
   });
 
   it('accepts a handler that opens with the guard', () => {
