@@ -3,8 +3,7 @@ import clsx from 'clsx';
 import { StudioHeader } from './StudioHeader';
 import { StudioSidebar } from './StudioSidebar';
 import { StudioPreview } from './StudioPreview';
-import { CustomCSSDialog } from './toolbar/CustomCSSDialog';
-import { ExportDialog } from './toolbar/ExportDialog';
+import { ThemeCSSDialog } from './toolbar/ThemeCSSDialog';
 import { PanelToggle } from './PanelToggle';
 import { hasThemeAgentAccess } from '../theme-agent/access';
 import './StudioLayout.css';
@@ -17,11 +16,10 @@ const ThemeAgentSidebar = lazy(() =>
 );
 
 export function StudioLayout() {
-  const [customCSSOpen, setCustomCSSOpen] = useState(false);
-  // A fresh dialog on every open, so its editor starts from the custom CSS
-  // as it is now (a preset may have changed it since).
-  const [customCSSKey, setCustomCSSKey] = useState(0);
-  const [exportOpen, setExportOpen] = useState(false);
+  const [themeCSSOpen, setThemeCSSOpen] = useState(false);
+  // A fresh dialog on every open, so its text starts from the custom theme
+  // as it is now.
+  const [themeCSSKey, setThemeCSSKey] = useState(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [themeAgentAvailable] = useState(() =>
     hasThemeAgentAccess(document.cookie)
@@ -42,11 +40,10 @@ export function StudioLayout() {
         <StudioSidebar
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-          onCustomCSS={() => {
-            setCustomCSSKey((key) => key + 1);
-            setCustomCSSOpen(true);
+          onThemeCSS={() => {
+            setThemeCSSKey((key) => key + 1);
+            setThemeCSSOpen(true);
           }}
-          onExport={() => setExportOpen(true)}
         />
         <StudioPreview />
         {/* The panel and its toggle load with Studio; the chat inside
@@ -73,12 +70,11 @@ export function StudioLayout() {
           </div>
         )}
       </div>
-      <CustomCSSDialog
-        key={customCSSKey}
-        open={customCSSOpen}
-        onClose={() => setCustomCSSOpen(false)}
+      <ThemeCSSDialog
+        key={themeCSSKey}
+        open={themeCSSOpen}
+        onClose={() => setThemeCSSOpen(false)}
       />
-      <ExportDialog open={exportOpen} onClose={() => setExportOpen(false)} />
     </div>
   );
 }

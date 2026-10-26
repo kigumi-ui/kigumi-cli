@@ -35,18 +35,6 @@ describe('round-trip: generate → parse → verify', () => {
     );
   });
 
-  it('round-trips custom CSS through generate → parse', () => {
-    const customCSS =
-      '.Card > .inner {\n  box-shadow: none;\n}\n\n@media (max-width: 600px) {\n  .Card { padding: 0; }\n}';
-    const css = generateThemeCSS(
-      { '--wa-color-brand': '#ff0000' },
-      {},
-      { customCSS }
-    );
-    const overrides = parseComponentOverrides(css);
-    expect(overrides.customCSS).toBe(customCSS);
-  });
-
   it('round-trips shadow color+opacity combination', () => {
     const light = {
       '--wa-color-shadow': '#000000',
@@ -55,7 +43,8 @@ describe('round-trip: generate → parse → verify', () => {
     const css = generateThemeCSS(light, {}, {});
     expect(css).toContain('rgb(0 0 0 / 0.3)');
     const parsed = parseThemeCSS(css);
-    expect(parsed.light['--wa-color-shadow']).toBe('rgb(0 0 0 / 0.3)');
+    expect(parsed.light['--wa-color-shadow']).toBe('#000000');
+    expect(parsed.light['--wa-shadow-opacity']).toBe('0.3');
   });
 
   it('round-trips font import without corrupting properties', () => {

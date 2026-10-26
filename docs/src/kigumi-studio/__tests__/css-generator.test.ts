@@ -82,32 +82,6 @@ describe('generateThemeCSS', () => {
     expect(result).toContain('.Badge {\n  box-shadow: var(--wa-shadow-m);\n}');
   });
 
-  it('appends custom CSS at the end', () => {
-    const result = generateThemeCSS(
-      { '--wa-color-brand': '#ff0000' },
-      {},
-      {
-        customCSS: '.Card > .Card {\n  box-shadow: none;\n}',
-      }
-    );
-    expect(result).toContain('/* Custom Styles */');
-    expect(result).toContain('.Card > .Card {\n  box-shadow: none;\n}');
-  });
-
-  it('outputs shadow rules before custom CSS', () => {
-    const result = generateThemeCSS(
-      { '--wa-color-brand': '#ff0000' },
-      {},
-      {
-        shadowComponents: ['Card'],
-        customCSS: '.Card > .Card { box-shadow: none; }',
-      }
-    );
-    const shadowIndex = result.indexOf('/* Component Shadows */');
-    const customIndex = result.indexOf('/* Custom Styles */');
-    expect(shadowIndex).toBeLessThan(customIndex);
-  });
-
   it('combines shadow color and opacity into rgb()', () => {
     const result = generateThemeCSS(
       {

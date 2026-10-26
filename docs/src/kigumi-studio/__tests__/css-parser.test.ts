@@ -261,7 +261,9 @@ describe('parseComponentOverrides', () => {
 }`;
     const result = parseComponentOverrides(css);
     expect(result.shadowComponents).toEqual(['Card']);
-    expect(result.customCSS).toBe(`.Card > .Card {
+    // The comment before the rule goes with it.
+    expect(result.customCSS).toBe(`/* overrides.css */
+.Card > .Card {
   box-shadow: none;
 }`);
   });

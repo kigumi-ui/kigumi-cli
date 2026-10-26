@@ -2,11 +2,15 @@
 // stores them unscoped, as the export writes them, and scopes
 // them only for the preview, so no rule reaches Studio's own UI (ADR 0009).
 
-/** One top-level piece of a stylesheet. */
+/**
+ * One top-level piece of a stylesheet. `comments` are the comments written
+ * before it, as written; comments after the last piece are a `comment` node.
+ */
 export type CssNode =
-  | { kind: 'rule'; selector: string; body: string }
-  | { kind: 'at-rule'; prelude: string; body: string }
-  | { kind: 'statement'; text: string };
+  | { kind: 'rule'; selector: string; body: string; comments: string[] }
+  | { kind: 'at-rule'; prelude: string; body: string; comments: string[] }
+  | { kind: 'statement'; text: string; comments: string[] }
+  | { kind: 'comment'; comments: string[] };
 
 interface ParsedCss {
   nodes: CssNode[];
@@ -60,6 +64,7 @@ function parseCss(css: string): ParsedCss {
   const nodes: CssNode[] = [];
   const errors: string[] = [];
   let prelude = '';
+  let comments: string[] = [];
   for (let i = 0; i < css.length; i++) {
     const skipped = skipCommentOrString(css, i);
     if (skipped === -1) {
@@ -71,7 +76,9 @@ function parseCss(css: string): ParsedCss {
       return { nodes, errors };
     }
     if (skipped !== undefined) {
-      prelude += css.slice(i, skipped);
+      const text = css.slice(i, skipped);
+      if (text.startsWith('/*')) comments.push(text);
+      else prelude += text;
       i = skipped - 1;
       continue;
     }
@@ -86,9 +93,10 @@ function parseCss(css: string): ParsedCss {
       const body = css.slice(i + 1, end);
       if (!head) errors.push('A block has no selector before its {.');
       else if (head.startsWith('@'))
-        nodes.push({ kind: 'at-rule', prelude: head, body });
-      else nodes.push({ kind: 'rule', selector: head, body });
+        nodes.push({ kind: 'at-rule', prelude: head, body, comments });
+      else nodes.push({ kind: 'rule', selector: head, body, comments });
       prelude = '';
+      comments = [];
       i = end;
     } else if (ch === '}') {
       errors.push('A } closes a block that was never opened.');
@@ -96,9 +104,10 @@ function parseCss(css: string): ParsedCss {
     } else if (ch === ';') {
       const text = withoutComments(prelude);
       if (text.startsWith('@'))
-        nodes.push({ kind: 'statement', text: `${text};` });
+        nodes.push({ kind: 'statement', text: `${text};`, comments });
       else if (text) errors.push(`"${text};" is outside any rule.`);
       prelude = '';
+      comments = [];
     } else {
       prelude += ch;
     }
@@ -106,6 +115,7 @@ function parseCss(css: string): ParsedCss {
   const rest = withoutComments(prelude);
   if (rest)
     errors.push(`"${rest}" after the last rule is not part of any rule.`);
+  if (comments.length > 0) nodes.push({ kind: 'comment', comments });
   return { nodes, errors };
 }
 
@@ -215,7 +225,7 @@ function scopeNodes(nodes: CssNode[], root: string): string[] {
     } else if (node.kind === 'at-rule') {
       // @keyframes, @font-face, @property: no selectors to scope.
       out.push(`${node.prelude} {${node.body}}`);
-    } else {
+    } else if (node.kind === 'statement') {
       out.push(node.text);
     }
   }

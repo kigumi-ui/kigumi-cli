@@ -1,8 +1,17 @@
 import { AVAILABLE_FONTS } from './font-definitions';
+import {
+  generateBrandPalette,
+  generateBrandVariables,
+  generateSemanticVariables,
+  generateSurfaceVariables,
+  generateTextVariables,
+  type SemanticColorGroup,
+} from './color-utils';
+import { DEFAULT_VALUES, type ThemeValue } from './defaults';
+import { PROPERTY_DEFINITIONS } from './property-definitions';
 
 export interface GenerateOptions {
   shadowComponents?: string[];
-  customCSS?: string | null;
 }
 
 function formatBlock(
@@ -149,23 +158,22 @@ function sortProperties(
 }
 
 /**
- * Generate a CSS theme string from modified light and dark properties.
- * Only includes properties that differ from defaults.
+ * Generate a project's theme.css from modified light and dark properties.
+ * Only includes properties that differ from defaults. Custom CSS goes into
+ * overrides.css, never here (ADR 0009; see `themeFiles`).
  *
  * Output order:
  * 1. Font imports
- * 2. Header comment
- * 3. :root {} (light mode tokens)
- * 4. .wa-dark {} (dark mode tokens)
- * 5. Shadow component rules
- * 6. Custom CSS (stored unscoped, as it goes into a project)
+ * 2. :root {} (light mode tokens)
+ * 3. .wa-dark {} (dark mode tokens)
+ * 4. Shadow component rules
  */
 export function generateThemeCSS(
   light: Record<string, string>,
   dark: Record<string, string>,
   options: GenerateOptions = {}
 ): string {
-  const { shadowComponents = [], customCSS = null } = options;
+  const { shadowComponents = [] } = options;
 
   const fontImports = extractFontImports(light, dark);
   const processedLight = sortProperties(processShadowProperties(light));
@@ -175,16 +183,7 @@ export function generateThemeCSS(
   const darkBlock = formatBlock('.wa-dark', processedDark);
   const shadowBlock = formatShadowRules(shadowComponents);
 
-  // Custom CSS is stored as it goes into a project, unscoped.
-  const unscopedCustomCSS = customCSS ? customCSS.trim() : '';
-
-  if (
-    !rootBlock &&
-    !darkBlock &&
-    !shadowBlock &&
-    !unscopedCustomCSS &&
-    fontImports.length === 0
-  ) {
+  if (!rootBlock && !darkBlock && !shadowBlock && fontImports.length === 0) {
     return '';
   }
 
@@ -213,10 +212,144 @@ export function generateThemeCSS(
     parts.push(shadowBlock);
   }
 
-  // 5. Custom CSS
-  if (unscopedCustomCSS) {
-    parts.push(`/* Custom Styles */\n${unscopedCustomCSS}`);
+  return parts.filter((part) => part.trim()).join('\n\n') + '\n';
+}
+
+/**
+ * The values the export writes, per mode: every Studio value that differs
+ * from its default, with unit, and what Studio derives from the colour
+ * groups (palettes, semantic variables, surfaces and text from neutral).
+ */
+export function modifiedProperties(values: Record<string, ThemeValue>): {
+  light: Record<string, string>;
+  dark: Record<string, string>;
+} {
+  const light: Record<string, string> = {};
+  const dark: Record<string, string> = {};
+
+  // 1. Collect explicitly modified base properties
+  for (const prop of PROPERTY_DEFINITIONS) {
+    const current = values[prop.cssVar];
+    const defaults = DEFAULT_VALUES[prop.cssVar];
+    if (!current || !defaults) continue;
+
+    const suffix = prop.unit ?? '';
+    if (current.light !== defaults.light) {
+      light[prop.cssVar] = `${current.light}${suffix}`;
+    }
+    if (current.dark !== defaults.dark) {
+      dark[prop.cssVar] = `${current.dark}${suffix}`;
+    }
   }
 
-  return parts.filter((part) => part.trim()).join('\n\n') + '\n';
+  // 2. For each modified color group, generate derived palette + semantic vars
+  const isBaseModified = (cssVar: string): boolean => {
+    const current = values[cssVar];
+    const defaults = DEFAULT_VALUES[cssVar];
+    if (!current || !defaults) return false;
+    return current.light !== defaults.light || current.dark !== defaults.dark;
+  };
+
+  // For mode-independent properties (like brand), editing in one mode may leave
+  // the other at default. Use the modified value regardless of which mode it's in.
+  const getEffectiveHex = (cssVar: string): string => {
+    const current = values[cssVar];
+    const defaults = DEFAULT_VALUES[cssVar];
+    if (!current || !defaults) return current?.light ?? '';
+    if (current.light !== defaults.light) return current.light;
+    if (current.dark !== defaults.dark) return current.dark;
+    return current.light;
+  };
+
+  const paletteStepRegex = /--wa-color-[\w]+-\d{2}$/;
+
+  // Brand
+  if (isBaseModified('--wa-color-brand')) {
+    const baseHex = getEffectiveHex('--wa-color-brand');
+    // Ensure the base color appears in :root even if only dark was edited
+    if (!light['--wa-color-brand']) {
+      light['--wa-color-brand'] = baseHex;
+    }
+    const lightVars = generateBrandVariables(baseHex, 'light');
+    const darkVars = generateBrandVariables(baseHex, 'dark');
+
+    for (const [key, val] of Object.entries(lightVars)) {
+      if (key === '--wa-color-brand') continue;
+      light[key] = val;
+    }
+    // Dark: skip palette steps (already in light/root), only add semantic vars
+    for (const [key, val] of Object.entries(darkVars)) {
+      if (key === '--wa-color-brand') continue;
+      if (paletteStepRegex.test(key)) continue;
+      dark[key] = val;
+    }
+  }
+
+  // Semantic groups (success, warning, danger, neutral)
+  const semanticGroups: SemanticColorGroup[] = [
+    'success',
+    'warning',
+    'danger',
+    'neutral',
+  ];
+  for (const group of semanticGroups) {
+    const cssVar = `--wa-color-${group}`;
+    if (!isBaseModified(cssVar)) continue;
+
+    const baseHex = getEffectiveHex(cssVar);
+    if (!light[cssVar]) {
+      light[cssVar] = baseHex;
+    }
+    const lightVars = generateSemanticVariables(baseHex, group, 'light');
+    const darkVars = generateSemanticVariables(baseHex, group, 'dark');
+
+    for (const [key, val] of Object.entries(lightVars)) {
+      if (key === cssVar) continue;
+      light[key] = val;
+    }
+    for (const [key, val] of Object.entries(darkVars)) {
+      if (key === cssVar) continue;
+      if (paletteStepRegex.test(key)) continue;
+      dark[key] = val;
+    }
+  }
+
+  // 3. Auto-derive surface/text from neutral (only for unmodified properties)
+  const neutralModified = isBaseModified('--wa-color-neutral');
+  const brandModified = isBaseModified('--wa-color-brand');
+
+  if (neutralModified) {
+    const neutralHex = values['--wa-color-neutral'].light;
+    const brandHex = values['--wa-color-brand'].light;
+
+    const surfaceLight = generateSurfaceVariables(neutralHex, 'light');
+    const surfaceDark = generateSurfaceVariables(neutralHex, 'dark');
+    const textLight = generateTextVariables(neutralHex, brandHex, 'light');
+    const textDark = generateTextVariables(neutralHex, brandHex, 'dark');
+
+    for (const [key, val] of Object.entries({
+      ...surfaceLight,
+      ...textLight,
+    })) {
+      if (!light[key]) light[key] = val;
+    }
+    for (const [key, val] of Object.entries({
+      ...surfaceDark,
+      ...textDark,
+    })) {
+      if (!dark[key]) dark[key] = val;
+    }
+  } else if (brandModified) {
+    // Only brand changed: auto-derive text-link and focus from brand palette
+    const brandHex = values['--wa-color-brand'].light;
+    const brandPalette = generateBrandPalette(brandHex);
+
+    const isLinkModified = isBaseModified('--wa-color-text-link');
+    if (!isLinkModified) {
+      light['--wa-color-text-link'] = brandPalette['40'];
+      dark['--wa-color-text-link'] = brandPalette['70'];
+    }
+  }
+
+  return { light, dark };
 }

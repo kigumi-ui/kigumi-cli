@@ -26,15 +26,13 @@ import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 interface StudioSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
-  onCustomCSS?: () => void;
-  onExport?: () => void;
+  onThemeCSS?: () => void;
 }
 
 export function StudioSidebar({
   collapsed,
   onToggle,
-  onCustomCSS,
-  onExport,
+  onThemeCSS,
 }: StudioSidebarProps) {
   const { editMode, setEditMode, setPreviewMode, values, importValues } =
     useStudio();
@@ -162,21 +160,10 @@ export function StudioSidebar({
                 </div>
               </div>
             </div>
-            <ButtonGroup>
-              <Button
-                variant="neutral"
-                appearance="outlined"
-                size="small"
-                onClick={onCustomCSS}
-              >
-                <Icon name="wrench" slot="start" />
-                Custom CSS
-              </Button>
-              <Button variant="brand" size="small" onClick={onExport}>
-                <Icon name="upload" slot="start" />
-                Export
-              </Button>
-            </ButtonGroup>
+            <Button variant="brand" size="small" onClick={onThemeCSS}>
+              <Icon name="file-code" slot="start" />
+              Theme CSS
+            </Button>
           </div>
           <Divider />
           {/* One accordion: each editor renders its sections as its items. */}
