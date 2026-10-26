@@ -40,6 +40,12 @@ export const PUBLISHED_SKILLS = [
   'kigumi-cross-framework',
 ];
 
+/**
+ * Directories excluded from published output (internal QA tooling), at any
+ * depth. vercel-ignore-build.mjs skips changes inside them.
+ */
+export const EXCLUDED_DIRS = ['evals'];
+
 const SKILLS_SRC = join(ROOT, '.claude', 'skills');
 const TARGETS = [
   join(ROOT, 'docs', 'public', 'skills'),
@@ -52,9 +58,6 @@ async function main() {
     await rm(dir, { recursive: true, force: true });
     await mkdir(dir, { recursive: true });
   }
-
-  // Directories excluded from published output (internal QA tooling)
-  const EXCLUDED_DIRS = ['evals'];
 
   // Copy each whitelisted skill to both targets, excluding internal dirs
   for (const skill of PUBLISHED_SKILLS) {

@@ -6,12 +6,21 @@
  *
  * Wired up as `ignoreCommand` in docs/vercel.json and
  * docs/storybook/vercel.json. Vercel reads the exit code:
- *   0 -> skip the build (does not count against the deployment quota)
+ *   0 -> skip the build
  *   1 -> build
  *
- * Every push to every branch used to build both projects, which exhausted the
- * free quota in a day. Now a project builds only when a file it renders or
- * serves changed since the last successful deployment of the branch.
+ * A skipped build still counts against Vercel's deployment quota. Branches
+ * that never need a deployment are therefore kept out before one exists, by
+ * `git.deploymentEnabled` in each vercel.json: the release and Dependabot
+ * branches for both projects, and every branch but main for Storybook. This
+ * script decides for the deployments that are still created:
+ *
+ * - docs (kigumi.style) builds when a file the landing page or Studio renders
+ *   or serves changed since the branch's last successful deployment, or when
+ *   the CLI version changed (the Hero shows it).
+ * - storybook (docs.kigumi.style) builds only for a release, when the CLI
+ *   version changed. It documents the released CLI, and its changelog and
+ *   version badge move only at a release.
  *
  * Runs before `pnpm install`, so: plain Node, no dependencies. Whenever the
  * answer is uncertain (no base commit, git failure) the script builds rather
@@ -21,30 +30,35 @@
 import { execFileSync } from 'node:child_process';
 import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { PUBLISHED_SKILLS } from './publish-skills.mjs';
+import { EXCLUDED_DIRS, PUBLISHED_SKILLS } from './publish-skills.mjs';
 
 /** @typedef {'docs' | 'storybook'} Target */
 
 export const TARGETS = /** @type {const} */ (['docs', 'storybook']);
 
-/** Branches that never get a deployment, whatever they touch. */
-const SKIPPED_BRANCH_PREFIXES = ['dependabot/'];
+const PRODUCTION_BRANCH = 'main';
 
-/** Changing the build pipeline itself must rebuild both projects. */
-const ALWAYS_RELEVANT = [
-  'scripts/vercel-ignore-build.mjs',
-  'scripts/setup-npmrc.mjs',
+/**
+ * Branches that never get a deployment, whatever they touch. The same
+ * branches are off in `git.deploymentEnabled`; this is the fallback if a
+ * deployment is created anyway.
+ */
+const SKIPPED_BRANCH_PREFIXES = [
+  'dependabot/',
+  'changeset-release/',
+  'changesets-ghcommit-temp/',
 ];
 
 /**
- * Files under docs/ that neither project renders or serves. Everything else
- * under docs/ is relevant: a denylist, so a new directory builds by default.
+ * Files under docs/ that kigumi.style neither renders nor serves. Everything
+ * else under docs/ builds: a denylist, so a new directory builds by default.
  * @type {RegExp[]}
  */
-const DOCS_NON_VISUAL = [
+const LANDING_IGNORED = [
   /^docs\/adr\//,
   /^docs\/agents\//,
   /^docs\/README\.md$/,
+  /\/AGENTS\.md$/,
   /^docs\/\.storybook-test\//,
   /^docs\/vitest[^/]*\.ts$/,
   /^docs\/eslint\.config\.js$/,
@@ -52,27 +66,31 @@ const DOCS_NON_VISUAL = [
   /\/__tests__\//,
   /\.test\.[^/]+$/,
   /\.example$/,
+  // The trigger.dev task deploys on its own (`pnpm deploy:task`) and the
+  // prompt eval never ships; `tsc -b` only typechecks them, as CI does.
+  /^docs\/trigger\//,
+  /^docs\/trigger\.config\.ts$/,
+  /^docs\/eval\//,
+  // Storybook's own sources: stories, config, its Vercel project, and the
+  // components and images that only stories import.
+  /^docs\/src\/stories\//,
+  /^docs\/\.storybook\//,
+  /^docs\/storybook\//,
+  /^docs\/src\/components\/(changelog|roadmap|storybook)\//,
+  /^docs\/src\/assets\/components\//,
 ];
 
-/** @type {Record<Target, RegExp[]>} */
-const DOCS_IGNORED_BY_TARGET = {
-  // The landing page never imports stories or the Storybook config.
-  docs: [/^docs\/src\/stories\//, /^docs\/\.storybook\//, /^docs\/storybook\//],
-  // Storybook keeps all of docs/src: its MDX pages import kigumi-studio.
-  storybook: [/^docs\/vercel\.json$/, /^docs\/index\.html$/],
-};
-
 /**
- * Files outside docs/ that end up on kigumi.style: the changelog page, the
- * version define in docs/vite.config.ts, llms.txt, and the published skills
- * (docs `prebuild`).
+ * Files outside docs/ that end up on kigumi.style (llms.txt and the published
+ * skills, copied by the docs `prebuild`), and the build pipeline itself. The
+ * root package.json counts only through its `version` (docs/vite.config.ts).
  */
 const LANDING_EXTERNAL = [
-  'CHANGELOG.md',
-  'package.json',
   'llms.txt',
   'scripts/publish-skills.mjs',
   'scripts/generate-skills-index.mjs',
+  'scripts/vercel-ignore-build.mjs',
+  'scripts/setup-npmrc.mjs',
 ];
 
 /**
@@ -84,35 +102,35 @@ export function isSkippedBranch(branch) {
 }
 
 /**
- * @param {Target} target
  * @param {string} file repo-relative path, forward slashes
- * @returns {boolean}
+ * @returns {boolean} whether `file` changes what kigumi.style shows
  */
-export function isRelevant(target, file) {
-  if (ALWAYS_RELEVANT.includes(file)) return true;
-
+export function isLandingFile(file) {
   if (file.startsWith('docs/')) {
-    if (DOCS_NON_VISUAL.some((re) => re.test(file))) return false;
-    return !DOCS_IGNORED_BY_TARGET[target].some((re) => re.test(file));
+    return !LANDING_IGNORED.some((re) => re.test(file));
   }
+  if (LANDING_EXTERNAL.includes(file)) return true;
 
-  if (target === 'docs') {
-    if (LANDING_EXTERNAL.includes(file)) return true;
-    return PUBLISHED_SKILLS.some((skill) =>
-      file.startsWith(`.claude/skills/${skill}/`)
-    );
-  }
-
-  return false;
+  // Published skills ship without their excluded directories (publish-skills).
+  return PUBLISHED_SKILLS.some((skill) => {
+    const prefix = `.claude/skills/${skill}/`;
+    if (!file.startsWith(prefix)) return false;
+    const dirs = file.slice(prefix.length).split('/').slice(0, -1);
+    return !dirs.some((dir) => EXCLUDED_DIRS.includes(dir));
+  });
 }
 
 /**
  * @param {Target} target
- * @param {string[]} files
- * @returns {string[]} the files that make `target` rebuild
+ * @param {string[]} files changed since the base commit
+ * @param {boolean} versionChanged whether the root package.json `version`
+ *   changed since the base commit
+ * @returns {string[]} what makes `target` build; empty to skip
  */
-export function relevantFiles(target, files) {
-  return files.filter((file) => isRelevant(target, file));
+export function buildReasons(target, files, versionChanged) {
+  const reasons = versionChanged ? ['package.json (CLI version)'] : [];
+  if (target === 'storybook') return reasons;
+  return [...reasons, ...files.filter(isLandingFile)];
 }
 
 /**
@@ -141,13 +159,16 @@ function hasCommit(sha) {
 }
 
 /**
- * The commit to diff against: the branch's last successful deployment, or,
- * for a branch that never deployed, where it forked from main. Vercel clones
- * shallowly, so both paths may need to fetch history first.
+ * The commit to diff against: the branch's last successful deployment. Without
+ * one, main compares with its parent (a commit whose build was skipped changed
+ * nothing relevant), and any other branch with where it forked from main.
+ * Vercel clones shallowly, so every path may need to fetch history first.
+ * @param {string} branch
  * @returns {{ base: string, source: string } | null}
  */
-function resolveBase() {
+function resolveBase(branch) {
   const previous = process.env.VERCEL_GIT_PREVIOUS_SHA;
+  let missing = 'VERCEL_GIT_PREVIOUS_SHA is not set';
   if (previous) {
     try {
       if (!hasCommit(previous))
@@ -155,22 +176,52 @@ function resolveBase() {
       if (hasCommit(previous))
         return { base: git('rev-parse', previous), source: 'last deployment' };
     } catch (_error) {
-      // Fall through to the merge-base; a force-push can orphan the SHA.
+      // Fall through; a force-push can orphan the SHA.
+    }
+    missing = `last deployment ${previous.slice(0, 8)} is not fetchable`;
+  }
+
+  if (branch === PRODUCTION_BRANCH) {
+    try {
+      try {
+        git('fetch', '--quiet', '--deepen=1');
+      } catch (_error) {
+        // Already a full clone; the parent is there.
+      }
+      return { base: git('rev-parse', 'HEAD^'), source: `parent; ${missing}` };
+    } catch (_error) {
+      return null;
     }
   }
 
   try {
-    git('fetch', '--quiet', '--depth=200', 'origin', 'main');
+    git('fetch', '--quiet', '--depth=200', 'origin', PRODUCTION_BRANCH);
     try {
       git('fetch', '--quiet', '--deepen=200');
     } catch (_error) {
       // Already a full clone; nothing to deepen.
     }
     const base = git('merge-base', 'FETCH_HEAD', 'HEAD');
-    // HEAD is on main itself (a first production deploy, or an orphaned
-    // previous SHA): an empty diff proves nothing, so build.
+    // A branch with no commits of its own: an empty diff proves nothing, so
+    // build.
     if (base === git('rev-parse', 'HEAD')) return null;
-    return { base, source: 'merge-base with main' };
+    return { base, source: `merge-base with main; ${missing}` };
+  } catch (_error) {
+    return null;
+  }
+}
+
+/**
+ * @param {string} base
+ * @returns {boolean | null} whether the root package.json `version` differs
+ *   between `base` and HEAD; null when either cannot be read
+ */
+function versionChanged(base) {
+  try {
+    /** @param {string} rev */
+    const version = (rev) =>
+      JSON.parse(git('show', `${rev}:package.json`)).version;
+    return version(base) !== version('HEAD');
   } catch (_error) {
     return null;
   }
@@ -195,7 +246,7 @@ function main(argv) {
     return 0;
   }
 
-  const resolved = resolveBase();
+  const resolved = resolveBase(branch);
   if (!resolved) {
     console.log(`[${target}] Build: no base commit to compare against.`);
     return 1;
@@ -211,20 +262,27 @@ function main(argv) {
     return 1;
   }
 
-  const relevant = relevantFiles(target, changed);
+  const bumped = versionChanged(resolved.base);
+  if (bumped === null) {
+    console.log(`[${target}] Build: could not compare the CLI version.`);
+    return 1;
+  }
+
+  const reasons = buildReasons(target, changed, bumped);
   console.log(
     `[${target}] Compared ${changed.length} changed file(s) against ${resolved.base.slice(0, 8)} (${resolved.source}).`
   );
-  if (relevant.length === 0) {
+  if (reasons.length === 0) {
     console.log(
-      `[${target}] Skip: nothing ${target} renders or serves changed.`
+      target === 'storybook'
+        ? '[storybook] Skip: no release; Storybook deploys only when the CLI version changes.'
+        : '[docs] Skip: nothing kigumi.style renders or serves changed.'
     );
     return 0;
   }
-  console.log(`[${target}] Build: ${relevant.length} relevant file(s):`);
-  for (const file of relevant.slice(0, 20)) console.log(`  ${file}`);
-  if (relevant.length > 20)
-    console.log(`  ... and ${relevant.length - 20} more`);
+  console.log(`[${target}] Build: ${reasons.length} reason(s):`);
+  for (const reason of reasons.slice(0, 20)) console.log(`  ${reason}`);
+  if (reasons.length > 20) console.log(`  ... and ${reasons.length - 20} more`);
   return 1;
 }
 
