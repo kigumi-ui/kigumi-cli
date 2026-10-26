@@ -79,8 +79,10 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   const edited = draft !== shown;
 
   const onDownloadSelect: NonNullable<DropdownProps['onSelect']> = (event) => {
-    // `detail.item` is typed `Element`; the value is the DropdownItem's.
-    const value = (event.detail.item as HTMLElement & { value?: string }).value;
+    // Web Awesome types `detail.item` as `Element`; the value is the
+    // DropdownItem's, narrowed below to the two file names.
+    const { item } = event.detail;
+    const value = 'value' in item ? item.value : undefined;
     if (value === 'theme.css' || value === 'overrides.css') {
       download(current, value);
     }

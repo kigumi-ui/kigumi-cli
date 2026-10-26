@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { generateThemeCSS } from '../lib/css-generator';
+import {
+  generateBrandVariables,
+  generateSemanticVariables,
+  type SemanticColorGroup,
+} from '../lib/color-utils';
+import { generateThemeCSS, modifiedProperties } from '../lib/css-generator';
+import { buildDefaultValues } from '../lib/defaults';
 
 describe('generateThemeCSS', () => {
   it('generates :root block with one property', () => {
@@ -94,4 +100,70 @@ describe('generateThemeCSS', () => {
     expect(result).toContain('--wa-color-shadow: rgb(0 0 0 / 0.2)');
     expect(result).not.toContain('--wa-shadow-opacity');
   });
+});
+
+describe('modifiedProperties', () => {
+  const PALETTE_STEP = /-\d{2}$/;
+
+  /** Default values with one colour edited in one mode. */
+  function edit(cssVar: string, mode: 'light' | 'dark', hex: string) {
+    const values = buildDefaultValues();
+    values[cssVar] = { ...values[cssVar], [mode]: hex };
+    return values;
+  }
+
+  it('returns nothing for the defaults', () => {
+    expect(modifiedProperties(buildDefaultValues())).toEqual({
+      light: {},
+      dark: {},
+    });
+  });
+
+  it('derives the brand palette into :root and only its semantic variables into .wa-dark', () => {
+    const hex = '#7b2cbf';
+    const { light, dark } = modifiedProperties(
+      edit('--wa-color-brand', 'dark', hex)
+    );
+
+    // Edited in dark only, the base colour still lands in :root
+    expect(light['--wa-color-brand']).toBe(hex);
+    expect(light).toMatchObject(generateBrandVariables(hex, 'light'));
+
+    const darkVars = generateBrandVariables(hex, 'dark');
+    for (const [key, value] of Object.entries(darkVars)) {
+      if (key === '--wa-color-brand') {
+        // The edit itself was made in dark mode
+        expect(dark[key]).toBe(hex);
+      } else if (PALETTE_STEP.test(key)) {
+        expect(dark).not.toHaveProperty(key);
+      } else {
+        expect(dark[key]).toBe(value);
+      }
+    }
+  });
+
+  it.each<SemanticColorGroup>(['success', 'warning', 'danger', 'neutral'])(
+    'derives the %s palette the same way',
+    (group) => {
+      const cssVar = `--wa-color-${group}`;
+      const hex = '#2a9d8f';
+      const { light, dark } = modifiedProperties(edit(cssVar, 'dark', hex));
+
+      expect(light[cssVar]).toBe(hex);
+      expect(light).toMatchObject(
+        generateSemanticVariables(hex, group, 'light')
+      );
+
+      const darkVars = generateSemanticVariables(hex, group, 'dark');
+      for (const [key, value] of Object.entries(darkVars)) {
+        if (key === cssVar) {
+          expect(dark[key]).toBe(hex);
+        } else if (PALETTE_STEP.test(key)) {
+          expect(dark).not.toHaveProperty(key);
+        } else {
+          expect(dark[key]).toBe(value);
+        }
+      }
+    }
+  );
 });

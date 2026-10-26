@@ -10,6 +10,13 @@ import {
 import { DEFAULT_VALUES, type ThemeValue } from './defaults';
 import { PROPERTY_DEFINITIONS } from './property-definitions';
 
+const SEMANTIC_GROUPS: SemanticColorGroup[] = [
+  'success',
+  'warning',
+  'danger',
+  'neutral',
+];
+
 export interface GenerateOptions {
   shadowComponents?: string[];
 }
@@ -263,51 +270,36 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
 
   const paletteStepRegex = /--wa-color-[\w]+-\d{2}$/;
 
-  // Brand
-  if (isBaseModified('--wa-color-brand')) {
-    const baseHex = getEffectiveHex('--wa-color-brand');
-    // Ensure the base color appears in :root even if only dark was edited
-    if (!light['--wa-color-brand']) {
-      light['--wa-color-brand'] = baseHex;
-    }
-    const lightVars = generateBrandVariables(baseHex, 'light');
-    const darkVars = generateBrandVariables(baseHex, 'dark');
-
-    for (const [key, val] of Object.entries(lightVars)) {
-      if (key === '--wa-color-brand') continue;
-      light[key] = val;
-    }
-    // Dark: skip palette steps (already in light/root), only add semantic vars
-    for (const [key, val] of Object.entries(darkVars)) {
-      if (key === '--wa-color-brand') continue;
-      if (paletteStepRegex.test(key)) continue;
-      dark[key] = val;
-    }
-  }
-
-  // Semantic groups (success, warning, danger, neutral)
-  const semanticGroups: SemanticColorGroup[] = [
-    'success',
-    'warning',
-    'danger',
-    'neutral',
+  // Brand, then the semantic groups: one generator per group
+  const colorGroups: Array<{
+    cssVar: string;
+    variables: (
+      baseHex: string,
+      mode: 'light' | 'dark'
+    ) => Record<string, string>;
+  }> = [
+    { cssVar: '--wa-color-brand', variables: generateBrandVariables },
+    ...SEMANTIC_GROUPS.map((group) => ({
+      cssVar: `--wa-color-${group}`,
+      variables: (baseHex: string, mode: 'light' | 'dark') =>
+        generateSemanticVariables(baseHex, group, mode),
+    })),
   ];
-  for (const group of semanticGroups) {
-    const cssVar = `--wa-color-${group}`;
+
+  for (const { cssVar, variables } of colorGroups) {
     if (!isBaseModified(cssVar)) continue;
 
     const baseHex = getEffectiveHex(cssVar);
+    // Ensure the base color appears in :root even if only dark was edited
     if (!light[cssVar]) {
       light[cssVar] = baseHex;
     }
-    const lightVars = generateSemanticVariables(baseHex, group, 'light');
-    const darkVars = generateSemanticVariables(baseHex, group, 'dark');
-
-    for (const [key, val] of Object.entries(lightVars)) {
+    for (const [key, val] of Object.entries(variables(baseHex, 'light'))) {
       if (key === cssVar) continue;
       light[key] = val;
     }
-    for (const [key, val] of Object.entries(darkVars)) {
+    // Dark: skip palette steps (already in light/root), only add semantic vars
+    for (const [key, val] of Object.entries(variables(baseHex, 'dark'))) {
       if (key === cssVar) continue;
       if (paletteStepRegex.test(key)) continue;
       dark[key] = val;
