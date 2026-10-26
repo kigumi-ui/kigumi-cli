@@ -53,7 +53,7 @@ interface InlineOptions {
   style?: 'move' | 'copy' | 'drop';
   /** Skip removing listeners on destroy. */
   leak?: boolean;
-  /** Re-emit a descendant's bubbled event too, as Templates did before #213. */
+  /** Re-emit a descendant's bubbled event too, which the harness must report. */
   forwardDescendants?: boolean;
   /** Raw template, replacing the generated `<wa-probe>` markup. */
   template?: string;

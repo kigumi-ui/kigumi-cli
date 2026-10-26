@@ -34,6 +34,7 @@ tests/
 │   ├── display-options.test.ts      # Theme/palette/brand display data
 │   ├── doctor.test.ts               # Doctor command (import fixes)
 │   ├── docs-wrapper-callback-refs.test.ts # Docs UI wrappers must use callback refs on wa-* hosts (WA 3.13 JSX)
+│   ├── hand-maintained-own-target-guard.test.ts # Every handler a `.jsx` Template or docs wrapper registers opens with the own-target guard, so a nested component's bubbled event is not forwarded (#213); the harnesses do not run these files
 │   ├── edge-cases.test.ts           # Edge case handling
 │   ├── error-classes.test.ts        # Error class hierarchy
 │   ├── errors.test.ts               # Error formatting
