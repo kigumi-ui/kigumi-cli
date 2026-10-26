@@ -34,11 +34,8 @@ import {
   CommunityComponentNotFoundError,
   CircularDependencyError,
 } from '../../errors/community-registry.js';
-import {
-  skipMessage,
-  type InstallResult,
-  type SkipReason,
-} from './installer.js';
+import type { InstallResult } from './installer.js';
+import { skipLine, type SkipReason } from './skip-reasons.js';
 import {
   FrameworkMismatchError,
   InternalInvariantError,
@@ -188,7 +185,7 @@ export class RemoteComponentInstaller {
         );
 
         if (skipped) {
-          spinner.stop(skipMessage(component.name, skipped));
+          spinner.stop(skipLine(component.name, skipped));
           results.push({ name: component.name, success: true, skipped });
         } else {
           spinner.stop(`${pc.green('✓')} Added ${pc.cyan(component.name)}`);
@@ -297,7 +294,7 @@ export class RemoteComponentInstaller {
     const componentExists = await fs.pathExists(componentPath);
 
     if (componentExists) {
-      // --all without --force: silently skip
+      // --all without --force: never touch an installed component
       if (options.all && !options.force) {
         return 'exists';
       }

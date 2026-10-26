@@ -10,7 +10,6 @@
  * EXPORTS:
  * - ComponentInstaller - Class that handles component installation
  * - InstallResult - Result type for installation operations
- * - SkipReason / skipMessage - Why a component was left alone, and its line
  *
  * @see AGENTS.md Rule #1 for templates-first development
  */
@@ -43,28 +42,7 @@ import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../schemas/config.js';
 import { ValidationError } from '../../errors/index.js';
-
-/**
- * Why a component already on disk was left alone. Each one asks something
- * different of the user, so each gets its own line (issue #177):
- * - `exists`: `--all` without `--force` never touches an installed component
- * - `declined`: the user answered no to the overwrite prompt
- * - `up-to-date`: every file already matches, so there was nothing to write
- */
-export type SkipReason = 'exists' | 'declined' | 'up-to-date';
-
-/** The spinner line for a skipped component. Shared with the remote installer. */
-export function skipMessage(name: string, reason: SkipReason): string {
-  const component = pc.cyan(name);
-  switch (reason) {
-    case 'exists':
-      return `${pc.yellow('○')} Skipped ${component} (already installed, pass --force to overwrite)`;
-    case 'declined':
-      return `${pc.yellow('○')} Kept your local version of ${component}`;
-    case 'up-to-date':
-      return `${pc.dim('○')} ${component} is already up to date`;
-  }
-}
+import { skipLine, type SkipReason } from './skip-reasons.js';
 
 export interface InstallResult {
   name: string;
@@ -126,7 +104,7 @@ export class ComponentInstaller {
         const result = await this.installComponent(component, options, spinner);
 
         if (result.skipped) {
-          spinner.stop(skipMessage(componentName, result.skipped));
+          spinner.stop(skipLine(componentName, result.skipped));
         } else {
           spinner.stop(`${pc.green('✓')} Added ${pc.cyan(componentName)}`);
         }
@@ -190,7 +168,7 @@ export class ComponentInstaller {
     // When component exists, show diff + prompt (or auto-overwrite with --force)
     let modifiedFileNames: string[] | undefined;
     if (componentExists) {
-      // --all without --force: silently skip existing components
+      // --all without --force: never touch an installed component
       if (options.all && !options.force) {
         return { name: component.name, success: true, skipped: 'exists' };
       }
