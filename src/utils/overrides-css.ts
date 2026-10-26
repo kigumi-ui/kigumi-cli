@@ -176,3 +176,27 @@ export function reportOverridesLayer(
     );
   }
 }
+
+/**
+ * Bring in the overrides layer for a command that does not rewrite
+ * `layers.css` itself (`upgrade`): `ensureOverridesLayer`, then
+ * `reportOverridesLayer`. A dry run only says what it would do.
+ */
+export async function applyOverridesLayer(
+  cwd: string,
+  stylesDir: string,
+  output: OutputInterface,
+  { dryRun = false }: { dryRun?: boolean } = {}
+): Promise<void> {
+  if (dryRun) {
+    output.info(
+      `Dry run: would make sure ${stylesDir}/overrides.css exists and layers.css imports it`
+    );
+    return;
+  }
+  reportOverridesLayer(
+    await ensureOverridesLayer(cwd, stylesDir),
+    stylesDir,
+    output
+  );
+}

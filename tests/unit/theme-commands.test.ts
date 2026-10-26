@@ -181,6 +181,23 @@ describe('theme command (parent + default set)', () => {
       expect(savedConfig.theme.selected).toBe('brutalist');
     });
 
+    it('says when it created overrides.css', async () => {
+      // The layers.css it rewrites imports overrides.css (ADR 0009).
+      await createConfig();
+      regenerateSpy.mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: true, layers: 'present' },
+      });
+
+      const { themeCommand } = await import('../../src/commands/theme.js');
+      await themeCommand.parseAsync(['node', 'theme', 'set', 'awesome']);
+
+      expect(output.calls).toContainEqual({
+        method: 'info',
+        args: [expect.stringContaining('src/styles/overrides.css')],
+      });
+    });
+
     it('should call regenerateKigumiSetup after updating', async () => {
       await createConfig();
 

@@ -29,6 +29,7 @@ import path from 'path';
 import { readJSONWithComments } from '../../src/utils/json.js';
 import { generateNextEnvDts } from '../../src/utils/regenerate.js';
 import { CREATE_VITE_VERSION } from '../../src/constants.js';
+import { cascadeWinner } from './_helpers/css-cascade.js';
 import {
   SCAFFOLD_TIMEOUT_MS,
   TSC_TIMEOUT_MS,
@@ -157,6 +158,62 @@ describeConsumers(
     },
   },
   (consumer) => {
+    describe('cascade layers in the built CSS (issue #194)', () => {
+      // overrides.css must beat theme.css in what Vite actually ships, not
+      // only in the layers.css Kigumi writes.
+      const PROBE = '--kigumi-probe';
+      const touched = new Map<string, string>();
+      const file = (...parts: string[]) => path.join(consumer.dir, ...parts);
+
+      beforeAll(async () => {
+        const { stylesDir } = (await fs.readJSON(
+          file('kigumi.config.json')
+        )) as { stylesDir: string };
+        for (const target of [
+          file('src', 'main.tsx'),
+          file(stylesDir, 'theme.css'),
+          file(stylesDir, 'overrides.css'),
+        ]) {
+          touched.set(target, await fs.readFile(target, 'utf-8'));
+        }
+      });
+
+      afterAll(async () => {
+        for (const [target, content] of touched) {
+          await fs.writeFile(target, content);
+        }
+        await fs.remove(file('dist'));
+      });
+
+      it(
+        'lets a rule in overrides.css beat the same rule in theme.css',
+        async () => {
+          const [main, theme, overrides] = [...touched.keys()];
+          // The import init's next steps ask for: kigumi.ts imports layers.css.
+          await fs.appendFile(main, "\nimport './lib/kigumi';\n");
+          await fs.appendFile(theme, `\n:root { ${PROBE}: theme; }\n`);
+          await fs.appendFile(overrides, `\n:root { ${PROBE}: overrides; }\n`);
+
+          const build = await consumer.exec(['vite', 'build']);
+          expect(build.exitCode, commandText(build)).toBe(0);
+          const assets = file('dist', 'assets');
+          const css = (await fs.readdir(assets))
+            .filter((name) => name.endsWith('.css'))
+            .map((name) => fs.readFileSync(path.join(assets, name), 'utf-8'))
+            .join('\n');
+
+          // Premise: both files reached the bundle, so the verdict compares them.
+          expect(css).toContain(`${PROBE}:theme`);
+          expect(css).toContain(`${PROBE}:overrides`);
+          expect(cascadeWinner(css, PROBE)).toEqual({
+            value: 'overrides',
+            layer: 'overrides',
+          });
+        },
+        TSC_TIMEOUT_MS
+      );
+    });
+
     describe('under the Next ambient declaration', () => {
       const dtsPath = path.join(
         consumer.dir,

@@ -195,6 +195,23 @@ describe('paletteCommand', () => {
       expect(process.exit).toHaveBeenCalled();
     });
 
+    it('says when it created overrides.css', async () => {
+      // The layers.css it rewrites imports overrides.css (ADR 0009).
+      await createConfig();
+      regenerateSpy.mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: true, layers: 'present' },
+      });
+
+      const { paletteCommand } = await import('../../src/commands/palette.js');
+      await paletteCommand.parseAsync(['node', 'palette', 'bright']);
+
+      expect(output.calls).toContainEqual({
+        method: 'info',
+        args: [expect.stringContaining('src/styles/overrides.css')],
+      });
+    });
+
     it('should call regenerateKigumiSetup after updating', async () => {
       await createConfig();
 

@@ -23,6 +23,7 @@ import {
 import { ValidationError } from '../errors/validation.js';
 import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
+import { reportOverridesLayer } from '../utils/overrides-css.js';
 import { detectTier } from '../utils/tier.js';
 import { getAvailablePalettes } from '../utils/tier-restrictions.js';
 
@@ -110,9 +111,16 @@ async function paletteAction(
     await saveConfig({ theme: { palette: selectedPalette } }, cwd);
 
     const utilsDir = config.utilsDir;
-    await regenerateKigumiSetup(cwd, config, utilsDir, tier);
+    const { overrides } = await regenerateKigumiSetup(
+      cwd,
+      config,
+      utilsDir,
+      tier
+    );
 
     spinner.stop('Palette updated');
+
+    reportOverridesLayer(overrides, config.stylesDir, output);
 
     output.outro(
       `${pc.green('✓')} Palette set to ${pc.cyan(selectedPalette)}\n` +
