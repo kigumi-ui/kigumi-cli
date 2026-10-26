@@ -75,19 +75,58 @@ export const Combobox = React.forwardRef(
       const el = comboboxRef.current;
       if (!el) return;
 
-      const handleInput = (e) => onInput?.(e);
-      const handleChange = (e) => onChange?.(e);
-      const handleFocus = (e) => onFocus?.(e);
-      const handleBlur = (e) => onBlur?.(e);
-      const handleShow = (e) => onShow?.(e);
-      const handleAfterShow = (e) => onAfterShow?.(e);
-      const handleHide = (e) => onHide?.(e);
-      const handleAfterHide = (e) => onAfterHide?.(e);
-      const handleClear = (e) => onClear?.(e);
-      const handleInvalid = (e) => onInvalid?.(e);
-      const handleCreate = (e) => onCreate?.(e);
-      const handleOptionsRequest = (e) => onOptionsRequest?.(e);
-      const handleOptionsError = (e) => onOptionsError?.(e);
+      const handleInput = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onInput?.(e);
+      };
+      const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onChange?.(e);
+      };
+      const handleFocus = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onFocus?.(e);
+      };
+      const handleBlur = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onBlur?.(e);
+      };
+      const handleShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onShow?.(e);
+      };
+      const handleAfterShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterShow?.(e);
+      };
+      const handleHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onHide?.(e);
+      };
+      const handleAfterHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterHide?.(e);
+      };
+      const handleClear = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onClear?.(e);
+      };
+      const handleInvalid = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onInvalid?.(e);
+      };
+      const handleCreate = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onCreate?.(e);
+      };
+      const handleOptionsRequest = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onOptionsRequest?.(e);
+      };
+      const handleOptionsError = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onOptionsError?.(e);
+      };
 
       el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);

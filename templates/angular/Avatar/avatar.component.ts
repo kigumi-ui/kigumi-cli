@@ -77,7 +77,10 @@ export class AvatarComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleError = (e: Event) => this.error.emit(e as WaErrorEvent);
+    const handleError = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.error.emit(e as WaErrorEvent);
+    };
     el.addEventListener('wa-error', handleError);
     this.cleanups.push(() => el.removeEventListener('wa-error', handleError));
   }

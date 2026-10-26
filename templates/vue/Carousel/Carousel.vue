@@ -67,8 +67,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaSlideChange = (e: Event) =>
+const handleWaSlideChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-slide-change', e as WaSlideChangeEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

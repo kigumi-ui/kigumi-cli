@@ -144,9 +144,9 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleBlur = (e) => emit('blur', e);
-const handleFocus = (e) => emit('focus', e);
-const handleWaInvalid = (e) => emit('wa-invalid', e);
+const handleBlur = (e) => { if (e.target !== e.currentTarget) return; emit('blur', e); };
+const handleFocus = (e) => { if (e.target !== e.currentTarget) return; emit('focus', e); };
+const handleWaInvalid = (e) => { if (e.target !== e.currentTarget) return; emit('wa-invalid', e); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -253,10 +253,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
-const handleWaAfterShow = (e) => emit('wa-after-show', e);
-const handleWaHide = (e) => { open.value = false; emit('wa-hide', e); };
-const handleWaAfterHide = (e) => emit('wa-after-hide', e);
+const handleWaShow = (e) => { if (e.target !== e.currentTarget) return; open.value = true; emit('wa-show', e); };
+const handleWaAfterShow = (e) => { if (e.target !== e.currentTarget) return; emit('wa-after-show', e); };
+const handleWaHide = (e) => { if (e.target !== e.currentTarget) return; open.value = false; emit('wa-hide', e); };
+const handleWaAfterHide = (e) => { if (e.target !== e.currentTarget) return; emit('wa-after-hide', e); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -359,12 +359,12 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
-const handleChange = (e) => emit('change', e);
-const handleBlur = (e) => emit('blur', e);
-const handleFocus = (e) => emit('focus', e);
-const handleWaClear = (e) => emit('wa-clear', e);
-const handleWaInvalid = (e) => emit('wa-invalid', e);
+const handleInput = (e) => { if (e.target !== e.currentTarget) return; model.value = e.target.value; emit('input', e); };
+const handleChange = (e) => { if (e.target !== e.currentTarget) return; emit('change', e); };
+const handleBlur = (e) => { if (e.target !== e.currentTarget) return; emit('blur', e); };
+const handleFocus = (e) => { if (e.target !== e.currentTarget) return; emit('focus', e); };
+const handleWaClear = (e) => { if (e.target !== e.currentTarget) return; emit('wa-clear', e); };
+const handleWaInvalid = (e) => { if (e.target !== e.currentTarget) return; emit('wa-invalid', e); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -552,12 +552,12 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
-const handleChange = (e) => emit('change', e);
-const handleBlur = (e) => emit('blur', e);
-const handleFocus = (e) => emit('focus', e);
-const handleBeforeinput = (e) => emit('beforeinput', e);
-const handleWaInvalid = (e) => emit('wa-invalid', e);
+const handleInput = (e) => { if (e.target !== e.currentTarget) return; model.value = e.target.value; emit('input', e); };
+const handleChange = (e) => { if (e.target !== e.currentTarget) return; emit('change', e); };
+const handleBlur = (e) => { if (e.target !== e.currentTarget) return; emit('blur', e); };
+const handleFocus = (e) => { if (e.target !== e.currentTarget) return; emit('focus', e); };
+const handleBeforeinput = (e) => { if (e.target !== e.currentTarget) return; emit('beforeinput', e); };
+const handleWaInvalid = (e) => { if (e.target !== e.currentTarget) return; emit('wa-invalid', e); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -675,11 +675,11 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e) => { model.value = e.target.checked; emit('change', e); };
-const handleInput = (e) => emit('input', e);
-const handleBlur = (e) => emit('blur', e);
-const handleFocus = (e) => emit('focus', e);
-const handleWaInvalid = (e) => emit('wa-invalid', e);
+const handleChange = (e) => { if (e.target !== e.currentTarget) return; model.value = e.target.checked; emit('change', e); };
+const handleInput = (e) => { if (e.target !== e.currentTarget) return; emit('input', e); };
+const handleBlur = (e) => { if (e.target !== e.currentTarget) return; emit('blur', e); };
+const handleFocus = (e) => { if (e.target !== e.currentTarget) return; emit('focus', e); };
+const handleWaInvalid = (e) => { if (e.target !== e.currentTarget) return; emit('wa-invalid', e); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -952,9 +952,9 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
+const handleBlur = (e: Event) => { if (e.target !== e.currentTarget) return; emit('blur', e as FocusEvent); };
+const handleFocus = (e: Event) => { if (e.target !== e.currentTarget) return; emit('focus', e as FocusEvent); };
+const handleWaInvalid = (e: Event) => { if (e.target !== e.currentTarget) return; emit('wa-invalid', e as WaInvalidEvent); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -1073,10 +1073,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaShow = (e: Event) => { open.value = true; emit('wa-show', e as WaShowEvent); };
-const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as WaAfterShowEvent);
-const handleWaHide = (e: Event) => { open.value = false; emit('wa-hide', e as WaHideEvent); };
-const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as WaAfterHideEvent);
+const handleWaShow = (e: Event) => { if (e.target !== e.currentTarget) return; open.value = true; emit('wa-show', e as WaShowEvent); };
+const handleWaAfterShow = (e: Event) => { if (e.target !== e.currentTarget) return; emit('wa-after-show', e as WaAfterShowEvent); };
+const handleWaHide = (e: Event) => { if (e.target !== e.currentTarget) return; open.value = false; emit('wa-hide', e as WaHideEvent); };
+const handleWaAfterHide = (e: Event) => { if (e.target !== e.currentTarget) return; emit('wa-after-hide', e as WaAfterHideEvent); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -1191,12 +1191,12 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as HTMLElement & { value: string }).value; emit('input', e as InputEvent); };
-const handleChange = (e: Event) => emit('change', e);
-const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleWaClear = (e: Event) => emit('wa-clear', e as WaClearEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
+const handleInput = (e: Event) => { if (e.target !== e.currentTarget) return; model.value = (e.target as HTMLElement & { value: string }).value; emit('input', e as InputEvent); };
+const handleChange = (e: Event) => { if (e.target !== e.currentTarget) return; emit('change', e); };
+const handleBlur = (e: Event) => { if (e.target !== e.currentTarget) return; emit('blur', e as FocusEvent); };
+const handleFocus = (e: Event) => { if (e.target !== e.currentTarget) return; emit('focus', e as FocusEvent); };
+const handleWaClear = (e: Event) => { if (e.target !== e.currentTarget) return; emit('wa-clear', e as WaClearEvent); };
+const handleWaInvalid = (e: Event) => { if (e.target !== e.currentTarget) return; emit('wa-invalid', e as WaInvalidEvent); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -1398,12 +1398,12 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as HTMLElement & { value: number }).value; emit('input', e as InputEvent); };
-const handleChange = (e: Event) => emit('change', e);
-const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleBeforeinput = (e: Event) => emit('beforeinput', e as InputEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
+const handleInput = (e: Event) => { if (e.target !== e.currentTarget) return; model.value = (e.target as HTMLElement & { value: number }).value; emit('input', e as InputEvent); };
+const handleChange = (e: Event) => { if (e.target !== e.currentTarget) return; emit('change', e); };
+const handleBlur = (e: Event) => { if (e.target !== e.currentTarget) return; emit('blur', e as FocusEvent); };
+const handleFocus = (e: Event) => { if (e.target !== e.currentTarget) return; emit('focus', e as FocusEvent); };
+const handleBeforeinput = (e: Event) => { if (e.target !== e.currentTarget) return; emit('beforeinput', e as InputEvent); };
+const handleWaInvalid = (e: Event) => { if (e.target !== e.currentTarget) return; emit('wa-invalid', e as WaInvalidEvent); };
 
 onMounted(() => {
   const el = elementRef.value;
@@ -1531,11 +1531,11 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e: Event) => { model.value = (e.target as HTMLElement & { checked: boolean }).checked; emit('change', e); };
-const handleInput = (e: Event) => emit('input', e as InputEvent);
-const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
+const handleChange = (e: Event) => { if (e.target !== e.currentTarget) return; model.value = (e.target as HTMLElement & { checked: boolean }).checked; emit('change', e); };
+const handleInput = (e: Event) => { if (e.target !== e.currentTarget) return; emit('input', e as InputEvent); };
+const handleBlur = (e: Event) => { if (e.target !== e.currentTarget) return; emit('blur', e as FocusEvent); };
+const handleFocus = (e: Event) => { if (e.target !== e.currentTarget) return; emit('focus', e as FocusEvent); };
+const handleWaInvalid = (e: Event) => { if (e.target !== e.currentTarget) return; emit('wa-invalid', e as WaInvalidEvent); };
 
 onMounted(() => {
   const el = elementRef.value;

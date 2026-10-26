@@ -118,30 +118,37 @@ export const OtpInput = React.forwardRef(
       if (!el) return;
 
       const handleInput = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e);
       };
 
       const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleFocus = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e);
       };
 
       const handleBlur = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e);
       };
 
       const handleWaComplete = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onComplete) onComplete(e);
       };
 
       const handleWaClear = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onClear) onClear(e);
       };
 
       const handleWaInvalid = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e);
       };
 

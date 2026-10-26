@@ -90,6 +90,7 @@ export const IntersectionObserver = forwardRef<
     if (!el) return;
 
     const handleWaIntersect = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       if (onIntersect) onIntersect(e as WaIntersectEvent);
     };
 

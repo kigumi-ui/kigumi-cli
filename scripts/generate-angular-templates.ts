@@ -42,6 +42,7 @@ import {
   generateCssTemplate,
   handlerArgument,
   keywordExpression,
+  OWN_TARGET_GUARD,
   writeFormatted,
   propJsdocLines,
 } from './generator-utils.js';
@@ -379,7 +380,7 @@ export function generateComponentTS(
     for (const event of events) {
       const handlerName = `handle${toPascalCase(event.outputName)}`;
       lines.push(
-        `    const ${handlerName} = (e: Event) => this.${event.outputName}.emit(${handlerArgument(event.eventType)});`
+        `    const ${handlerName} = (e: Event) => { ${OWN_TARGET_GUARD} this.${event.outputName}.emit(${handlerArgument(event.eventType)}); };`
       );
       lines.push(`    el.addEventListener('${event.name}', ${handlerName});`);
       lines.push(

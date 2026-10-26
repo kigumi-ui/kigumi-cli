@@ -44,13 +44,19 @@ function reEmitting(options: {
   emits: string[];
   emitAs: string;
   cleanupHook?: typeof onBeforeUnmount;
+  /** Re-emit a descendant's bubbled event too, as Templates did before #213. */
+  forwardDescendants?: boolean;
 }): InlineTemplate {
   const cleanupHook = options.cleanupHook ?? onBeforeUnmount;
   const component = defineComponent({
     emits: options.emits,
     setup(_props, { emit, expose }) {
       const host = ref<HTMLElement | null>(null);
-      const handler = (event: Event) => emit(options.emitAs, event);
+      const handler = (event: Event) => {
+        if (!options.forwardDescendants && event.target !== event.currentTarget)
+          return;
+        emit(options.emitAs, event);
+      };
       onMounted(() => host.value?.addEventListener(SHOW.name, handler));
       cleanupHook(() => host.value?.removeEventListener(SHOW.name, handler));
       expose({});
@@ -90,6 +96,20 @@ describe('proveVueTemplate', () => {
 
     // Class is forwarded by Vue's own fallthrough on these inline hosts.
     expect(violations).toEqual([]);
+  });
+
+  it("reports a Template that forwards a descendant's bubbled event", async () => {
+    const violations = await prove(
+      reEmitting({
+        emits: [SHOW.name],
+        emitAs: SHOW.name,
+        forwardDescendants: true,
+      })
+    );
+
+    expect(violations).toEqual([
+      "a descendant's bubbling wa-after-show invoked onWaAfterShow",
+    ]);
   });
 
   it('reports an event missing from defineEmits', async () => {

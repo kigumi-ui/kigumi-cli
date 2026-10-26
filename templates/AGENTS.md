@@ -142,10 +142,22 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       const el = dialogRef.current;
       if (!el) return;
 
-      const handleWaShow = (e: Event) => { if (onShow) onShow(e as WaShowEvent); };
-      const handleWaAfterShow = (e: Event) => { if (onAfterShow) onAfterShow(e as WaAfterShowEvent); };
-      const handleWaHide = (e: Event) => { if (onHide) onHide(e as WaHideEvent); };
-      const handleWaAfterHide = (e: Event) => { if (onAfterHide) onAfterHide(e as WaAfterHideEvent); };
+      const handleWaShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
+        if (onShow) onShow(e as WaShowEvent);
+      };
+      const handleWaAfterShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
+        if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
+      };
+      const handleWaHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
+        if (onHide) onHide(e as WaHideEvent);
+      };
+      const handleWaAfterHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
+        if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
+      };
 
       el.addEventListener('wa-show', handleWaShow);
       el.addEventListener('wa-after-show', handleWaAfterShow);
@@ -241,6 +253,8 @@ A handler is typed with the metadata's `eventType`, which `scripts/parse-custom-
 Web Awesome's classes extend `Event`, not `CustomEvent`, so never type a handler `CustomEvent`. The accordion dispatches `WaAccordionExpandEvent` under `wa-expand`, a name registered to Details' `WaExpandEvent`; that case is pinned in `EVENT_CLASS_OVERRIDES`. An event neither rule types stops the parser instead of falling back.
 
 Every generated listener receives `e: Event` and passes on `handlerArgument(eventType)` from `scripts/generator-utils.ts`: `e` itself when the handler type is `Event`, `e as <Type>` otherwise, so no Template casts `Event` to `Event`. The two hand-maintained `.jsx` files that type a handler in their JSDoc (Carousel, Checkbox) use the same class through an `import('…/dist/events/….js')` type, and `event-type-parity.test.ts` holds them to the `.tsx`.
+
+Every generated listener also opens with `OWN_TARGET_GUARD` from `scripts/generator-utils.ts`, `if (e.target !== e.currentTarget) return;`, in all three frameworks and before a Vue model update. Web Awesome's events bubble: without it, a Dropdown closing inside a Dialog fires the Dialog's `onHide` (and in Vue sets its `open` to false), and a nested TreeItem's `wa-expand` reaches its parent's `onExpand` (#213). Every event a component documents is dispatched on its own element or retargeted to it from the shadow root, so the guard drops only a descendant's event. The hand-maintained `.jsx` files and the docs wrappers in `docs/src/components/ui` carry the same line; the function harnesses dispatch a bubbling event from a child of every host and fail on a Template that forwards it.
 
 ### 4. Always Cleanup Event Listeners
 

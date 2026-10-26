@@ -117,11 +117,13 @@ export const Pagination = forwardRef<PaginationRef, PaginationProps>(
       if (!el) return;
 
       const handleWaBeforePageChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onBeforePageChange)
           onBeforePageChange(e as WaBeforePageChangeEvent);
       };
 
       const handleWaPageChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onPageChange) onPageChange(e as WaPageChangeEvent);
       };
 

@@ -60,10 +60,22 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaExpand = (e) => emit('wa-expand', e);
-const handleWaAfterExpand = (e) => emit('wa-after-expand', e);
-const handleWaCollapse = (e) => emit('wa-collapse', e);
-const handleWaAfterCollapse = (e) => emit('wa-after-collapse', e);
+const handleWaExpand = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-expand', e);
+};
+const handleWaAfterExpand = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-after-expand', e);
+};
+const handleWaCollapse = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-collapse', e);
+};
+const handleWaAfterCollapse = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-after-collapse', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

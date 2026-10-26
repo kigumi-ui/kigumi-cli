@@ -67,14 +67,22 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaExpand = (e: Event) =>
+const handleWaExpand = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-expand', e as WaAccordionExpandEvent);
-const handleWaAfterExpand = (e: Event) =>
+};
+const handleWaAfterExpand = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-after-expand', e as WaAccordionAfterExpandEvent);
-const handleWaCollapse = (e: Event) =>
+};
+const handleWaCollapse = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-collapse', e as WaAccordionCollapseEvent);
-const handleWaAfterCollapse = (e: Event) =>
+};
+const handleWaAfterCollapse = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-after-collapse', e as WaAccordionAfterCollapseEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

@@ -77,10 +77,12 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
       if (!el) return;
 
       const handleLoad = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleError = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e as WaErrorEvent);
       };
 

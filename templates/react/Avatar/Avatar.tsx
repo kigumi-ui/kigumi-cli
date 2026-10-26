@@ -82,6 +82,7 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
       if (!el) return;
 
       const handleWaError = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e as WaErrorEvent);
       };
 

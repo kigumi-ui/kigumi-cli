@@ -46,6 +46,9 @@ function escape(text: string): string {
  * subscribes to it, never by deriving the name: a test that computed the name
  * with the generator's own helper could not catch a bug in that helper.
  */
+/** The guard every generated handler opens with (#213), as a pattern. */
+const OWN_TARGET = 'if \\(e\\.target !== e\\.currentTarget\\) return;\\s*';
+
 function reactListener(
   source: string,
   eventName: string
@@ -55,7 +58,7 @@ function reactListener(
   ).exec(source);
   if (!subscribe) return null;
   const handler = new RegExp(
-    `const ${subscribe[1]} = \\(e: Event\\) => \\{\\s*if \\((\\w+)\\) \\1\\((e(?: as \\w+)?)\\);`
+    `const ${subscribe[1]} = \\(e: Event\\) => \\{\\s*${OWN_TARGET}if \\((\\w+)\\) \\1\\((e(?: as \\w+)?)\\);`
   ).exec(source);
   return handler ? { prop: handler[1], argument: handler[2] } : null;
 }
@@ -185,7 +188,7 @@ describe('event type parity across frameworks', () => {
         // Find the @Output() this event feeds through the listener that
         // subscribes to it, then check that output's emitter type.
         const listener = new RegExp(
-          `const (\\w+) = \\(e: Event\\) =>\\s*this\\.(\\w+)\\.emit\\(${escape(expectedArgument(type))}\\);\\n\\s*el\\.addEventListener\\('${event.name}', \\1\\);`
+          `const (\\w+) = \\(e: Event\\) => \\{\\s*${OWN_TARGET}this\\.(\\w+)\\.emit\\(${escape(expectedArgument(type))}\\);\\s*\\};\\n\\s*el\\.addEventListener\\('${event.name}', \\1\\);`
         ).exec(angular);
         expect(listener, `Angular listener ${event.name}`).not.toBeNull();
         expect(angular, `Angular output ${event.name}`).toContain(

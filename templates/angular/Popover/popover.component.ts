@@ -107,24 +107,34 @@ export class PopoverComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleShowEvent = (e: Event) => this.showEvent.emit(e as WaShowEvent);
+    const handleShowEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.showEvent.emit(e as WaShowEvent);
+    };
     el.addEventListener('wa-show', handleShowEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-show', handleShowEvent)
     );
-    const handleAfterShow = (e: Event) =>
+    const handleAfterShow = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterShow.emit(e as WaAfterShowEvent);
+    };
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-show', handleAfterShow)
     );
-    const handleHideEvent = (e: Event) => this.hideEvent.emit(e as WaHideEvent);
+    const handleHideEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.hideEvent.emit(e as WaHideEvent);
+    };
     el.addEventListener('wa-hide', handleHideEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-hide', handleHideEvent)
     );
-    const handleAfterHide = (e: Event) =>
+    const handleAfterHide = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterHide.emit(e as WaAfterHideEvent);
+    };
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-hide', handleAfterHide)

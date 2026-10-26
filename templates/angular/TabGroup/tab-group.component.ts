@@ -76,12 +76,18 @@ export class TabGroupComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleTabShow = (e: Event) => this.tabShow.emit(e as WaTabShowEvent);
+    const handleTabShow = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.tabShow.emit(e as WaTabShowEvent);
+    };
     el.addEventListener('wa-tab-show', handleTabShow);
     this.cleanups.push(() =>
       el.removeEventListener('wa-tab-show', handleTabShow)
     );
-    const handleTabHide = (e: Event) => this.tabHide.emit(e as WaTabHideEvent);
+    const handleTabHide = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.tabHide.emit(e as WaTabHideEvent);
+    };
     el.addEventListener('wa-tab-hide', handleTabHide);
     this.cleanups.push(() =>
       el.removeEventListener('wa-tab-hide', handleTabHide)

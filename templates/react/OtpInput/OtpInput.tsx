@@ -254,30 +254,37 @@ export const OtpInput = forwardRef<OtpInputRef, OtpInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e as FocusEvent);
       };
 
       const handleBlur = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e as FocusEvent);
       };
 
       const handleWaComplete = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onComplete) onComplete(e as WaCompleteEvent);
       };
 
       const handleWaClear = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onClear) onClear(e as WaClearEvent);
       };
 
       const handleWaInvalid = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 

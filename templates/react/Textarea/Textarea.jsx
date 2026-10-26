@@ -70,11 +70,26 @@ export const Textarea = React.forwardRef(
       const el = textareaRef.current;
       if (!el) return;
 
-      const handleInput = (e) => onInput?.(e);
-      const handleChange = (e) => onChange?.(e);
-      const handleInvalid = (e) => onInvalid?.(e);
-      const handleFocus = (e) => onFocus?.(e);
-      const handleBlur = (e) => onBlur?.(e);
+      const handleInput = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onInput?.(e);
+      };
+      const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onChange?.(e);
+      };
+      const handleInvalid = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onInvalid?.(e);
+      };
+      const handleFocus = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onFocus?.(e);
+      };
+      const handleBlur = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onBlur?.(e);
+      };
 
       el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);

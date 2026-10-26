@@ -151,6 +151,7 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       if (!el) return;
 
       const handleReposition = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onReposition) onReposition(e as WaRepositionEvent);
       };
 

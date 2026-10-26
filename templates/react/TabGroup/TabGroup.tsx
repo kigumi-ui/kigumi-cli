@@ -83,10 +83,12 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
       if (!el) return;
 
       const handleWaTabShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onTabShow) onTabShow(e as WaTabShowEvent);
       };
 
       const handleWaTabHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onTabHide) onTabHide(e as WaTabHideEvent);
       };
 

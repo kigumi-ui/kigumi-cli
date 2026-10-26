@@ -136,6 +136,64 @@ describe('every Vue Template against CEM metadata', () => {
 });
 
 /**
+ * `v-model:open` follows the Template's own element only. Web Awesome's
+ * `wa-show` / `wa-hide` bubble, so a Dropdown closing inside a Dialog used to
+ * set the Dialog's `open` to false and close it (#213). Pinned list, so a
+ * Template that loses its open model fails here instead of dropping out.
+ */
+describe('v-model:open ignores a descendant show/hide', () => {
+  const OPEN_MODEL_SLUGS = [
+    'details',
+    'dialog',
+    'drawer',
+    'dropdown',
+    'popover',
+    'tooltip',
+  ];
+
+  const CASES = [
+    { event: 'wa-hide', open: true },
+    { event: 'wa-show', open: false },
+  ] as const;
+
+  for (const slug of OPEN_MODEL_SLUGS) {
+    for (const { event, open } of CASES) {
+      it(`${slug} updates open only for its own ${event}`, async () => {
+        const definition = LOCAL_REGISTRY[slug];
+        const tagName = COMPONENT_METADATA[slug]?.tagName;
+        expect(definition).toBeDefined();
+        expect(tagName).toBeDefined();
+        if (!definition || !tagName) return;
+        const Template = await importTemplate(definition.name);
+        expect(Template?.props).toHaveProperty('open');
+        if (!Template) return;
+
+        const updates: unknown[] = [];
+        const { container, unmount } = mountVueTemplate(Template, () => ({
+          open,
+          'onUpdate:open': (value: unknown) => updates.push(value),
+        }))({ attributes: {}, className: 'probe-class', handlers: {} });
+        try {
+          const host = container.querySelector(tagName);
+          expect(host, `host tag ${tagName} is missing`).not.toBeNull();
+          if (!host) return;
+          const descendant = host.appendChild(document.createElement('span'));
+
+          descendant.dispatchEvent(new Event(event, { bubbles: true }));
+          expect(updates, `a descendant's ${event} updated open`).toEqual([]);
+
+          // The premise: the Template's own event does update the model.
+          host.dispatchEvent(new Event(event));
+          expect(updates).toEqual([!open]);
+        } finally {
+          unmount();
+        }
+      });
+    }
+  }
+});
+
+/**
  * With `inheritAttrs: false`, `hostAttributes()` is the only path a
  * consumer's non-prop attribute takes to the host, so its `false` rule is
  * proven here rather than by reading the generator's source. `false` must

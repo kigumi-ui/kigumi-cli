@@ -118,18 +118,22 @@ export const DatePicker = React.forwardRef(
       if (!el) return;
 
       const handleInput = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e);
       };
 
       const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleFocusDay = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocusDay) onFocusDay(e);
       };
 
       const handleViewChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onViewChange) onViewChange(e);
       };
 

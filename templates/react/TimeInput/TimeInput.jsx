@@ -157,42 +157,52 @@ export const TimeInput = React.forwardRef(
       if (!el) return;
 
       const handleInput = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e);
       };
 
       const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleFocus = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e);
       };
 
       const handleBlur = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e);
       };
 
       const handleWaClear = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onClear) onClear(e);
       };
 
       const handleWaShow = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onShow) onShow(e);
       };
 
       const handleWaAfterShow = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterShow) onAfterShow(e);
       };
 
       const handleWaHide = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onHide) onHide(e);
       };
 
       const handleWaAfterHide = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterHide) onAfterHide(e);
       };
 
       const handleWaInvalid = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e);
       };
 

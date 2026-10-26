@@ -324,54 +324,67 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e as FocusEvent);
       };
 
       const handleBlur = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e as FocusEvent);
       };
 
       const handleWaClear = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onClear) onClear(e as WaClearEvent);
       };
 
       const handleWaShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleWaAfterShow = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleWaHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleWaAfterHide = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
       const handleWaCreate = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onCreate) onCreate(e as WaCreateEvent);
       };
 
       const handleWaInvalid = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       const handleWaOptionsRequest = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onOptionsRequest) onOptionsRequest(e as WaOptionsRequestEvent);
       };
 
       const handleWaOptionsError = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onOptionsError) onOptionsError(e as WaOptionsErrorEvent);
       };
 

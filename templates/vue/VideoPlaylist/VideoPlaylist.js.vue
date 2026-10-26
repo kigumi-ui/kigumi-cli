@@ -53,7 +53,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaVideoChange = (e) => emit('wa-video-change', e);
+const handleWaVideoChange = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-video-change', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

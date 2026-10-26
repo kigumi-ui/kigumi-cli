@@ -17,7 +17,10 @@ export const SplitPanel = React.forwardRef(
       const el = panelRef.current;
       if (!el) return;
 
-      const handleReposition = (e) => onReposition?.(e);
+      const handleReposition = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onReposition?.(e);
+      };
       el.addEventListener('wa-reposition', handleReposition);
 
       return () => {

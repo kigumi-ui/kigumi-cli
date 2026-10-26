@@ -130,26 +130,32 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
       if (!el) return;
 
       const handleExpand = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onExpand) onExpand(e as WaExpandEvent);
       };
 
       const handleAfterExpand = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterExpand) onAfterExpand(e as WaAfterExpandEvent);
       };
 
       const handleCollapse = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onCollapse) onCollapse(e as WaCollapseEvent);
       };
 
       const handleAfterCollapse = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterCollapse) onAfterCollapse(e as WaAfterCollapseEvent);
       };
 
       const handleLazyChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onLazyChange) onLazyChange(e as WaLazyChangeEvent);
       };
 
       const handleLazyLoad = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onLazyLoad) onLazyLoad(e as WaLazyLoadEvent);
       };
 

@@ -91,10 +91,16 @@ export class CopyButtonComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleCopy = (e: Event) => this.copy.emit(e as WaCopyEvent);
+    const handleCopy = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.copy.emit(e as WaCopyEvent);
+    };
     el.addEventListener('wa-copy', handleCopy);
     this.cleanups.push(() => el.removeEventListener('wa-copy', handleCopy));
-    const handleError = (e: Event) => this.error.emit(e as WaErrorEvent);
+    const handleError = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.error.emit(e as WaErrorEvent);
+    };
     el.addEventListener('wa-error', handleError);
     this.cleanups.push(() => el.removeEventListener('wa-error', handleError));
   }

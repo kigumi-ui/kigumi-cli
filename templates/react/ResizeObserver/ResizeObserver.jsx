@@ -17,7 +17,10 @@ export const ResizeObserver = React.forwardRef(
       const el = observerRef.current;
       if (!el) return;
 
-      const handleResize = (e) => onResize?.(e);
+      const handleResize = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onResize?.(e);
+      };
       el.addEventListener('wa-resize', handleResize);
 
       return () => {

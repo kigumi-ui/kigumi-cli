@@ -73,10 +73,16 @@ export class AnimatedImageComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleLoad = (e: Event) => this.load.emit(e as WaLoadEvent);
+    const handleLoad = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.load.emit(e as WaLoadEvent);
+    };
     el.addEventListener('wa-load', handleLoad);
     this.cleanups.push(() => el.removeEventListener('wa-load', handleLoad));
-    const handleError = (e: Event) => this.error.emit(e as WaErrorEvent);
+    const handleError = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.error.emit(e as WaErrorEvent);
+    };
     el.addEventListener('wa-error', handleError);
     this.cleanups.push(() => el.removeEventListener('wa-error', handleError));
   }

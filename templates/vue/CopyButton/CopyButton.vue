@@ -68,8 +68,14 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaCopy = (e: Event) => emit('wa-copy', e as WaCopyEvent);
-const handleWaError = (e: Event) => emit('wa-error', e as WaErrorEvent);
+const handleWaCopy = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-copy', e as WaCopyEvent);
+};
+const handleWaError = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-error', e as WaErrorEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

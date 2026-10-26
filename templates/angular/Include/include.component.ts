@@ -73,11 +73,16 @@ export class IncludeComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleLoad = (e: Event) => this.load.emit(e as WaLoadEvent);
+    const handleLoad = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.load.emit(e as WaLoadEvent);
+    };
     el.addEventListener('wa-load', handleLoad);
     this.cleanups.push(() => el.removeEventListener('wa-load', handleLoad));
-    const handleIncludeError = (e: Event) =>
+    const handleIncludeError = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.includeError.emit(e as WaIncludeErrorEvent);
+    };
     el.addEventListener('wa-include-error', handleIncludeError);
     this.cleanups.push(() =>
       el.removeEventListener('wa-include-error', handleIncludeError)

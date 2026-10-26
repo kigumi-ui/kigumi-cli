@@ -330,26 +330,32 @@ export const Input = forwardRef<InputRef, InputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e);
       };
 
       const handleChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e as FocusEvent);
       };
 
       const handleFocus = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e as FocusEvent);
       };
 
       const handleClear = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onClear) onClear(e as WaClearEvent);
       };
 
       const handleInvalid = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 

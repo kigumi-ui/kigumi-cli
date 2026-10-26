@@ -188,61 +188,94 @@ export class ComboboxComponent
       host.style.display = 'inline';
     }
 
-    const handleInputEvent = (e: Event) =>
+    const handleInputEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.inputEvent.emit(e as InputEvent);
+    };
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e);
+    const handleChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.change.emit(e);
+    };
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleFocusEvent = (e: Event) =>
+    const handleFocusEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.focusEvent.emit(e as FocusEvent);
+    };
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
-    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
+    const handleBlurEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.blurEvent.emit(e as FocusEvent);
+    };
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleClear = (e: Event) => this.clear.emit(e as WaClearEvent);
+    const handleClear = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.clear.emit(e as WaClearEvent);
+    };
     el.addEventListener('wa-clear', handleClear);
     this.cleanups.push(() => el.removeEventListener('wa-clear', handleClear));
-    const handleShowEvent = (e: Event) => this.showEvent.emit(e as WaShowEvent);
+    const handleShowEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.showEvent.emit(e as WaShowEvent);
+    };
     el.addEventListener('wa-show', handleShowEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-show', handleShowEvent)
     );
-    const handleAfterShow = (e: Event) =>
+    const handleAfterShow = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterShow.emit(e as WaAfterShowEvent);
+    };
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-show', handleAfterShow)
     );
-    const handleHideEvent = (e: Event) => this.hideEvent.emit(e as WaHideEvent);
+    const handleHideEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.hideEvent.emit(e as WaHideEvent);
+    };
     el.addEventListener('wa-hide', handleHideEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-hide', handleHideEvent)
     );
-    const handleAfterHide = (e: Event) =>
+    const handleAfterHide = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterHide.emit(e as WaAfterHideEvent);
+    };
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-hide', handleAfterHide)
     );
-    const handleCreate = (e: Event) => this.create.emit(e as WaCreateEvent);
+    const handleCreate = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.create.emit(e as WaCreateEvent);
+    };
     el.addEventListener('wa-create', handleCreate);
     this.cleanups.push(() => el.removeEventListener('wa-create', handleCreate));
-    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
+    const handleInvalid = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.invalid.emit(e as WaInvalidEvent);
+    };
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)
     );
-    const handleOptionsRequest = (e: Event) =>
+    const handleOptionsRequest = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.optionsRequest.emit(e as WaOptionsRequestEvent);
+    };
     el.addEventListener('wa-options-request', handleOptionsRequest);
     this.cleanups.push(() =>
       el.removeEventListener('wa-options-request', handleOptionsRequest)
     );
-    const handleOptionsError = (e: Event) =>
+    const handleOptionsError = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.optionsError.emit(e as WaOptionsErrorEvent);
+    };
     el.addEventListener('wa-options-error', handleOptionsError);
     this.cleanups.push(() =>
       el.removeEventListener('wa-options-error', handleOptionsError)

@@ -80,24 +80,32 @@ export class AccordionComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleExpand = (e: Event) =>
+    const handleExpand = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.expand.emit(e as WaAccordionExpandEvent);
+    };
     el.addEventListener('wa-expand', handleExpand);
     this.cleanups.push(() => el.removeEventListener('wa-expand', handleExpand));
-    const handleAfterExpand = (e: Event) =>
+    const handleAfterExpand = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterExpand.emit(e as WaAccordionAfterExpandEvent);
+    };
     el.addEventListener('wa-after-expand', handleAfterExpand);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-expand', handleAfterExpand)
     );
-    const handleCollapse = (e: Event) =>
+    const handleCollapse = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.collapse.emit(e as WaAccordionCollapseEvent);
+    };
     el.addEventListener('wa-collapse', handleCollapse);
     this.cleanups.push(() =>
       el.removeEventListener('wa-collapse', handleCollapse)
     );
-    const handleAfterCollapse = (e: Event) =>
+    const handleAfterCollapse = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterCollapse.emit(e as WaAccordionAfterCollapseEvent);
+    };
     el.addEventListener('wa-after-collapse', handleAfterCollapse);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-collapse', handleAfterCollapse)

@@ -136,21 +136,30 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleInputEvent = (e: Event) =>
+    const handleInputEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.inputEvent.emit(e as InputEvent);
+    };
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e);
+    const handleChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.change.emit(e);
+    };
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleFocusDay = (e: Event) =>
+    const handleFocusDay = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.focusDay.emit(e as WaFocusDayEvent);
+    };
     el.addEventListener('wa-focus-day', handleFocusDay);
     this.cleanups.push(() =>
       el.removeEventListener('wa-focus-day', handleFocusDay)
     );
-    const handleViewChange = (e: Event) =>
+    const handleViewChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.viewChange.emit(e as WaViewChangeEvent);
+    };
     el.addEventListener('wa-view-change', handleViewChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-view-change', handleViewChange)

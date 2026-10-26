@@ -17,7 +17,10 @@ export const IntersectionObserver = React.forwardRef(
       const el = observerRef.current;
       if (!el) return;
 
-      const handleIntersect = (e) => onIntersect?.(e);
+      const handleIntersect = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onIntersect?.(e);
+      };
       el.addEventListener('wa-intersect', handleIntersect);
 
       return () => {

@@ -64,8 +64,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaReposition = (e: Event) =>
+const handleWaReposition = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-reposition', e as WaRepositionEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

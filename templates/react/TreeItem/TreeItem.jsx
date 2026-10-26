@@ -42,12 +42,30 @@ export const TreeItem = React.forwardRef(
       const el = treeItemRef.current;
       if (!el) return;
 
-      const handleCollapse = (e) => onCollapse?.(e);
-      const handleAfterCollapse = (e) => onAfterCollapse?.(e);
-      const handleExpand = (e) => onExpand?.(e);
-      const handleAfterExpand = (e) => onAfterExpand?.(e);
-      const handleLazyChange = (e) => onLazyChange?.(e);
-      const handleLazyLoad = (e) => onLazyLoad?.(e);
+      const handleCollapse = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onCollapse?.(e);
+      };
+      const handleAfterCollapse = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterCollapse?.(e);
+      };
+      const handleExpand = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onExpand?.(e);
+      };
+      const handleAfterExpand = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterExpand?.(e);
+      };
+      const handleLazyChange = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onLazyChange?.(e);
+      };
+      const handleLazyLoad = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onLazyLoad?.(e);
+      };
 
       el.addEventListener('wa-collapse', handleCollapse);
       el.addEventListener('wa-after-collapse', handleAfterCollapse);

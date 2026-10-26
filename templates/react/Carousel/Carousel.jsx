@@ -68,6 +68,7 @@ export const Carousel = React.forwardRef(
       if (!el) return;
 
       const handleSlideChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onSlideChange) onSlideChange(e);
       };
 

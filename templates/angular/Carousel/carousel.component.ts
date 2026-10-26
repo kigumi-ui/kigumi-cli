@@ -90,8 +90,10 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleSlideChange = (e: Event) =>
+    const handleSlideChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.slideChange.emit(e as WaSlideChangeEvent);
+    };
     el.addEventListener('wa-slide-change', handleSlideChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-slide-change', handleSlideChange)

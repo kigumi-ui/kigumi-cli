@@ -106,14 +106,18 @@ export class PaginationComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleBeforePageChange = (e: Event) =>
+    const handleBeforePageChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.beforePageChange.emit(e as WaBeforePageChangeEvent);
+    };
     el.addEventListener('wa-before-page-change', handleBeforePageChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-before-page-change', handleBeforePageChange)
     );
-    const handlePageChange = (e: Event) =>
+    const handlePageChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.pageChange.emit(e as WaPageChangeEvent);
+    };
     el.addEventListener('wa-page-change', handlePageChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-page-change', handlePageChange)

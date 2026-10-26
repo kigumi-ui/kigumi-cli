@@ -63,6 +63,7 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 

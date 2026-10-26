@@ -56,8 +56,14 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaBeforeStepChange = (e) => emit('wa-before-step-change', e);
-const handleWaStepChange = (e) => emit('wa-step-change', e);
+const handleWaBeforeStepChange = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-before-step-change', e);
+};
+const handleWaStepChange = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-step-change', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

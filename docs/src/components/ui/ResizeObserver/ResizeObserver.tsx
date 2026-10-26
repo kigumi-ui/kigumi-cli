@@ -69,6 +69,7 @@ export const ResizeObserver = forwardRef<
     if (!el) return;
 
     const handleResize = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       if (onResize) onResize(e as WaResizeEvent);
     };
 

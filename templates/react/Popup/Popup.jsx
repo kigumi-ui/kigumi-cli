@@ -28,7 +28,10 @@ export const Popup = React.forwardRef(
       const el = popupRef.current;
       if (!el) return;
 
-      const handleReposition = (e) => onReposition?.(e);
+      const handleReposition = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onReposition?.(e);
+      };
       el.addEventListener('wa-reposition', handleReposition);
 
       return () => {

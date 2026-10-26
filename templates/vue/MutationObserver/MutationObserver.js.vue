@@ -58,7 +58,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaMutation = (e) => emit('wa-mutation', e);
+const handleWaMutation = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-mutation', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

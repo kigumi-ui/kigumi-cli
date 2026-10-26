@@ -85,12 +85,22 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => emit('input', e as InputEvent);
-const handleChange = (e: Event) => emit('change', e);
-const handleWaFocusDay = (e: Event) =>
+const handleInput = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('input', e as InputEvent);
+};
+const handleChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('change', e);
+};
+const handleWaFocusDay = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-focus-day', e as WaFocusDayEvent);
-const handleWaViewChange = (e: Event) =>
+};
+const handleWaViewChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-view-change', e as WaViewChangeEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

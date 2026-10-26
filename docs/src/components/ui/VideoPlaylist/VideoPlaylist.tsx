@@ -105,6 +105,7 @@ export const VideoPlaylist = forwardRef<VideoPlaylistRef, VideoPlaylistProps>(
       if (!el) return;
 
       const handleVideoChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onVideoChange) onVideoChange(e as WaVideoChangeEvent);
       };
 

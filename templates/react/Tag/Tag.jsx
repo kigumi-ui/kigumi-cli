@@ -27,7 +27,10 @@ export const Tag = React.forwardRef(
       const el = tagRef.current;
       if (!el) return;
 
-      const handleRemove = (e) => onRemove?.(e);
+      const handleRemove = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onRemove?.(e);
+      };
 
       el.addEventListener('wa-remove', handleRemove);
 

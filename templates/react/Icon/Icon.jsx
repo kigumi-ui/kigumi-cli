@@ -64,10 +64,12 @@ export const Icon = React.forwardRef(
       if (!el) return;
 
       const handleLoad = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onLoad) onLoad(e);
       };
 
       const handleError = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e);
       };
 

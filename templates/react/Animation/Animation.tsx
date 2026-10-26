@@ -133,14 +133,17 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
       if (!el) return;
 
       const handleWaCancel = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onCancel) onCancel(e as WaCancelEvent);
       };
 
       const handleWaFinish = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onFinish) onFinish(e as WaFinishEvent);
       };
 
       const handleWaStart = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onStart) onStart(e as WaStartEvent);
       };
 

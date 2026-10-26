@@ -68,8 +68,10 @@ export class VideoPlaylistComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleVideoChange = (e: Event) =>
+    const handleVideoChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.videoChange.emit(e as WaVideoChangeEvent);
+    };
     el.addEventListener('wa-video-change', handleVideoChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-video-change', handleVideoChange)

@@ -84,35 +84,48 @@ export class TreeItemComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleExpand = (e: Event) => this.expand.emit(e as WaExpandEvent);
+    const handleExpand = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.expand.emit(e as WaExpandEvent);
+    };
     el.addEventListener('wa-expand', handleExpand);
     this.cleanups.push(() => el.removeEventListener('wa-expand', handleExpand));
-    const handleAfterExpand = (e: Event) =>
+    const handleAfterExpand = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterExpand.emit(e as WaAfterExpandEvent);
+    };
     el.addEventListener('wa-after-expand', handleAfterExpand);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-expand', handleAfterExpand)
     );
-    const handleCollapse = (e: Event) =>
+    const handleCollapse = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.collapse.emit(e as WaCollapseEvent);
+    };
     el.addEventListener('wa-collapse', handleCollapse);
     this.cleanups.push(() =>
       el.removeEventListener('wa-collapse', handleCollapse)
     );
-    const handleAfterCollapse = (e: Event) =>
+    const handleAfterCollapse = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.afterCollapse.emit(e as WaAfterCollapseEvent);
+    };
     el.addEventListener('wa-after-collapse', handleAfterCollapse);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-collapse', handleAfterCollapse)
     );
-    const handleLazyChange = (e: Event) =>
+    const handleLazyChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.lazyChange.emit(e as WaLazyChangeEvent);
+    };
     el.addEventListener('wa-lazy-change', handleLazyChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-lazy-change', handleLazyChange)
     );
-    const handleLazyLoad = (e: Event) =>
+    const handleLazyLoad = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.lazyLoad.emit(e as WaLazyLoadEvent);
+    };
     el.addEventListener('wa-lazy-load', handleLazyLoad);
     this.cleanups.push(() =>
       el.removeEventListener('wa-lazy-load', handleLazyLoad)
