@@ -46,6 +46,7 @@ export const INTERACTION_STORIES = [
   'TabGroup',
   'Tag',
   'TagInput',
+  'ThemeAgentSidebar',
   'Textarea',
   'Tooltip',
   'Tree',

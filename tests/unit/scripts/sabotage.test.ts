@@ -13,6 +13,7 @@ import {
   injectOnce,
   judge,
   parseVitestSummary,
+  vitestArgs,
 } from '../../../scripts/sabotage.js';
 
 const ESC = '\x1b';
@@ -82,6 +83,34 @@ describe('failedTitles', () => {
     ].join('\n');
     expect(failedTitles(output)).toEqual([
       'a switch locks the value in the mode being edited',
+    ]);
+  });
+});
+
+describe('vitestArgs', () => {
+  const base = { name: 'x', file: 'a.ts', find: 'a', replace: 'b' };
+
+  it("runs the test with vitest's own config lookup", () => {
+    expect(vitestArgs({ ...base, test: 'tests/a.test.ts' })).toEqual([
+      'vitest',
+      'run',
+      'tests/a.test.ts',
+    ]);
+  });
+
+  it('runs a story under the config its case names', () => {
+    expect(
+      vitestArgs({
+        ...base,
+        test: 'src/stories/A.stories.tsx',
+        config: 'vitest.storybook.config.ts',
+      })
+    ).toEqual([
+      'vitest',
+      'run',
+      '--config',
+      'vitest.storybook.config.ts',
+      'src/stories/A.stories.tsx',
     ]);
   });
 });

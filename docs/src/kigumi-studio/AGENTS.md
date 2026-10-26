@@ -93,7 +93,7 @@ Browser (useChat + useTriggerChatTransport)
 | `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme and its locked values, apply a theme; hands on Studio's `setLocked` |
 | `components/PanelToggle.tsx` | The tab that shows and hides a side panel, shared by Styles and the Theme Agent |
 | `components/theme-agent/ThemeAgentSidebar.tsx` | The Theme Agent panel, lazy-loaded only when the cookie is present: its headline with "New chat", and the conversation's lifecycle ("New chat", a replaced theme, ADR 0012). Mounts one `ThemeAgentChat` per conversation |
-| `components/theme-agent/ThemeAgentChat.tsx` | One conversation: its chat id, `useChat` run, conversation module, messages and composer; `end()` and `focus()` for the panel. A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card |
+| `components/theme-agent/ThemeAgentChat.tsx` | One conversation: its chat id, `useChat` run, conversation module, messages and composer; `end()` and `focus()` for the panel. A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card. A `transport` handed to the panel replaces trigger.dev's (`ThemeAgentTransport`), for the interaction story |
 | `theme-agent/session-client.ts` | The browser's calls to `/api/theme-agent`: a session token (`start`, `refresh`) and `close` |
 | `components/theme-agent/LockedChanges.tsx` | `UnlockAndApply`, the answer's action inside its card: one button for one held value, one per value plus one for all with more; "Unlock and apply" for a locked value, "Apply" for one changed during the run. `LockedChangesCallouts`, Studio's report below the card: success callouts for what was applied, neutral ones for what stays locked and what the user changed during the run, each naming the contrast pairs it would fix |
 | `../../api/_lib/theme-agent-session.ts` | Access gate + request handling (`start`, `refresh`, `close`), tested with real `Request`s |
@@ -156,4 +156,7 @@ The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with t
 
 ```bash
 cd docs && pnpm test   # Studio lib tests, the Theme Agent conversation module, access gate, agent turn (mock model), eval judges
+cd docs && pnpm storybook:test   # interaction lane, the Theme Agent sidebar included
 ```
+
+The sidebar's layout and actions are tested in a browser, where Web Awesome runs, not in jsdom: `src/stories/ThemeAgentSidebar.stories.tsx` renders it inside a real `StudioProvider`, seeds locks in storage, and hands it a canned transport that streams an answer's text and its accepted `propose_theme` call, so Studio's own conversation module decides what is applied and held. It is in the interaction lane and hidden from the published Storybook (`!dev`). A new answer layout or action gets a story there.
