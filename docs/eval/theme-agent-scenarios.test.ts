@@ -405,3 +405,72 @@ describe('nothing locked, a dot pattern on the page background', () => {
     expect(s.judge(proposals, s.snapshot).pass).toBe(false);
   });
 });
+
+describe('nothing locked, a subtle shimmer on skeletons', () => {
+  const s = scenario('skeleton-shimmer');
+  const keyframes = '@keyframes skeleton-shimmer { 50% { opacity: 0.6; } }';
+  const animate =
+    '.Skeleton::part(indicator) { animation: skeleton-shimmer 2s ease-in-out infinite; }';
+  const motionSafe = `@media (prefers-reduced-motion: no-preference) { ${animate} }`;
+
+  it.each([
+    ['the wrapper class', `${keyframes}\n${motionSafe}`],
+    [
+      'the tag',
+      `${keyframes}\n${motionSafe.replace('.Skeleton', 'wa-skeleton')}`,
+    ],
+  ])('passes with a keyframes animation on %s', (_name, customCSS) => {
+    expect(
+      s.judge([{ light: {}, dark: {}, customCSS }], s.snapshot)
+    ).toMatchObject({ pass: true });
+  });
+
+  it.each([
+    ['nothing proposed', []],
+    [
+      'no keyframes',
+      [
+        {
+          light: {},
+          dark: {},
+          customCSS: '.Skeleton::part(indicator) { opacity: 0.8; }',
+        },
+      ],
+    ],
+    [
+      'the animation on another component',
+      [
+        {
+          light: {},
+          dark: {},
+          customCSS: `${keyframes}\n${motionSafe.replace('.Skeleton', '.Card')}`,
+        },
+      ],
+    ],
+    [
+      'keyframes no rule animates',
+      [{ light: {}, dark: {}, customCSS: keyframes }],
+    ],
+  ])('fails with %s', (_name, proposals) => {
+    expect(s.judge(proposals, s.snapshot).pass).toBe(false);
+  });
+
+  it('names the missing @keyframes as the reason', () => {
+    expect(
+      s.judge(
+        [
+          {
+            light: {},
+            dark: {},
+            customCSS:
+              '@media (prefers-reduced-motion: no-preference) { .Skeleton::part(indicator) { animation: pulse 2s; } }',
+          },
+        ],
+        s.snapshot
+      )
+    ).toEqual({
+      pass: false,
+      reason: 'the custom CSS defines no @keyframes',
+    });
+  });
+});

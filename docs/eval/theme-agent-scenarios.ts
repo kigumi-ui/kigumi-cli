@@ -358,6 +358,42 @@ function pagePatternApplied(
   return { pass: true, reason: 'custom CSS applied: a pattern on the page' };
 }
 
+/**
+ * Motion no value expresses is custom CSS with @keyframes, run on the
+ * skeleton by its wrapper class or tag. The validator already holds every
+ * animation to the reduced-motion query, so an applied one respects it.
+ */
+function skeletonShimmerApplied(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+): Verdict {
+  if (proposals.length === 0) return NO_PROPOSAL;
+  const { applied } = asStudioTakesIt(proposals, snapshot);
+  const css = applied.customCSS;
+  if (!css || css === snapshot.theme.customCSS) {
+    return { pass: false, reason: 'no custom CSS was applied' };
+  }
+  const names = [...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]);
+  if (names.length === 0) {
+    return { pass: false, reason: 'the custom CSS defines no @keyframes' };
+  }
+  const animatesSkeleton = names.some((name) =>
+    new RegExp(
+      `(\\.Skeleton\\b|wa-skeleton\\b)[^{}]*\\{[^}]*animation(-name)?\\s*:[^;}]*(?<![\\w-])${name}(?![\\w-])`
+    ).test(css)
+  );
+  if (!animatesSkeleton) {
+    return {
+      pass: false,
+      reason: `no skeleton rule runs ${names.join(', ')}`,
+    };
+  }
+  return {
+    pass: true,
+    reason: 'custom CSS applied: a keyframes animation on skeletons',
+  };
+}
+
 /** Every sidebar value, as the browser sends the custom theme. */
 function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
   const theme: CustomTheme = {
@@ -542,5 +578,13 @@ export const SCENARIOS: EvalScenario[] = [
       },
     ],
     judge: pagePatternApplied,
+  },
+  {
+    id: 'skeleton-shimmer',
+    description:
+      'Nothing locked, a subtle shimmer on skeletons: @keyframes run on the skeleton, inside the reduced-motion query',
+    snapshot: { theme: studioTheme(), locked: NO_LOCKS },
+    messages: [{ role: 'user', content: 'Add a subtle shimmer on skeletons.' }],
+    judge: skeletonShimmerApplied,
   },
 ];
