@@ -335,6 +335,17 @@ export const HeldCustomCSS: Story = {
       'Added: + .Card::part(base) { border: none; }'
     );
     expect(diff.querySelectorAll('del')).toHaveLength(0);
+    // Long lines wrap, so every highlight spans the whole block and
+    // nothing scrolls sideways.
+    diff.setAttribute('open', '');
+    await waitFor(() => {
+      const pre = diff.querySelector('pre');
+      if (!pre || pre.clientWidth === 0) throw new Error('diff not shown');
+      expect(pre.scrollWidth).toBeLessThanOrEqual(pre.clientWidth);
+      for (const line of pre.children) {
+        expect((line as HTMLElement).offsetWidth).toBe(pre.clientWidth);
+      }
+    });
     // Copy takes the custom CSS as proposed, without the removed lines.
     const copy = diff.querySelector<HTMLElement & { value: string }>(
       'wa-copy-button'

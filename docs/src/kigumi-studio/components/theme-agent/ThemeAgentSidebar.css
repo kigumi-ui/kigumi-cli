@@ -85,13 +85,20 @@
 
 .theme-agent__diff-lines {
   margin: 0;
-  overflow-x: auto;
+  /* The inline padding sits on the lines, so their highlights reach the
+     block's edges. */
+  padding-inline: 0;
   font-family: var(--wa-font-family-code);
   font-size: var(--wa-font-size-xs);
-  white-space: pre;
+  /* Wrapped, not scrolled, so every highlight spans the whole block. A
+     wrapped line hangs under its text, past the +/- sign. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 
   & > * {
     display: block;
+    padding-inline: calc(var(--wa-space-s) + 2ch) var(--wa-space-s);
+    text-indent: -2ch;
     text-decoration: none;
   }
 
