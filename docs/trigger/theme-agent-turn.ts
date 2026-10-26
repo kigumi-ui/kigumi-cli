@@ -11,6 +11,7 @@ import {
   THEME_AGENT_PROPOSE_TOOL,
   THEME_AGENT_STATUS,
 } from '../src/kigumi-studio/theme-agent/constants.js';
+import { MAX_AGENT_CSS_LENGTH } from '../src/kigumi-studio/theme-agent/agent-css.js';
 import {
   checkContrast,
   correctableViolations,
@@ -51,11 +52,23 @@ export const MAX_CONTRAST_CORRECTIONS = 2;
  */
 export const MAX_STEPS = MAX_PROPOSAL_ATTEMPTS + MAX_CONTRAST_CORRECTIONS + 2;
 
-/** Per-step output ceiling, one of the Theme Agent's cost limits. */
-export const MAX_OUTPUT_TOKENS = 4096;
+/**
+ * Per-step output ceiling, one of the Theme Agent's cost limits. Thinking
+ * counts against it: at 4096 a custom CSS request spent a whole step
+ * thinking and ended with neither text nor a proposal.
+ */
+export const MAX_OUTPUT_TOKENS = 16_000;
+
+/**
+ * How deep the model thinks. The model rejects a thinking budget and turning
+ * thinking off; effort is what bounds it. `medium` is the starting point for
+ * multi-step tool use; the prompt eval checks what it does with the prompt.
+ */
+export const THEME_AGENT_EFFORT = 'medium';
 
 const PROPOSE_DESCRIPTION = [
-  'Propose changes to the custom theme. Name only the values to change.',
+  'Propose changes to the custom theme. Name only the values to change;',
+  'customCSS, when given, is the complete custom CSS and replaces the current one.',
   'Studio validates the proposal; when it returns accepted: false, correct',
   'every listed error and propose again. An accepted proposal is checked for',
   'contrast; when it returns correctContrast: true, propose again with only',
@@ -106,7 +119,8 @@ function proposeThemeTool(
           locked: [],
         };
       }
-      const validation = validateProposal(input);
+      // The user's own custom CSS, carried over unchanged, is not checked.
+      const validation = validateProposal(input, snapshot.theme.customCSS);
       if (!validation.valid) {
         rejections += 1;
         return {
@@ -225,6 +239,20 @@ function propertyLine(property: (typeof PROPERTY_DEFINITIONS)[number]): string {
   return `- ${property.cssVar} (${property.label}): ${values}; ${modes}`;
 }
 
+/** How the model may write custom CSS; the validator enforces the rules. */
+function customCSSLines(): string[] {
+  return [
+    'Custom CSS (customCSS in the proposal):',
+    "- Use it only for what no value or shadow component can express, such as removing a component's border or styling one part of a component; never for what a value above sets. When you use it, your explanation says why no value could make the change.",
+    '- customCSS is always the complete custom CSS: it replaces the current custom CSS whole, so keep every current rule you are not changing. Omit customCSS to keep the current one as it is. It is one set of rules for both modes; write dark-mode rules under .wa-dark.',
+    "- Select a component by its Kigumi wrapper class (the component name, such as .Card or .Button) or its wa-* tag (such as wa-card), and style its inside with ::part(), such as .Card::part(header). Select body, html or :root for the page, such as for a background pattern (Studio shows them on its preview), and never a class of Studio's own, such as .component-showcase: no project has it.",
+    `- In every rule you add or change, take every colour from a var(--wa-*) value, such as var(--wa-color-surface-border): no hex, rgb(), named, vendor-prefixed or other literal colours. No at-rule except @media, @supports and @container, no nested rules, no url(), at most ${MAX_AGENT_CSS_LENGTH} characters of new rules.`,
+    "- Keep the user's current rules exactly as written: they are the user's and are not checked, even where they break these rules.",
+    '- The custom CSS is in the current custom theme below, as customCSS; empty means none.',
+    '',
+  ];
+}
+
 /** The system prompt for one turn, built around the snapshot sent with it. */
 export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
   const locked = describeLocks(snapshot.locked);
@@ -244,13 +272,14 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     '- Reply in the language the user wrote in.',
     '- The current custom theme below is the truth. It may contain edits the user made by hand since your last answer; never rely on values from earlier in the conversation.',
     '',
-    "Locked values (the user locked these in the sidebar; a name without a mode is locked in both modes). Leave them out of a proposal unless the latest message asks to change one of them. When it does, propose that change anyway: Studio does not apply it, it holds it, and the user applies it with Unlock and apply under your answer. Then say it is locked and waits for the user; never say you changed it. Unlock and apply is offered only under your latest answer: once the user writes again, what an earlier answer held stays locked and cannot be applied from the chat, so if the user still wants it, propose it again. The user can also turn off a value's Lock value switch in the sidebar:",
+    "Locked values (the user locked these in Studio; a name without a mode is locked in both modes; customCSS is the custom CSS). Leave them out of a proposal unless the latest message asks to change one of them. When it does, propose that change anyway: Studio does not apply it, it holds it, and the user applies it with Unlock and apply under your answer. Then say it is locked and waits for the user; never say you changed it. Unlock and apply is offered only under your latest answer: once the user writes again, what an earlier answer held stays locked and cannot be applied from the chat, so if the user still wants it, propose it again. The user can also turn off a value's Lock value switch in the sidebar:",
     ...(locked.length > 0 ? locked.map((line) => `- ${line}`) : ['- none']),
     '',
     ...previousAnswerLines(snapshot.previous),
-    'Values you may set (nothing else, no custom CSS):',
+    'Values you may set:',
     ...PROPERTY_DEFINITIONS.map(propertyLine),
     '',
+    ...customCSSLines(),
     'Font list (use the value exactly):',
     ...AVAILABLE_FONTS.map((font) => `- ${font.name}: ${font.value}`),
     '',
@@ -298,6 +327,12 @@ export function themeAgentTurn({
     tools: { [THEME_AGENT_PROPOSE_TOOL]: proposeTheme },
     stopWhen: [stepCountIs(MAX_STEPS), outOfAttempts],
     maxOutputTokens: MAX_OUTPUT_TOKENS,
+    providerOptions: {
+      anthropic: {
+        thinking: { type: 'adaptive' },
+        effort: THEME_AGENT_EFFORT,
+      },
+    },
     abortSignal,
   });
 }

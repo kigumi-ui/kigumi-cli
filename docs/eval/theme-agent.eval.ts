@@ -35,7 +35,8 @@ describe(`Theme Agent prompt eval (${THEME_AGENT_MODEL})`, () => {
 
       const steps = await result.steps;
       const proposals = acceptedProposals(
-        steps.flatMap((step) => step.toolResults)
+        steps.flatMap((step) => step.toolResults),
+        scenario.snapshot.theme.customCSS
       );
       const verdict = scenario.judge(proposals, scenario.snapshot);
       const reply = (await result.text).replace(/\s+/g, ' ').trim();
