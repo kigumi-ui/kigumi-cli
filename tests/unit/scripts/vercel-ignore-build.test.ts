@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, matchesGlob } from 'node:path';
 import {
   buildReasons,
@@ -171,6 +171,27 @@ describe('vercel-ignore-build', () => {
     (branch, docsDeploys, storybookDeploys) => {
       expect(deploys(docs, branch)).toBe(docsDeploys);
       expect(deploys(storybook, branch)).toBe(storybookDeploys);
+    }
+  );
+
+  // Vercel deletes what a project's .vercelignore lists right after cloning,
+  // and a project without its own falls back to the repository root's.
+  // Without .git the ignore step cannot diff and builds every time.
+  it.each(['docs', 'docs/storybook'])(
+    'the %s project keeps .git for the ignore step',
+    (dir) => {
+      const own = join(ROOT, dir, '.vercelignore');
+      const file = existsSync(own) ? own : join(ROOT, '.vercelignore');
+      const patterns = readFileSync(file, 'utf8')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line && !line.startsWith('#'))
+        .map((line) => line.replace(/^\/+|\/+$/g, ''));
+      for (const path of ['.git', '.git/HEAD']) {
+        expect(
+          patterns.filter((pattern) => matchesGlob(path, pattern))
+        ).toEqual([]);
+      }
     }
   );
 });
