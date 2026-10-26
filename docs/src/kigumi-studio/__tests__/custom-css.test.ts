@@ -128,6 +128,36 @@ describe('custom CSS in the preview: review findings', () => {
   });
 });
 
+describe('custom CSS in the preview: global at-rules', () => {
+  it('leaves @property out: it registers the property for the whole page', () => {
+    expect(
+      flat(
+        scopeCustomCSS(
+          "@property --wa-color-brand { syntax: '<color>'; inherits: false; initial-value: red; }\n.Card { color: red; }",
+          ROOT
+        )
+      )
+    ).toEqual(['.studio-preview .component-showcase .Card { color: red; }']);
+  });
+
+  it('gives @keyframes a preview name and points the rules that animate at it', () => {
+    expect(
+      flat(
+        scopeCustomCSS(
+          '@keyframes spin { to { rotate: 1turn; } }\n.Spinner { animation: spin 1s linear infinite; }\n@media (prefers-reduced-motion: no-preference) { .Badge { animation-name: spin, spinner-fade; } }',
+          ROOT
+        )
+      )
+    ).toEqual([
+      '@keyframes kigumi-preview-spin { to { rotate: 1turn; }',
+      '}',
+      '.studio-preview .component-showcase .Spinner { animation: kigumi-preview-spin 1s linear infinite; }',
+      '@media (prefers-reduced-motion: no-preference) { .studio-preview .component-showcase .Badge { animation-name: kigumi-preview-spin, spinner-fade; }',
+      '}',
+    ]);
+  });
+});
+
 describe('custom CSS check before Apply', () => {
   it('accepts rules, at-rules, comments and braces inside strings', () => {
     expect(

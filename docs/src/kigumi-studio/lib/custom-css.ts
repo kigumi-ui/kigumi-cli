@@ -1,6 +1,18 @@
 // Custom CSS: the free-form rules of a custom theme (GLOSSARY.md). Studio
-// stores them unscoped, as the export writes them, and scopes
-// them only for the preview, so no rule reaches Studio's own UI (ADR 0009).
+// stores them unscoped, as the export writes them, and scopes them only for
+// the preview, so no rule reaches Studio's own UI (ADR 0009).
+//
+// In the preview the rules stay unlayered and come last, under the preview's
+// theme root: the custom theme's values sit inline on that root, and a
+// cascade layer would lose to them and to Studio's own CSS. A rule for
+// :root, html, body, .wa-dark or .wa-light lands on the theme root, and its
+// custom properties on the root's children, where they beat the inline
+// values. @media, @supports, @container, @scope and @starting-style are
+// scoped inside; @layer is unwrapped. Global at-rules cannot be scoped:
+// @property is left out of the preview (it would register the property for
+// Studio's UI too), @keyframes names get a preview prefix that the rules'
+// animations follow, and @font-face stays as written, adding a face to its
+// family name for the whole page.
 
 /**
  * One top-level piece of a stylesheet. `comments` are the comments written
@@ -206,24 +218,70 @@ function scopeRule(selector: string, body: string, root: string): string[] {
   return out;
 }
 
-function scopeNodes(nodes: CssNode[], root: string): string[] {
+/** The prefix a keyframes name gets in the preview, so it cannot meet Studio's. */
+const PREVIEW_KEYFRAMES_PREFIX = 'kigumi-preview-';
+
+const KEYFRAMES = /^@(-webkit-)?keyframes\s+(\S+)/i;
+
+/** The @keyframes names `nodes` define, in grouping at-rules too. */
+function keyframesNames(nodes: CssNode[]): string[] {
+  return nodes.flatMap((node) => {
+    if (node.kind !== 'at-rule') return [];
+    const keyframes = KEYFRAMES.exec(node.prelude);
+    if (keyframes) return [keyframes[2]];
+    return holdsRules(node.prelude)
+      ? keyframesNames(parseCss(node.body).nodes)
+      : [];
+  });
+}
+
+/** `body` with its animations pointing at the preview names of `names`. */
+function withPreviewAnimations(body: string, names: string[]): string {
+  if (names.length === 0) return body;
+  const escaped = names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const name = new RegExp(`(?<![\\w-])(${escaped.join('|')})(?![\\w-])`, 'g');
+  return body.replace(
+    /(animation(?:-name)?\s*:\s*)([^;}]+)/gi,
+    (_match, head: string, value: string) =>
+      head + value.replace(name, `${PREVIEW_KEYFRAMES_PREFIX}$1`)
+  );
+}
+
+function scopeNodes(
+  nodes: CssNode[],
+  root: string,
+  keyframes: string[]
+): string[] {
   const out: string[] = [];
   for (const node of nodes) {
     if (node.kind === 'rule') {
-      out.push(...scopeRule(node.selector, node.body, root));
+      const body = withPreviewAnimations(node.body, keyframes);
+      out.push(...scopeRule(node.selector, body, root));
     } else if (
       node.kind === 'at-rule' &&
       GROUPING_AT_RULES.test(node.prelude)
     ) {
-      const inner = scopeNodes(parseCss(node.body).nodes, root).join('\n');
-      out.push(`${node.prelude} {\n${inner}\n}`);
+      const inner = scopeNodes(parseCss(node.body).nodes, root, keyframes);
+      out.push(`${node.prelude} {\n${inner.join('\n')}\n}`);
     } else if (node.kind === 'at-rule' && /^@layer\b/i.test(node.prelude)) {
       // Unwrapped: in a project @layer orders the rules among the layers;
       // in the preview a layer loses to Studio's unlayered CSS and to the
       // inline theme values, so its rules would never show.
-      out.push(...scopeNodes(parseCss(node.body).nodes, root));
+      out.push(...scopeNodes(parseCss(node.body).nodes, root, keyframes));
+    } else if (node.kind === 'at-rule' && /^@property\b/i.test(node.prelude)) {
+      // Left out: a registered property holds for the whole page, Studio's
+      // own UI included, and cannot be scoped to the preview.
+    } else if (node.kind === 'at-rule' && KEYFRAMES.test(node.prelude)) {
+      // Renamed, with the rules that animate: a name of Studio's own, such
+      // as a spinner's, is not redefined for Studio's UI.
+      const prelude = node.prelude.replace(
+        KEYFRAMES,
+        (_m, webkit: string | undefined, name: string) =>
+          `@${webkit ?? ''}keyframes ${PREVIEW_KEYFRAMES_PREFIX}${name}`
+      );
+      out.push(`${prelude} {${node.body}}`);
     } else if (node.kind === 'at-rule') {
-      // @keyframes, @font-face, @property: no selectors to scope.
+      // @font-face and the like: no selectors to scope.
       out.push(`${node.prelude} {${node.body}}`);
     } else if (node.kind === 'statement') {
       out.push(node.text);
@@ -267,7 +325,8 @@ export function validateCustomCSS(css: string): string[] {
  * preview's theme root, so the rules reach the preview and nothing else.
  */
 export function scopeCustomCSS(css: string, root: string): string {
-  return scopeNodes(parseCss(css).nodes, root).join('\n\n');
+  const { nodes } = parseCss(css);
+  return scopeNodes(nodes, root, keyframesNames(nodes)).join('\n\n');
 }
 
 /**
