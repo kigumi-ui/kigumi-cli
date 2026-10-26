@@ -89,8 +89,10 @@ export class IntersectionObserverComponent
       host.style.display = 'inline';
     }
 
-    const handleIntersect = (e: Event) =>
+    const handleIntersect = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.intersect.emit(e as WaIntersectEvent);
+    };
     el.addEventListener('wa-intersect', handleIntersect);
     this.cleanups.push(() =>
       el.removeEventListener('wa-intersect', handleIntersect)

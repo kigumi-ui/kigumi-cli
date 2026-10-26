@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { useState } from 'react';
-import { Dialog, Button } from '@/components/ui';
+import { Dialog, Button, Dropdown, DropdownItem } from '@/components/ui';
 import {
   clickTrigger,
   installEventProbe,
   waitForCalled,
 } from '@/test-utils/play-helpers';
-import { within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 /** Dialogs display important prompts and information */
 const meta = {
@@ -116,6 +116,67 @@ export const Default: Story = {
     await clickTrigger(canvas, 'Open Dialog');
     await waitForCalled(args, 'onShow');
     cleanup();
+  },
+};
+
+/**
+ * A dropdown inside the dialog. Its `wa-hide` bubbles to the dialog, which
+ * stays open: the dialog reports only its own show and hide.
+ */
+export const WithDropdown: Story = {
+  tags: ['interaction', '!autodocs'],
+  args: { label: 'Export' },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button variant="brand" onClick={() => setOpen(true)}>
+          Open with Dropdown
+        </Button>
+        <p data-testid="dialog-state">{open ? 'open' : 'closed'}</p>
+        <Dialog {...args} open={open} onHide={() => setOpen(false)}>
+          <Dropdown>
+            <Button slot="trigger" with-caret>
+              Format
+            </Button>
+            <DropdownItem value="css">CSS</DropdownItem>
+            <DropdownItem value="json">JSON</DropdownItem>
+          </Dropdown>
+        </Dialog>
+      </>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The story's own `open`, which only the Dialog's onHide sets to false.
+    const state = canvas.getByTestId('dialog-state');
+    await clickTrigger(canvas, 'Open with Dropdown');
+    await waitFor(() => expect(state).toHaveTextContent('open'));
+    // wa-dialog portals into document.body, outside canvasElement.
+    const dialog = await waitFor(() => {
+      const el = document.querySelector<HTMLElement & { open: boolean }>(
+        'wa-dialog'
+      );
+      expect(el?.open).toBe(true);
+      return el!;
+    });
+    const dropdown = dialog.querySelector<HTMLElement & { open: boolean }>(
+      'wa-dropdown'
+    )!;
+    const trigger = within(dialog).getByText('Format');
+
+    await userEvent.click(trigger);
+    await waitFor(() => expect(dropdown.open).toBe(true));
+    const closed = new Promise((resolve) =>
+      dropdown.addEventListener('wa-after-hide', resolve, { once: true })
+    );
+    await userEvent.click(trigger);
+    await closed;
+    expect(state).toHaveTextContent('open');
+
+    // The dialog's own close still reaches onHide.
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(state).toHaveTextContent('closed'));
   },
 };
 

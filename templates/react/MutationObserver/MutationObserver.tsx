@@ -93,6 +93,7 @@ export const MutationObserver = forwardRef<
     if (!el) return;
 
     const handleWaMutation = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       if (onMutation) onMutation(e as WaMutationEvent);
     };
 

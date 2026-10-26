@@ -71,17 +71,30 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaExpand = (e: Event) => emit('wa-expand', e as WaExpandEvent);
-const handleWaAfterExpand = (e: Event) =>
+const handleWaExpand = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-expand', e as WaExpandEvent);
+};
+const handleWaAfterExpand = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-after-expand', e as WaAfterExpandEvent);
-const handleWaCollapse = (e: Event) =>
+};
+const handleWaCollapse = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-collapse', e as WaCollapseEvent);
-const handleWaAfterCollapse = (e: Event) =>
+};
+const handleWaAfterCollapse = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-after-collapse', e as WaAfterCollapseEvent);
-const handleWaLazyChange = (e: Event) =>
+};
+const handleWaLazyChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-lazy-change', e as WaLazyChangeEvent);
-const handleWaLazyLoad = (e: Event) =>
+};
+const handleWaLazyLoad = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-lazy-load', e as WaLazyLoadEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

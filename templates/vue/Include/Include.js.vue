@@ -54,8 +54,14 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaLoad = (e) => emit('wa-load', e);
-const handleWaIncludeError = (e) => emit('wa-include-error', e);
+const handleWaLoad = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-load', e);
+};
+const handleWaIncludeError = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-include-error', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

@@ -35,8 +35,14 @@ export const ZoomableFrame = React.forwardRef(
       const el = frameRef.current;
       if (!el) return;
 
-      const handleLoad = (e) => onLoad?.(e);
-      const handleError = (e) => onError?.(e);
+      const handleLoad = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onLoad?.(e);
+      };
+      const handleError = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onError?.(e);
+      };
 
       el.addEventListener('load', handleLoad);
       el.addEventListener('error', handleError);

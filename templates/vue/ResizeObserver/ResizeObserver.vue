@@ -58,7 +58,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaResize = (e: Event) => emit('wa-resize', e as WaResizeEvent);
+const handleWaResize = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-resize', e as WaResizeEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

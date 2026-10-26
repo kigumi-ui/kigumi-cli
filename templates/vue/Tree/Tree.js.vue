@@ -52,7 +52,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaSelectionChange = (e) => emit('wa-selection-change', e);
+const handleWaSelectionChange = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-selection-change', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

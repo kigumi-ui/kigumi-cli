@@ -114,10 +114,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
     <Dialog
       open={open}
       label="Customize theme CSS"
-      onHide={(event) => {
-        // wa-hide bubbles: the download menu closing is not the dialog.
-        if (event.target === event.currentTarget) onClose();
-      }}
+      onHide={onClose}
       className="theme-css-dialog"
     >
       <div className="theme-css-dialog__content">

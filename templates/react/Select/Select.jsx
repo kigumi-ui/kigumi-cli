@@ -58,13 +58,34 @@ export const Select = React.forwardRef(
       const el = selectRef.current;
       if (!el) return;
 
-      const handleChange = (e) => onChange?.(e);
-      const handleShow = (e) => onShow?.(e);
-      const handleAfterShow = (e) => onAfterShow?.(e);
-      const handleHide = (e) => onHide?.(e);
-      const handleAfterHide = (e) => onAfterHide?.(e);
-      const handleClear = (e) => onClear?.(e);
-      const handleInvalid = (e) => onInvalid?.(e);
+      const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onChange?.(e);
+      };
+      const handleShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onShow?.(e);
+      };
+      const handleAfterShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterShow?.(e);
+      };
+      const handleHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onHide?.(e);
+      };
+      const handleAfterHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterHide?.(e);
+      };
+      const handleClear = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onClear?.(e);
+      };
+      const handleInvalid = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onInvalid?.(e);
+      };
 
       el.addEventListener('change', handleChange);
       el.addEventListener('wa-show', handleShow);

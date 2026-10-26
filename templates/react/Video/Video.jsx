@@ -162,30 +162,37 @@ export const Video = React.forwardRef(
       if (!el) return;
 
       const handleTimeupdate = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onTimeupdate) onTimeupdate(e);
       };
 
       const handlePlay = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onPlay) onPlay(e);
       };
 
       const handlePause = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onPause) onPause(e);
       };
 
       const handleVolumechange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onVolumechange) onVolumechange(e);
       };
 
       const handleError = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onError) onError(e);
       };
 
       const handleEnded = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onEnded) onEnded(e);
       };
 
       const handleLoadedmetadata = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onLoadedmetadata) onLoadedmetadata(e);
       };
 

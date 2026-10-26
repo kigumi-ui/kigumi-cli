@@ -85,15 +85,34 @@ onMounted(() => {
 });
 
 const handleInput = (e) => {
+  if (e.target !== e.currentTarget) return;
   model.value = e.target.value;
   emit('input', e);
 };
-const handleChange = (e) => emit('change', e);
-const handleFocus = (e) => emit('focus', e);
-const handleBlur = (e) => emit('blur', e);
-const handleWaComplete = (e) => emit('wa-complete', e);
-const handleWaClear = (e) => emit('wa-clear', e);
-const handleWaInvalid = (e) => emit('wa-invalid', e);
+const handleChange = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('change', e);
+};
+const handleFocus = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('focus', e);
+};
+const handleBlur = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('blur', e);
+};
+const handleWaComplete = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-complete', e);
+};
+const handleWaClear = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-clear', e);
+};
+const handleWaInvalid = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-invalid', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

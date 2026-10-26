@@ -52,10 +52,22 @@ export const Tooltip = React.forwardRef(
       const el = tooltipRef.current;
       if (!el) return;
 
-      const handleShow = (e) => onShow?.(e);
-      const handleAfterShow = (e) => onAfterShow?.(e);
-      const handleHide = (e) => onHide?.(e);
-      const handleAfterHide = (e) => onAfterHide?.(e);
+      const handleShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onShow?.(e);
+      };
+      const handleAfterShow = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterShow?.(e);
+      };
+      const handleHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onHide?.(e);
+      };
+      const handleAfterHide = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onAfterHide?.(e);
+      };
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

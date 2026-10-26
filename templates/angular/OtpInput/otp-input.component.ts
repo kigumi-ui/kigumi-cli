@@ -141,33 +141,50 @@ export class OtpInputComponent
       host.style.display = 'inline';
     }
 
-    const handleInputEvent = (e: Event) =>
+    const handleInputEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.inputEvent.emit(e as InputEvent);
+    };
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e);
+    const handleChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.change.emit(e);
+    };
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleFocusEvent = (e: Event) =>
+    const handleFocusEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.focusEvent.emit(e as FocusEvent);
+    };
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
-    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
+    const handleBlurEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.blurEvent.emit(e as FocusEvent);
+    };
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleComplete = (e: Event) =>
+    const handleComplete = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.complete.emit(e as WaCompleteEvent);
+    };
     el.addEventListener('wa-complete', handleComplete);
     this.cleanups.push(() =>
       el.removeEventListener('wa-complete', handleComplete)
     );
-    const handleClearEvent = (e: Event) =>
+    const handleClearEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.clearEvent.emit(e as WaClearEvent);
+    };
     el.addEventListener('wa-clear', handleClearEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-clear', handleClearEvent)
     );
-    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
+    const handleInvalid = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.invalid.emit(e as WaInvalidEvent);
+    };
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)

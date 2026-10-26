@@ -162,14 +162,17 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleWaInvalid = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 

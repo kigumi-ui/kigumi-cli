@@ -150,18 +150,22 @@ export const Input = React.forwardRef(
       if (!el) return;
 
       const handleBlur = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e);
       };
 
       const handleFocus = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e);
       };
 
       const handleInput = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e);
       };
 
       const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 

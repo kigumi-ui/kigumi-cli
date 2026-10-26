@@ -127,11 +127,13 @@ export const Stepper = forwardRef<StepperRef, StepperProps>(
       if (!el) return;
 
       const handleWaBeforeStepChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onBeforeStepChange)
           onBeforeStepChange(e as WaBeforeStepChangeEvent);
       };
 
       const handleWaStepChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onStepChange) onStepChange(e as WaStepChangeEvent);
       };
 

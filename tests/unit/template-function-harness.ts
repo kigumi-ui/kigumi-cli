@@ -165,6 +165,22 @@ async function proveWithListeners<ClassName extends string | null>(
     }
   }
 
+  // Web Awesome's events bubble, so a Dropdown inside a Dialog reaches the
+  // Dialog's listener with its own `wa-hide` (#213). A Template forwards an
+  // event only when its own host fired it.
+  const descendant = document.createElement('span');
+  host.appendChild(descendant);
+  for (const event of probe.metadata.events) {
+    descendant.dispatchEvent(new Event(event.name, { bubbles: true }));
+    if ((calls.get(event.name) ?? 0) !== 0) {
+      violations.push(
+        `a descendant's bubbling ${event.name} invoked ${probe.adapter.callbackName(event.name)}`
+      );
+      calls.set(event.name, 0);
+    }
+  }
+  descendant.remove();
+
   const firedOnce = new Set<string>();
   const delivered = new Set<string>();
   for (const event of probe.metadata.events) {

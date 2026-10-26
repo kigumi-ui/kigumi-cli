@@ -80,10 +80,16 @@ export class RadioComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleBlur = (e: Event) => this.blur.emit(e as FocusEvent);
+    const handleBlur = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.blur.emit(e as FocusEvent);
+    };
     el.addEventListener('blur', handleBlur);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlur));
-    const handleFocus = (e: Event) => this.focus.emit(e as FocusEvent);
+    const handleFocus = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.focus.emit(e as FocusEvent);
+    };
     el.addEventListener('focus', handleFocus);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocus));
   }

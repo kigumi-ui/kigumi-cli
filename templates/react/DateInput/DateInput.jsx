@@ -171,42 +171,52 @@ export const DateInput = React.forwardRef(
       if (!el) return;
 
       const handleInput = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e);
       };
 
       const handleChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleFocus = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e);
       };
 
       const handleBlur = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e);
       };
 
       const handleClear = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onClear) onClear(e);
       };
 
       const handleShow = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onShow) onShow(e);
       };
 
       const handleAfterShow = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterShow) onAfterShow(e);
       };
 
       const handleHide = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onHide) onHide(e);
       };
 
       const handleAfterHide = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onAfterHide) onAfterHide(e);
       };
 
       const handleInvalid = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e);
       };
 

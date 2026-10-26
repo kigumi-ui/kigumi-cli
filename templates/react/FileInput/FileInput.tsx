@@ -175,22 +175,27 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e);
       };
 
       const handleChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e as FocusEvent);
       };
 
       const handleBlur = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e as FocusEvent);
       };
 
       const handleWaInvalid = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 

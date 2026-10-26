@@ -75,6 +75,7 @@ export const VideoPlaylist = React.forwardRef(
       if (!el) return;
 
       const handleVideoChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onVideoChange) onVideoChange(e);
       };
 

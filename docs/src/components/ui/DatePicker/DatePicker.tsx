@@ -197,18 +197,22 @@ export const DatePicker = forwardRef<DatePickerRef, DatePickerProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onChange) onChange(e);
       };
 
       const handleFocusDay = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocusDay) onFocusDay(e as WaFocusDayEvent);
       };
 
       const handleViewChange = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onViewChange) onViewChange(e as WaViewChangeEvent);
       };
 

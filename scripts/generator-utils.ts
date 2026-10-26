@@ -222,6 +222,17 @@ export function handlerArgument(eventType: string): string {
 }
 
 /**
+ * The first statement of every handler a Template registers on its element.
+ * Web Awesome's events bubble, so a Dropdown inside a Dialog reaches the
+ * Dialog's listener with its own `wa-hide`, and a nested TreeItem reaches its
+ * parent's with its own `wa-expand` (#213). Every event a component documents
+ * is dispatched on its own element (or retargeted to it from its shadow
+ * root), so a Template forwards an event only when that element fired it; a
+ * descendant's event is the descendant's to report.
+ */
+export const OWN_TARGET_GUARD = 'if (e.target !== e.currentTarget) return;';
+
+/**
  * Emit a component's CSS template.
  *
  * The header comment (documentation link, custom properties, CSS parts) is

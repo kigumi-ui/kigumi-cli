@@ -57,8 +57,14 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleBlur = (e) => emit('blur', e);
-const handleFocus = (e) => emit('focus', e);
+const handleBlur = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('blur', e);
+};
+const handleFocus = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('focus', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

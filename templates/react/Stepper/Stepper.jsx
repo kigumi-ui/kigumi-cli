@@ -46,10 +46,12 @@ export const Stepper = React.forwardRef(
       if (!el) return;
 
       const handleWaBeforeStepChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onBeforeStepChange) onBeforeStepChange(e);
       };
 
       const handleWaStepChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onStepChange) onStepChange(e);
       };
 

@@ -57,7 +57,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e: Event) => emit('change', e);
+const handleChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('change', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

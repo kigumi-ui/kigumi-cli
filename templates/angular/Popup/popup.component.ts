@@ -134,8 +134,10 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleRepositionEvent = (e: Event) =>
+    const handleRepositionEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.repositionEvent.emit(e as WaRepositionEvent);
+    };
     el.addEventListener('wa-reposition', handleRepositionEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-reposition', handleRepositionEvent)

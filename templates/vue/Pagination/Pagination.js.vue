@@ -65,8 +65,14 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaBeforePageChange = (e) => emit('wa-before-page-change', e);
-const handleWaPageChange = (e) => emit('wa-page-change', e);
+const handleWaBeforePageChange = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-before-page-change', e);
+};
+const handleWaPageChange = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-page-change', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

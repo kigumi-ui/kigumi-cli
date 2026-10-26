@@ -99,10 +99,12 @@ export const Button = React.forwardRef(
       if (!el) return;
 
       const handleBlur = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onBlur) onBlur(e);
       };
 
       const handleFocus = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onFocus) onFocus(e);
       };
 

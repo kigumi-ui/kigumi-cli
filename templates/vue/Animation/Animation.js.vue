@@ -62,9 +62,18 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaCancel = (e) => emit('wa-cancel', e);
-const handleWaFinish = (e) => emit('wa-finish', e);
-const handleWaStart = (e) => emit('wa-start', e);
+const handleWaCancel = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-cancel', e);
+};
+const handleWaFinish = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-finish', e);
+};
+const handleWaStart = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-start', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

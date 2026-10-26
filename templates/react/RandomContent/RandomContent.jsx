@@ -65,6 +65,7 @@ export const RandomContent = React.forwardRef(
       if (!el) return;
 
       const handleContentChange = (e) => {
+        if (e.target !== e.currentTarget) return;
         if (onContentChange) onContentChange(e);
       };
 

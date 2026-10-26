@@ -17,8 +17,14 @@ export const Include = React.forwardRef(
       const el = includeRef.current;
       if (!el) return;
 
-      const handleLoad = (e) => onLoad?.(e);
-      const handleError = (e) => onIncludeError?.(e);
+      const handleLoad = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onLoad?.(e);
+      };
+      const handleError = (e) => {
+        if (e.target !== e.currentTarget) return;
+        onIncludeError?.(e);
+      };
 
       el.addEventListener('wa-load', handleLoad);
       el.addEventListener('wa-include-error', handleError);

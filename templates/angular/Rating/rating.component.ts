@@ -112,13 +112,22 @@ export class RatingComponent
       host.style.display = 'inline';
     }
 
-    const handleChange = (e: Event) => this.change.emit(e);
+    const handleChange = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.change.emit(e);
+    };
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleHover = (e: Event) => this.hover.emit(e as WaHoverEvent);
+    const handleHover = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.hover.emit(e as WaHoverEvent);
+    };
     el.addEventListener('wa-hover', handleHover);
     this.cleanups.push(() => el.removeEventListener('wa-hover', handleHover));
-    const handleInvalid = (e: Event) => this.invalid.emit(e as WaInvalidEvent);
+    const handleInvalid = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.invalid.emit(e as WaInvalidEvent);
+    };
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>
       el.removeEventListener('wa-invalid', handleInvalid)

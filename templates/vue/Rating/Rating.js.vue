@@ -69,11 +69,18 @@ onMounted(() => {
 });
 
 const handleChange = (e) => {
+  if (e.target !== e.currentTarget) return;
   model.value = e.target.value;
   emit('change', e);
 };
-const handleWaHover = (e) => emit('wa-hover', e);
-const handleWaInvalid = (e) => emit('wa-invalid', e);
+const handleWaHover = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-hover', e);
+};
+const handleWaInvalid = (e) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-invalid', e);
+};
 
 onMounted(() => {
   const el = elementRef.value;

@@ -58,8 +58,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaSelectionChange = (e: Event) =>
+const handleWaSelectionChange = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-selection-change', e as WaSelectionChangeEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;

@@ -99,19 +99,26 @@ export class AnimationComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleCancelEvent = (e: Event) =>
+    const handleCancelEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.cancelEvent.emit(e as WaCancelEvent);
+    };
     el.addEventListener('wa-cancel', handleCancelEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-cancel', handleCancelEvent)
     );
-    const handleFinishEvent = (e: Event) =>
+    const handleFinishEvent = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
       this.finishEvent.emit(e as WaFinishEvent);
+    };
     el.addEventListener('wa-finish', handleFinishEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-finish', handleFinishEvent)
     );
-    const handleStart = (e: Event) => this.start.emit(e as WaStartEvent);
+    const handleStart = (e: Event) => {
+      if (e.target !== e.currentTarget) return;
+      this.start.emit(e as WaStartEvent);
+    };
     el.addEventListener('wa-start', handleStart);
     this.cleanups.push(() => el.removeEventListener('wa-start', handleStart));
   }

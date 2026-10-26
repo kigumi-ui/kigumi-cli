@@ -80,10 +80,12 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
       if (!el) return;
 
       const handleWaLoad = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleWaIncludeError = (e: Event) => {
+        if (e.target !== e.currentTarget) return;
         if (onIncludeError) onIncludeError(e as WaIncludeErrorEvent);
       };
 

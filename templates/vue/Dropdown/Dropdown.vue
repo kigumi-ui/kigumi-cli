@@ -92,18 +92,27 @@ onMounted(() => {
 });
 
 const handleWaShow = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   open.value = true;
   emit('wa-show', e as WaShowEvent);
 };
-const handleWaAfterShow = (e: Event) =>
+const handleWaAfterShow = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-after-show', e as WaAfterShowEvent);
+};
 const handleWaHide = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   open.value = false;
   emit('wa-hide', e as WaHideEvent);
 };
-const handleWaAfterHide = (e: Event) =>
+const handleWaAfterHide = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
   emit('wa-after-hide', e as WaAfterHideEvent);
-const handleWaSelect = (e: Event) => emit('wa-select', e as WaSelectEvent);
+};
+const handleWaSelect = (e: Event) => {
+  if (e.target !== e.currentTarget) return;
+  emit('wa-select', e as WaSelectEvent);
+};
 
 onMounted(() => {
   const el = elementRef.value;
