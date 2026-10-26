@@ -79,6 +79,10 @@
   white-space: normal;
 }
 
+.theme-agent__diff-copy {
+  margin-bottom: var(--wa-space-2xs);
+}
+
 .theme-agent__diff-lines {
   margin: 0;
   overflow-x: auto;

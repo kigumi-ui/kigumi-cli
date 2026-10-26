@@ -335,6 +335,16 @@ export const HeldCustomCSS: Story = {
       'Added: + .Card::part(base) { border: none; }'
     );
     expect(diff.querySelectorAll('del')).toHaveLength(0);
+    // Copy takes the custom CSS as proposed, without the removed lines.
+    const copy = diff.querySelector<HTMLElement & { value: string }>(
+      'wa-copy-button'
+    );
+    expect(copy?.value).toBe(
+      [
+        '.Card::part(base) { border: none; }',
+        '.Card::part(header) { border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border); }',
+      ].join('\n')
+    );
     await canvas.findByText('Locked, not changed: Custom CSS.');
 
     await userEvent.click(within(card).getByText('Unlock and apply'));

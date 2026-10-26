@@ -1,4 +1,4 @@
-import { Button, Callout, Details, Icon } from '@/components/ui';
+import { Button, Callout, CopyButton, Details, Icon } from '@/components/ui';
 import { violationPair } from '../../theme-agent/contrast';
 import type {
   HeldCustomCSSChange,
@@ -82,11 +82,20 @@ function applyLabel(entry: HeldEntry) {
 /**
  * What a held custom CSS change would do, line by line: the custom CSS is
  * replaced whole, so the diff shows what goes and what comes. Removed and
- * added lines say so in text too, not by colour alone.
+ * added lines say so in text too, not by colour alone. Copy takes the
+ * custom CSS as proposed, without the removed lines, to adjust by hand.
  */
 function CustomCSSDiff({ change }: { change: HeldCustomCSSChange }) {
   return (
     <Details summary="Custom CSS changes" className="theme-agent__diff">
+      <div className="theme-agent__diff-copy wa-cluster wa-gap-2xs">
+        <CopyButton
+          value={change.proposed}
+          copy-label="Copy proposed custom CSS"
+          success-label="Copied"
+        />
+        <span className="theme-agent__outcome-text">Proposed custom CSS</span>
+      </div>
       <pre className="theme-agent__diff-lines">
         {lineDiff(change.was, change.proposed).map((line, i) =>
           line.kind === 'removed' ? (
