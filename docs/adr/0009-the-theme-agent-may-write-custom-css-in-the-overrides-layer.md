@@ -38,7 +38,9 @@ the prompt:
   list must hold the feature and none may be negated or joined with `or`,
   so the animation never runs for a user who asked for reduced motion
   (WCAG 2.3.3).
-- The name is a plain identifier, not a string or a CSS-wide keyword. The
+- The name is a plain identifier, not a string, a CSS-wide keyword or a
+  keyword of the `animation` shorthand (such as `infinite` or `ease`), which
+  the shorthand would read as that keyword. The
   preview prefixes every keyframes name (`scopeCustomCSS()`), so a name
   cannot redefine one of Studio's own animations; the export writes it as
   proposed.

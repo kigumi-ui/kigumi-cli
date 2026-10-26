@@ -30,11 +30,21 @@ const KEYFRAMES = /^@keyframes(?![\w-])\s*([\s\S]*)$/i;
 
 /**
  * A plain identifier: no string, no escape (refused as script-like anyway),
- * and none of the keywords an animation-name reads as something else.
+ * and no keyword the animation shorthand reads as something other than the
+ * name. Such a name would also be renamed where it stands as that keyword
+ * when the preview prefixes the name, so the preview would differ from the
+ * export.
  */
 const KEYFRAMES_NAME = /^[a-z][\w-]*$/i;
-const NOT_A_KEYFRAMES_NAME =
-  /^(?:none|initial|inherit|unset|revert|revert-layer|default)$/i;
+const NOT_A_KEYFRAMES_NAME = new Set(
+  (
+    'none initial inherit unset revert revert-layer default ' +
+    'infinite normal reverse alternate alternate-reverse ' +
+    'forwards backwards both running paused auto ' +
+    'replace add accumulate ' +
+    'ease ease-in ease-out ease-in-out linear step-start step-end'
+  ).split(' ')
+);
 
 /** A keyframe block's selector: from, to or a percentage. */
 const KEYFRAME_SELECTOR = /^(?:from|to|\d+(?:\.\d+)?%)$/i;
@@ -163,7 +173,7 @@ function declarationErrors(selector: string, declaration: string): string[] {
 }
 
 /** The declarations of one rule or keyframe block, comments as spaces. */
-function declarations(body: string): string[] {
+function splitDeclarations(body: string): string[] {
   // A comment reads as a space: removed outright it would join the words
   // around it (solid/**/red) into one the colour check does not know.
   return splitTopLevel(body.replace(/\/\*[\s\S]*?\*\//g, ' '), ';').map(
@@ -173,7 +183,7 @@ function declarations(body: string): string[] {
 
 /** Why the declarations of one rule or keyframe block are refused. */
 function bodyErrors(selector: string, body: string): string[] {
-  return declarations(body).flatMap((declaration) =>
+  return splitDeclarations(body).flatMap((declaration) =>
     declarationErrors(selector, declaration)
   );
 }
@@ -209,7 +219,7 @@ function onlyWithoutReducedMotion(prelude: string): boolean {
 
 /** Why a rule outside the reduced-motion query may not start an animation. */
 function motionErrors(selector: string, body: string): string[] {
-  return declarations(body).flatMap((declaration) => {
+  return splitDeclarations(body).flatMap((declaration) => {
     const colon = declaration.indexOf(':');
     if (colon === -1) return [];
     const property = declaration.slice(0, colon).trim();
@@ -229,7 +239,10 @@ function motionErrors(selector: string, body: string): string[] {
 function keyframesErrors(prelude: string, body: string): string[] {
   const name = KEYFRAMES.exec(prelude)?.[1] ?? '';
   const where = `@keyframes ${name}`.trim();
-  if (!KEYFRAMES_NAME.test(name) || NOT_A_KEYFRAMES_NAME.test(name)) {
+  if (
+    !KEYFRAMES_NAME.test(name) ||
+    NOT_A_KEYFRAMES_NAME.has(name.toLowerCase())
+  ) {
     return [
       `${where}: a keyframes name is a plain identifier, such as skeleton-shimmer`,
     ];

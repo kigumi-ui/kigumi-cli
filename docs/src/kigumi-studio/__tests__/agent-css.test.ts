@@ -352,6 +352,11 @@ describe('custom CSS from the Theme Agent: what a @keyframes holds', () => {
     ['a quoted name', '@keyframes "pulse" { to { opacity: 0; } }'],
     ['a CSS-wide keyword', '@keyframes inherit { to { opacity: 0; } }'],
     ['none', '@keyframes none { to { opacity: 0; } }'],
+    // The animation shorthand reads these as keywords, not as the name.
+    ['infinite', '@keyframes infinite { to { opacity: 0; } }'],
+    ['ease-in-out', '@keyframes ease-in-out { to { opacity: 0; } }'],
+    ['forwards', '@keyframes forwards { to { opacity: 0; } }'],
+    ['paused', '@keyframes paused { to { opacity: 0; } }'],
     ['no name', '@keyframes { to { opacity: 0; } }'],
   ])('refuses %s as the keyframes name', (_name, css) => {
     expect(validateAgentCSS(css).join('\n')).toMatch(
