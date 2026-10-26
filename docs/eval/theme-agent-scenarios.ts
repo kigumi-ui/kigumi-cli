@@ -4,7 +4,6 @@ import {
   checkContrast,
   paintedStyle,
   summarizeViolation,
-  violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast';
 import type {
   CustomTheme,
@@ -140,9 +139,8 @@ function redBrandHeld(
 
 /**
  * The brand is proposed and held. Whether the held brand fixes the brand
- * fill is reported, not judged: Studio derives the fill at a fixed
- * lightness, so some hues cannot pass at all, and the task gives the model
- * no feedback on a held value.
+ * fill is reported, not judged: the task gives the model no feedback on a
+ * held value.
  */
 function brandFillFixHeld(
   proposals: ThemeProposal[],
@@ -260,8 +258,18 @@ function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
 
 const BRAND_LOCKED = { light: [BRAND], dark: [BRAND], shadowComponents: false };
 
-/** A green whose brand fill falls short of 4.5:1 under white text. */
+/** A green whose brand fill fell short of 4.5:1 under white text. */
 const FAILING_GREEN = '#22c55e';
+/**
+ * The brand fill pair as the task reported it for the green brand while
+ * Studio derived the fill from palette step 50. Since issue #202 the fill is
+ * step 40 and no brand fails it, so the warning is recorded, not computed:
+ * the scenario is the model's answer to "improve" after such a warning.
+ */
+const GREEN_BRAND_FILL_WARNING = (['Light', 'Dark'] as const).map(
+  (mode) =>
+    `${mode} mode, text on the brand fill: 3.81:1, needs 4.5:1 (--wa-color-brand-on-loud white on --wa-color-brand-fill-loud #009742, set by ${BRAND})`
+);
 const greenTheme = studioTheme({
   light: { [BRAND]: FAILING_GREEN },
   dark: { [BRAND]: FAILING_GREEN },
@@ -296,7 +304,7 @@ const greenAnswer: ModelMessage[] = [
           value: {
             accepted: true,
             errors: [],
-            contrast: checkContrast(greenTheme).map(violationFeedback),
+            contrast: GREEN_BRAND_FILL_WARNING,
             correctContrast: false,
             lockedContrast: [],
             locked: [],

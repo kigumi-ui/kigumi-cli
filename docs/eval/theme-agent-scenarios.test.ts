@@ -5,7 +5,6 @@ import {
   type EvalScenario,
 } from './theme-agent-scenarios';
 import { THEME_AGENT_PROPOSE_TOOL } from '../src/kigumi-studio/theme-agent/constants';
-import { checkContrast } from '../src/kigumi-studio/theme-agent/contrast';
 import type { ThemeProposal } from '../src/kigumi-studio/theme-agent/proposal';
 import { DEFAULT_VALUES } from '../src/kigumi-studio/lib/defaults';
 
@@ -127,14 +126,10 @@ describe('brand locked, make the brand red', () => {
 describe('brand locked, improve the brand fill warning', () => {
   const s = scenario('locked-brand-improve-fill');
 
-  it('starts from a theme whose only failing pair is the brand fill', () => {
-    const violations = checkContrast(s.snapshot.theme);
-    expect(violations.length).toBeGreaterThan(0);
-    expect(violations.every((v) => v.setBy === '--wa-color-brand')).toBe(true);
-  });
-
   it('carries the warning in the conversation it answers', () => {
-    expect(JSON.stringify(s.messages)).toContain('text on the brand fill');
+    expect(JSON.stringify(s.messages)).toContain(
+      'Light mode, text on the brand fill: 3.81:1'
+    );
     expect(s.messages.at(-1)).toMatchObject({ role: 'user' });
   });
 
@@ -142,13 +137,6 @@ describe('brand locked, improve the brand fill warning', () => {
     const fixes = s.judge([both('--wa-color-brand', '#dc2626')], s.snapshot);
     expect(fixes).toMatchObject({ pass: true });
     expect(fixes.reason).toContain('fixes the brand fill');
-    // Studio derives the fill at a fixed lightness: no green passes, and
-    // the task tells the model nothing about a held value.
-    const fails = s.judge([both('--wa-color-brand', '#15803d')], s.snapshot);
-    expect(fails).toMatchObject({ pass: true });
-    expect(fails.reason).toContain(
-      'still fails: Light mode, text on the brand fill'
-    );
   });
 
   it('fails when the held brand is the green it already has', () => {

@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   generateBrandVariables,
   generateSemanticVariables,
+  hexToRgb,
+  relativeLuminance,
   type SemanticColorGroup,
 } from '../lib/color-utils';
 import { generateThemeCSS, modifiedProperties } from '../lib/css-generator';
@@ -141,6 +143,23 @@ describe('modifiedProperties', () => {
       }
     }
   });
+
+  // The default brand exports nothing: Web Awesome's default theme paints
+  // its fill as #0071ec, which carries white text at 4.59:1.
+  it.each(['#0891b2', '#16a34a', '#ca8a04'])(
+    'exports a brand fill that carries white text at 4.5:1 for %s',
+    (hex) => {
+      const { light, dark } = modifiedProperties(
+        edit('--wa-color-brand', 'light', hex)
+      );
+      for (const vars of [light, dark]) {
+        expect(vars['--wa-color-brand-on-loud']).toBe('white');
+        const fill = vars['--wa-color-brand-fill-loud'];
+        const ratio = 1.05 / (relativeLuminance(...hexToRgb(fill)) + 0.05);
+        expect(ratio).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  );
 
   it.each<SemanticColorGroup>(['success', 'warning', 'danger', 'neutral'])(
     'derives the %s palette the same way',
