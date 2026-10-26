@@ -63,6 +63,17 @@ function readJson(rel: string): Record<string, unknown> | null {
 }
 
 /** Read a dependency spec from any of the dependency blocks of a package.json. */
+/**
+ * The version a dependency spec pins. docs/ aliases the Pro package to the
+ * organization's copy (`npm:@kigumi-ui/webawesome-pro@3.14.0`), so an alias
+ * counts as the version after its last `@`; the exactness check still applies
+ * to that version.
+ */
+export function pinnedVersion(spec: string): string {
+  const alias = /^npm:(?:@[^/]+\/)?[^@]+@(.+)$/.exec(spec);
+  return alias ? alias[1]! : spec;
+}
+
 function readDependencyPin(rel: string, pkgName: string): string | null {
   const pkg = readJson(rel);
   if (!pkg) return null;
@@ -75,7 +86,7 @@ function readDependencyPin(rel: string, pkgName: string): string | null {
   ]) {
     const deps = pkg[block] as Record<string, string> | undefined;
     const spec = deps?.[pkgName];
-    if (typeof spec === 'string') return spec;
+    if (typeof spec === 'string') return pinnedVersion(spec);
   }
   return null;
 }

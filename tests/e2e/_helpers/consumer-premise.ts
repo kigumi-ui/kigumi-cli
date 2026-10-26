@@ -27,6 +27,7 @@ import {
 import type { CemVerdict } from '../../../scripts/find-cem.js';
 import {
   ENV_TOKEN_KEY,
+  NPM_PRO_AUTH_TOKEN_KEY,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../../../src/constants.js';
 import { projectNpmrcFor } from '../../../src/utils/npmrc.js';
@@ -129,8 +130,9 @@ const PRO_FIX_HINT =
   'Give this machine a Web Awesome Pro token `init` finds and can install with:\n' +
   '  export WEBAWESOME_NPM_TOKEN=<token>\n' +
   'or, once per machine:\n' +
-  '  npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken <token>\n' +
-  '(`pnpm setup:npmrc` writes that line from .env).';
+  `  npm config set ${NPM_PRO_AUTH_TOKEN_KEY} <token>\n` +
+  'Without a Web Awesome Pro subscription, serve the organization copy locally\n' +
+  '(scripts/local-pro-registry.mjs) and point KIGUMI_PRO_REGISTRY at it.';
 
 /** Run the Pro consumer, or report that it did not run and why. */
 export function consumerPremise(

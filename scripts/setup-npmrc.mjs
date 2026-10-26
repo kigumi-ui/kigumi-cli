@@ -1,173 +1,110 @@
 #!/usr/bin/env node
 
 /**
- * Setup Web Awesome Pro authentication for package managers.
+ * Authenticate docs/ against the Web Awesome Pro package it installs.
  *
- * Reads token from .env files and writes it to:
- * - Global ~/.npmrc (for npm/yarn and projects without local .npmrc)
- * - docs/.npmrc (docs/ has no committed .npmrc, so its Pro registry line lives here)
+ * docs/package.json aliases `@awesome.me/webawesome-pro` to the copy the
+ * kigumi-ui organization hosts on GitHub Packages, so every import keeps the
+ * Pro package's own name. This writes the registry line for that scope and a
+ * GitHub token that can read it to docs/.npmrc, which is gitignored (docs/
+ * has no committed .npmrc).
  *
- * The docs/.npmrc file is gitignored. Run this script after cloning to generate it.
+ * The token comes from GITHUB_PACKAGES_TOKEN (Vercel, CI), else from the
+ * GitHub CLI's login (`gh auth token`, local development). It needs
+ * `read:packages`. No other npmrc is touched.
  *
- * Zero dependencies - uses only Node.js built-ins (fs, path, os).
- * Mirrors the token detection logic from src/utils/token.ts.
+ * Zero dependencies - uses only Node.js built-ins.
  *
- * Usage: node scripts/setup-npmrc.mjs
+ * Usage:
+ *   node scripts/setup-npmrc.mjs           write docs/.npmrc
+ *   node scripts/setup-npmrc.mjs --probe   write it, then exit 1 unless the
+ *                                          pinned package can be read with it
  */
 
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT_DIR = path.dirname(path.dirname(__filename));
+const DOCS_DIR = path.join(ROOT_DIR, 'docs');
 
-const ENV_TOKEN_KEY = 'WEBAWESOME_NPM_TOKEN';
-const MIN_TOKEN_LENGTH = 10;
-const PRO_REGISTRY = 'npm.cloudsmith.io/fortawesome/webawesome-pro';
-const AUTH_LINE = `//${PRO_REGISTRY}/:_authToken=`;
+const ENV_TOKEN_KEY = 'GITHUB_PACKAGES_TOKEN';
+const PRO_PACKAGE = '@awesome.me/webawesome-pro';
+const PACKAGES_REGISTRY = 'https://npm.pkg.github.com';
 
-// --- Token Detection (mirrors src/utils/token.ts fallback chain) ---
-
-function getTokenFromEnvVar() {
-  const token = process.env[ENV_TOKEN_KEY];
-  return token && token.length >= MIN_TOKEN_LENGTH ? token.trim() : null;
-}
-
-function getTokenFromGlobalNpmrc() {
-  const npmrcPath = path.join(os.homedir(), '.npmrc');
-  if (!fs.existsSync(npmrcPath)) return null;
-
-  const content = fs.readFileSync(npmrcPath, 'utf-8');
-  const patterns = [
-    new RegExp(`//${PRO_REGISTRY}/?:_authToken=(.+)`, 'm'),
-    new RegExp(`${PRO_REGISTRY}/?:_authToken=(.+)`, 'm'),
-  ];
-
-  for (const pattern of patterns) {
-    const match = content.match(pattern);
-    if (match?.[1]) {
-      const token = match[1].trim();
-      if (token.length >= MIN_TOKEN_LENGTH) return token;
-    }
+/**
+ * The aliased package docs/package.json pins, e.g.
+ * `@kigumi-ui/webawesome-pro@3.14.0`, and the scope it lives under.
+ */
+export function readPinnedSpec(packageJson) {
+  const range = packageJson.dependencies?.[PRO_PACKAGE] ?? '';
+  const match = /^npm:(@[^/]+)\/([^@]+)@(.+)$/.exec(range);
+  if (!match) {
+    throw new Error(
+      `docs/package.json must alias ${PRO_PACKAGE} as npm:@scope/name@version, found "${range}"`
+    );
   }
-
-  return null;
+  const [, scope, name, version] = match;
+  return { scope, spec: `${scope}/${name}@${version}` };
 }
 
-function getTokenFromDotenv(dir) {
-  const envPath = path.join(dir, '.env');
-  if (!fs.existsSync(envPath)) return null;
-
-  const content = fs.readFileSync(envPath, 'utf-8');
-  const match = content.match(
-    new RegExp(`^\\s*${ENV_TOKEN_KEY}\\s*=\\s*(.+?)\\s*$`, 'm'),
-  );
-  const token = match?.[1]?.trim();
-  return token && token.length >= MIN_TOKEN_LENGTH ? token : null;
+/** The docs/.npmrc content for `scope` on GitHub Packages. */
+export function docsNpmrc(scope, token) {
+  const dart = PACKAGES_REGISTRY.replace(/^https?:/, '');
+  return `${scope}:registry=${PACKAGES_REGISTRY}\n${dart}/:_authToken=${token}\n`;
 }
 
 function detectToken() {
-  // 1. Environment variable (highest priority - CI/CD)
-  let token = getTokenFromEnvVar();
-  if (token) return { token, source: `environment variable ($${ENV_TOKEN_KEY})` };
+  const fromEnv = process.env[ENV_TOKEN_KEY]?.trim();
+  if (fromEnv) return { token: fromEnv, source: ENV_TOKEN_KEY };
 
-  // 2. Global ~/.npmrc (already configured)
-  token = getTokenFromGlobalNpmrc();
-  if (token) return { token, source: 'global ~/.npmrc', alreadyGlobal: true };
-
-  // 3. Docs .env file
-  const docsDir = path.join(ROOT_DIR, 'docs');
-  token = getTokenFromDotenv(docsDir);
-  if (token) return { token, source: 'docs/.env file' };
-
-  // 4. Root .env file
-  token = getTokenFromDotenv(ROOT_DIR);
-  if (token) return { token, source: 'root .env file' };
+  const gh = spawnSync('gh', ['auth', 'token'], { encoding: 'utf8' });
+  const fromGh = gh.status === 0 ? gh.stdout.trim() : '';
+  if (fromGh) return { token: fromGh, source: 'gh auth token' };
 
   return { token: null, source: null };
 }
 
-// --- Global ~/.npmrc Configuration ---
-
-function isGlobalNpmrcConfigured() {
-  const npmrcPath = path.join(os.homedir(), '.npmrc');
-  if (!fs.existsSync(npmrcPath)) return false;
-
-  const content = fs.readFileSync(npmrcPath, 'utf-8');
-  return content.includes(AUTH_LINE);
-}
-
-function writeTokenToGlobalNpmrc(token) {
-  const npmrcPath = path.join(os.homedir(), '.npmrc');
-  let content = '';
-
-  if (fs.existsSync(npmrcPath)) {
-    content = fs.readFileSync(npmrcPath, 'utf-8');
-    // Remove existing auth line for this registry (update in place)
-    content = content
-      .split('\n')
-      .filter((line) => !line.includes(PRO_REGISTRY + '/:_authToken'))
-      .join('\n');
-    // Ensure trailing newline
-    if (content.length > 0 && !content.endsWith('\n')) {
-      content += '\n';
-    }
-  }
-
-  content += `${AUTH_LINE}${token}\n`;
-  fs.writeFileSync(npmrcPath, content);
-}
-
-// --- docs/.npmrc (docs/ has no committed .npmrc: Pro registry line plus token) ---
-
-function writeDocsNpmrc(token) {
-  const docsDir = path.join(ROOT_DIR, 'docs');
-  if (!fs.existsSync(docsDir)) return;
-
-  const npmrcPath = path.join(docsDir, '.npmrc');
-  const registryUrl = `https://${PRO_REGISTRY}/`;
-  const content = `@awesome.me:registry=${registryUrl}
-${AUTH_LINE}${token}
-//${PRO_REGISTRY}/:always-auth=true
-`;
-  fs.writeFileSync(npmrcPath, content);
-}
-
-// --- Main ---
-
 function main() {
-  const { token, source, alreadyGlobal } = detectToken();
+  const probe = process.argv.includes('--probe');
+  const { token, source } = detectToken();
 
   if (!token) {
-    console.error('\u274c No Web Awesome Pro token found\n');
-    console.error('Configure your token using one of these methods:\n');
-    console.error('1. Run this script after creating a .env file:');
-    console.error(`   echo "${ENV_TOKEN_KEY}=your_token" > docs/.env`);
-    console.error('   pnpm run setup:npmrc\n');
-    console.error('2. Set it globally:');
+    console.error(`No GitHub token for the Web Awesome Pro package.\n`);
+    console.error(`Set ${ENV_TOKEN_KEY} to a token with read:packages, or`);
     console.error(
-      `   npm config set //${PRO_REGISTRY}/:_authToken your_token\n`,
+      'log in with the GitHub CLI: gh auth refresh -s read:packages'
     );
-    console.error('3. Set environment variable:');
-    console.error(`   export ${ENV_TOKEN_KEY}=your_token\n`);
-    console.error('Get your token from: https://webawesome.com/login');
     process.exit(1);
   }
 
-  // Write to global ~/.npmrc (unless already there)
-  if (!alreadyGlobal) {
-    writeTokenToGlobalNpmrc(token);
-    console.log(`\u2705 Token from ${source} configured in global ~/.npmrc`);
-  } else {
-    console.log('\u2713 Token already in global ~/.npmrc');
-  }
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.join(DOCS_DIR, 'package.json'), 'utf8')
+  );
+  const { scope, spec } = readPinnedSpec(packageJson);
+  fs.writeFileSync(path.join(DOCS_DIR, '.npmrc'), docsNpmrc(scope, token));
+  console.log(`docs/.npmrc written for ${scope} (token from ${source})`);
 
-  // Always write to docs/.npmrc: docs/ needs the Pro registry line
-  writeDocsNpmrc(token);
-  console.log('\u2713 docs/.npmrc updated (gitignored)');
-  console.log('   You can now run: pnpm install');
+  if (!probe) return;
+
+  const view = spawnSync('npm', ['view', spec, 'version'], {
+    cwd: DOCS_DIR,
+    encoding: 'utf8',
+  });
+  if (view.status !== 0) {
+    const reason =
+      view.stderr.match(/npm error code (\S+)/)?.[1] ?? `exit ${view.status}`;
+    console.error(`${spec} is not readable with this token (${reason})`);
+    process.exit(1);
+  }
+  console.log(`${spec} is readable`);
 }
 
-main();
+if (
+  process.argv[1] &&
+  fs.realpathSync(process.argv[1]) === fs.realpathSync(__filename)
+) {
+  main();
+}

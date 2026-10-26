@@ -555,6 +555,204 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     ],
     methods: [],
   },
+  button: {
+    tagName: 'wa-button',
+    className: 'WaButton',
+    attributes: [
+      {
+        name: 'title',
+        type: 'string',
+      },
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'with-caret',
+        type: 'boolean',
+      },
+      {
+        name: 'with-start',
+        type: 'boolean',
+      },
+      {
+        name: 'with-end',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'loading',
+        type: 'boolean',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'href',
+        type: 'string',
+      },
+      {
+        name: 'target',
+        type: 'string',
+      },
+      {
+        name: 'rel',
+        type: 'string',
+      },
+      {
+        name: 'download',
+        type: 'string',
+      },
+      {
+        name: 'formaction',
+        type: 'string',
+      },
+      {
+        name: 'formenctype',
+        type: 'string',
+      },
+      {
+        name: 'formmethod',
+        type: 'string',
+      },
+      {
+        name: 'formnovalidate',
+        type: 'boolean',
+      },
+      {
+        name: 'formtarget',
+        type: 'string',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
+    events: [
+      {
+        name: 'blur',
+        description: 'Emitted when the button loses focus.',
+        reactName: 'onBlur',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the button gains focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onInvalid',
+        eventType: 'WaInvalidEvent',
+        eventTypeModule: 'invalid',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description: "The button's label.",
+      },
+      {
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed before the label.',
+      },
+      {
+        name: 'end',
+        description: 'An element, such as `<wa-icon>`, placed after the label.',
+      },
+    ],
+    methods: [
+      {
+        name: 'click',
+        description: 'Simulates a click on the button.',
+      },
+      {
+        name: 'focus',
+        description: 'Sets focus on the button.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+            optional: true,
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the button.',
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
   accordion: {
     tagName: 'wa-accordion',
     className: 'WaAccordion',
@@ -1241,204 +1439,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
     ],
     methods: [],
-  },
-  button: {
-    tagName: 'wa-button',
-    className: 'WaButton',
-    attributes: [
-      {
-        name: 'title',
-        type: 'string',
-      },
-      {
-        name: 'variant',
-        type: 'string',
-      },
-      {
-        name: 'appearance',
-        type: 'string',
-      },
-      {
-        name: 'size',
-        type: 'string',
-      },
-      {
-        name: 'with-caret',
-        type: 'boolean',
-      },
-      {
-        name: 'with-start',
-        type: 'boolean',
-      },
-      {
-        name: 'with-end',
-        type: 'boolean',
-      },
-      {
-        name: 'disabled',
-        type: 'boolean',
-      },
-      {
-        name: 'loading',
-        type: 'boolean',
-      },
-      {
-        name: 'pill',
-        type: 'boolean',
-      },
-      {
-        name: 'type',
-        type: 'string',
-      },
-      {
-        name: 'name',
-        type: 'string',
-      },
-      {
-        name: 'value',
-        type: 'string',
-      },
-      {
-        name: 'href',
-        type: 'string',
-      },
-      {
-        name: 'target',
-        type: 'string',
-      },
-      {
-        name: 'rel',
-        type: 'string',
-      },
-      {
-        name: 'download',
-        type: 'string',
-      },
-      {
-        name: 'formaction',
-        type: 'string',
-      },
-      {
-        name: 'formenctype',
-        type: 'string',
-      },
-      {
-        name: 'formmethod',
-        type: 'string',
-      },
-      {
-        name: 'formnovalidate',
-        type: 'boolean',
-      },
-      {
-        name: 'formtarget',
-        type: 'string',
-      },
-      {
-        name: 'custom-error',
-        type: 'string',
-      },
-      {
-        name: 'dir',
-        type: 'string',
-      },
-      {
-        name: 'lang',
-        type: 'string',
-      },
-      {
-        name: 'did-ssr',
-      },
-    ],
-    events: [
-      {
-        name: 'blur',
-        description: 'Emitted when the button loses focus.',
-        reactName: 'onBlur',
-        eventType: 'FocusEvent',
-      },
-      {
-        name: 'focus',
-        description: 'Emitted when the button gains focus.',
-        reactName: 'onFocus',
-        eventType: 'FocusEvent',
-      },
-      {
-        name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onInvalid',
-        eventType: 'WaInvalidEvent',
-        eventTypeModule: 'invalid',
-      },
-    ],
-    slots: [
-      {
-        name: '',
-        description: "The button's label.",
-      },
-      {
-        name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed before the label.',
-      },
-      {
-        name: 'end',
-        description: 'An element, such as `<wa-icon>`, placed after the label.',
-      },
-    ],
-    methods: [
-      {
-        name: 'click',
-        description: 'Simulates a click on the button.',
-      },
-      {
-        name: 'focus',
-        description: 'Sets focus on the button.',
-        parameters: [
-          {
-            name: 'options',
-            type: 'FocusOptions',
-            optional: true,
-          },
-        ],
-      },
-      {
-        name: 'blur',
-        description: 'Removes focus from the button.',
-      },
-      {
-        name: 'setCustomValidity',
-        description:
-          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
-        parameters: [
-          {
-            name: 'message',
-            type: 'string',
-          },
-        ],
-      },
-      {
-        name: 'formStateRestoreCallback',
-        description:
-          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
-        parameters: [
-          {
-            name: 'state',
-            type: 'string | File | FormData | null',
-          },
-          {
-            name: 'reason',
-            type: "'autocomplete' | 'restore'",
-          },
-        ],
-      },
-      {
-        name: 'resetValidity',
-        description:
-          'Reset validity is a way of removing manual custom errors and native validation.',
-      },
-    ],
   },
   'button-group': {
     tagName: 'wa-button-group',
