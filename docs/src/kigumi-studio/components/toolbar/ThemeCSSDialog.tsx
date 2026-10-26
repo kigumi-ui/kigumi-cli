@@ -2,13 +2,21 @@ import { useState } from 'react';
 import {
   Dialog,
   Button,
+  ButtonGroup,
+  Dropdown,
+  DropdownItem,
   Textarea,
   Callout,
-  CopyButton,
   Icon,
+  type DropdownProps,
 } from '@/components/ui';
 import { NO_LOCKS } from '../../lib/locks';
-import { themeEdits, themeText } from '../../lib/theme-css';
+import {
+  themeDownloads,
+  themeEdits,
+  themeText,
+  type CustomThemeState,
+} from '../../lib/theme-css';
 import { useStudio } from '../../contexts/StudioContext';
 import './ThemeCSSDialog.css';
 
@@ -17,11 +25,31 @@ interface ThemeCSSDialogProps {
   onClose: () => void;
 }
 
+type Download = 'all' | 'theme.css' | 'overrides.css';
+
+/** Hand `content` to the browser as a file named `name`. */
+function saveFile(name: string, content: string) {
+  const url = URL.createObjectURL(new Blob([content], { type: 'text/css' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function download(theme: CustomThemeState, which: Download) {
+  for (const file of themeDownloads(theme)) {
+    if (which === 'all' || which === file.name)
+      saveFile(file.name, file.content);
+  }
+}
+
 /**
- * The "Custom CSS" dialog: the whole custom theme as the CSS a project gets,
- * theme.css then overrides.css, in one text field to read, edit and copy. Apply takes only
- * the edits made to the text (`themeEdits`). Mounted afresh on every open
- * (StudioLayout keys it), so the text starts from the custom theme as it is.
+ * The "Customize theme CSS" dialog: the whole custom theme as the CSS a
+ * project gets, theme.css then overrides.css, in one text field to read and
+ * edit, and to download as the two files. Apply takes only the edits made to
+ * the text (`themeEdits`). Mounted afresh on every open (StudioLayout keys
+ * it), so the text starts from the custom theme as it is.
  */
 export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   const {
@@ -41,6 +69,14 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   const [errors, setErrors] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const edited = draft !== shown;
+
+  const onDownloadSelect: NonNullable<DropdownProps['onSelect']> = (event) => {
+    // `detail.item` is typed `Element`; the value is the DropdownItem's.
+    const value = (event.detail.item as HTMLElement & { value?: string }).value;
+    if (value === 'theme.css' || value === 'overrides.css') {
+      download(current, value);
+    }
+  };
 
   const apply = () => {
     const edits = themeEdits(
@@ -67,7 +103,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   return (
     <Dialog
       open={open}
-      label="Custom CSS"
+      label="Customize theme CSS"
       onHide={onClose}
       className="theme-css-dialog"
     >
@@ -79,28 +115,19 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
           takes what you changed.
         </p>
 
-        <div className="theme-css-dialog__textarea-wrapper">
-          <Textarea
-            className="theme-css-dialog__editor"
-            label="Custom CSS"
-            rows={18}
-            resize="vertical"
-            spellcheck={false}
-            value={draft}
-            onInput={(event) => {
-              setDraft((event.target as HTMLTextAreaElement).value);
-              setErrors([]);
-              setWarnings([]);
-            }}
-          />
-          <div className="theme-css-dialog__copy-wrapper">
-            <CopyButton
-              value={draft}
-              copy-label="Copy CSS"
-              success-label="Copied!"
-            />
-          </div>
-        </div>
+        <Textarea
+          className="theme-css-dialog__editor"
+          label="Theme CSS"
+          rows={18}
+          resize="vertical"
+          spellcheck={false}
+          value={draft}
+          onInput={(event) => {
+            setDraft((event.target as HTMLTextAreaElement).value);
+            setErrors([]);
+            setWarnings([]);
+          }}
+        />
 
         {errors.length > 0 && (
           <Callout variant="danger" appearance="outlined" size="small">
@@ -127,7 +154,48 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
         )}
       </div>
 
-      <div slot="footer" className="theme-css-dialog__footer">
+      <div slot="footer" className="theme-css-dialog__footer wa-split">
+        {/* The applied theme as files; unapplied edits are not in it. */}
+        <div className="wa-cluster wa-gap-s wa-align-items-center">
+          <ButtonGroup label="Download">
+            <Button
+              variant="neutral"
+              appearance="outlined"
+              size="small"
+              disabled={edited}
+              onClick={() => download(current, 'all')}
+            >
+              <Icon name="download" slot="start" />
+              Download all
+            </Button>
+            <Dropdown
+              size="small"
+              placement="top-end"
+              disabled={edited}
+              onSelect={onDownloadSelect}
+            >
+              <Button
+                slot="trigger"
+                variant="neutral"
+                appearance="outlined"
+                size="small"
+                disabled={edited}
+                with-caret
+              >
+                <span className="wa-visually-hidden">More downloads</span>
+              </Button>
+              <DropdownItem value="theme.css">Download theme.css</DropdownItem>
+              <DropdownItem value="overrides.css">
+                Download overrides.css
+              </DropdownItem>
+            </Dropdown>
+          </ButtonGroup>
+          {edited && (
+            <span className="theme-css-dialog__hint">
+              Apply to download your edits
+            </span>
+          )}
+        </div>
         <div className="wa-cluster wa-gap-s">
           <Button
             variant="neutral"

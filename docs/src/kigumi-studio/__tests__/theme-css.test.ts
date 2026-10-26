@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { DEFAULT_VALUES, type ThemeValue } from '../lib/defaults';
 import {
+  themeDownloads,
   themeEdits,
   themeFiles,
   themeText,
@@ -271,5 +272,30 @@ describe('Theme CSS edits', () => {
     expect(themeEdits(before, after).values).toEqual({
       '--wa-border-radius-scale': { light: '3', dark: '3' },
     });
+  });
+});
+
+describe('Theme CSS downloads', () => {
+  it('offers theme.css and overrides.css, each as a project gets it', () => {
+    const values = defaults();
+    values['--wa-border-radius-scale'] = { light: '2', dark: '2' };
+    const downloads = themeDownloads(
+      state({ values, customCSS: '.Badge { gap: 0; }' })
+    );
+    expect(downloads.map((file) => file.name)).toEqual([
+      'theme.css',
+      'overrides.css',
+    ]);
+    expect(downloads[0].content).toContain('--wa-border-radius-scale: 2;');
+    expect(downloads[0].content).not.toContain('.Badge');
+    expect(downloads[1].content).toBe('.Badge { gap: 0; }\n');
+  });
+
+  it('says so in a file with nothing to put in it', () => {
+    const [theme, overrides] = themeDownloads(state());
+    expect(theme.content).toBe(
+      '/* No changes from the default theme yet. */\n'
+    );
+    expect(overrides.content).toBe('/* No custom CSS yet. */\n');
   });
 });

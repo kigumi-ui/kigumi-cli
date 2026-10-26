@@ -162,7 +162,7 @@ export function StudioSidebar({
             </div>
             <Button variant="brand" size="small" onClick={onThemeCSS}>
               <Icon name="wrench" slot="start" />
-              Custom CSS
+              Customize theme CSS
             </Button>
           </div>
           <Divider />

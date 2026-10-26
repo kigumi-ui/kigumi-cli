@@ -64,6 +64,20 @@ export function themeText(theme: CustomThemeState): string {
   );
 }
 
+/** The files the dialog downloads, each never empty: a file says when it has nothing. */
+export function themeDownloads(
+  theme: CustomThemeState
+): Array<{ name: 'theme.css' | 'overrides.css'; content: string }> {
+  const files = themeFiles(theme);
+  return [
+    { name: 'theme.css', content: files.theme || `${NO_THEME_CHANGES}\n` },
+    {
+      name: 'overrides.css',
+      content: files.overrides || `${NO_CUSTOM_CSS}\n`,
+    },
+  ];
+}
+
 type ImportedValues = Record<string, { light?: string; dark?: string }>;
 
 /**
