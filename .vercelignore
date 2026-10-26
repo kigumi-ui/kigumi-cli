@@ -2,4 +2,5 @@ node_modules/
 dist/
 *.log
 .DS_Store
-.git/
+# Never .git/: the Storybook project falls back to this file, and its
+# Ignored Build Step (scripts/vercel-ignore-build.mjs) diffs with git.

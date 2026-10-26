@@ -4,6 +4,13 @@
   "outputDirectory": "dist",
   "installCommand": "cd .. && node scripts/setup-npmrc.mjs && cd docs && pnpm install",
   "ignoreCommand": "node ../scripts/vercel-ignore-build.mjs docs",
+  "git": {
+    "deploymentEnabled": {
+      "changeset-release/**": false,
+      "changesets-ghcommit-temp/**": false,
+      "dependabot/**": false
+    }
+  },
   "framework": "vite",
   "headers": [
     {
