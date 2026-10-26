@@ -41,6 +41,7 @@ import {
 } from './overrides-css.js';
 import {
   ensurePaletteImport,
+  importablePalette,
   paletteImport,
   type PaletteImportStatus,
 } from './palette-css.js';
@@ -108,17 +109,14 @@ export async function regenerateKigumiSetup(
   const layersPath = path.join(cwd, stylesDir, 'layers.css');
   const layersExists = await fs.pathExists(layersPath);
   let layersPreserved = false;
-  let palette: PaletteImportStatus | 'absent' = 'present';
+  let paletteStatus: PaletteImportStatus | 'absent' = 'present';
+  const palette = importablePalette(config.theme.palette, tier);
 
   if (options?.preserveLayersCSS && layersExists) {
     layersPreserved = true;
     // A kept layers.css may predate the palette import, or name the
     // palette the project had before (issue #174).
-    palette = await ensurePaletteImport(
-      layersPath,
-      packageName,
-      config.theme.palette
-    );
+    paletteStatus = await ensurePaletteImport(layersPath, packageName, palette);
   } else {
     // Generate layers.css
     const isCommunityTheme =
@@ -126,7 +124,7 @@ export async function regenerateKigumiSetup(
     const layersContent = await generateLayersCSS(
       packageName,
       config.theme.selected,
-      config.theme.palette,
+      palette,
       stylesDir,
       isCommunityTheme,
       nextRouter
@@ -188,7 +186,7 @@ export {};
   const setupFilePath = path.join(cwd, utilsDir, 'kigumi.ts');
   await fs.writeFile(setupFilePath, finalSetupFileContent);
 
-  return { layersPreserved, overrides, palette };
+  return { layersPreserved, overrides, palette: paletteStatus };
 }
 
 /**

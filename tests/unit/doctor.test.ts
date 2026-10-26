@@ -819,6 +819,51 @@ describe('doctor command', () => {
         expect(content).not.toContain("@import '@awesome.me/webawesome/");
       });
 
+      it('reports a palette the tier lacks without importing it', async () => {
+        const freeWithout = FREE_LAYERS.replace(
+          /@import '[^']*color\/palettes\/default\.css' layer\(base\);\n/,
+          ''
+        );
+        const layersPath = await setupProject(
+          'free',
+          freeWithout,
+          'rudimentary'
+        );
+        const output = createRecordingOutput();
+        setOutputForTesting(output);
+        try {
+          await doctorCommand({ cwd: testDir });
+        } finally {
+          resetOutputForTesting();
+        }
+
+        expect(await fs.readFile(layersPath, 'utf-8')).toBe(freeWithout);
+        expect(
+          output.calls.some(
+            (c) =>
+              c.method === 'info' &&
+              String(c.args[0]).includes('"rudimentary" palette is not in')
+          )
+        ).toBe(true);
+      });
+
+      it('dry-run counts a stale package on the palette line once', async () => {
+        await setupProject('pro', FREE_LAYERS);
+        const output = createRecordingOutput();
+        setOutputForTesting(output);
+        try {
+          await doctorCommand({ cwd: testDir, dryRun: true });
+        } finally {
+          resetOutputForTesting();
+        }
+
+        const infos = output.calls
+          .filter((c) => c.method === 'info')
+          .map((c) => String(c.args[0]));
+        expect(infos.some((m) => m.includes('instead of'))).toBe(true);
+        expect(infos.some((m) => m.includes('palette other than'))).toBe(false);
+      });
+
       it('dry-run reports the missing palette without adding it', async () => {
         const layersPath = await setupProject(
           'pro',

@@ -10,6 +10,8 @@
 import fs from 'fs-extra';
 import type { OutputInterface } from '../output/types.js';
 import { maskComments } from './overrides-css.js';
+import type { Tier } from './tier.js';
+import { isPaletteAvailable } from './tier-restrictions.js';
 
 /** How `layers.css` introduces the palette import. */
 const PALETTE_COMMENT = '/* Layer 1: Web Awesome color palette */';
@@ -17,6 +19,16 @@ const PALETTE_COMMENT = '/* Layer 1: Web Awesome color palette */';
 /** The palette's stylesheet in the Web Awesome package. */
 export function paletteSpecifier(packageName: string, palette: string): string {
   return `${packageName}/dist/styles/color/palettes/${palette}.css`;
+}
+
+/**
+ * The palette `layers.css` imports: the configured one, or `default` when
+ * the tier's package does not ship it (a Pro palette left in the config
+ * after a move to Free). Importing a file the package lacks fails the
+ * build; `default` is what such a project showed before the import existed.
+ */
+export function importablePalette(palette: string, tier: Tier): string {
+  return isPaletteAvailable(palette, tier) ? palette : 'default';
 }
 
 /**
