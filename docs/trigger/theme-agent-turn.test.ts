@@ -188,6 +188,38 @@ describe('Theme Agent turn', () => {
     }
   );
 
+  it('sends an animation outside the reduced-motion query back and accepts it inside', async () => {
+    const keyframes = '@keyframes skeleton-shimmer { 50% { opacity: 0.6; } }';
+    const rule =
+      '.Skeleton::part(indicator) { animation: skeleton-shimmer 2s infinite; }';
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: {},
+          dark: {},
+          customCSS: `${keyframes}\n${rule}`,
+        }),
+        proposalStep('call-2', {
+          light: {},
+          dark: {},
+          customCSS: `${keyframes}\n@media (prefers-reduced-motion: no-preference) { ${rule} }`,
+        }),
+        textStep('A subtle shimmer on skeletons; no value animates them.'),
+      ],
+    });
+
+    const result = themeAgentTurn({ streamText, model, messages, snapshot });
+    await result.consumeStream();
+
+    expect(model.doStreamCalls).toHaveLength(3);
+    const [rejected, accepted] = toolResults(model);
+    expect(JSON.stringify(rejected)).toContain('"accepted":false');
+    expect(JSON.stringify(rejected)).toContain(
+      '.Skeleton::part(indicator) animation: an animation must sit inside @media (prefers-reduced-motion: no-preference)'
+    );
+    expect(JSON.stringify(accepted)).toContain('"accepted":true');
+  });
+
   it("accepts the user's own rules the subset would refuse, carried over unchanged", async () => {
     const own = '.Button { color: #ff0000; }';
     const model = new MockLanguageModelV4({
@@ -257,6 +289,13 @@ describe('Theme Agent turn', () => {
     // no project, and a rule on them never shows in the preview either.
     expect(rules).toMatch(/body, html or :root for the page/);
     expect(rules).toMatch(/never a class of Studio's own/);
+    // An animation only when the user asks for motion, and never for users
+    // who ask for reduced motion.
+    expect(rules).toMatch(/@keyframes/);
+    expect(rules).toMatch(/animation fits only when/);
+    expect(rules).toMatch(
+      /inside @media \(prefers-reduced-motion: no-preference\)/
+    );
   });
 
   it(`stops after ${MAX_PROPOSAL_ATTEMPTS} rejected proposals`, async () => {

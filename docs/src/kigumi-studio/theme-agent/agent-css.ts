@@ -15,8 +15,29 @@ import {
 /** The most custom CSS one proposal may carry, in characters. */
 export const MAX_AGENT_CSS_LENGTH = 6000;
 
-/** The only at-rules allowed: they hold rules, which are checked too. */
-const ALLOWED_AT_RULES = new Set(['media', 'supports', 'container']);
+/**
+ * The only at-rules allowed: they hold rules or keyframe blocks, which are
+ * checked too.
+ */
+const ALLOWED_AT_RULES = new Set([
+  'media',
+  'supports',
+  'container',
+  'keyframes',
+]);
+
+const KEYFRAMES = /^@keyframes(?![\w-])\s*([\s\S]*)$/i;
+
+/**
+ * A plain identifier: no string, no escape (refused as script-like anyway),
+ * and none of the keywords an animation-name reads as something else.
+ */
+const KEYFRAMES_NAME = /^[a-z][\w-]*$/i;
+const NOT_A_KEYFRAMES_NAME =
+  /^(?:none|initial|inherit|unset|revert|revert-layer|default)$/i;
+
+/** A keyframe block's selector: from, to or a percentage. */
+const KEYFRAME_SELECTOR = /^(?:from|to|\d+(?:\.\d+)?%)$/i;
 
 /** Functions that load something from outside the page, vendor-prefixed too. */
 const RESOURCE =
@@ -98,6 +119,9 @@ const TAKE_WA_COLOURS = 'take every colour from a var(--wa-*) value';
  */
 const STUDIO_CLASS = /\.(?:studio-|component-showcase|showcase-|theme-agent)/;
 
+const NESTED_RULE =
+  'a nested rule is not allowed; write each rule at the top level or inside @media, @supports or @container';
+
 /** Why one declaration's value is refused, one sentence each. */
 function declarationErrors(selector: string, declaration: string): string[] {
   const colon = declaration.indexOf(':');
@@ -138,10 +162,116 @@ function declarationErrors(selector: string, declaration: string): string[] {
   return errors;
 }
 
-function nodeErrors(nodes: CssNode[]): string[] {
+/** The declarations of one rule or keyframe block, comments as spaces. */
+function declarations(body: string): string[] {
+  // A comment reads as a space: removed outright it would join the words
+  // around it (solid/**/red) into one the colour check does not know.
+  return splitTopLevel(body.replace(/\/\*[\s\S]*?\*\//g, ' '), ';').map(
+    (declaration) => declaration.replace(/\s+/g, ' ')
+  );
+}
+
+/** Why the declarations of one rule or keyframe block are refused. */
+function bodyErrors(selector: string, body: string): string[] {
+  return declarations(body).flatMap((declaration) =>
+    declarationErrors(selector, declaration)
+  );
+}
+
+/** A property that starts an animation, vendor-prefixed too. */
+const STARTS_ANIMATION = /^(?:-(?:webkit|moz|o)-)?animation(?:-name)?$/i;
+
+const REDUCED_MOTION_FEATURE = '(prefers-reduced-motion:no-preference)';
+
+/**
+ * Whether `prelude` is an @media that holds only when the user has not asked
+ * for reduced motion: every query in its list is a conjunction (no `not`,
+ * no `or`) with (prefers-reduced-motion: no-preference) as one of its terms.
+ */
+function onlyWithoutReducedMotion(prelude: string): boolean {
+  const media = /^@media\s+([\s\S]*)$/i.exec(prelude);
+  if (!media) return false;
+  const queries = splitTopLevel(media[1], ',');
+  return (
+    queries.length > 0 &&
+    queries.every((query) => {
+      const terms = splitTopLevel(query, ' ').map((term) =>
+        term.replace(/\s+/g, '').toLowerCase()
+      );
+      return (
+        !terms.includes('not') &&
+        !terms.includes('or') &&
+        terms.includes(REDUCED_MOTION_FEATURE)
+      );
+    })
+  );
+}
+
+/** Why a rule outside the reduced-motion query may not start an animation. */
+function motionErrors(selector: string, body: string): string[] {
+  return declarations(body).flatMap((declaration) => {
+    const colon = declaration.indexOf(':');
+    if (colon === -1) return [];
+    const property = declaration.slice(0, colon).trim();
+    const value = declaration.slice(colon + 1).trim();
+    if (!STARTS_ANIMATION.test(property) || /^none$/i.test(value)) return [];
+    return [
+      `${selector} ${property}: an animation must sit inside @media (prefers-reduced-motion: no-preference), so it stops for users who ask for reduced motion`,
+    ];
+  });
+}
+
+/**
+ * Why one @keyframes block is refused. Its name is a plain identifier (the
+ * preview prefixes it, so it cannot redefine one of Studio's own), it holds
+ * only from, to and percentage blocks, and those are checked like rules.
+ */
+function keyframesErrors(prelude: string, body: string): string[] {
+  const name = KEYFRAMES.exec(prelude)?.[1] ?? '';
+  const where = `@keyframes ${name}`.trim();
+  if (!KEYFRAMES_NAME.test(name) || NOT_A_KEYFRAMES_NAME.test(name)) {
+    return [
+      `${where}: a keyframes name is a plain identifier, such as skeleton-shimmer`,
+    ];
+  }
+  const structure = validateCustomCSS(body);
+  if (structure.length > 0) {
+    return structure.map((error) => `${where}: ${error}`);
+  }
+  return splitStylesheet(body).flatMap((node) => {
+    if (node.kind === 'comment') return [];
+    if (node.kind !== 'rule') {
+      return [`${where}: holds only from, to and percentage blocks`];
+    }
+    if (
+      !splitTopLevel(node.selector, ',').every((s) => KEYFRAME_SELECTOR.test(s))
+    ) {
+      return [
+        `${where} ${node.selector}: a keyframe block is from, to or a percentage`,
+      ];
+    }
+    if (/[{}]/.test(node.body)) {
+      return [`${where} ${node.selector}: ${NESTED_RULE}`];
+    }
+    return bodyErrors(`${where} ${node.selector}`, node.body);
+  });
+}
+
+/**
+ * Why `nodes` are refused. `withoutReducedMotion` is set inside an @media
+ * that holds only when the user has not asked for reduced motion, where a
+ * rule may start an animation.
+ */
+function nodeErrors(nodes: CssNode[], withoutReducedMotion = false): string[] {
   return nodes.flatMap((node) => {
+    if (node.kind === 'at-rule' && KEYFRAMES.test(node.prelude)) {
+      return keyframesErrors(node.prelude, node.body);
+    }
     if (node.kind === 'at-rule') {
-      return nodeErrors(splitStylesheet(node.body));
+      return nodeErrors(
+        splitStylesheet(node.body),
+        withoutReducedMotion || onlyWithoutReducedMotion(node.prelude)
+      );
     }
     if (node.kind !== 'rule') return [];
     if (STUDIO_CLASS.test(node.selector)) {
@@ -150,15 +280,12 @@ function nodeErrors(nodes: CssNode[]): string[] {
       ];
     }
     if (/[{}]/.test(node.body)) {
-      return [
-        `${node.selector}: a nested rule is not allowed; write each rule at the top level or inside @media, @supports or @container`,
-      ];
+      return [`${node.selector}: ${NESTED_RULE}`];
     }
-    // A comment reads as a space: removed outright it would join the words
-    // around it (solid/**/red) into one the colour check does not know.
-    return splitTopLevel(node.body.replace(/\/\*[\s\S]*?\*\//g, ' '), ';')
-      .map((declaration) => declaration.replace(/\s+/g, ' '))
-      .flatMap((declaration) => declarationErrors(node.selector, declaration));
+    return [
+      ...bodyErrors(node.selector, node.body),
+      ...(withoutReducedMotion ? [] : motionErrors(node.selector, node.body)),
+    ];
   });
 }
 
@@ -185,7 +312,9 @@ function nodeKey(node: CssNode): string {
 /**
  * Why the Theme Agent's custom CSS is refused, written for the model to
  * correct it; empty when it may be applied. It must parse, use no at-rule
- * beyond @media, @supports and @container (so no @import or @font-face),
+ * beyond @media, @supports, @container and @keyframes (so no @import or
+ * @font-face), start an animation only inside
+ * @media (prefers-reduced-motion: no-preference),
  * load nothing (no url()), hold nothing script-like, stay under
  * `MAX_AGENT_CSS_LENGTH`, and take every colour from a var(--wa-*) value,
  * so the contrast check on the custom theme's values covers what it paints.
@@ -215,7 +344,7 @@ export function validateAgentCSS(css: string, kept = ''): string[] {
   for (const [, name] of text.matchAll(/@([\w-]+)/g)) {
     if (!ALLOWED_AT_RULES.has(name.toLowerCase())) {
       errors.push(
-        `customCSS: @${name} is not allowed; only @media, @supports and @container`
+        `customCSS: @${name} is not allowed; only @media, @supports, @container and @keyframes`
       );
     }
   }

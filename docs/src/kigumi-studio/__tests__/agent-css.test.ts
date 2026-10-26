@@ -45,7 +45,11 @@ describe('custom CSS from the Theme Agent', () => {
   it.each([
     ['@import', '@import "https://example.com/x.css";', '@import'],
     ['@font-face', '@font-face { font-family: X; }', '@font-face'],
-    ['@keyframes', '@keyframes spin { to { rotate: 1turn; } }', '@keyframes'],
+    [
+      '@-webkit-keyframes',
+      '@-webkit-keyframes spin { to { rotate: 1turn; } }',
+      '@-webkit-keyframes',
+    ],
     ['@layer', '@layer overrides { .Card { gap: 0; } }', '@layer'],
     [
       'a nested @property',
@@ -54,7 +58,7 @@ describe('custom CSS from the Theme Agent', () => {
     ],
   ])('refuses %s', (_name, css, atRule) => {
     expect(validateAgentCSS(css)).toContain(
-      `customCSS: ${atRule} is not allowed; only @media, @supports and @container`
+      `customCSS: ${atRule} is not allowed; only @media, @supports, @container and @keyframes`
     );
   });
 
@@ -248,5 +252,148 @@ describe('custom CSS from the Theme Agent: colours mixed from --wa- values', () 
     expect(validateAgentCSS(`.Card { color: ${value}; }`).join('\n')).toMatch(
       /makes a colour of its own, which the contrast check does not see/
     );
+  });
+});
+
+describe('custom CSS from the Theme Agent: @keyframes', () => {
+  const shimmer = [
+    '@keyframes skeleton-shimmer {',
+    '  from { opacity: 1; }',
+    '  50% { opacity: 0.6; background-color: var(--wa-color-surface-lowered); }',
+    '  to { opacity: 1; }',
+    '}',
+    '@media (prefers-reduced-motion: no-preference) {',
+    '  .Skeleton::part(indicator) { animation: skeleton-shimmer 2s ease-in-out infinite; }',
+    '}',
+  ].join('\n');
+
+  it('accepts keyframes whose blocks take every colour from a --wa- value', () => {
+    expect(validateAgentCSS(shimmer)).toEqual([]);
+  });
+
+  it('refuses a literal colour inside a keyframe block', () => {
+    expect(
+      validateAgentCSS(
+        '@keyframes pulse { 50% { background-color: #ffcc00; } }'
+      )
+    ).toEqual([
+      '@keyframes pulse 50% background-color: "#ffcc00" is a colour literal; take every colour from a var(--wa-*) value',
+    ]);
+  });
+});
+
+describe('custom CSS from the Theme Agent: animations and reduced motion', () => {
+  const keyframes = '@keyframes pulse { 50% { opacity: 0.6; } }';
+  const motion = (css: string) =>
+    validateAgentCSS(`${keyframes}\n${css}`).filter((e) =>
+      e.includes('prefers-reduced-motion')
+    );
+
+  it.each([
+    [
+      'animation',
+      '.Badge { animation: pulse 2s infinite; }',
+      '.Badge animation',
+    ],
+    [
+      'animation-name',
+      '.Badge { animation-name: pulse; }',
+      '.Badge animation-name',
+    ],
+    [
+      '-webkit-animation',
+      '.Badge { -webkit-animation: pulse 2s; }',
+      '.Badge -webkit-animation',
+    ],
+  ])('refuses %s outside the reduced-motion query', (_name, css, where) => {
+    expect(motion(css)).toEqual([
+      `${where}: an animation must sit inside @media (prefers-reduced-motion: no-preference), so it stops for users who ask for reduced motion`,
+    ]);
+  });
+
+  it.each([
+    '@media (prefers-reduced-motion: no-preference) { .Badge { animation: pulse 2s infinite; } }',
+    '@media screen and (prefers-reduced-motion:no-preference) { .Badge { animation-name: pulse; } }',
+    '@media (prefers-reduced-motion: no-preference) { @supports (rotate: 1turn) { .Badge { animation: pulse 2s; } } }',
+    '@supports (rotate: 1turn) { @media (prefers-reduced-motion: no-preference) { .Badge { animation: pulse 2s; } } }',
+  ])('accepts an animation inside the reduced-motion query: %s', (css) => {
+    expect(validateAgentCSS(`${keyframes}\n${css}`)).toEqual([]);
+  });
+
+  it('accepts animation: none anywhere, which starts nothing', () => {
+    expect(validateAgentCSS('.Badge { animation: none; }')).toEqual([]);
+  });
+
+  it.each([
+    ['the opposite preference', '@media (prefers-reduced-motion: reduce)'],
+    [
+      'a negated query',
+      '@media not all and (prefers-reduced-motion: no-preference)',
+    ],
+    [
+      'a second query in a list',
+      '@media (prefers-reduced-motion: no-preference), (min-width: 0)',
+    ],
+    [
+      'an or',
+      '@media (prefers-reduced-motion: no-preference) or (min-width: 0)',
+    ],
+    ['an unrelated query', '@media (min-width: 40rem)'],
+    ['@supports alone', '@supports (prefers-reduced-motion: no-preference)'],
+  ])('refuses an animation under %s', (_name, prelude) => {
+    expect(
+      motion(`${prelude} { .Badge { animation: pulse 2s; } }`)
+    ).toHaveLength(1);
+  });
+});
+
+describe('custom CSS from the Theme Agent: what a @keyframes holds', () => {
+  it.each([
+    ['a quoted name', '@keyframes "pulse" { to { opacity: 0; } }'],
+    ['a CSS-wide keyword', '@keyframes inherit { to { opacity: 0; } }'],
+    ['none', '@keyframes none { to { opacity: 0; } }'],
+    ['no name', '@keyframes { to { opacity: 0; } }'],
+  ])('refuses %s as the keyframes name', (_name, css) => {
+    expect(validateAgentCSS(css).join('\n')).toMatch(
+      /a keyframes name is a plain identifier, such as skeleton-shimmer/
+    );
+  });
+
+  it('accepts from, to and percentages, also in a list', () => {
+    expect(
+      validateAgentCSS(
+        '@keyframes fade { from, 50% { opacity: 1; } 12.5% { opacity: 0.8; } to { opacity: 0; } }'
+      )
+    ).toEqual([]);
+  });
+
+  it('refuses a block that is not from, to or a percentage', () => {
+    expect(
+      validateAgentCSS('@keyframes fade { .Card { opacity: 0; } }')
+    ).toEqual([
+      '@keyframes fade .Card: a keyframe block is from, to or a percentage',
+    ]);
+  });
+
+  it('refuses a rule nested in a keyframe block', () => {
+    expect(
+      validateAgentCSS(
+        '@keyframes fade { to { & .Card { color: var(--wa-color-brand); } } }'
+      ).join('\n')
+    ).toMatch(/@keyframes fade to: a nested rule is not allowed/);
+  });
+
+  it('refuses a declaration outside any keyframe block', () => {
+    expect(
+      validateAgentCSS('@keyframes fade { opacity: 0; }').join('\n')
+    ).toContain('@keyframes fade: "opacity: 0;" is outside any rule.');
+  });
+
+  it('accepts @keyframes inside @media', () => {
+    expect(
+      validateAgentCSS(
+        '@media (prefers-reduced-motion: no-preference) { @keyframes fade { to { opacity: 0; } } .Card { animation: fade 1s; } }'
+      )
+    ).toEqual([]);
   });
 });

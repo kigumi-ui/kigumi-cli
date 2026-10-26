@@ -18,6 +18,8 @@ import {
   withLocks,
 } from '../lib/locks';
 import { buildPreviewStyle } from '../lib/preview-style';
+import { scopeCustomCSS } from '../lib/custom-css';
+import { validateAgentCSS } from '../theme-agent/agent-css';
 
 const THEMES_DIR = join(__dirname, '../themes');
 
@@ -113,6 +115,27 @@ describe('Theme CSS text', () => {
     expect(files.theme).not.toContain('overrides.css');
     expect(files.overrides).toBe('.Badge { gap: 0; }\n');
     expect(themeFiles(state()).overrides).toBe('');
+  });
+
+  it("runs an answer's animation under a preview name and exports it as proposed", () => {
+    const proposed = [
+      '@keyframes skeleton-shimmer { 50% { opacity: 0.6; } }',
+      '@media (prefers-reduced-motion: no-preference) {',
+      '  .Skeleton::part(indicator) { animation: skeleton-shimmer 2s infinite; }',
+      '}',
+    ].join('\n');
+    expect(validateAgentCSS(proposed)).toEqual([]);
+
+    const preview = scopeCustomCSS(proposed, '.studio-preview');
+    expect(preview).toContain('@keyframes kigumi-preview-skeleton-shimmer {');
+    expect(preview).toContain(
+      '.studio-preview .Skeleton::part(indicator) { animation: kigumi-preview-skeleton-shimmer 2s infinite; }'
+    );
+    expect(preview).not.toMatch(/(?<!kigumi-preview-)skeleton-shimmer/);
+
+    expect(themeFiles(state({ customCSS: proposed })).overrides).toBe(
+      `${proposed}\n`
+    );
   });
 });
 
