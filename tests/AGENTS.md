@@ -72,6 +72,7 @@ tests/
 │   ├── package-json.test.ts         # readDependencies contract (missing, unreadable, not a JSON object) + what each detection caller does with each error (issue #99)
 │   ├── package-json-read-error.test.ts # PackageJsonReadError / PackageJsonInvalidError + what `kigumi list`, `init`, `upgrade`, `brand`, `theme install` and `diff` print for a broken package.json, and that the writing commands changed nothing (issues #99, #121)
 │   ├── output-di.test.ts            # Output DI hook (setOutputForTesting / resetOutputForTesting)
+│   ├── palette-css.test.ts          # Palette import in an existing layers.css (issue #174): added after the theme import (built-in, community, qualified or plain, CRLF), a stale palette or package repointed, a commented-out import ignored, a file without a theme import left alone
 │   ├── overrides-css.test.ts        # overrides.css (ADR 0009, issue #194): created when missing, kept byte for byte, the layer added to an older layers.css in place (relative or aliased theme.css import, qualified or Pages Router plain), left alone without a theme.css import
 │   ├── palette-command.test.ts      # Palette command
 │   ├── preflight-errors.test.ts     # Pre-flight error classes

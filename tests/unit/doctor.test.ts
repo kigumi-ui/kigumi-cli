@@ -509,6 +509,7 @@ describe('doctor command', () => {
 /* Previously imported from @awesome.me/webawesome - now using pro */
 @import '@awesome.me/webawesome-pro/dist/styles/webawesome.css' layer(base);
 @import '@awesome.me/webawesome-pro/dist/styles/themes/default.css' layer(base);
+@import '@awesome.me/webawesome-pro/dist/styles/color/palettes/default.css' layer(base);
 
 @import '@/styles/theme.css' layer(theme);
 `;
@@ -655,6 +656,7 @@ describe('doctor command', () => {
 
 @import '@awesome.me/webawesome/dist/styles/webawesome.css' layer(base);
 @import '@awesome.me/webawesome/dist/styles/themes/default.css' layer(base);
+@import '@awesome.me/webawesome/dist/styles/color/palettes/default.css' layer(base);
 
 @import '@/styles/theme.css' layer(theme);
 `;
@@ -663,13 +665,15 @@ describe('doctor command', () => {
 
 @import '@awesome.me/webawesome-pro/dist/styles/webawesome.css' layer(base);
 @import '@awesome.me/webawesome-pro/dist/styles/themes/default.css' layer(base);
+@import '@awesome.me/webawesome-pro/dist/styles/color/palettes/default.css' layer(base);
 
 @import '@/styles/theme.css' layer(theme);
 `;
 
     async function setupProject(
       tier: 'free' | 'pro',
-      layersContent: string
+      layersContent: string,
+      palette = 'default'
     ): Promise<string> {
       await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), {
         framework: 'react',
@@ -679,7 +683,7 @@ describe('doctor command', () => {
         stylesDir: 'src/styles',
         theme: {
           selected: 'default',
-          palette: 'default',
+          palette,
           brandColor: 'blue',
         },
       });
@@ -759,6 +763,84 @@ describe('doctor command', () => {
       const content = await fs.readFile(layersPath, 'utf-8');
       // Idempotent: no change when content already matches target
       expect(content).toBe(PRO_LAYERS);
+    });
+
+    // Issue #174: a layers.css from before the palette import loads no
+    // palette, so the wa-palette-<name> class does nothing.
+    describe('palette import', () => {
+      const WITHOUT_PALETTE = PRO_LAYERS.replace(
+        /@import '[^']*color\/palettes\/default\.css' layer\(base\);\n/,
+        ''
+      );
+      const RUDIMENTARY =
+        "@import '@awesome.me/webawesome-pro/dist/styles/color/palettes/rudimentary.css' layer(base);";
+
+      it('adds the configured palette to a layers.css without one', async () => {
+        expect(WITHOUT_PALETTE).not.toContain('color/palettes');
+        const layersPath = await setupProject(
+          'pro',
+          WITHOUT_PALETTE,
+          'rudimentary'
+        );
+
+        await doctorCommand({ cwd: testDir });
+
+        const content = await fs.readFile(layersPath, 'utf-8');
+        expect(content).toContain(RUDIMENTARY);
+        expect(content.indexOf(RUDIMENTARY)).toBeGreaterThan(
+          content.indexOf('/dist/styles/themes/default.css')
+        );
+      });
+
+      it('points the palette import at the configured palette', async () => {
+        const layersPath = await setupProject('pro', PRO_LAYERS, 'rudimentary');
+
+        await doctorCommand({ cwd: testDir });
+
+        const content = await fs.readFile(layersPath, 'utf-8');
+        expect(content).toContain(RUDIMENTARY);
+        expect(content).not.toContain('palettes/default.css');
+      });
+
+      it('fixes the package and adds the palette in one run', async () => {
+        const layersPath = await setupProject(
+          'pro',
+          FREE_LAYERS.replace(
+            /@import '[^']*color\/palettes\/default\.css' layer\(base\);\n/,
+            ''
+          ),
+          'rudimentary'
+        );
+
+        await doctorCommand({ cwd: testDir });
+
+        const content = await fs.readFile(layersPath, 'utf-8');
+        expect(content).toContain(RUDIMENTARY);
+        expect(content).not.toContain("@import '@awesome.me/webawesome/");
+      });
+
+      it('dry-run reports the missing palette without adding it', async () => {
+        const layersPath = await setupProject(
+          'pro',
+          WITHOUT_PALETTE,
+          'rudimentary'
+        );
+        const output = createRecordingOutput();
+        setOutputForTesting(output);
+        try {
+          await doctorCommand({ cwd: testDir, dryRun: true });
+        } finally {
+          resetOutputForTesting();
+        }
+
+        expect(await fs.readFile(layersPath, 'utf-8')).toBe(WITHOUT_PALETTE);
+        expect(
+          output.calls.some(
+            (c) =>
+              c.method === 'info' && String(c.args[0]).includes('rudimentary')
+          )
+        ).toBe(true);
+      });
     });
 
     it('reports a restructured layers.css without rewriting it', async () => {

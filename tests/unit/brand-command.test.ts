@@ -55,6 +55,7 @@ describe('brandCommand', () => {
       .mockResolvedValue({
         layersPreserved: false,
         overrides: { created: false, layers: 'present' },
+        palette: 'present',
       });
   });
 
@@ -127,6 +128,7 @@ describe('brandCommand', () => {
           .mockResolvedValue({
             layersPreserved: false,
             overrides: { created: false, layers: 'present' },
+            palette: 'present',
           });
 
         const { brandCommand } = await import('../../src/commands/brand.js');

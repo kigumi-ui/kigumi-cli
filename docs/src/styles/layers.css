@@ -5,7 +5,7 @@
  * It wraps Web Awesome CSS in cascade layers for predictable specificity control.
  *
  * Layer hierarchy (earlier = lower priority):
- * 1. base - Web Awesome foundation + theme styles
+ * 1. base - Web Awesome foundation, theme and color palette
  * 2. theme - Your theme's custom properties (theme.css)
  * 3. overrides - Your custom CSS rules (overrides.css)
  *
@@ -20,6 +20,10 @@
 
 /* Layer 1: Web Awesome theme styles */
 @import '@awesome.me/webawesome-pro/dist/styles/themes/default.css' layer(base);
+
+/* Layer 1: Web Awesome color palette */
+@import '@awesome.me/webawesome-pro/dist/styles/color/palettes/default.css'
+  layer(base);
 
 /* Layer 2: Your theme customization (sibling of layers.css) */
 @import './theme.css' layer(theme);

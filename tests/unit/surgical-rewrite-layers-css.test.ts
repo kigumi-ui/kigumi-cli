@@ -14,7 +14,10 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import { surgicalRewriteLayersCss } from '../../src/utils/regenerate.js';
+import {
+  generateLayersCSS,
+  surgicalRewriteLayersCss,
+} from '../../src/utils/regenerate.js';
 import { LayersCssRewriteError } from '../../src/errors/layers-css.js';
 import {
   WEB_AWESOME_FREE_PACKAGE,
@@ -110,6 +113,27 @@ describe('surgicalRewriteLayersCss', () => {
     expect(content).not.toContain(
       `@import '${WEB_AWESOME_PRO_PACKAGE}/dist/styles/`
     );
+  });
+
+  // Issue #174: the palette import follows the package too, or a tier
+  // switch leaves layers.css importing a palette from a package that is
+  // no longer installed.
+  it.each([
+    [WEB_AWESOME_FREE_PACKAGE, WEB_AWESOME_PRO_PACKAGE],
+    [WEB_AWESOME_PRO_PACKAGE, WEB_AWESOME_FREE_PACKAGE],
+  ])('rewrites the palette import from %s to %s', async (from, to) => {
+    await fs.writeFile(
+      filePath,
+      await generateLayersCSS(from, 'default', 'bright', 'src/styles')
+    );
+
+    await surgicalRewriteLayersCss(filePath, to, 'default');
+
+    const content = await fs.readFile(filePath, 'utf-8');
+    expect(content).toContain(
+      `@import '${to}/dist/styles/color/palettes/bright.css' layer(base);`
+    );
+    expect(content).not.toContain(`@import '${from}/dist/styles/`);
   });
 
   it('is idempotent: running twice returns changed:false the second time', async () => {

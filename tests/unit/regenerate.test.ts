@@ -24,6 +24,7 @@ import {
   generateGitIgnore,
 } from '../../src/utils/regenerate.js';
 import { WEB_AWESOME_FREE_PACKAGE } from '../../src/constants.js';
+import { TIER_RESTRICTIONS } from '../../src/utils/tier-restrictions.js';
 
 const config = {
   framework: 'react' as const,
@@ -268,10 +269,62 @@ describe('regenerate utilities', () => {
     });
   });
 
+  describe('regenerateKigumiSetup with layers.css preserved (init)', () => {
+    // Issue #174: init keeps an existing layers.css, which may predate the
+    // palette import or name the palette the project had before.
+    const PRESERVED = `@layer base, theme, overrides;
+
+@import '@awesome.me/webawesome/dist/styles/webawesome.css' layer(base);
+@import '@awesome.me/webawesome/dist/styles/themes/default.css' layer(base);
+/* my own rules */
+@import './theme.css' layer(theme);
+@import './overrides.css' layer(overrides);
+`;
+
+    async function initWith(palette: string) {
+      await fs.ensureDir(path.join(testDir, config.utilsDir));
+      await fs.ensureDir(path.join(testDir, config.stylesDir));
+      const layersPath = path.join(testDir, config.stylesDir, 'layers.css');
+      await fs.writeFile(layersPath, PRESERVED);
+      const result = await regenerateKigumiSetup(
+        testDir,
+        { ...config, theme: { ...config.theme, palette } },
+        config.utilsDir,
+        'free',
+        { preserveLayersCSS: true }
+      );
+      return { result, content: await fs.readFile(layersPath, 'utf-8') };
+    }
+
+    it('adds the configured palette import and keeps the rest', async () => {
+      const { result, content } = await initWith('bright');
+
+      expect(result.layersPreserved).toBe(true);
+      expect(result.palette).toBe('added');
+      expect(content).toContain('/* my own rules */');
+      expect(content).toContain(
+        "@import '@awesome.me/webawesome/dist/styles/color/palettes/bright.css' layer(base);"
+      );
+    });
+
+    it('reports a layers.css that already imports it as present', async () => {
+      await initWith('bright');
+      const again = await regenerateKigumiSetup(
+        testDir,
+        { ...config, theme: { ...config.theme, palette: 'bright' } },
+        config.utilsDir,
+        'free',
+        { preserveLayersCSS: true }
+      );
+      expect(again.palette).toBe('present');
+    });
+  });
+
   describe('generateLayersCSS', () => {
     it('should include correct layer order', async () => {
       const content = await generateLayersCSS(
         '@awesome.me/webawesome',
+        'default',
         'default',
         'src/styles'
       );
@@ -283,6 +336,7 @@ describe('regenerate utilities', () => {
       // theme.css whatever their specificity.
       const content = await generateLayersCSS(
         '@awesome.me/webawesome',
+        'default',
         'default',
         'src/styles'
       );
@@ -298,6 +352,7 @@ describe('regenerate utilities', () => {
       const content = await generateLayersCSS(
         '@awesome.me/webawesome',
         'tailspin',
+        'default',
         'src/styles'
       );
       expect(content).toContain(
@@ -309,6 +364,7 @@ describe('regenerate utilities', () => {
       const content = await generateLayersCSS(
         '@awesome.me/webawesome',
         'my-community-theme',
+        'default',
         'src/styles',
         true
       );
@@ -327,10 +383,78 @@ describe('regenerate utilities', () => {
       const content = await generateLayersCSS(
         '@awesome.me/webawesome',
         'default',
+        'default',
         'src/styles'
       );
       expect(content).toContain("./theme.css' layer(theme)");
       expect(content).not.toContain('@/styles/theme.css');
+    });
+
+    // Issue #174: Web Awesome's palettes other than `default` are scoped to
+    // `.wa-palette-<name>`, so the class kigumi.ts sets does nothing unless
+    // layers.css loads the palette's stylesheet.
+    it('imports the configured palette into the base layer, after the theme', async () => {
+      const content = await generateLayersCSS(
+        '@awesome.me/webawesome-pro',
+        'default',
+        'rudimentary',
+        'src/styles'
+      );
+      const theme = content.indexOf(
+        "@import '@awesome.me/webawesome-pro/dist/styles/themes/default.css' layer(base);"
+      );
+      const palette = content.indexOf(
+        "@import '@awesome.me/webawesome-pro/dist/styles/color/palettes/rudimentary.css' layer(base);"
+      );
+      expect(theme).toBeGreaterThan(-1);
+      expect(palette).toBeGreaterThan(theme);
+      expect(palette).toBeLessThan(content.indexOf("@import './theme.css'"));
+    });
+
+    it('imports the palette from the package for a community theme', async () => {
+      const content = await generateLayersCSS(
+        '@awesome.me/webawesome',
+        'my-community-theme',
+        'bright',
+        'src/styles',
+        true
+      );
+      expect(content).toContain(
+        "@import '@awesome.me/webawesome/dist/styles/color/palettes/bright.css' layer(base);"
+      );
+    });
+
+    it('imports the palette without a layer on the Pages Router', async () => {
+      const content = await generateLayersCSS(
+        '@awesome.me/webawesome',
+        'default',
+        'shoelace',
+        'src/styles',
+        false,
+        'pages'
+      );
+      expect(content).toContain(
+        "@import '@awesome.me/webawesome/dist/styles/color/palettes/shoelace.css';"
+      );
+    });
+
+    it('points every Free palette at a stylesheet the package ships', async () => {
+      for (const palette of TIER_RESTRICTIONS.palettes.free) {
+        const content = await generateLayersCSS(
+          WEB_AWESOME_FREE_PACKAGE,
+          'default',
+          palette,
+          'src/styles'
+        );
+        const specifier = new RegExp(
+          `@import '(${WEB_AWESOME_FREE_PACKAGE}/[^']*/${palette}\\.css)'`
+        ).exec(content)?.[1];
+        expect(specifier, palette).toBeDefined();
+        expect(
+          await fs.pathExists(path.join('node_modules', specifier as string)),
+          specifier
+        ).toBe(true);
+      }
     });
   });
 

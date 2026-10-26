@@ -70,15 +70,17 @@ Kigumi generates `layers.css` in your styles directory (`src/styles/layers.css`,
 @layer base, theme, overrides;
 @import '@awesome.me/webawesome/dist/styles/webawesome.css' layer(base);
 @import '@awesome.me/webawesome/dist/styles/themes/<theme>.css' layer(base);
+@import '@awesome.me/webawesome/dist/styles/color/palettes/<palette>.css'
+  layer(base);
 @import './theme.css' layer(theme);
 @import './overrides.css' layer(overrides);
 ```
 
-| Layer       | Source                              | Put here                                                             |
-| ----------- | ----------------------------------- | -------------------------------------------------------------------- |
-| `base`      | Web Awesome styles + selected theme | Nothing. Generated; do not edit.                                     |
-| `theme`     | `theme.css` (yours)                 | Design tokens: `:root { --wa-*: ... }` and `.wa-dark { ... }` blocks |
-| `overrides` | `overrides.css` (yours)             | CSS rules no token expresses, such as `::part()` styling             |
+| Layer       | Source                                          | Put here                                                             |
+| ----------- | ----------------------------------------------- | -------------------------------------------------------------------- |
+| `base`      | Web Awesome styles + selected theme and palette | Nothing. Generated; do not edit.                                     |
+| `theme`     | `theme.css` (yours)                             | Design tokens: `:root { --wa-*: ... }` and `.wa-dark { ... }` blocks |
+| `overrides` | `overrides.css` (yours)                         | CSS rules no token expresses, such as `::part()` styling             |
 
 Later layers beat earlier ones whatever the selector specificity, so a rule in `overrides.css` beats the same rule in `theme.css`, and both beat Web Awesome, without `!important`. Web Awesome's own eight internal layers (`wa-native` through `wa-theme-overrides`) all end up nested inside `base`, so you never need to write them.
 
