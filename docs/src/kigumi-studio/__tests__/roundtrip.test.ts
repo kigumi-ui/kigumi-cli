@@ -29,23 +29,10 @@ describe('round-trip: generate → parse → verify', () => {
       {},
       { shadowComponents: ['Card', 'Button', 'Badge'] }
     );
-    const overrides = parseComponentOverrides(css, '.studio-preview');
+    const overrides = parseComponentOverrides(css);
     expect(overrides.shadowComponents.sort()).toEqual(
       ['Badge', 'Button', 'Card'].sort()
     );
-  });
-
-  it('round-trips custom CSS through generate → parse', () => {
-    const customCSS =
-      '.studio-preview .Card > .inner {\n  box-shadow: none;\n}';
-    const css = generateThemeCSS(
-      { '--wa-color-brand': '#ff0000' },
-      {},
-      { customCSS }
-    );
-    const overrides = parseComponentOverrides(css, '.studio-preview');
-    expect(overrides.customCSS).toContain('.Card > .inner');
-    expect(overrides.customCSS).toContain('box-shadow: none');
   });
 
   it('round-trips shadow color+opacity combination', () => {
@@ -56,7 +43,8 @@ describe('round-trip: generate → parse → verify', () => {
     const css = generateThemeCSS(light, {}, {});
     expect(css).toContain('rgb(0 0 0 / 0.3)');
     const parsed = parseThemeCSS(css);
-    expect(parsed.light['--wa-color-shadow']).toBe('rgb(0 0 0 / 0.3)');
+    expect(parsed.light['--wa-color-shadow']).toBe('#000000');
+    expect(parsed.light['--wa-shadow-opacity']).toBe('0.3');
   });
 
   it('round-trips font import without corrupting properties', () => {

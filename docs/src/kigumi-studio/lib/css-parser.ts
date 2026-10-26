@@ -1,3 +1,4 @@
+import { splitStylesheet } from './custom-css';
 import { PROPERTIES_BY_VAR } from './property-definitions';
 
 export interface ParseResult {
@@ -44,49 +45,27 @@ function extractProperties(blockBody: string): Record<string, string> {
 }
 
 /**
- * Find the body content of a CSS rule block by its selector.
- * Handles nested parentheses but not nested blocks.
- */
-function findBlockBody(css: string, selector: string): string | null {
-  // Escape special regex characters in selector
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pattern = new RegExp(`${escaped}\\s*\\{`, 'g');
-  const match = pattern.exec(css);
-
-  if (!match) return null;
-
-  const start = match.index + match[0].length;
-  let depth = 1;
-  let i = start;
-
-  while (i < css.length && depth > 0) {
-    if (css[i] === '{') depth++;
-    else if (css[i] === '}') depth--;
-    i++;
-  }
-
-  if (depth !== 0) return null;
-
-  return css.slice(start, i - 1);
-}
-
-/**
- * Parse a CSS theme string containing :root {} and/or .wa-dark {} blocks.
- * Extracts --wa-* custom properties and maps them to known property definitions.
+ * Parse a CSS theme string containing :root {} and/or .wa-dark {} blocks,
+ * as many as it has. Extracts --wa-* custom properties and maps them to
+ * known property definitions.
  */
 export function parseThemeCSS(css: string): ParseResult {
   const warnings: string[] = [];
   const light: Record<string, string> = {};
   const dark: Record<string, string> = {};
+  const modes = { ':root': light, '.wa-dark': dark } as const;
 
-  // Extract :root block
-  const rootBody = findBlockBody(css, ':root');
-  if (rootBody) {
-    const rootProps = extractProperties(rootBody);
-    for (const [varName, value] of Object.entries(rootProps)) {
+  // Every :root and .wa-dark block, wherever it stands; a later one wins.
+  for (const node of splitStylesheet(css)) {
+    if (node.kind !== 'rule') continue;
+    if (node.selector !== ':root' && node.selector !== '.wa-dark') continue;
+    const target = modes[node.selector];
+    for (const [varName, value] of Object.entries(
+      extractProperties(node.body)
+    )) {
       if (!varName.startsWith('--wa-')) continue;
       if (PROPERTIES_BY_VAR.has(varName)) {
-        light[varName] = value;
+        target[varName] = value;
       } else if (isDerivedColorVar(varName)) {
         // Silently skip derived vars -- they'll be regenerated from the base color
       } else {
@@ -95,99 +74,30 @@ export function parseThemeCSS(css: string): ParseResult {
     }
   }
 
-  // Extract .wa-dark block
-  const darkBody = findBlockBody(css, '.wa-dark');
-  if (darkBody) {
-    const darkProps = extractProperties(darkBody);
-    for (const [varName, value] of Object.entries(darkProps)) {
-      if (!varName.startsWith('--wa-')) continue;
-      if (PROPERTIES_BY_VAR.has(varName)) {
-        dark[varName] = value;
-      } else if (isDerivedColorVar(varName)) {
-        // Silently skip derived vars
-      } else {
-        warnings.push(`Unknown property: ${varName}`);
-      }
-    }
-  }
-
+  splitShadowColor(light);
+  splitShadowColor(dark);
   return { light, dark, warnings };
 }
 
 /**
- * Remove a top-level block (e.g. :root or .wa-dark) from CSS.
+ * The export writes the shadow colour and opacity as one value,
+ * `rgb(r g b / a)` (`processShadowProperties`); Studio keeps them apart, a
+ * hex colour and an opacity. Undo that, unless the opacity is named too.
  */
-function removeBlock(css: string, selector: string): string {
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pattern = new RegExp(`${escaped}\\s*\\{`);
-  const match = pattern.exec(css);
-  if (!match) return css;
-
-  const bodyStart = match.index + match[0].length;
-  let depth = 1;
-  let i = bodyStart;
-  while (i < css.length && depth > 0) {
-    if (css[i] === '{') depth++;
-    else if (css[i] === '}') depth--;
-    i++;
-  }
-  const end = i;
-  return css.slice(0, match.index) + css.slice(end);
-}
-
-/**
- * Extract component override rules from preset CSS (all blocks except :root and .wa-dark).
- * Each selector is prefixed with scopeSelector so overrides only apply within the preview.
- */
-export function extractComponentOverrides(
-  css: string,
-  scopeSelector: string
-): string {
-  let remaining = removeBlock(css, ':root');
-  remaining = removeBlock(remaining, '.wa-dark');
-
-  const result: string[] = [];
-  const blockRegex = /([^{}\s][^{]*?)\s*\{/g;
-  let match: RegExpExecArray | null;
-
-  while ((match = blockRegex.exec(remaining)) !== null) {
-    const selector = match[1].trim();
-    if (selector.startsWith('@')) continue;
-
-    const start = match.index + match[0].length;
-    let depth = 1;
-    let i = start;
-    while (i < remaining.length && depth > 0) {
-      if (remaining[i] === '{') depth++;
-      else if (remaining[i] === '}') depth--;
-      i++;
-    }
-    const body = remaining.slice(start, i - 1);
-
-    const scopedSelectors = selector
-      .split(',')
-      .map((s) => `${scopeSelector} ${s.trim()}`)
-      .join(', ');
-    result.push(`${scopedSelectors} {\n${body}\n}`);
-  }
-
-  return result.length > 0 ? result.join('\n\n') : '';
-}
-
-/**
- * Basic CSS syntax check: verifies the input contains at least one rule block
- * and that braces are balanced. Does not validate property names or values.
- */
-export function hasValidCSSStructure(css: string): boolean {
-  if (!css.includes('{') || !css.includes('}')) return false;
-
-  let depth = 0;
-  for (const ch of css) {
-    if (ch === '{') depth++;
-    else if (ch === '}') depth--;
-    if (depth < 0) return false;
-  }
-  return depth === 0;
+function splitShadowColor(props: Record<string, string>): void {
+  const color = props['--wa-color-shadow'];
+  if (!color || props['--wa-shadow-opacity'] !== undefined) return;
+  const match =
+    /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)\s*[/,]\s*([\d.]+)\s*\)$/i.exec(
+      color
+    );
+  if (!match) return;
+  const hex = match
+    .slice(1, 4)
+    .map((channel) => Number(channel).toString(16).padStart(2, '0'))
+    .join('');
+  props['--wa-color-shadow'] = `#${hex}`;
+  props['--wa-shadow-opacity'] = match[4];
 }
 
 interface ParsedOverrides {
@@ -196,66 +106,66 @@ interface ParsedOverrides {
 }
 
 /**
- * Parse component overrides from imported CSS into shadow components and custom CSS.
+ * Parse component overrides from imported CSS into shadow components and
+ * custom CSS. The `:root` and `.wa-dark` blocks are the values (see
+ * `parseThemeCSS`) and `@import` lines the fonts, which the export writes
+ * again from the values.
  *
- * Shadow rules are simple `.ClassName { box-shadow: var(--wa-shadow-*); }` blocks
- * that map to the shadowComponents system. Everything else is treated as custom CSS
- * and scoped with scopeSelector for the preview.
+ * Shadow rules are simple `.ClassName { box-shadow: var(--wa-shadow-*); }`
+ * blocks that map to the shadowComponents system. Everything else, at-rule
+ * blocks included, is custom CSS, kept as written with the comments before
+ * each rule, and unscoped: the preview scopes it (`scopeCustomCSS`).
+ * `ignoreComments` are comments Studio writes itself, never custom CSS.
  */
 export function parseComponentOverrides(
   css: string,
-  scopeSelector: string
+  { ignoreComments = [] }: { ignoreComments?: string[] } = {}
 ): ParsedOverrides {
-  let remaining = removeBlock(css, ':root');
-  remaining = removeBlock(remaining, '.wa-dark');
-
-  // Remove @import and comments at top level
-  remaining = remaining.replace(/@import\s+url\([^)]*\)\s*;/g, '');
-  remaining = remaining.replace(/\/\*[\s\S]*?\*\//g, '');
-
   const shadowComponents: string[] = [];
   const customRules: string[] = [];
+  // A rule's comments go with it, except the ones Studio writes itself.
+  const withComments = (comments: string[], text: string) =>
+    [...comments.filter((c) => !ignoreComments.includes(c)), text]
+      .filter(Boolean)
+      .join('\n');
 
-  const blockRegex = /([^{}\s][^{]*?)\s*\{/g;
-  let match: RegExpExecArray | null;
-
-  while ((match = blockRegex.exec(remaining)) !== null) {
-    const selector = match[1].trim();
-    if (selector.startsWith('@')) continue;
-
-    const start = match.index + match[0].length;
-    let depth = 1;
-    let i = start;
-    while (i < remaining.length && depth > 0) {
-      if (remaining[i] === '{') depth++;
-      else if (remaining[i] === '}') depth--;
-      i++;
+  for (const node of splitStylesheet(css)) {
+    if (node.kind === 'comment') {
+      const text = withComments(node.comments, '');
+      if (text) customRules.push(text);
+      continue;
     }
-    // Advance regex past the closing brace so next exec() starts after this block
-    blockRegex.lastIndex = i;
+    if (node.kind === 'statement') {
+      if (!/^@import\b/i.test(node.text)) {
+        customRules.push(withComments(node.comments, node.text));
+      }
+      continue;
+    }
+    if (node.kind === 'at-rule') {
+      customRules.push(
+        withComments(node.comments, `${node.prelude} {${node.body}}`)
+      );
+      continue;
+    }
+    if (node.selector === ':root' || node.selector === '.wa-dark') continue;
 
-    const body = remaining.slice(start, i - 1).trim();
-
-    // Detect simple shadow-adding rules: .ClassName { box-shadow: var(--wa-shadow-*); }
-    // These are single-selector, single-property rules that add a shadow via WA tokens.
-    const isSingleClassSelector = /^\.[A-Z][\w-]*$/.test(selector);
+    const body = node.body.trim();
+    // A single class, a single box-shadow from a WA token: a shadow component.
+    const isSingleClassSelector = /^\.[A-Z][\w-]*$/.test(node.selector);
     const isShadowOnly =
       /^\s*box-shadow\s*:\s*var\(--wa-shadow-[\w-]+\)\s*;?\s*$/.test(body);
 
     if (isSingleClassSelector && isShadowOnly) {
-      // Extract class name without the leading dot
-      shadowComponents.push(selector.slice(1));
+      shadowComponents.push(node.selector.slice(1));
     } else {
-      const scopedSelectors = selector
-        .split(',')
-        .map((s) => `${scopeSelector} ${s.trim()}`)
-        .join(', ');
-      customRules.push(`${scopedSelectors} {\n  ${body}\n}`);
+      customRules.push(
+        withComments(node.comments, `${node.selector} {\n  ${body}\n}`)
+      );
     }
   }
 
   return {
     shadowComponents,
-    customCSS: customRules.length > 0 ? customRules.join('\n\n') : '',
+    customCSS: customRules.join('\n\n'),
   };
 }

@@ -9,7 +9,6 @@ import {
   type ReactNode,
 } from 'react';
 import {
-  PROPERTY_DEFINITIONS,
   PROPERTIES_BY_GROUP,
   PROPERTIES_BY_VAR,
   type PropertyGroup,
@@ -26,16 +25,11 @@ import {
   type ThemeMode,
   type ThemeValue,
 } from '../lib/defaults';
+import { storedCustomCSS } from '../lib/custom-css';
+import { modifiedProperties } from '../lib/css-generator';
+import { withImportedValues } from '../lib/theme-css';
 import { AVAILABLE_FONTS } from '../lib/font-definitions';
 import { buildPreviewStyle } from '../lib/preview-style';
-import {
-  generateBrandPalette,
-  generateBrandVariables,
-  generateSemanticVariables,
-  generateSurfaceVariables,
-  generateTextVariables,
-  type SemanticColorGroup,
-} from '../lib/color-utils';
 
 const STORAGE_KEY = 'kigumi-studio-state';
 const STORAGE_VERSION = '2.0';
@@ -176,8 +170,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [shadowComponents, setShadowComponents] = useState<string[]>(
     () => getPersistedOnce()?.shadowComponents ?? []
   );
-  const [customCSS, setCustomCSS] = useState<string | null>(
-    () => getPersistedOnce()?.customCSS ?? null
+  const [customCSS, setCustomCSS] = useState<string | null>(() =>
+    storedCustomCSS(getPersistedOnce()?.customCSS)
   );
   const [selectedPreset, setSelectedPreset] = useState<string | null>(
     () => getPersistedOnce()?.selectedPreset ?? null
@@ -254,34 +248,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const importValues = useCallback(
     (imported: Record<string, { light?: string; dark?: string }>) => {
-      setValues((prev) => {
-        const next = { ...prev };
-        for (const [cssVar, modes] of Object.entries(imported)) {
-          if (!next[cssVar]) continue;
-          // Strip unit suffix for properties that store raw numbers (e.g. "75ms" -> "75")
-          const prop = PROPERTIES_BY_VAR.get(cssVar);
-          const suffix = prop?.unit;
-          const strip = (v: string | undefined): string | undefined => {
-            if (!v || !suffix) return v;
-            return v.endsWith(suffix) ? v.slice(0, -suffix.length) : v;
-          };
-          const strippedLight = strip(modes.light);
-          const strippedDark = strip(modes.dark);
-
-          // For mode-independent tokens: if only light value is provided,
-          // use it for dark too (structural tokens should be identical in both modes)
-          const effectiveDark =
-            !prop?.modeDependent && strippedLight && !strippedDark
-              ? strippedLight
-              : strippedDark;
-
-          next[cssVar] = {
-            light: strippedLight ?? next[cssVar].light,
-            dark: effectiveDark ?? next[cssVar].dark,
-          };
-        }
-        return next;
-      });
+      setValues((prev) => withImportedValues(prev, imported));
     },
     []
   );
@@ -292,136 +259,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     [values]
   );
 
-  const getModifiedProperties = useCallback(() => {
-    const light: Record<string, string> = {};
-    const dark: Record<string, string> = {};
-
-    // 1. Collect explicitly modified base properties
-    for (const prop of PROPERTY_DEFINITIONS) {
-      const current = values[prop.cssVar];
-      const defaults = DEFAULT_VALUES[prop.cssVar];
-      if (!current || !defaults) continue;
-
-      const suffix = prop.unit ?? '';
-      if (current.light !== defaults.light) {
-        light[prop.cssVar] = `${current.light}${suffix}`;
-      }
-      if (current.dark !== defaults.dark) {
-        dark[prop.cssVar] = `${current.dark}${suffix}`;
-      }
-    }
-
-    // 2. For each modified color group, generate derived palette + semantic vars
-    const isBaseModified = (cssVar: string): boolean => {
-      const current = values[cssVar];
-      const defaults = DEFAULT_VALUES[cssVar];
-      if (!current || !defaults) return false;
-      return current.light !== defaults.light || current.dark !== defaults.dark;
-    };
-
-    // For mode-independent properties (like brand), editing in one mode may leave
-    // the other at default. Use the modified value regardless of which mode it's in.
-    const getEffectiveHex = (cssVar: string): string => {
-      const current = values[cssVar];
-      const defaults = DEFAULT_VALUES[cssVar];
-      if (!current || !defaults) return current?.light ?? '';
-      if (current.light !== defaults.light) return current.light;
-      if (current.dark !== defaults.dark) return current.dark;
-      return current.light;
-    };
-
-    const paletteStepRegex = /--wa-color-[\w]+-\d{2}$/;
-
-    // Brand
-    if (isBaseModified('--wa-color-brand')) {
-      const baseHex = getEffectiveHex('--wa-color-brand');
-      // Ensure the base color appears in :root even if only dark was edited
-      if (!light['--wa-color-brand']) {
-        light['--wa-color-brand'] = baseHex;
-      }
-      const lightVars = generateBrandVariables(baseHex, 'light');
-      const darkVars = generateBrandVariables(baseHex, 'dark');
-
-      for (const [key, val] of Object.entries(lightVars)) {
-        if (key === '--wa-color-brand') continue;
-        light[key] = val;
-      }
-      // Dark: skip palette steps (already in light/root), only add semantic vars
-      for (const [key, val] of Object.entries(darkVars)) {
-        if (key === '--wa-color-brand') continue;
-        if (paletteStepRegex.test(key)) continue;
-        dark[key] = val;
-      }
-    }
-
-    // Semantic groups (success, warning, danger, neutral)
-    const semanticGroups: SemanticColorGroup[] = [
-      'success',
-      'warning',
-      'danger',
-      'neutral',
-    ];
-    for (const group of semanticGroups) {
-      const cssVar = `--wa-color-${group}`;
-      if (!isBaseModified(cssVar)) continue;
-
-      const baseHex = getEffectiveHex(cssVar);
-      if (!light[cssVar]) {
-        light[cssVar] = baseHex;
-      }
-      const lightVars = generateSemanticVariables(baseHex, group, 'light');
-      const darkVars = generateSemanticVariables(baseHex, group, 'dark');
-
-      for (const [key, val] of Object.entries(lightVars)) {
-        if (key === cssVar) continue;
-        light[key] = val;
-      }
-      for (const [key, val] of Object.entries(darkVars)) {
-        if (key === cssVar) continue;
-        if (paletteStepRegex.test(key)) continue;
-        dark[key] = val;
-      }
-    }
-
-    // 3. Auto-derive surface/text from neutral (only for unmodified properties)
-    const neutralModified = isBaseModified('--wa-color-neutral');
-    const brandModified = isBaseModified('--wa-color-brand');
-
-    if (neutralModified) {
-      const neutralHex = values['--wa-color-neutral'].light;
-      const brandHex = values['--wa-color-brand'].light;
-
-      const surfaceLight = generateSurfaceVariables(neutralHex, 'light');
-      const surfaceDark = generateSurfaceVariables(neutralHex, 'dark');
-      const textLight = generateTextVariables(neutralHex, brandHex, 'light');
-      const textDark = generateTextVariables(neutralHex, brandHex, 'dark');
-
-      for (const [key, val] of Object.entries({
-        ...surfaceLight,
-        ...textLight,
-      })) {
-        if (!light[key]) light[key] = val;
-      }
-      for (const [key, val] of Object.entries({
-        ...surfaceDark,
-        ...textDark,
-      })) {
-        if (!dark[key]) dark[key] = val;
-      }
-    } else if (brandModified) {
-      // Only brand changed: auto-derive text-link and focus from brand palette
-      const brandHex = values['--wa-color-brand'].light;
-      const brandPalette = generateBrandPalette(brandHex);
-
-      const isLinkModified = isBaseModified('--wa-color-text-link');
-      if (!isLinkModified) {
-        light['--wa-color-text-link'] = brandPalette['40'];
-        dark['--wa-color-text-link'] = brandPalette['70'];
-      }
-    }
-
-    return { light, dark };
-  }, [values]);
+  const getModifiedProperties = useCallback(
+    () => modifiedProperties(values),
+    [values]
+  );
 
   const isModified = useCallback(
     (cssVar: string): boolean => {

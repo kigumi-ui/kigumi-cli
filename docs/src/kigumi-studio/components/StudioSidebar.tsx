@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import {
   Accordion,
   Button,
@@ -25,15 +26,13 @@ import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 interface StudioSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
-  onImport?: () => void;
-  onExport?: () => void;
+  onThemeCSS?: () => void;
 }
 
 export function StudioSidebar({
   collapsed,
   onToggle,
-  onImport,
-  onExport,
+  onThemeCSS,
 }: StudioSidebarProps) {
   const { editMode, setEditMode, setPreviewMode, values, importValues } =
     useStudio();
@@ -103,7 +102,10 @@ export function StudioSidebar({
 
   return (
     <div
-      className={`studio-sidebar-wrapper ${collapsed ? 'studio-sidebar-wrapper--collapsed' : ''}`}
+      className={clsx(
+        'studio-sidebar-wrapper',
+        collapsed && 'studio-sidebar-wrapper--collapsed'
+      )}
     >
       <aside className="studio-sidebar" aria-label="Styles">
         <div className="studio-panel-header wa-cluster wa-align-items-center">
@@ -158,21 +160,10 @@ export function StudioSidebar({
                 </div>
               </div>
             </div>
-            <ButtonGroup>
-              <Button
-                variant="neutral"
-                appearance="outlined"
-                size="small"
-                onClick={onImport}
-              >
-                <Icon name="download" slot="start" />
-                Import
-              </Button>
-              <Button variant="brand" size="small" onClick={onExport}>
-                <Icon name="upload" slot="start" />
-                Export
-              </Button>
-            </ButtonGroup>
+            <Button variant="brand" size="small" onClick={onThemeCSS}>
+              <Icon name="wrench" slot="start" />
+              Customize theme CSS
+            </Button>
           </div>
           <Divider />
           {/* One accordion: each editor renders its sections as its items. */}

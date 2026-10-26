@@ -26,6 +26,8 @@ Visual theme builder for Web Awesome CSS custom properties.
 - ALWAYS verify after changes: `pnpm dev` + TypeScript check
 - ALWAYS use inline `style` with CSS custom properties for the preview wrapper
 - ALWAYS maintain preview isolation: Studio theme must not leak to Landing Page
+- ALWAYS apply the Theme CSS text through `themeEdits()`: only what the user changed in the text, never the whole text read back. The export writes derived values (palettes, surfaces and text from neutral, the shadow colour merged with its opacity); reading them all back would freeze them as values. Applying it is an edit, not a replacement: it does not call `resetAll`, so a Theme Agent conversation goes on (ADR 0012)
+- ALWAYS store custom CSS unscoped, as the export writes it, and scope it only in `StudioPreview` with `scopeCustomCSS()`, so no rule reaches Studio's own UI. How the scoping keeps the `overrides` precedence (ADR 0009) and what it does with root selectors and at-rules is documented in `lib/custom-css.ts`
 
 ## Architecture
 
@@ -34,7 +36,7 @@ KigumiStudio (page)
   StudioProvider (context: ~43 CSS properties, light/dark modes)
     StudioLayout
       StudioHeader (back link, logo, site theme, knowledge base)
-      StudioSidebar ("Styles": preset, mode, generate, import/export; one Accordion, an EditorSection AccordionItem per property group)
+      StudioSidebar ("Styles": preset, mode, generate, Customize theme CSS; one Accordion, an EditorSection AccordionItem per property group)
       StudioPreview (live component showcase with applied theme)
       Theme Agent panel (only with the access cookie; ThemeAgentSidebar loads on first open)
 ```
@@ -56,8 +58,11 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 | `contexts/StudioContext.tsx` | State management (~43 properties, light/dark). `onThemeReplaced()` tells subscribers when `resetAll` replaces the whole theme (a preset, Default, an import) |
 | `lib/property-definitions.ts` | Property metadata (43 definitions) |
 | `lib/defaults.ts` | Default values from Web Awesome |
-| `lib/css-parser.ts` | Parse `:root {}` and `.wa-dark {}` blocks |
-| `lib/css-generator.ts` | Generate CSS output |
+| `lib/css-parser.ts` | Parse `:root {}` and `.wa-dark {}` blocks; `parseComponentOverrides()` splits the rest into shadow components and custom CSS, kept as written |
+| `lib/custom-css.ts` | Custom CSS: `validateCustomCSS()` (structure check before Apply), `scopeCustomCSS()` (the preview's scoping), `splitStylesheet()` (rules with the comments before them), `storedCustomCSS()` (reads what an earlier Studio saved with the preview scope) |
+| `lib/theme-css.ts` | The Theme CSS text: `themeFiles()` (a project's `theme.css` and `overrides.css`), `themeText()` (both under headers), `themeEdits()` (what Apply changes: only the edits from the text shown to the text applied, locked values kept), `themeDownloads()` (the two files, each saying so when empty), `withImportedValues()` (values stored as Studio stores them; the context's `importValues`) |
+| `components/toolbar/ThemeCSSDialog.tsx` | The "Customize theme CSS" toolbar dialog: the whole custom theme in one text field, `theme.css` then `overrides.css`, to read, edit and paste over; a split button downloads both files (default) or one (`themeDownloads()`) |
+| `lib/css-generator.ts` | `modifiedProperties()` (the values the export writes, derived ones included) and `generateThemeCSS()` (a project's `theme.css`, never custom CSS) |
 | `lib/preview-style.ts` | `buildPreviewStyle()`: the custom properties the preview sets, derived palettes included. `getStyleObject()` and the contrast check both read it |
 | `lib/preset-loader.ts` | Load preset CSS files via `import.meta.glob` |
 | `lib/locks.ts` | Locked values (`LockedValues`): CSS variables per mode plus the shadow component list; a mode-independent property locks in both modes. Stored apart from the theme (`kigumi-studio-locks`), so reset and presets leave them; never exported. `describeLocks()` is how the Theme Agent reads them |

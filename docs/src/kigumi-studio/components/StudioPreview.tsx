@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import { ComponentShowcase } from './preview/ComponentShowcase';
 import { useStudio } from '../contexts/StudioContext';
+import { scopeCustomCSS } from '../lib/custom-css';
 import './StudioPreview.css';
+
+/** The preview's theme root: ComponentShowcase, which carries the values. */
+const PREVIEW_THEME_ROOT = '.studio-preview .component-showcase';
 
 export function StudioPreview() {
   const { values, shadowComponents, customCSS, previewMode } = useStudio();
@@ -81,10 +85,20 @@ export function StudioPreview() {
     return css;
   }, [values, shadowComponents, previewMode]);
 
+  // Scoped here, never stored scoped: Studio keeps custom CSS as it goes
+  // into a project, and no rule of it may reach Studio's own UI.
+  const scopedCustomCSS = useMemo(
+    () => (customCSS ? scopeCustomCSS(customCSS, PREVIEW_THEME_ROOT) : ''),
+    [customCSS]
+  );
+
   return (
     <div className="studio-preview">
       <style>{shadowStyles}</style>
-      {customCSS && <style data-kigumi-overrides>{customCSS}</style>}
+      {/* After the shadows: custom CSS comes last, as in a project. */}
+      {scopedCustomCSS && (
+        <style data-kigumi-overrides>{scopedCustomCSS}</style>
+      )}
       <ComponentShowcase />
     </div>
   );

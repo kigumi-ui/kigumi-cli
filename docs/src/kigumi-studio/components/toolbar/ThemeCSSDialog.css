@@ -1,0 +1,59 @@
+.theme-css-dialog {
+  --width: 44rem;
+}
+
+.theme-css-dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-m);
+}
+
+.theme-css-dialog__description {
+  margin: 0;
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+  line-height: 1.5;
+}
+
+.theme-css-dialog__description code {
+  font-family: var(--wa-font-family-code);
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  background: var(--wa-color-surface-lowered);
+  border-radius: var(--wa-border-radius-s);
+}
+
+/* CSS reads as code. */
+.theme-css-dialog__editor::part(textarea) {
+  font-family: var(--wa-font-family-code);
+  font-size: var(--wa-font-size-s);
+}
+
+.theme-css-dialog__list {
+  margin: var(--wa-space-xs) 0 0;
+  padding-left: var(--wa-space-m);
+  font-size: var(--wa-font-size-s);
+}
+
+.theme-css-dialog__list li {
+  margin-bottom: var(--wa-space-2xs);
+}
+
+.theme-css-dialog__footer {
+  width: 100%;
+}
+
+.theme-css-dialog__hint {
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+}
+
+/* The label names the field for screen readers; the dialog title shows it. */
+.theme-css-dialog__editor::part(form-control-label) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
