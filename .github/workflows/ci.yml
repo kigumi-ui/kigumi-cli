@@ -311,16 +311,33 @@ jobs:
       # Pro package has one, and docs/ installs it from the organization copy
       # on GitHub Packages. A fork pull request cannot read that package, so
       # detect it and skip loudly. The runner's own Node runs the probe.
+      - name: Probe the Web Awesome Pro package
+        id: probe
+        continue-on-error: true
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/setup-npmrc.mjs --probe
+
+      # Unreadable is a skip only where it is expected: a fork or Dependabot
+      # pull request. Anywhere else the access is broken, and skipping would
+      # report a pass that verified nothing (docs/adr/0003).
       - name: Check Pro registry access
         id: pro
         env:
-          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROBED: ${{ steps.probe.outcome }}
+          EVENT: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
         run: |
-          if node scripts/setup-npmrc.mjs --probe; then
+          if [ "$PROBED" = "success" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "$EVENT" = "pull_request" ] && { [ "$HEAD_REPO" != "$REPO" ] || [ "$ACTOR" = "dependabot[bot]" ]; }; then
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Generator drift NOT verified: the Web Awesome Pro package is not readable here (expected for pull requests from forks)."
+            echo "::notice::Generator drift NOT verified: a fork or Dependabot pull request cannot read the Web Awesome Pro package."
+          else
+            echo "::error::The Web Awesome Pro package is not readable on a run that should read it. Check the package settings: Manage Actions access must list this repository with Read."
+            exit 1
           fi
 
       # Cache only when the install below runs: setup-node saves the pnpm
@@ -717,16 +734,33 @@ jobs:
       # installs from the organization copy on GitHub Packages. A fork pull
       # request cannot read that package, so the install below would fail on
       # an ordinary contribution. Detect that up front and skip instead.
+      - name: Probe the Web Awesome Pro package
+        id: probe
+        continue-on-error: true
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/setup-npmrc.mjs --probe
+
+      # Unreadable is a skip only where it is expected: a fork or Dependabot
+      # pull request. Anywhere else the access is broken, and skipping would
+      # report a pass that verified nothing (docs/adr/0003).
       - name: Check Pro registry access
         id: pro
         env:
-          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROBED: ${{ steps.probe.outcome }}
+          EVENT: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
         run: |
-          if node scripts/setup-npmrc.mjs --probe; then
+          if [ "$PROBED" = "success" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "$EVENT" = "pull_request" ] && { [ "$HEAD_REPO" != "$REPO" ] || [ "$ACTOR" = "dependabot[bot]" ]; }; then
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping docs type-check: the Web Awesome Pro package is not readable here (expected for pull requests from forks)."
+            echo "::notice::Docs type-check NOT verified: a fork or Dependabot pull request cannot read the Web Awesome Pro package."
+          else
+            echo "::error::The Web Awesome Pro package is not readable on a run that should read it. Check the package settings: Manage Actions access must list this repository with Read."
+            exit 1
           fi
 
       - name: Install root dependencies
@@ -785,16 +819,33 @@ jobs:
 
       # A fork pull request cannot read the organization copy of Web Awesome
       # Pro, so the install below would fail. Skip the docs-dependent steps.
+      - name: Probe the Web Awesome Pro package
+        id: probe
+        continue-on-error: true
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/setup-npmrc.mjs --probe
+
+      # Unreadable is a skip only where it is expected: a fork or Dependabot
+      # pull request. Anywhere else the access is broken, and skipping would
+      # report a pass that verified nothing (docs/adr/0003).
       - name: Check Pro registry access
         id: pro
         env:
-          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROBED: ${{ steps.probe.outcome }}
+          EVENT: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
         run: |
-          if node scripts/setup-npmrc.mjs --probe; then
+          if [ "$PROBED" = "success" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "$EVENT" = "pull_request" ] && { [ "$HEAD_REPO" != "$REPO" ] || [ "$ACTOR" = "dependabot[bot]" ]; }; then
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping Storybook interaction tests: the Web Awesome Pro package is not readable here (expected for pull requests from forks)."
+            echo "::notice::Storybook interaction tests NOT verified: a fork or Dependabot pull request cannot read the Web Awesome Pro package."
+          else
+            echo "::error::The Web Awesome Pro package is not readable on a run that should read it. Check the package settings: Manage Actions access must list this repository with Read."
+            exit 1
           fi
 
       - name: Install root dependencies
@@ -870,17 +921,33 @@ jobs:
       # own token. Fork pull requests have neither, so the visual job would
       # fail on an ordinary contribution. Skip it instead. The runner's own
       # Node runs the probe.
+      - name: Probe the Web Awesome Pro package
+        id: probe
+        continue-on-error: true
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/setup-npmrc.mjs --probe
+
+      # Unreadable is a skip only on a fork or Dependabot pull request; a
+      # missing Chromatic token is always a skip.
       - name: Check visual-regression credentials
         id: pro
         env:
-          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROBED: ${{ steps.probe.outcome }}
+          EVENT: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
           CHROMATIC_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
         run: |
-          if [ -n "$CHROMATIC_TOKEN" ] && node scripts/setup-npmrc.mjs --probe; then
+          if [ "$PROBED" = "success" ] && [ -n "$CHROMATIC_TOKEN" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "$PROBED" = "success" ] || { [ "$EVENT" = "pull_request" ] && { [ "$HEAD_REPO" != "$REPO" ] || [ "$ACTOR" = "dependabot[bot]" ]; }; }; then
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping visual regression: the Web Awesome Pro package is not readable here or the Chromatic token is missing (expected for pull requests from forks)."
+            echo "::notice::Visual regression NOT verified: no Chromatic token, or a fork or Dependabot pull request cannot read the Web Awesome Pro package."
+          else
+            echo "::error::The Web Awesome Pro package is not readable on a run that should read it. Check the package settings: Manage Actions access must list this repository with Read."
+            exit 1
           fi
 
       - name: Setup pnpm

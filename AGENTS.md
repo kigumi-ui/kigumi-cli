@@ -370,7 +370,7 @@ pnpm run setup:npmrc
 
 - `docs/.npmrc` is gitignored and holds the `@kigumi-ui` registry line plus a GitHub token
 - Vercel (`kigumi-docs`, `kigumi-storybook`) runs `setup:npmrc` in its install command with the `GITHUB_PACKAGES_TOKEN` environment variable (a classic PAT with only `read:packages`)
-- CI's docs jobs run `setup:npmrc --probe` with the `GITHUB_TOKEN` (`packages: read`; the package grants the `kigumi-cli` repository read access under "Manage Actions access") and skip with a notice where it cannot read the package, as on fork pull requests
+- CI's docs jobs probe the package with `setup:npmrc --probe` and the `GITHUB_TOKEN` (`packages: read`; the package grants the `kigumi-cli` repository read access under "Manage Actions access"). Unreadable is a skip only on a fork or Dependabot pull request; any other run that cannot read it fails, since a skip there would pass without verifying anything (`tests/unit/ci-pro-probe-steps.test.ts`)
 - The E2E job's Pro consumers install from a local registry (`scripts/local-pro-registry.mjs`) through `KIGUMI_PRO_REGISTRY`
 
 **docs/ vs. User Projects:**
