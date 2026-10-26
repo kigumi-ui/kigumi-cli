@@ -48,7 +48,7 @@ export function generateOverridesCSS(): string {
  * Use theme.css for design tokens (--wa-* custom properties) and this file
  * for rules no token expresses, for example:
  *
- *   .Button::part(base) {
+ *   wa-button::part(base) {
  *     text-transform: uppercase;
  *   }
  */

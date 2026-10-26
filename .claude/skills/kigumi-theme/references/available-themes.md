@@ -228,9 +228,9 @@ npx kigumi init
 
 This will:
 
-1. Update `src/lib/layers.css` with the correct theme/palette/brand imports
-2. Apply the appropriate `.wa-theme-*`, `.wa-palette-*`, `.wa-brand-*` classes
-3. Generate CSS custom properties for your selection
+1. Update the generated `layers.css` (`src/styles/layers.css` by default) with the correct theme import
+2. Apply the appropriate `.wa-theme-*`, `.wa-palette-*`, `.wa-brand-*` classes in the generated `kigumi.ts`
+3. Leave your own `theme.css` and `overrides.css` untouched
 
 ## Pro Themes
 
