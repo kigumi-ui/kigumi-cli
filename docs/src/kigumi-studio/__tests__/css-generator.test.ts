@@ -7,6 +7,10 @@ import {
 } from '../lib/color-utils';
 import { generateThemeCSS, modifiedProperties } from '../lib/css-generator';
 import { buildDefaultValues } from '../lib/defaults';
+import {
+  BRANDS_UNDER_AA_AT_STEP_50,
+  DEFAULT_BRAND,
+} from './brand-fill-fixtures';
 
 describe('generateThemeCSS', () => {
   it('generates :root block with one property', () => {
@@ -145,7 +149,7 @@ describe('modifiedProperties', () => {
 
   // The default brand exports nothing: Web Awesome's default theme paints
   // its fill as #0071ec, which carries white text at 4.59:1.
-  it.each(['#0891b2', '#16a34a', '#ca8a04'])(
+  it.each(BRANDS_UNDER_AA_AT_STEP_50.filter((hex) => hex !== DEFAULT_BRAND))(
     'exports a brand fill that carries white text at 4.5:1 for %s',
     (hex) => {
       const { light, dark } = modifiedProperties(

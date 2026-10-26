@@ -269,7 +269,8 @@ interface SemanticMapping {
   literal?: string;
 }
 
-// Matches WA default.css light mode semantic mappings
+// Matches WA default.css light mode semantic mappings, except the brand fill
+// (BRAND_OVERRIDES)
 const LIGHT_SEMANTICS: Record<string, SemanticMapping> = {
   'fill-quiet': { step: '95' },
   'fill-normal': { step: '90' },
@@ -282,7 +283,8 @@ const LIGHT_SEMANTICS: Record<string, SemanticMapping> = {
   'on-loud': { literal: 'white' },
 };
 
-// Matches WA default.css dark mode semantic mappings
+// Matches WA default.css dark mode semantic mappings, except the brand fill
+// (BRAND_OVERRIDES)
 const DARK_SEMANTICS: Record<string, SemanticMapping> = {
   'fill-quiet': { step: '10' },
   'fill-normal': { step: '20' },

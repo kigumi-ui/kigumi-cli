@@ -8,6 +8,7 @@ import {
 } from '../theme-agent/contrast';
 import { NO_LOCKS, valueLock, withLocks } from '../lib/locks';
 import type { CustomTheme } from '../theme-agent/custom-theme';
+import { BRANDS_UNDER_AA_AT_STEP_50 } from './brand-fill-fixtures';
 
 // Every checked colour set explicitly, and none equal to its Studio default,
 // so the preview does not derive surfaces or text from neutral instead.
@@ -147,9 +148,7 @@ describe('Theme Agent contrast check', () => {
     );
   });
 
-  // The default brand and brands whose step-50 fill carries white text
-  // under 4.5:1.
-  it.each(['#0071ec', '#0891b2', '#16a34a', '#ca8a04'])(
+  it.each(BRANDS_UNDER_AA_AT_STEP_50)(
     'passes the brand fill for %s in both modes',
     (brand) => {
       const theme = readableTheme();

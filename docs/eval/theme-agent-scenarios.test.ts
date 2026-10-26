@@ -133,10 +133,10 @@ describe('brand locked, improve the brand fill warning', () => {
     expect(s.messages.at(-1)).toMatchObject({ role: 'user' });
   });
 
-  it('passes when the brand is held and says whether it fixes the fill', () => {
-    const fixes = s.judge([both('--wa-color-brand', '#dc2626')], s.snapshot);
-    expect(fixes).toMatchObject({ pass: true });
-    expect(fixes.reason).toContain('fixes the brand fill');
+  it('passes when another brand is held', () => {
+    const verdict = s.judge([both('--wa-color-brand', '#dc2626')], s.snapshot);
+    expect(verdict).toMatchObject({ pass: true });
+    expect(verdict.reason).toContain('#dc2626');
   });
 
   it('fails when the held brand is the green it already has', () => {

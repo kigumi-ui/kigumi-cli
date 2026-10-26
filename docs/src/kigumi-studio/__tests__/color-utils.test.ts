@@ -8,6 +8,7 @@ import {
   generateSemanticVariables,
   PALETTE_STEPS,
 } from '../lib/color-utils';
+import { BRANDS_UNDER_AA_AT_STEP_50 } from './brand-fill-fixtures';
 
 describe('hexToRgb', () => {
   it('converts 6-digit hex to RGB [0-1]', () => {
@@ -201,9 +202,7 @@ describe('generateBrandVariables', () => {
 });
 
 describe('brand fill', () => {
-  // The default brand and brands whose step-50 fill carries white text
-  // under 4.5:1.
-  it.each(['#0071ec', '#0891b2', '#16a34a', '#ca8a04'])(
+  it.each(BRANDS_UNDER_AA_AT_STEP_50)(
     'carries white text at 4.5:1 for %s in both modes',
     (brand) => {
       for (const mode of ['light', 'dark'] as const) {
