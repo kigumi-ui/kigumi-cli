@@ -85,6 +85,49 @@ describe('custom CSS in the preview', () => {
   });
 });
 
+describe('custom CSS in the preview: review findings', () => {
+  it('scopes the rules inside @scope and @starting-style', () => {
+    expect(
+      flat(
+        scopeCustomCSS(
+          '@scope (.Card) { .Badge { color: red; } }\n@starting-style { .Card { opacity: 0; } }',
+          ROOT
+        )
+      )
+    ).toEqual([
+      '@scope (.Card) { .studio-preview .component-showcase .Badge { color: red; }',
+      '}',
+      '@starting-style { .studio-preview .component-showcase .Card { opacity: 0; }',
+      '}',
+    ]);
+  });
+
+  it('sends a custom property with a comment before it to the children', () => {
+    expect(
+      flat(
+        scopeCustomCSS(':root { /* brand */ --wa-color-brand: #c2410c; }', ROOT)
+      )
+    ).toEqual([
+      '.studio-preview .component-showcase > * { --wa-color-brand: #c2410c; }',
+    ]);
+  });
+
+  it('keeps a rule nested in a :root rule whole, on the root', () => {
+    expect(
+      flat(
+        scopeCustomCSS(
+          ':root { --gap: 1rem; .Card { color: red; --inset: 0; } }',
+          ROOT
+        )
+      )
+    ).toEqual([
+      '.studio-preview .component-showcase { .Card { color: red; --inset: 0; }',
+      '}',
+      '.studio-preview .component-showcase > * { --gap: 1rem; }',
+    ]);
+  });
+});
+
 describe('custom CSS check before Apply', () => {
   it('accepts rules, at-rules, comments and braces inside strings', () => {
     expect(
@@ -151,6 +194,14 @@ describe('custom CSS saved by an earlier Studio', () => {
         '.studio-preview .Card > .Card, .studio-preview .Badge {\n  box-shadow: none;\n}'
       )
     ).toBe('.Card > .Card, .Badge {\n  box-shadow: none;\n}');
+  });
+
+  it('strips the scope only where it starts a selector', () => {
+    expect(
+      storedCustomCSS(
+        '.studio-preview .Badge::after {\n  content: "see .studio-preview docs";\n}'
+      )
+    ).toBe('.Badge::after {\n  content: "see .studio-preview docs";\n}');
   });
 
   it('leaves custom CSS saved unscoped, and none, as it is', () => {

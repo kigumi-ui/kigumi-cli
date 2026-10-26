@@ -5,13 +5,13 @@ import { validateCustomCSS } from '../../lib/custom-css';
 import { useStudio } from '../../contexts/StudioContext';
 import './CustomCSSDialog.css';
 
-interface ImportSummary {
+interface PasteSummary {
   tokenCount: number;
   shadowCount: number;
   hasCustomCSS: boolean;
 }
 
-function formatImportSummary(summary: ImportSummary): string {
+function formatPasteSummary(summary: PasteSummary): string {
   const parts: string[] = [];
   if (summary.tokenCount > 0) {
     parts.push(
@@ -41,8 +41,7 @@ interface CustomCSSDialogProps {
 }
 
 /**
- * The custom theme's custom CSS, as it goes into a project's overrides.css,
- * to read and edit; "Paste a theme" replaces the whole custom theme from
+ * The custom theme's custom CSS, as the export writes it, to read and edit; "Paste a theme" replaces the whole custom theme from
  * pasted CSS instead. Mounted afresh on every open (StudioLayout keys it), so
  * the editor starts from the custom CSS as it is now.
  */
@@ -90,9 +89,8 @@ function CustomCSSEditor({
     <>
       <div className="custom-css-dialog__content">
         <p className="custom-css-dialog__description">
-          Rules for what the values cannot express. In a project they go into{' '}
-          <code>overrides.css</code>, after the theme; here they style only the
-          preview.
+          Rules for what the values cannot express. The export writes them after
+          the theme, unscoped; here they style only the preview.
         </p>
 
         <Textarea
@@ -162,19 +160,17 @@ function PasteTheme({
   const [cssInput, setCssInput] = useState('');
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [importSummary, setImportSummary] = useState<ImportSummary | null>(
-    null
-  );
+  const [pasteSummary, setPasteSummary] = useState<PasteSummary | null>(null);
 
   const handleInput = useCallback((e: Event) => {
     const target = e.target as HTMLTextAreaElement;
     setCssInput(target.value);
     setWarnings([]);
     setError(null);
-    setImportSummary(null);
+    setPasteSummary(null);
   }, []);
 
-  const handleImport = useCallback(() => {
+  const replaceTheme = useCallback(() => {
     const trimmed = cssInput.trim();
     if (!trimmed) {
       setError('Please paste CSS to import.');
@@ -205,35 +201,30 @@ function PasteTheme({
         return;
       }
 
-      // Apply theme tokens (full replacement: reset then import)
-      if (tokenCount > 0) {
-        const merged: Record<string, { light?: string; dark?: string }> = {};
-        for (const [cssVar, value] of Object.entries(result.light)) {
-          merged[cssVar] = { ...merged[cssVar], light: value };
-        }
-        for (const [cssVar, value] of Object.entries(result.dark)) {
-          merged[cssVar] = { ...merged[cssVar], dark: value };
-        }
-        resetAll();
-        importValues(merged);
+      // The whole custom theme is replaced: what the paste leaves out goes
+      // back to its default, custom CSS included.
+      const merged: Record<string, { light?: string; dark?: string }> = {};
+      for (const [cssVar, value] of Object.entries(result.light)) {
+        merged[cssVar] = { ...merged[cssVar], light: value };
       }
-
-      // Apply component overrides
-      if (shadowCount > 0) {
-        setShadowComponents(overrides.shadowComponents);
+      for (const [cssVar, value] of Object.entries(result.dark)) {
+        merged[cssVar] = { ...merged[cssVar], dark: value };
       }
-      if (hasCustom) {
-        setCustomCSS(overrides.customCSS);
-      }
+      resetAll();
+      importValues(merged);
+      setShadowComponents(overrides.shadowComponents);
+      setCustomCSS(hasCustom ? overrides.customCSS : null);
 
       setWarnings(result.warnings);
-      setImportSummary({ tokenCount, shadowCount, hasCustomCSS: hasCustom });
+      setPasteSummary({ tokenCount, shadowCount, hasCustomCSS: hasCustom });
 
       if (result.warnings.length === 0) {
         // Auto-close after short delay on clean import
         setTimeout(onClose, 800);
       }
     } catch {
+      // The parsers do not throw on input they cannot read; this is a guard
+      // against a bug, reported as unreadable CSS rather than a crash.
       setError('Failed to parse CSS. Please check your syntax.');
     }
   }, [
@@ -250,9 +241,9 @@ function PasteTheme({
       <div className="custom-css-dialog__content">
         <p className="custom-css-dialog__description">
           Replaces the whole custom theme. Paste a <code>theme.css</code>, with
-          its <code>overrides.css</code> if it has one, or a snippet with{' '}
-          <code>:root {'{}'}</code> and/or <code>.wa-dark {'{}'}</code> blocks
-          of{' '}
+          its <code>overrides.css</code> after it if it has one, or a snippet
+          with <code>:root {'{}'}</code> and/or <code>.wa-dark {'{}'}</code>{' '}
+          blocks of{' '}
           <a
             href="https://docs.kigumi.style/?path=/docs/design-tokens-color--docs"
             target="_blank"
@@ -284,7 +275,7 @@ function PasteTheme({
         {warnings.length > 0 && (
           <Callout variant="warning" appearance="outlined" size="small">
             <Icon name="triangle-exclamation" slot="icon" />
-            <strong>Imported with warnings:</strong>
+            <strong>Replaced with warnings:</strong>
             <ul className="custom-css-dialog__list">
               {warnings.map((w, i) => (
                 <li key={i}>{w}</li>
@@ -293,10 +284,10 @@ function PasteTheme({
           </Callout>
         )}
 
-        {importSummary !== null && !error && (
+        {pasteSummary !== null && !error && (
           <Callout variant="success" appearance="outlined" size="small">
             <Icon name="circle-check" slot="icon" />
-            Successfully imported {formatImportSummary(importSummary)}.
+            Theme replaced: {formatPasteSummary(pasteSummary)}.
           </Callout>
         )}
       </div>
@@ -323,7 +314,7 @@ function PasteTheme({
           <Button
             variant="brand"
             size="small"
-            onClick={handleImport}
+            onClick={replaceTheme}
             disabled={!cssInput.trim()}
           >
             <Icon name="download" slot="start" />

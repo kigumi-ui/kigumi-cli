@@ -140,7 +140,7 @@ export function parseComponentOverrides(css: string): ParsedOverrides {
       if (!/^@import\b/i.test(node.text)) customRules.push(node.text);
       continue;
     }
-    if (node.kind === 'block') {
+    if (node.kind === 'at-rule') {
       customRules.push(`${node.prelude} {${node.body}}`);
       continue;
     }

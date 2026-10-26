@@ -95,7 +95,7 @@ export function StudioPreview() {
   return (
     <div className="studio-preview">
       <style>{shadowStyles}</style>
-      {/* After the shadows: custom CSS is the overrides layer, last. */}
+      {/* After the shadows: custom CSS comes last, as in a project. */}
       {scopedCustomCSS && (
         <style data-kigumi-overrides>{scopedCustomCSS}</style>
       )}

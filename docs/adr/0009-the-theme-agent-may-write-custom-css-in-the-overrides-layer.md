@@ -15,7 +15,10 @@ by hand is not restricted.
 
 Custom CSS lives apart from the rest of the theme: in its own file,
 `overrides.css`, imported by `layers.css` into an `overrides` layer after
-`theme`, in the project and in the Studio preview alike.
+`theme`. The Studio preview gives it the same precedence without a layer:
+the custom theme's values sit inline on the preview's theme root, which beats
+any layered rule, so Studio keeps custom CSS unlayered, last, and scoped to
+the preview (#193).
 
 ## Considered Options
 

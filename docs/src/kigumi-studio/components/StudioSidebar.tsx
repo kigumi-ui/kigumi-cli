@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import {
   Accordion,
   Button,
@@ -103,9 +104,10 @@ export function StudioSidebar({
 
   return (
     <div
-      className={`studio-sidebar-wrapper ${
-        collapsed ? 'studio-sidebar-wrapper--collapsed' : ''
-      }`}
+      className={clsx(
+        'studio-sidebar-wrapper',
+        collapsed && 'studio-sidebar-wrapper--collapsed'
+      )}
     >
       <aside className="studio-sidebar" aria-label="Styles">
         <div className="studio-panel-header wa-cluster wa-align-items-center">

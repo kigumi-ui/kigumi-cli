@@ -1,11 +1,11 @@
 // Custom CSS: the free-form rules of a custom theme (GLOSSARY.md). Studio
-// stores them as they go into a project's overrides.css, unscoped, and scopes
+// stores them unscoped, as the export writes them, and scopes
 // them only for the preview, so no rule reaches Studio's own UI (ADR 0009).
 
 /** One top-level piece of a stylesheet. */
 export type CssNode =
   | { kind: 'rule'; selector: string; body: string }
-  | { kind: 'block'; prelude: string; body: string }
+  | { kind: 'at-rule'; prelude: string; body: string }
   | { kind: 'statement'; text: string };
 
 interface ParsedCss {
@@ -13,7 +13,10 @@ interface ParsedCss {
   errors: string[];
 }
 
-/** Index just past the comment or string starting at `i`, or -1 if unterminated. */
+/**
+ * Index just past the comment or string that starts at `i`; -1 when it is
+ * never closed; `undefined` when none starts at `i`.
+ */
 function skipCommentOrString(css: string, i: number): number | undefined {
   if (css.startsWith('/*', i)) {
     const end = css.indexOf('*/', i + 2);
@@ -83,7 +86,7 @@ function parseCss(css: string): ParsedCss {
       const body = css.slice(i + 1, end);
       if (!head) errors.push('A block has no selector before its {.');
       else if (head.startsWith('@'))
-        nodes.push({ kind: 'block', prelude: head, body });
+        nodes.push({ kind: 'at-rule', prelude: head, body });
       else nodes.push({ kind: 'rule', selector: head, body });
       prelude = '';
       i = end;
@@ -106,7 +109,7 @@ function parseCss(css: string): ParsedCss {
   return { nodes, errors };
 }
 
-/** Split on `separator` outside parentheses, brackets and strings. */
+/** Split on `separator` outside parentheses, brackets, braces and strings. */
 function splitTopLevel(text: string, separator: string): string[] {
   const parts: string[] = [];
   let depth = 0;
@@ -116,8 +119,8 @@ function splitTopLevel(text: string, separator: string): string[] {
     if (quote) {
       if (ch === quote) quote = '';
     } else if (ch === '"' || ch === "'") quote = ch;
-    else if (ch === '(' || ch === '[') depth++;
-    else if (ch === ')' || ch === ']') depth--;
+    else if (ch === '(' || ch === '[' || ch === '{') depth++;
+    else if (ch === ')' || ch === ']' || ch === '}') depth--;
     if (ch === separator && depth === 0 && !quote) {
       parts.push(current);
       current = '';
@@ -130,7 +133,8 @@ function splitTopLevel(text: string, separator: string): string[] {
 }
 
 /** At-rules whose blocks hold style rules, which need scoping too. */
-const CONDITIONAL_AT_RULES = /^@(media|supports|container)\b/i;
+const GROUPING_AT_RULES =
+  /^@(media|supports|container|scope|starting-style)\b/i;
 
 /**
  * A selector that starts at the document root (`:root`, `html`, `body`, or
@@ -151,8 +155,10 @@ function rootParts(
   return undefined;
 }
 
+/** A block of declarations; a nested rule needs no `;` after its `}`. */
 function declarationBlock(declarations: string[]): string {
-  return `{\n  ${declarations.map((d) => `${d};`).join('\n  ')}\n}`;
+  const lines = declarations.map((d) => (d.endsWith('}') ? d : `${d};`));
+  return `{\n  ${lines.join('\n  ')}\n}`;
 }
 
 /**
@@ -172,7 +178,10 @@ function scopeRule(selector: string, body: string, root: string): string[] {
   }
   const out: string[] = [];
   if (bareRoots.length > 0) {
-    const declarations = splitTopLevel(body, ';');
+    // Comments dropped, so one in front of a custom property cannot hide it.
+    const declarations = splitTopLevel(body, ';')
+      .map(withoutComments)
+      .filter(Boolean);
     const own = declarations.filter((d) => !d.startsWith('--'));
     const inherited = declarations.filter((d) => d.startsWith('--'));
     if (own.length > 0) {
@@ -193,17 +202,17 @@ function scopeNodes(nodes: CssNode[], root: string): string[] {
     if (node.kind === 'rule') {
       out.push(...scopeRule(node.selector, node.body, root));
     } else if (
-      node.kind === 'block' &&
-      CONDITIONAL_AT_RULES.test(node.prelude)
+      node.kind === 'at-rule' &&
+      GROUPING_AT_RULES.test(node.prelude)
     ) {
       const inner = scopeNodes(parseCss(node.body).nodes, root).join('\n');
       out.push(`${node.prelude} {\n${inner}\n}`);
-    } else if (node.kind === 'block' && /^@layer\b/i.test(node.prelude)) {
+    } else if (node.kind === 'at-rule' && /^@layer\b/i.test(node.prelude)) {
       // Unwrapped: in a project @layer orders the rules among the layers;
       // in the preview a layer loses to Studio's unlayered CSS and to the
       // inline theme values, so its rules would never show.
       out.push(...scopeNodes(parseCss(node.body).nodes, root));
-    } else if (node.kind === 'block') {
+    } else if (node.kind === 'at-rule') {
       // @keyframes, @font-face, @property: no selectors to scope.
       out.push(`${node.prelude} {${node.body}}`);
     } else {
@@ -224,7 +233,7 @@ export function splitStylesheet(css: string): CssNode[] {
 
 /** Whether a block holds style rules: a conditional group or a layer. */
 function holdsRules(prelude: string): boolean {
-  return CONDITIONAL_AT_RULES.test(prelude) || /^@layer\b/i.test(prelude);
+  return GROUPING_AT_RULES.test(prelude) || /^@layer\b/i.test(prelude);
 }
 
 /**
@@ -237,7 +246,7 @@ export function validateCustomCSS(css: string): string[] {
   const { nodes, errors } = parseCss(css);
   if (errors.length > 0) return errors;
   return nodes.flatMap((node) =>
-    node.kind === 'block' && holdsRules(node.prelude)
+    node.kind === 'at-rule' && holdsRules(node.prelude)
       ? validateCustomCSS(node.body)
       : []
   );
@@ -259,5 +268,6 @@ export function storedCustomCSS(
   stored: string | null | undefined
 ): string | null {
   if (!stored) return null;
-  return stored.replace(/\.studio-preview\s+/g, '');
+  // Each selector started a line or followed a comma: only there.
+  return stored.replace(/(^|,[ \t]*)\.studio-preview\s+/gm, '$1');
 }

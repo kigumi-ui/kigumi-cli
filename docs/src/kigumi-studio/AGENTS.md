@@ -26,7 +26,7 @@ Visual theme builder for Web Awesome CSS custom properties.
 - ALWAYS verify after changes: `pnpm dev` + TypeScript check
 - ALWAYS use inline `style` with CSS custom properties for the preview wrapper
 - ALWAYS maintain preview isolation: Studio theme must not leak to Landing Page
-- ALWAYS store custom CSS unscoped, as it goes into a project's `overrides.css` (ADR 0009); only `StudioPreview` scopes it, with `scopeCustomCSS()`, so no rule reaches Studio's own UI. Scoping puts every selector under the preview's theme root (`.component-showcase`) and keeps the rules unlayered and last: the custom theme's values sit inline on that root, and a cascade layer would lose to them and to Studio's own CSS. A rule for `:root`, `html`, `body`, `.wa-dark` or `.wa-light` lands on the theme root, and its custom properties on the root's children, where they beat the inline values
+- ALWAYS store custom CSS unscoped, as the export writes it; only `StudioPreview` scopes it, with `scopeCustomCSS()`, so no rule reaches Studio's own UI. Scoping puts every selector under the preview's theme root (`.component-showcase`) and keeps the rules unlayered and last: the custom theme's values sit inline on that root, and a cascade layer would lose to them and to Studio's own CSS. A rule for `:root`, `html`, `body`, `.wa-dark` or `.wa-light` lands on the theme root, and its custom properties on the root's children, where they beat the inline values. `@media`, `@supports`, `@container`, `@scope` and `@starting-style` are scoped inside, `@layer` is unwrapped. `@keyframes`, `@font-face` and `@property` have no selectors and stay global; a custom `@property` for a `--wa-*` name can reach Studio's UI
 
 ## Architecture
 
