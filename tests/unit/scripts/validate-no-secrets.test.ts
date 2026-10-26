@@ -27,30 +27,32 @@ import {
 } from '../../../scripts/validate-no-secrets.js';
 
 /**
- * Credential-shaped fixtures are built at runtime from a prefix and a
+ * Credential-shaped fixtures are built at runtime as `prefix + body`, with a
  * generated body. No line of this file holds a provider prefix next to a
  * token body, so `validate:no-secrets` scans this file like any other and
  * needs no exemption. The bodies are made up here, never copied from `.env`
  * or an npmrc: an earlier "realistic" fixture turned out to be the live
  * token from `.env`.
  */
-const credential = (prefix: string, body: string): string => prefix + body;
 
-/** Repeats `alphabet` to `length` characters. */
-const generate = (alphabet: string, length: number): string =>
+/** Repeats `alphabet` until it is `length` characters long. */
+const repeatToLength = (alphabet: string, length: number): string =>
   alphabet.repeat(Math.ceil(length / alphabet.length)).slice(0, length);
 
 /** Lowercase hex with digits, the shape of a Chromatic token body. */
-const hexBody = (length: number): string => generate('7c4e9a1f3b', length);
+const hexBody = (length: number): string =>
+  repeatToLength('7c4e9a1f3b', length);
 
 /** Mixed case with digits, the shape most provider token bodies take. */
-const mixedBody = (length: number): string => generate('Q7mZ2kXw9R', length);
+const mixedBody = (length: number): string =>
+  repeatToLength('Q7mZ2kXw9R', length);
 
 /** Uppercase with digits, the shape of an AWS access key id body. */
-const upperBody = (length: number): string => generate('Q7MZ2KXW9R', length);
+const upperBody = (length: number): string =>
+  repeatToLength('Q7MZ2KXW9R', length);
 
 const CHROMATIC_BODY = hexBody(15);
-const CHROMATIC = credential('chpt_', CHROMATIC_BODY);
+const CHROMATIC = 'chpt_' + CHROMATIC_BODY;
 
 /** A home directory name that is not in the scanner's generic list. */
 const HOME_USER = 'mmustermann';
@@ -70,6 +72,10 @@ describe('isPlaceholder', () => {
   it.each([
     [hexBody(15), 'a lowercase hex body, the shape of a Chromatic token'],
     [mixedBody(21), 'a mixed-case alphanumeric body'],
+    [
+      upperBody(16),
+      'an uppercase alphanumeric body, the shape of an AWS key id',
+    ],
   ])('treats %s as a real credential (%s)', (value) => {
     expect(isPlaceholder(value)).toBe(false);
   });
@@ -97,19 +103,21 @@ describe('findSecretsInText', () => {
   it('reports the correct 1-based line number', () => {
     const findings = findSecretsInText(
       'x.ts',
-      ['first', 'second', credential('ghp_', mixedBody(36))].join('\n')
+      ['first', 'second', 'ghp_' + mixedBody(36)].join('\n')
     );
 
     expect(findings).toHaveLength(1);
     expect(findings[0]!.line).toBe(3);
   });
 
+  // Each body keeps the length of the fixture it replaced, which is at or
+  // above its pattern's minimum (AWS takes exactly 16).
   it.each([
-    ['npm access token', credential('npm_', mixedBody(36))],
-    ['GitHub token', credential('ghp_', mixedBody(36))],
-    ['AWS access key id', credential('AKIA', upperBody(16))],
-    ['Anthropic API key', credential('sk-ant-', mixedBody(26))],
-    ['Stripe live key', credential('sk_live_', mixedBody(20))],
+    ['npm access token', 'npm_' + mixedBody(36)],
+    ['GitHub token', 'ghp_' + mixedBody(36)],
+    ['AWS access key id', 'AKIA' + upperBody(16)],
+    ['Anthropic API key', 'sk-ant-' + mixedBody(26)],
+    ['Stripe live key', 'sk_live_' + mixedBody(20)],
   ])('detects a %s', (kind, literal) => {
     const findings = findSecretsInText('x.ts', `const t = "${literal}";`);
     expect(findings.map((f) => f.kind)).toContain(kind);
@@ -129,7 +137,7 @@ describe('findSecretsInText', () => {
   it('finds every occurrence when one line carries two credentials', () => {
     const findings = findSecretsInText(
       'x.ts',
-      `a=${CHROMATIC} b=${credential('chpt_', mixedBody(15))}`
+      `a=${CHROMATIC} b=${'chpt_' + mixedBody(15)}`
     );
 
     expect(findings).toHaveLength(2);
