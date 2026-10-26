@@ -57,7 +57,7 @@ export function overridesImport(
  * `css` with every comment blanked out, newlines kept, so indices into the
  * result are indices into `css`.
  */
-function maskComments(css: string): string {
+export function maskComments(css: string): string {
   return css.replace(/\/\*[\s\S]*?\*\//g, (comment) =>
     comment.replace(/[^\r\n]/g, ' ')
   );

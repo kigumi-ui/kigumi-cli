@@ -8,6 +8,7 @@
  * - Scans all component files for incorrect import paths
  * - Scans the styles directory (layers.css etc.) for stale Web Awesome
  *   package references, surgically rewriting only the @import lines
+ * - Adds the configured palette's import to a layers.css without it
  * - Fixes import paths to match the installed package
  * - Checks Web Awesome version alignment (config + package.json)
  * - Reports what was fixed
@@ -29,6 +30,7 @@ import {
 } from '../constants.js';
 import { detectTier, getWebAwesomePackage } from '../utils/tier.js';
 import { surgicalRewriteLayersCss } from '../utils/regenerate.js';
+import { paletteSpecifier, syncPaletteImport } from '../utils/palette-css.js';
 import { getConfig } from '../utils/config.js';
 import { getOutput } from '../output/index.js';
 import type { OutputInterface } from '../output/types.js';
@@ -291,6 +293,58 @@ async function diagnoseAndFixLayersCss(
 }
 
 /**
+ * Make sure layers.css imports the configured palette's stylesheet
+ * (issue #174). Web Awesome scopes every palette but `default` to
+ * `.wa-palette-<name>`, so without the import the class kigumi.ts sets has
+ * no effect. A layers.css written before the CLI emitted the import gets it
+ * added after its theme import; one that names another palette is pointed
+ * at the configured one. Runs after the package scan, so it sees the
+ * package that scan settled on.
+ */
+async function diagnosePaletteImport(
+  cwd: string,
+  config: KigumiConfig,
+  tier: 'free' | 'pro',
+  options: DoctorOptions
+): Promise<DiagnosticResult[]> {
+  const filePath = path.join(cwd, config.stylesDir, 'layers.css');
+  if (!(await fs.pathExists(filePath))) return [];
+
+  const palette = config.theme.palette;
+  const packageName = getWebAwesomePackage(tier);
+  const content = await fs.readFile(filePath, 'utf-8');
+  const synced = syncPaletteImport(content, packageName, palette);
+  if (synced.status === 'present') return [];
+
+  const relativePath = path.relative(cwd, filePath);
+  if (synced.status === 'unrecognized') {
+    return [
+      {
+        filePath,
+        relativePath,
+        issue: `Does not import the "${palette}" palette, and has no theme import to add it after. Add it after your theme import, or the wa-palette-${palette} class has no effect: @import '${paletteSpecifier(packageName, palette)}' layer(base);`,
+        fixed: false,
+      },
+    ];
+  }
+
+  const result: DiagnosticResult = {
+    filePath,
+    relativePath,
+    issue:
+      synced.status === 'added'
+        ? `Does not import the "${palette}" palette, so the wa-palette-${palette} class has no effect`
+        : `Imports a palette other than the configured "${palette}"`,
+    fixed: false,
+  };
+  if (!options.dryRun) {
+    await fs.writeFile(filePath, synced.content);
+    result.fixed = true;
+  }
+  return [result];
+}
+
+/**
  * Detect `src/types/web-awesome.d.ts` left over from older Kigumi versions.
  *
  * The file used to be written by the `add` command with hand-rolled
@@ -414,6 +468,9 @@ async function diagnoseAndFix(
     output
   );
   results.push(...stylesResults);
+
+  // The palette's stylesheet, which layers.css from before issue #174 lacks.
+  results.push(...(await diagnosePaletteImport(cwd, config, tier, options)));
 
   // Flag obsolete web-awesome.d.ts from older Kigumi versions.
   const obsoleteTypeResults = await diagnoseObsoleteTypeDecls(cwd, config);

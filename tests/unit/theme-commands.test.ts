@@ -59,6 +59,7 @@ describe('theme command (parent + default set)', () => {
       .mockResolvedValue({
         layersPreserved: false,
         overrides: { created: false, layers: 'present' },
+        palette: 'present',
       });
   });
 
@@ -600,6 +601,7 @@ describe('theme/install subcommand', () => {
       .mockResolvedValue({
         layersPreserved: false,
         overrides: { created: false, layers: 'present' },
+        palette: 'present',
       });
   });
 

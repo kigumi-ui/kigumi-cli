@@ -57,6 +57,7 @@ describe('paletteCommand', () => {
       .mockResolvedValue({
         layersPreserved: false,
         overrides: { created: false, layers: 'present' },
+        palette: 'present',
       });
   });
 
@@ -119,6 +120,7 @@ describe('paletteCommand', () => {
           .mockResolvedValue({
             layersPreserved: false,
             overrides: { created: false, layers: 'present' },
+            palette: 'present',
           });
 
         const { paletteCommand } =
@@ -156,6 +158,7 @@ describe('paletteCommand', () => {
           .mockResolvedValue({
             layersPreserved: false,
             overrides: { created: false, layers: 'present' },
+            palette: 'present',
           });
 
         const { paletteCommand } =

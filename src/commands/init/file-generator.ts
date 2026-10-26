@@ -25,6 +25,7 @@ import {
 } from '../../utils/regenerate.js';
 import type { ProjectInfo } from '../../utils/detect-framework.js';
 import { reportOverridesLayer } from '../../utils/overrides-css.js';
+import { reportPaletteImport } from '../../utils/palette-css.js';
 import { writeProjectNpmrc } from '../../utils/npmrc.js';
 import fs from 'fs-extra';
 import path from 'path';
@@ -75,7 +76,7 @@ export async function generateProjectFiles(
     // 2. Generate kigumi.ts (and layers.css)
     spinner.message('Generating kigumi.ts...');
     output.debug(`[DEBUG] Generating kigumi.ts in ${utilsDir}`);
-    const { layersPreserved, overrides } = await regenerateKigumiSetup(
+    const { layersPreserved, overrides, palette } = await regenerateKigumiSetup(
       cwd,
       config,
       utilsDir,
@@ -100,6 +101,13 @@ export async function generateProjectFiles(
       );
     }
     reportOverridesLayer(overrides, stylesDir, output);
+    reportPaletteImport(
+      palette,
+      stylesDir,
+      getWebAwesomePackage(tier),
+      config.theme.palette,
+      output
+    );
 
     // 3. Generate theme.css (only if it doesn't exist)
     spinner.message('Generating theme.css...');

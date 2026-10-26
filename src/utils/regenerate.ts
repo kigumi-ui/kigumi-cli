@@ -6,7 +6,8 @@
  *
  * EXPORTS:
  * - regenerateKigumiSetup() - Regenerate kigumi.ts + layers.css with theme config,
- *   and make sure overrides.css exists and is imported
+ *   and make sure overrides.css exists and is imported; a preserved
+ *   layers.css gets the configured palette import
  * - generateLayersCSS() - Generate layers.css with @layer cascade control
  * - surgicalRewriteLayersCss() - Rewrite only the Web Awesome @import lines in
  *   an existing layers.css, preserving user customizations
@@ -38,6 +39,11 @@ import {
   overridesImport,
   type OverridesLayerResult,
 } from './overrides-css.js';
+import {
+  ensurePaletteImport,
+  paletteImport,
+  type PaletteImportStatus,
+} from './palette-css.js';
 
 export interface RegenerateOptions {
   /** Skip regenerating layers.css if it exists (for init command) */
@@ -61,8 +67,10 @@ export interface RegenerateOptions {
  *   already detected this at the command entry should pass it through so
  *   the setup regeneration does not repeat the filesystem probe.
  * @param nextRouterOverride - Pre-resolved Next router. Same contract.
- * @returns Whether layers.css was preserved, and what became of
- *   overrides.css and its import (see `ensureOverridesLayer`)
+ * @returns Whether layers.css was preserved, what became of overrides.css
+ *   and its import (see `ensureOverridesLayer`), and of the palette import
+ *   in a preserved layers.css (see `ensurePaletteImport`; `present` when
+ *   layers.css was written)
  */
 export async function regenerateKigumiSetup(
   cwd: string,
@@ -72,7 +80,11 @@ export async function regenerateKigumiSetup(
   options?: RegenerateOptions,
   isNextOverride?: boolean,
   nextRouterOverride?: NextRouter
-): Promise<{ layersPreserved: boolean; overrides: OverridesLayerResult }> {
+): Promise<{
+  layersPreserved: boolean;
+  overrides: OverridesLayerResult;
+  palette: PaletteImportStatus | 'absent';
+}> {
   const packageName = getWebAwesomePackage(tier);
   const stylesDir = config.stylesDir;
   const stylesAlias = toKigumiAlias(stylesDir);
@@ -96,9 +108,17 @@ export async function regenerateKigumiSetup(
   const layersPath = path.join(cwd, stylesDir, 'layers.css');
   const layersExists = await fs.pathExists(layersPath);
   let layersPreserved = false;
+  let palette: PaletteImportStatus | 'absent' = 'present';
 
   if (options?.preserveLayersCSS && layersExists) {
     layersPreserved = true;
+    // A kept layers.css may predate the palette import, or name the
+    // palette the project had before (issue #174).
+    palette = await ensurePaletteImport(
+      layersPath,
+      packageName,
+      config.theme.palette
+    );
   } else {
     // Generate layers.css
     const isCommunityTheme =
@@ -106,6 +126,7 @@ export async function regenerateKigumiSetup(
     const layersContent = await generateLayersCSS(
       packageName,
       config.theme.selected,
+      config.theme.palette,
       stylesDir,
       isCommunityTheme,
       nextRouter
@@ -167,7 +188,7 @@ export {};
   const setupFilePath = path.join(cwd, utilsDir, 'kigumi.ts');
   await fs.writeFile(setupFilePath, finalSetupFileContent);
 
-  return { layersPreserved, overrides };
+  return { layersPreserved, overrides, palette };
 }
 
 /**
@@ -202,6 +223,8 @@ if (typeof document !== 'undefined') {
  *
  * @param packageName - Web Awesome package name (e.g., '@awesome.me/webawesome-pro')
  * @param themeName - Selected theme name (e.g., 'tailspin')
+ * @param paletteName - Selected palette name (e.g., 'rudimentary'), always
+ *   from the Web Awesome package, a community theme's included
  * @param stylesDir - Styles directory path (e.g., 'src/styles')
  * @param isCommunityTheme - Whether the selected theme is a community theme
  * @param nextRouter - Next.js router flavor (drives the F-038 Pages Router branch)
@@ -210,6 +233,7 @@ if (typeof document !== 'undefined') {
 export async function generateLayersCSS(
   packageName: string,
   themeName: string,
+  paletteName: string,
   _stylesDir: string,
   isCommunityTheme = false,
   nextRouter?: NextRouter
@@ -250,7 +274,7 @@ export async function generateLayersCSS(
  * It wraps Web Awesome CSS in cascade layers for predictable specificity control.
  *
  * Layer hierarchy (earlier = lower priority):
- * 1. base - Web Awesome foundation + theme styles
+ * 1. base - Web Awesome foundation, theme and color palette
  * 2. theme - Your theme's custom properties (theme.css)
  * 3. overrides - Your custom CSS rules (overrides.css)
  *
@@ -265,6 +289,8 @@ export async function generateLayersCSS(
 
 /* Layer 1: Web Awesome theme styles */
 @import '${themeImport}'${baseLayer};
+
+${paletteImport(packageName, paletteName, baseLayer)}
 
 /* Layer 2: Your theme customization (sibling of layers.css) */
 @import './theme.css'${themeLayer};
@@ -281,16 +307,17 @@ ${overridesImport('./', overridesLayer)}
  * by `kigumi doctor` to repair a stale `layers.css` where the CSS
  * `@import` statements still point at the previously-installed package.
  *
- * The function uses two regex patterns to locate only the Web Awesome
+ * The function uses three regex patterns to locate only the Web Awesome
  * `@import` lines:
  *
  *   @import '<package>/dist/styles/webawesome.css' ...
  *   @import '<package>/dist/styles/themes/<theme>.css' ...
+ *   @import '<package>/dist/styles/color/palettes/<palette>.css' ...
  *
  * Everything else in the file (user `@layer` declarations, comments,
  * custom imports, theme.css imports) is left verbatim.
  *
- * If neither regex matches, the user has restructured the file beyond
+ * If none of them matches, the user has restructured the file beyond
  * what we can safely patch, and the function throws `LayersCssRewriteError`
  * with an actionable manual fix message.
  *
@@ -324,10 +351,16 @@ export async function surgicalRewriteLayersCss(
     /@import\s+['"](@awesome\.me\/webawesome(?:-pro)?)\/dist\/styles\/themes\/([a-z][a-z0-9-]*)\.css['"]/;
   const themePatternGlobal = new RegExp(themePattern.source, 'g');
 
+  // Issue #174: the palette import sits next to the theme import.
+  const palettePattern =
+    /@import\s+['"](@awesome\.me\/webawesome(?:-pro)?)\/dist\/styles\/color\/palettes\/([a-z][a-z0-9-]*)\.css['"]/;
+  const palettePatternGlobal = new RegExp(palettePattern.source, 'g');
+
   const hasBase = basePattern.test(content);
   const hasTheme = themePattern.test(content);
+  const hasPalette = palettePattern.test(content);
 
-  if (!hasBase && !hasTheme) {
+  if (!hasBase && !hasTheme && !hasPalette) {
     // File has been restructured beyond recognition. Figure out which
     // package it currently references (if any) so the error message can
     // suggest the correct direction.
@@ -357,6 +390,14 @@ export async function surgicalRewriteLayersCss(
       themePatternGlobal,
       (_match, _pkg, theme) =>
         `@import '${targetPackage}/dist/styles/themes/${theme}.css'`
+    );
+  }
+
+  if (hasPalette) {
+    next = next.replace(
+      palettePatternGlobal,
+      (_match, _pkg, palette) =>
+        `@import '${targetPackage}/dist/styles/color/palettes/${palette}.css'`
     );
   }
 
