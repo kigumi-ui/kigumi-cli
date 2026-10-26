@@ -327,3 +327,43 @@ describe('custom CSS locked, the same request', () => {
     expect(verdict.reason).toContain('holds no custom CSS');
   });
 });
+
+describe('nothing locked, no card border plus a + pattern', () => {
+  const s = scenario('card-border-plus-pattern');
+
+  it('passes when custom CSS removes the card border', () => {
+    expect(
+      s.judge(
+        [
+          {
+            light: {},
+            dark: {},
+            customCSS: '.Card::part(base) { border: none; }',
+          },
+        ],
+        s.snapshot
+      )
+    ).toMatchObject({ pass: true });
+  });
+
+  it.each([
+    ['nothing proposed', []],
+    [
+      'no custom CSS',
+      [{ light: { '--wa-color-surface-default': '#fafafa' }, dark: {} }],
+    ],
+    [
+      'the card border kept',
+      [
+        {
+          light: {},
+          dark: {},
+          customCSS:
+            '.Card { background-image: radial-gradient(var(--wa-color-surface-border) 1px, transparent 1px); }',
+        },
+      ],
+    ],
+  ])('fails with %s', (_name, proposals) => {
+    expect(s.judge(proposals, s.snapshot).pass).toBe(false);
+  });
+});

@@ -52,8 +52,19 @@ export const MAX_CONTRAST_CORRECTIONS = 2;
  */
 export const MAX_STEPS = MAX_PROPOSAL_ATTEMPTS + MAX_CONTRAST_CORRECTIONS + 2;
 
-/** Per-step output ceiling, one of the Theme Agent's cost limits. */
-export const MAX_OUTPUT_TOKENS = 4096;
+/**
+ * Per-step output ceiling, one of the Theme Agent's cost limits. Thinking
+ * counts against it: at 4096 a custom CSS request spent a whole step
+ * thinking and ended with neither text nor a proposal.
+ */
+export const MAX_OUTPUT_TOKENS = 16_000;
+
+/**
+ * How deep the model thinks. The model rejects a thinking budget and turning
+ * thinking off; effort is what bounds it. `medium` is the starting point for
+ * multi-step tool use; the prompt eval checks what it does with the prompt.
+ */
+export const THEME_AGENT_EFFORT = 'medium';
 
 const PROPOSE_DESCRIPTION = [
   'Propose changes to the custom theme. Name only the values to change;',
@@ -323,6 +334,12 @@ export function themeAgentTurn({
     tools: { [THEME_AGENT_PROPOSE_TOOL]: proposeTheme },
     stopWhen: [stepCountIs(MAX_STEPS), outOfAttempts],
     maxOutputTokens: MAX_OUTPUT_TOKENS,
+    providerOptions: {
+      anthropic: {
+        thinking: { type: 'adaptive' },
+        effort: THEME_AGENT_EFFORT,
+      },
+    },
     abortSignal,
   });
 }

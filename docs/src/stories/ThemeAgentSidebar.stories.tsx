@@ -19,7 +19,9 @@ import type {
 
 /** One canned answer: its text and proposal, or one that never finishes. */
 type CannedAnswer =
-  { text: string; proposal: ThemeProposalInput } | { running: true };
+  | { text: string; proposal: ThemeProposalInput }
+  | { running: true }
+  | { thinkingOnly: true };
 
 interface CannedTransport extends ThemeAgentTransport {
   /** How many messages the conversation on screen sent to its run. */
@@ -85,6 +87,23 @@ function cannedTransport(answers: CannedAnswer[]): CannedTransport {
       if (!answer) throw new Error(`No canned answer for message ${sent}`);
       return new ReadableStream<UIMessageChunk>({
         start(controller) {
+          if ('thinkingOnly' in answer) {
+            // The model spent its whole output limit thinking: no text, no
+            // proposal, a finish for the length limit (captured on a preview).
+            const id = `answer-${sent}`;
+            for (const chunk of [
+              { type: 'start', messageId: id },
+              { type: 'start-step' },
+              { type: 'reasoning-start', id: `${id}-reasoning` },
+              { type: 'reasoning-end', id: `${id}-reasoning` },
+              { type: 'finish-step' },
+              { type: 'finish', finishReason: 'length' },
+            ] satisfies UIMessageChunk[]) {
+              controller.enqueue(chunk);
+            }
+            controller.close();
+            return;
+          }
           if ('running' in answer) {
             // Started, never finished: the answer runs until it is stopped.
             controller.enqueue({ type: 'start', messageId: `answer-${sent}` });
@@ -361,5 +380,30 @@ export const TypingWhileAnswering: Story = {
     expect(neverFinishes.sent).toBe(1);
     expect(canvas.queryByText('Rounder corners')).not.toBeInTheDocument();
     expect(canvas.getByText('Thinking…')).toBeInTheDocument();
+  },
+};
+
+/**
+ * An answer that ran out of output while thinking says so below the user's
+ * message: it has no text and no proposal, and once rendered nothing at all.
+ */
+export const AnswerOutOfOutput: Story = {
+  args: { transport: cannedTransport([{ thinkingOnly: true }]) },
+  beforeEach: withLockedValues(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await send(canvasElement, 'No border on cards');
+
+    const report = await canvas.findByText(
+      'No valid theme came back. Nothing was applied.',
+      { exact: false }
+    );
+    expect(report.closest('wa-callout')?.getAttribute('variant')).toBe(
+      'warning'
+    );
+    await canvas.findByText(
+      'The answer hit its length limit before the proposal was complete.'
+    );
+    expect(canvas.queryByText('Thinking…')).not.toBeInTheDocument();
   },
 };

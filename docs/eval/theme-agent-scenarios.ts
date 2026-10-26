@@ -307,6 +307,34 @@ function headerRuleHeld(
   return { pass: true, reason: 'complete custom CSS proposed and held' };
 }
 
+/**
+ * A request with a part custom CSS can do (no card border) and a part it
+ * may not (a pattern drawn with + signs needs an image): the answer still
+ * lands, with custom CSS that removes the card border. On a preview it ran
+ * out of output while thinking and answered nothing.
+ */
+function cardBorderRemoved(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+): Verdict {
+  if (proposals.length === 0) return NO_PROPOSAL;
+  const { applied } = asStudioTakesIt(proposals, snapshot);
+  const css = applied.customCSS;
+  if (!css || css === snapshot.theme.customCSS) {
+    return { pass: false, reason: 'no custom CSS was applied' };
+  }
+  if (!/\.Card\b|wa-card\b/.test(css)) {
+    return { pass: false, reason: 'the custom CSS names no card' };
+  }
+  if (!/border(-width|-style)?\s*:\s*(none|0)/.test(css)) {
+    return {
+      pass: false,
+      reason: 'the custom CSS does not remove the card border',
+    };
+  }
+  return { pass: true, reason: 'custom CSS applied: card border removed' };
+}
+
 /** Every sidebar value, as the browser sends the custom theme. */
 function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
   const theme: CustomTheme = {
@@ -447,5 +475,18 @@ export const SCENARIOS: EvalScenario[] = [
     },
     messages: [{ role: 'user', content: CARD_HEADER_RULE }],
     judge: headerRuleHeld,
+  },
+  {
+    id: 'card-border-plus-pattern',
+    description:
+      'Nothing locked, no card border plus a + pattern: the answer lands with custom CSS instead of running out of output',
+    snapshot: { theme: studioTheme(), locked: NO_LOCKS },
+    messages: [
+      {
+        role: 'user',
+        content: 'no border on cards and a dot gradient with + as dots',
+      },
+    ],
+    judge: cardBorderRemoved,
   },
 ];

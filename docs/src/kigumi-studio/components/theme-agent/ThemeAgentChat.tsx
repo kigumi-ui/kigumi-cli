@@ -366,7 +366,8 @@ export function ThemeAgentChat({
               ? answerReportKind(
                   message,
                   conversation.answerStatus(message.id),
-                  !running || message.id !== lastMessage?.id
+                  !running || message.id !== lastMessage?.id,
+                  cutOff.has(message.id)
                 )
               : undefined;
           const heldEntries = conversation.heldChanges(message.id);
@@ -532,16 +533,22 @@ type AnswerReportKind = AnswerStatus | 'refused';
 
 /**
  * What an answer did to the custom theme: applied, undone, refused by the
- * browser (`rejected`) or by the task (`refused`, every attempt failed), or
- * nothing to show yet.
+ * browser (`rejected`) or by the task (`refused`, every attempt failed, or
+ * the answer hit its output limit before it proposed anything), or nothing
+ * to show yet.
  */
 function answerReportKind(
   message: ThemeAgentMessage,
   status: AnswerStatus | undefined,
-  finished: boolean
+  finished: boolean,
+  cutOff: boolean
 ): AnswerReportKind | undefined {
   if (status) return status;
-  if (finished && acceptedProposals(message) === null) return 'refused';
+  // Cut off before a proposal was accepted: often while thinking, with no
+  // text either, so without this the answer would show nothing at all.
+  if (finished && (cutOff || acceptedProposals(message) === null)) {
+    return 'refused';
+  }
   return undefined;
 }
 

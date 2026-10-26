@@ -273,6 +273,22 @@ describe('Theme Agent turn', () => {
     );
   });
 
+  it('leaves the model room to answer after it thinks', async () => {
+    // At 4096 output tokens a custom CSS request spent the whole step
+    // thinking: no text, no proposal, finish for the length limit.
+    const model = new MockLanguageModelV4({ doStream: [textStep('Hello.')] });
+
+    const result = themeAgentTurn({ streamText, model, messages, snapshot });
+    await result.consumeStream();
+
+    const [call] = model.doStreamCalls;
+    expect(call.maxOutputTokens).toBeGreaterThanOrEqual(16_000);
+    expect(call.providerOptions?.anthropic).toMatchObject({
+      thinking: { type: 'adaptive' },
+      effort: 'medium',
+    });
+  });
+
   it("gives the model the snapshot's current values", async () => {
     const model = new MockLanguageModelV4({ doStream: [textStep('Hello.')] });
 
