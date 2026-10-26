@@ -1316,6 +1316,23 @@ describe('Theme Agent conversation: custom CSS', () => {
     expect(outcome.theme.customCSS).toBe(handWritten);
   });
 
+  it("keeps the user's own rules the subset would refuse, when the proposal carries them unchanged", () => {
+    const own = '@font-face { font-family: Brand; src: url(/brand.woff2); }';
+    const conversation = createThemeAgentConversation();
+    const sent = { ...studioDefaults(), customCSS: own };
+    conversation.messageSent(sent, NO_LOCKS);
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: {}, dark: {}, customCSS: `${own}\n${headerRule}` }],
+      sent,
+      NO_LOCKS
+    );
+
+    if (!outcome.applied) throw new Error(outcome.errors.join('; '));
+    expect(outcome.theme.customCSS).toBe(`${own}\n${headerRule}`);
+  });
+
   it('undo restores the custom CSS together with the values', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(

@@ -58,17 +58,19 @@ export interface AnswerToolResult {
 
 /**
  * The proposals `propose_theme` accepted in one answer, validated the way
- * the browser validates them before it applies them.
+ * the browser validates them before it applies them, against the custom CSS
+ * the answer was written for.
  */
 export function acceptedProposals(
-  toolResults: AnswerToolResult[]
+  toolResults: AnswerToolResult[],
+  currentCSS = ''
 ): ThemeProposal[] {
   return toolResults.flatMap((result) => {
     if (result.toolName !== THEME_AGENT_PROPOSE_TOOL) return [];
     const output = result.output;
     if (typeof output !== 'object' || output === null) return [];
     if (!('accepted' in output) || output.accepted !== true) return [];
-    const validation = validateProposal(result.input);
+    const validation = validateProposal(result.input, currentCSS);
     return validation.valid ? [validation.proposal] : [];
   });
 }

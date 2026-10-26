@@ -178,8 +178,8 @@ export interface ThemeEdits {
  * showed (`before`) to the text at Apply (`after`). Only what changed is
  * applied, so the unchanged text changes nothing, and a change elsewhere
  * since the dialog opened (a Theme Agent answer) is not overwritten. A
- * `locked` value, shadow list or custom CSS keeps what it has, with a warning (ADR 0010:
- * what the user locked cannot drift by an edit).
+ * `locked` value, shadow list or custom CSS keeps what it has, with a
+ * warning (ADR 0010: what the user locked cannot drift by an edit).
  */
 export function themeEdits(
   before: string,

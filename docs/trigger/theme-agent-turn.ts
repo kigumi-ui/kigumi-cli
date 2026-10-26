@@ -108,7 +108,8 @@ function proposeThemeTool(
           locked: [],
         };
       }
-      const validation = validateProposal(input);
+      // The user's own custom CSS, carried over unchanged, is not checked.
+      const validation = validateProposal(input, snapshot.theme.customCSS);
       if (!validation.valid) {
         rejections += 1;
         return {
@@ -241,7 +242,8 @@ function customCSSLines(): string[] {
     "- Use it only for what no value or shadow component can express, such as removing a component's border or styling one part of a component; never for what a value above sets. When you use it, your explanation says why no value could make the change.",
     '- customCSS is always the complete custom CSS: it replaces the current custom CSS whole, so keep every current rule you are not changing. Omit customCSS to keep the current one as it is. It is one set of rules for both modes; write dark-mode rules under .wa-dark.',
     '- Select a component by its Kigumi wrapper class (the component name, such as .Card or .Button) or its wa-* tag (such as wa-card), and style its inside with ::part(), such as .Card::part(header).',
-    `- Take every colour from a var(--wa-*) value, such as var(--wa-color-surface-border): no hex, rgb(), named or other literal colours. No at-rule except @media, @supports and @container, no nested rules, no url(), at most ${MAX_AGENT_CSS_LENGTH} characters.`,
+    `- In every rule you add or change, take every colour from a var(--wa-*) value, such as var(--wa-color-surface-border): no hex, rgb(), named, vendor-prefixed or other literal colours. No at-rule except @media, @supports and @container, no nested rules, no url(), at most ${MAX_AGENT_CSS_LENGTH} characters of new rules.`,
+    "- Keep the user's current rules exactly as written: they are the user's and are not checked, even where they break these rules.",
     '- The custom CSS is in the current custom theme below, as customCSS; empty means none.',
     '',
   ];

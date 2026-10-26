@@ -8,8 +8,9 @@ import {
 // Shared by the browser and the trigger.dev task (docs/trigger), like
 // proposal.ts. Custom CSS the Theme Agent proposes is accepted only from a
 // checked subset (ADR 0009); custom CSS the user writes by hand is not
-// restricted. Loosening a rule here loosens what model output can do to the
-// page.
+// restricted, so a proposal keeps the user's rules unchecked when it carries
+// them as they are. Loosening a rule here loosens what model output can do
+// to the page.
 
 /** The most custom CSS one proposal may carry, in characters. */
 export const MAX_AGENT_CSS_LENGTH = 6000;
@@ -17,9 +18,9 @@ export const MAX_AGENT_CSS_LENGTH = 6000;
 /** The only at-rules allowed: they hold rules, which are checked too. */
 const ALLOWED_AT_RULES = new Set(['media', 'supports', 'container']);
 
-/** Functions that load something from outside the page. */
+/** Functions that load something from outside the page, vendor-prefixed too. */
 const RESOURCE =
-  /(?<![\w-])(url|src|image-set|-webkit-image-set|image|cross-fade|element)\s*\(/gi;
+  /(?<![\w-])((?:-[a-z]+-)?(?:url|src|image-set|image|cross-fade|element))\s*\(/gi;
 
 /** What reads as script or markup, or hides a name behind an escape. */
 const SCRIPT_LIKE = [
@@ -76,6 +77,13 @@ const NAMED_COLOURS = new Set(
 
 const IDENTIFIER = /(?<![\w-])[a-z][\w-]*/gi;
 
+// Vendor-prefixed keywords include colours of their own (-webkit-link,
+// -moz-default-color), and no list of them is complete: none is allowed.
+const VENDOR_IDENTIFIER = /(?<![\w-])-(?:webkit|moz|ms|o)-[\w-]+/i;
+
+/** A string, quoted either way, escapes included. */
+const STRING = /"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g;
+
 const VAR_REFERENCE = /var\(\s*(--[\w-]*)/g;
 
 const TAKE_WA_COLOURS = 'take every colour from a var(--wa-*) value';
@@ -88,7 +96,7 @@ function declarationErrors(selector: string, declaration: string): string[] {
   }
   const where = `${selector} ${declaration.slice(0, colon).trim()}`;
   // A colour name in a string is text, not a colour.
-  const value = declaration.slice(colon + 1).replace(/(["'])[^"']*\1/g, '""');
+  const value = declaration.slice(colon + 1).replace(STRING, '""');
   const literal =
     HEX_COLOUR.exec(value)?.[0] ??
     COLOUR_FUNCTION.exec(value)?.[0].replace(/\s+/g, '') ??
@@ -97,6 +105,12 @@ function declarationErrors(selector: string, declaration: string): string[] {
   if (literal) {
     errors.push(
       `${where}: "${literal}" is a colour literal; ${TAKE_WA_COLOURS}`
+    );
+  }
+  const vendor = VENDOR_IDENTIFIER.exec(value)?.[0];
+  if (vendor) {
+    errors.push(
+      `${where}: "${vendor}" is a vendor-prefixed value, which may be a colour; ${TAKE_WA_COLOURS}`
     );
   }
   for (const [, name] of value.matchAll(VAR_REFERENCE)) {
@@ -126,6 +140,26 @@ function nodeErrors(nodes: CssNode[]): string[] {
   });
 }
 
+/** A top-level node as written, comments included. */
+function nodeText(node: CssNode): string {
+  const comments = node.comments.join('\n');
+  switch (node.kind) {
+    case 'rule':
+      return `${comments}\n${node.selector} {${node.body}}`;
+    case 'at-rule':
+      return `${comments}\n${node.prelude} {${node.body}}`;
+    case 'statement':
+      return `${comments}\n${node.text}`;
+    case 'comment':
+      return comments;
+  }
+}
+
+/** One node's text with its whitespace collapsed, to compare kept rules. */
+function nodeKey(node: CssNode): string {
+  return nodeText(node).replace(/\s+/g, ' ').trim();
+}
+
 /**
  * Why the Theme Agent's custom CSS is refused, written for the model to
  * correct it; empty when it may be applied. It must parse, use no at-rule
@@ -133,35 +167,45 @@ function nodeErrors(nodes: CssNode[]): string[] {
  * load nothing (no url()), hold nothing script-like, stay under
  * `MAX_AGENT_CSS_LENGTH`, and take every colour from a var(--wa-*) value,
  * so the contrast check on the custom theme's values covers what it paints.
+ * Rules carried over unchanged from `kept`, the custom CSS the answer was
+ * written for, are the user's: they are not checked and do not count
+ * toward the size.
  */
-export function validateAgentCSS(css: string): string[] {
-  if (css.length > MAX_AGENT_CSS_LENGTH) {
-    return [
-      `customCSS: ${css.length} characters, more than the ${MAX_AGENT_CSS_LENGTH} allowed`,
-    ];
-  }
+export function validateAgentCSS(css: string, kept = ''): string[] {
   const structure = validateCustomCSS(css);
   if (structure.length > 0) {
     return structure.map((error) => `customCSS: ${error}`);
   }
+  const keptKeys = new Set(
+    validateCustomCSS(kept).length > 0 ? [] : splitStylesheet(kept).map(nodeKey)
+  );
+  const nodes = splitStylesheet(css).filter(
+    (node) => !keptKeys.has(nodeKey(node))
+  );
+  const text = nodes.map(nodeText).join('\n');
+  if (text.length > MAX_AGENT_CSS_LENGTH) {
+    return [
+      `customCSS: ${text.length} characters, more than the ${MAX_AGENT_CSS_LENGTH} allowed`,
+    ];
+  }
 
   const errors: string[] = [];
-  for (const [, name] of css.matchAll(/@([\w-]+)/g)) {
+  for (const [, name] of text.matchAll(/@([\w-]+)/g)) {
     if (!ALLOWED_AT_RULES.has(name.toLowerCase())) {
       errors.push(
         `customCSS: @${name} is not allowed; only @media, @supports and @container`
       );
     }
   }
-  for (const [, name] of css.matchAll(RESOURCE)) {
+  for (const [, name] of text.matchAll(RESOURCE)) {
     errors.push(`customCSS: ${name}() loads a resource and is not allowed`);
   }
   for (const pattern of SCRIPT_LIKE) {
-    const match = pattern.exec(css);
+    const match = pattern.exec(text);
     if (match) {
       errors.push(`customCSS: "${match[0]}" is script-like and is not allowed`);
     }
   }
   if (errors.length > 0) return [...new Set(errors)];
-  return nodeErrors(splitStylesheet(css));
+  return nodeErrors(nodes);
 }

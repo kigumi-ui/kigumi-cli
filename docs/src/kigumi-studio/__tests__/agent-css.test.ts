@@ -85,9 +85,13 @@ describe('custom CSS from the Theme Agent', () => {
   it('refuses CSS over the size limit', () => {
     const rule = '.Card { padding: 0; }\n';
     const css = rule.repeat(Math.ceil(MAX_AGENT_CSS_LENGTH / rule.length) + 1);
-    expect(validateAgentCSS(css)).toEqual([
-      `customCSS: ${css.length} characters, more than the ${MAX_AGENT_CSS_LENGTH} allowed`,
-    ]);
+    const [error, ...rest] = validateAgentCSS(css);
+    expect(rest).toEqual([]);
+    expect(error).toMatch(
+      new RegExp(
+        `^customCSS: \\d+ characters, more than the ${MAX_AGENT_CSS_LENGTH} allowed$`
+      )
+    );
   });
 
   it.each([
@@ -122,5 +126,73 @@ describe('custom CSS from the Theme Agent', () => {
     ).toEqual([
       '.Card: a nested rule is not allowed; write each rule at the top level or inside @media, @supports or @container',
     ]);
+  });
+});
+
+describe('custom CSS from the Theme Agent: review holes', () => {
+  it.each([
+    ['-webkit-link', '.Card { color: -webkit-link; }'],
+    ['-moz-default-color', '.Card { border-color: -moz-default-color; }'],
+  ])('refuses the vendor-prefixed value %s', (literal, css) => {
+    expect(validateAgentCSS(css).join('\n')).toContain(`"${literal}"`);
+  });
+
+  it.each([
+    ['-moz-element', '.Card { background: -moz-element(#app); }'],
+    [
+      '-webkit-cross-fade',
+      '.Card { background: -webkit-cross-fade(a, b, 50%); }',
+    ],
+  ])('refuses %s(), which loads a resource', (fn, css) => {
+    expect(validateAgentCSS(css)).toContain(
+      `customCSS: ${fn}() loads a resource and is not allowed`
+    );
+  });
+
+  it('reads a colour between two strings with mixed quotes as a colour', () => {
+    expect(
+      validateAgentCSS(`.Card { quotes: "'a" red "b'"; }`).join('\n')
+    ).toContain('"red"');
+  });
+});
+
+describe('custom CSS from the Theme Agent: the user own rules', () => {
+  const handWritten = [
+    '@font-face { font-family: Brand; src: url(/brand.woff2); }',
+    '.Button { color: #ff0000; }',
+  ].join('\n');
+  const added = '.Card::part(base) { border: none; }';
+
+  it('leaves the rules it keeps from the current custom CSS unchecked', () => {
+    expect(validateAgentCSS(`${handWritten}\n${added}`, handWritten)).toEqual(
+      []
+    );
+  });
+
+  it('reads a kept rule as kept whatever its whitespace', () => {
+    expect(
+      validateAgentCSS(
+        `.Button {\n  color: #ff0000;\n}\n${added}`,
+        '.Button { color: #ff0000; }'
+      )
+    ).toEqual([]);
+  });
+
+  it('checks a rule it changed or added', () => {
+    expect(
+      validateAgentCSS(
+        `${handWritten}\n.Card { color: #00ff00; }`,
+        handWritten
+      ).join('\n')
+    ).toContain('"#00ff00"');
+    expect(
+      validateAgentCSS('.Button { color: #00ff00; }', handWritten).join('\n')
+    ).toContain('"#00ff00"');
+  });
+
+  it('counts only what it adds toward the size limit', () => {
+    const rule = '.Button { padding: 0; }\n';
+    const long = rule.repeat(Math.ceil(MAX_AGENT_CSS_LENGTH / rule.length) + 1);
+    expect(validateAgentCSS(`${long}\n${added}`, long)).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 import { Button, Callout, Details, Icon } from '@/components/ui';
 import { violationPair } from '../../theme-agent/contrast';
 import type {
-  HeldChange,
+  HeldCustomCSSChange,
   HeldEntry,
   HeldReason,
 } from '../../theme-agent/conversation';
@@ -84,11 +84,7 @@ function applyLabel(entry: HeldEntry) {
  * replaced whole, so the diff shows what goes and what comes. Removed and
  * added lines say so in text too, not by colour alone.
  */
-function CustomCSSDiff({
-  change,
-}: {
-  change: Extract<HeldChange, { kind: 'customCSS' }>;
-}) {
+function CustomCSSDiff({ change }: { change: HeldCustomCSSChange }) {
   return (
     <Details summary="Custom CSS changes" className="theme-agent__diff">
       <pre className="theme-agent__diff-lines">
@@ -112,14 +108,66 @@ function CustomCSSDiff({
   );
 }
 
-/** The diff of a held custom CSS change, if `entries` holds one. */
-function HeldCustomCSS({ entries }: { entries: HeldEntry[] }) {
-  const change = entries.find(
-    (entry) => entry.state === 'held' && entry.change.kind === 'customCSS'
-  )?.change;
-  return change?.kind === 'customCSS' ? (
-    <CustomCSSDiff change={change} />
-  ) : null;
+/** The held custom CSS change of `entries`, if it holds one. */
+function heldCustomCSS(entries: HeldEntry[]): HeldCustomCSSChange | undefined {
+  for (const { change, state } of entries) {
+    if (state === 'held' && change.kind === 'customCSS') return change;
+  }
+  return undefined;
+}
+
+/** One button for one held change; with more, one for all and one each. */
+function ApplyButtons({
+  open,
+  onApply,
+}: {
+  open: { entry: HeldEntry; index: number }[];
+  onApply: (index?: number) => void;
+}) {
+  if (open.length === 1) {
+    const [{ entry, index }] = open;
+    const { icon, text } = applyLabel(entry);
+    return (
+      <div className="theme-agent__actions wa-cluster">
+        <Button
+          size="small"
+          appearance="outlined"
+          onClick={() => onApply(index)}
+        >
+          <Icon slot="start" name={icon} />
+          {text}
+          <span className="wa-visually-hidden">
+            : {heldChangeLabel(entry.change)}
+          </span>
+        </Button>
+      </div>
+    );
+  }
+
+  const anyLocked = open.some(({ entry }) => entry.change.reason === 'locked');
+  return (
+    <div className="theme-agent__actions wa-cluster wa-gap-xs">
+      <Button size="small" appearance="outlined" onClick={() => onApply()}>
+        <Icon slot="start" name={anyLocked ? 'lock-open' : 'check'} />
+        {anyLocked ? 'Unlock and apply all' : 'Apply all'}
+      </Button>
+      {open.map(({ entry, index }) => {
+        const { icon, text } = applyLabel(entry);
+        return (
+          <Button
+            key={index}
+            size="small"
+            appearance="plain"
+            onClick={() => onApply(index)}
+          >
+            <Icon slot="start" name={icon} />
+            <span className="wa-visually-hidden">{text} </span>
+            {heldChangeLabel(entry.change)}
+          </Button>
+        );
+      })}
+    </div>
+  );
 }
 
 /**
@@ -134,55 +182,11 @@ export function UnlockAndApply({ entries, onApply }: UnlockAndApplyProps) {
     .map((entry, index) => ({ entry, index }))
     .filter(({ entry }) => entry.state === 'held');
   if (open.length === 0) return null;
-
-  if (open.length === 1) {
-    const [{ entry, index }] = open;
-    const { icon, text } = applyLabel(entry);
-    return (
-      <>
-        <HeldCustomCSS entries={entries} />
-        <div className="theme-agent__actions wa-cluster">
-          <Button
-            size="small"
-            appearance="outlined"
-            onClick={() => onApply(index)}
-          >
-            <Icon slot="start" name={icon} />
-            {text}
-            <span className="wa-visually-hidden">
-              : {heldChangeLabel(entry.change)}
-            </span>
-          </Button>
-        </div>
-      </>
-    );
-  }
-
-  const anyLocked = open.some(({ entry }) => entry.change.reason === 'locked');
+  const customCSS = heldCustomCSS(entries);
   return (
     <>
-      <HeldCustomCSS entries={entries} />
-      <div className="theme-agent__actions wa-cluster wa-gap-xs">
-        <Button size="small" appearance="outlined" onClick={() => onApply()}>
-          <Icon slot="start" name={anyLocked ? 'lock-open' : 'check'} />
-          {anyLocked ? 'Unlock and apply all' : 'Apply all'}
-        </Button>
-        {open.map(({ entry, index }) => {
-          const { icon, text } = applyLabel(entry);
-          return (
-            <Button
-              key={index}
-              size="small"
-              appearance="plain"
-              onClick={() => onApply(index)}
-            >
-              <Icon slot="start" name={icon} />
-              <span className="wa-visually-hidden">{text} </span>
-              {heldChangeLabel(entry.change)}
-            </Button>
-          );
-        })}
-      </div>
+      {customCSS && <CustomCSSDiff change={customCSS} />}
+      <ApplyButtons open={open} onApply={onApply} />
     </>
   );
 }

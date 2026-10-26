@@ -80,9 +80,9 @@ export function isLocked(
  * `change` does not name stays as it is. `change` names values the way
  * `valueLock()`, `SHADOW_COMPONENTS_LOCK` and `CUSTOM_CSS_LOCK` build them,
  * so unlocking the shadow component list takes `SHADOW_COMPONENTS_LOCK`,
- * never `NO_LOCKS`. A
- * mode-independent property changes in both modes, each list keeps sidebar
- * order, and a CSS variable that is not a Studio property is dropped.
+ * never `NO_LOCKS`. A mode-independent property changes in both modes, each
+ * list keeps sidebar order, and a CSS variable that is not a Studio
+ * property is dropped.
  */
 export function withLocks(
   locked: LockedValues,

@@ -110,10 +110,14 @@ function withoutUnit(property: PropertyDefinition, value: string): string {
  * Check a proposal against what the Studio sidebar offers: keys must be
  * Studio properties, fonts must come from Studio's font list, shadow
  * components from Studio's list, values must parse for their property type,
- * and custom CSS must pass `validateAgentCSS()`. The errors are written for
- * the model to correct its proposal.
+ * and custom CSS must pass `validateAgentCSS()`, which leaves the rules of
+ * `currentCSS` (the custom CSS the answer was written for) unchecked. The
+ * errors are written for the model to correct its proposal.
  */
-export function validateProposal(input: unknown): ProposalValidation {
+export function validateProposal(
+  input: unknown,
+  currentCSS = ''
+): ProposalValidation {
   const parsed = themeProposalSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -178,7 +182,9 @@ export function validateProposal(input: unknown): ProposalValidation {
   }
 
   const customCSS = parsed.data.customCSS?.trim();
-  if (customCSS !== undefined) errors.push(...validateAgentCSS(customCSS));
+  if (customCSS !== undefined) {
+    errors.push(...validateAgentCSS(customCSS, currentCSS));
+  }
 
   if (
     errors.length === 0 &&

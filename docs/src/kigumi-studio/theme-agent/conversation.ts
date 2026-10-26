@@ -73,6 +73,9 @@ export type HeldChange =
       was: string;
     };
 
+/** A held change to the custom CSS. */
+export type HeldCustomCSSChange = Extract<HeldChange, { kind: 'customCSS' }>;
+
 /**
  * What became of a held change: still `held` and offered to unlock and
  * apply; `applied` by the user; `changed` since the answer, so not applied;
@@ -276,15 +279,18 @@ function heldLock(change: HeldChange): LockedValues {
 
 /** Whether `current` still has what the answer found when it held `change`. */
 function unchangedSince(change: HeldChange, current: CustomTheme): boolean {
-  if (change.kind === 'shadowComponents') {
-    return sameList(current.shadowComponents, change.was);
+  switch (change.kind) {
+    case 'shadowComponents':
+      return sameList(current.shadowComponents, change.was);
+    case 'customCSS':
+      return current.customCSS === change.was;
+    case 'value':
+      return THEME_MODES.every(
+        (mode) =>
+          !(mode in change.proposed) ||
+          current[mode][change.cssVar] === change.was[mode]
+      );
   }
-  if (change.kind === 'customCSS') return current.customCSS === change.was;
-  return THEME_MODES.every(
-    (mode) =>
-      !(mode in change.proposed) ||
-      current[mode][change.cssVar] === change.was[mode]
-  );
 }
 
 /**
@@ -294,22 +300,23 @@ function unchangedSince(change: HeldChange, current: CustomTheme): boolean {
  */
 function restoredLock(change: HeldChange, current: CustomTheme): LockedValues {
   if (change.reason !== 'locked') return NO_LOCKS;
-  if (change.kind === 'shadowComponents') {
-    return sameList(current.shadowComponents, change.proposed)
-      ? SHADOW_COMPONENTS_LOCK
-      : NO_LOCKS;
+  switch (change.kind) {
+    case 'shadowComponents':
+      return sameList(current.shadowComponents, change.proposed)
+        ? SHADOW_COMPONENTS_LOCK
+        : NO_LOCKS;
+    case 'customCSS':
+      return current.customCSS === change.proposed ? CUSTOM_CSS_LOCK : NO_LOCKS;
+    case 'value':
+      return valueLock(
+        change.cssVar,
+        THEME_MODES.filter(
+          (mode) =>
+            mode in change.proposed &&
+            current[mode][change.cssVar] === change.proposed[mode]
+        )
+      );
   }
-  if (change.kind === 'customCSS') {
-    return current.customCSS === change.proposed ? CUSTOM_CSS_LOCK : NO_LOCKS;
-  }
-  return valueLock(
-    change.cssVar,
-    THEME_MODES.filter(
-      (mode) =>
-        mode in change.proposed &&
-        current[mode][change.cssVar] === change.proposed[mode]
-    )
-  );
 }
 
 /**
@@ -336,17 +343,18 @@ function editedSince(sent: CustomTheme, current: CustomTheme): LockedValues {
 /** `theme` with `change` applied. */
 function withChange(theme: CustomTheme, change: HeldChange): CustomTheme {
   const next = cloneTheme(theme);
-  if (change.kind === 'shadowComponents') {
-    next.shadowComponents = [...change.proposed];
-    return next;
-  }
-  if (change.kind === 'customCSS') {
-    next.customCSS = change.proposed;
-    return next;
-  }
-  for (const mode of THEME_MODES) {
-    const value = change.proposed[mode];
-    if (value !== undefined) next[mode][change.cssVar] = value;
+  switch (change.kind) {
+    case 'shadowComponents':
+      next.shadowComponents = [...change.proposed];
+      break;
+    case 'customCSS':
+      next.customCSS = change.proposed;
+      break;
+    case 'value':
+      for (const mode of THEME_MODES) {
+        const value = change.proposed[mode];
+        if (value !== undefined) next[mode][change.cssVar] = value;
+      }
   }
   return next;
 }
@@ -483,8 +491,10 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
 
       const valid: ThemeProposal[] = [];
       const errors: string[] = [];
+      // The user's own rules, as the answer saw them, are not the agent's.
+      const keptCSS = (sentTheme ?? current).customCSS;
       for (const proposal of proposals) {
-        const validation = validateProposal(proposal);
+        const validation = validateProposal(proposal, keptCSS);
         if (validation.valid) valid.push(validation.proposal);
         else errors.push(...validation.errors);
       }

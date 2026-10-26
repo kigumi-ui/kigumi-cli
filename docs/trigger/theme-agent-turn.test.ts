@@ -188,6 +188,31 @@ describe('Theme Agent turn', () => {
     }
   );
 
+  it("accepts the user's own rules the subset would refuse, carried over unchanged", async () => {
+    const own = '.Button { color: #ff0000; }';
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: {},
+          dark: {},
+          customCSS: `${own}\n.Card::part(base) { border: none; }`,
+        }),
+        textStep('No value removes a card border.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: { ...snapshot, theme: { ...snapshot.theme, customCSS: own } },
+    });
+    await result.consumeStream();
+
+    const [output] = toolResults(model);
+    expect(JSON.stringify(output)).toContain('"accepted":true');
+  });
+
   it('tells the model its custom CSS is locked when the user locked it', async () => {
     const model = new MockLanguageModelV4({
       doStream: [
