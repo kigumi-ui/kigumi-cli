@@ -1,6 +1,6 @@
 import type { KigumiConfig } from '../../schemas/config.js';
 import type { OutputInterface } from '../../output/types.js';
-import type { InstallResult } from './installer.js';
+import type { InstallResult, SkipReason } from './installer.js';
 /**
  * Add Command - Main Orchestrator
  *
@@ -417,14 +417,23 @@ function reportOverwrittenModifications(
   output.info('Review the changes with git diff to verify nothing was lost.');
 }
 
+/** One summary line per skip reason, in the order the reasons are listed. */
+const SKIP_SUMMARY: Record<SkipReason, (count: number) => string> = {
+  'up-to-date': (n) => `${n} component(s) already up to date`,
+  exists: (n) =>
+    `Skipped ${n} installed component(s): pass --force to overwrite`,
+  declined: (n) => `Kept your local version of ${n} component(s)`,
+};
+
 /** Components that were already present, and ones that could not be added. */
 function reportSkippedAndFailed(
   skipped: InstallResult[],
   failed: InstallResult[],
   output: OutputInterface
 ): void {
-  if (skipped.length > 0) {
-    output.info(`Skipped ${skipped.length} existing component(s)`);
+  for (const reason of Object.keys(SKIP_SUMMARY) as SkipReason[]) {
+    const count = skipped.filter((r) => r.skipped === reason).length;
+    if (count > 0) output.info(SKIP_SUMMARY[reason](count));
   }
 
   if (failed.length > 0) {
@@ -461,5 +470,13 @@ export function printSummary(
   reportSkippedAndFailed(skipped, failed, output);
 
   const anySuccess = installed.length + staged.length > 0;
-  output.outro(anySuccess ? '✓ Done' : 'No new components added');
+  const allUpToDate =
+    results.length > 0 && results.every((r) => r.skipped === 'up-to-date');
+  output.outro(
+    anySuccess
+      ? '✓ Done'
+      : allUpToDate
+        ? '✓ Already up to date'
+        : 'No new components added'
+  );
 }

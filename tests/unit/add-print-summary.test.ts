@@ -33,7 +33,6 @@ function result(over: Partial<InstallResult>): InstallResult {
   return {
     name: 'Button',
     success: true,
-    skipped: false,
     staged: false,
     ...over,
   } as InstallResult;
@@ -181,9 +180,44 @@ describe('overwritten local modifications', () => {
 });
 
 describe('skipped and failed', () => {
-  it('reports the skipped count', () => {
-    printSummary([result({ skipped: true })], config('react'), output);
-    expect(textOf('info')).toContain('Skipped 1 existing component(s)');
+  // Issue #177: one line per reason, so an up-to-date component does not
+  // read as something the user has to act on.
+  it('reports up-to-date components without asking for anything', () => {
+    printSummary(
+      [result({ skipped: 'up-to-date' }), result({ skipped: 'up-to-date' })],
+      config('react'),
+      output
+    );
+    expect(textOf('info')).toBe('2 component(s) already up to date');
+  });
+
+  it('points --all skips at --force', () => {
+    printSummary([result({ skipped: 'exists' })], config('react'), output);
+    expect(textOf('info')).toBe(
+      'Skipped 1 installed component(s): pass --force to overwrite'
+    );
+  });
+
+  it('reports declined overwrites as kept local versions', () => {
+    printSummary([result({ skipped: 'declined' })], config('react'), output);
+    expect(textOf('info')).toBe('Kept your local version of 1 component(s)');
+  });
+
+  it('counts each reason separately in a mixed run', () => {
+    printSummary(
+      [
+        result({ name: 'Button', skipped: 'up-to-date' }),
+        result({ name: 'Card', skipped: 'exists' }),
+        result({ name: 'Input', skipped: 'declined' }),
+      ],
+      config('react'),
+      output
+    );
+    expect(textOf('info').split('\n')).toEqual([
+      '1 component(s) already up to date',
+      'Skipped 1 installed component(s): pass --force to overwrite',
+      'Kept your local version of 1 component(s)',
+    ]);
   });
 
   it('reports each failure with its error', () => {
@@ -212,9 +246,27 @@ describe('the closing line', () => {
     expect(textOf('outro')).toContain('✓ Done');
   });
 
-  it('reports nothing added when everything was skipped', () => {
-    printSummary([result({ skipped: true })], config('react'), output);
-    expect(textOf('outro')).toContain('No new components added');
+  it('reports nothing added when a skip leaves something to do', () => {
+    printSummary(
+      [result({ skipped: 'up-to-date' }), result({ skipped: 'exists' })],
+      config('react'),
+      output
+    );
+    expect(textOf('outro')).toBe('No new components added');
+  });
+
+  it('is a success when everything was already up to date', () => {
+    printSummary([result({ skipped: 'up-to-date' })], config('react'), output);
+    expect(textOf('outro')).toBe('✓ Already up to date');
+  });
+
+  it('is not a success when an up-to-date run also had a failure', () => {
+    printSummary(
+      [result({ skipped: 'up-to-date' }), result({ success: false })],
+      config('react'),
+      output
+    );
+    expect(textOf('outro')).toBe('No new components added');
   });
 
   it('reports nothing added when everything failed', () => {
@@ -234,7 +286,7 @@ describe('the four concerns are independent', () => {
           sourceFramework: 'react',
           stagedPath: 'p',
         }),
-        result({ name: 'Input', skipped: true }),
+        result({ name: 'Input', skipped: 'exists' }),
         result({ name: 'Select', success: false, error: 'boom' }),
       ],
       config('vue'),
@@ -244,7 +296,7 @@ describe('the four concerns are independent', () => {
     expect(textOf('success')).toContain('Added 1 component(s)');
     expect(textOf('success')).toContain('Staged 1 component(s)');
     expect(textOf('warn')).toContain('Button: Button.tsx');
-    expect(textOf('info')).toContain('Skipped 1 existing component(s)');
+    expect(textOf('info')).toContain('Skipped 1 installed component(s)');
     expect(textOf('error')).toContain('Select: boom');
     expect(textOf('outro')).toContain('✓ Done');
   });
