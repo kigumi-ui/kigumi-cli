@@ -147,8 +147,8 @@ describe('Theme Agent contrast check', () => {
     );
   });
 
-  // The default brand and the brands whose fill used to carry white text
-  // under 4.5:1 (issue #202).
+  // The default brand and brands whose step-50 fill carries white text
+  // under 4.5:1.
   it.each(['#0071ec', '#0891b2', '#16a34a', '#ca8a04'])(
     'passes the brand fill for %s in both modes',
     (brand) => {

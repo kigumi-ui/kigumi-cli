@@ -1,9 +1,11 @@
 import type { ModelMessage } from 'ai';
 import { THEME_AGENT_PROPOSE_TOOL } from '../src/kigumi-studio/theme-agent/constants';
 import {
+  CONTRAST_PAIRS,
   checkContrast,
   paintedStyle,
   summarizeViolation,
+  violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast';
 import type {
   CustomTheme,
@@ -258,17 +260,24 @@ function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
 
 const BRAND_LOCKED = { light: [BRAND], dark: [BRAND], shadowComponents: false };
 
-/** A green whose brand fill fell short of 4.5:1 under white text. */
+/** A green brand, the subject of a brand fill warning. */
 const FAILING_GREEN = '#22c55e';
+const BRAND_FILL = CONTRAST_PAIRS.find((pair) => pair.setBy === BRAND);
+if (!BRAND_FILL) throw new Error('no checked pair is set by the brand');
 /**
- * The brand fill pair as the task reported it for the green brand while
- * Studio derived the fill from palette step 50. Since issue #202 the fill is
- * step 40 and no brand fails it, so the warning is recorded, not computed:
- * the scenario is the model's answer to "improve" after such a warning.
+ * A brand fill warning for the green brand, written as the task writes one.
+ * No brand fails the brand fill Studio derives, so the warning is built, not
+ * computed: the scenario is the model's answer to "improve" after it. The
+ * colour and ratio are the green's palette step 50 under white text.
  */
-const GREEN_BRAND_FILL_WARNING = (['Light', 'Dark'] as const).map(
-  (mode) =>
-    `${mode} mode, text on the brand fill: 3.81:1, needs 4.5:1 (--wa-color-brand-on-loud white on --wa-color-brand-fill-loud #009742, set by ${BRAND})`
+const GREEN_BRAND_FILL_WARNING = (['light', 'dark'] as const).map((mode) =>
+  violationFeedback({
+    ...BRAND_FILL,
+    mode,
+    foregroundColor: 'white',
+    backgroundColor: '#009742',
+    ratio: 3.81,
+  })
 );
 const greenTheme = studioTheme({
   light: { [BRAND]: FAILING_GREEN },

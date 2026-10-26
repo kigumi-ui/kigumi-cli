@@ -1,9 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   generateBrandVariables,
+  contrastRatio,
   generateSemanticVariables,
-  hexToRgb,
-  relativeLuminance,
   type SemanticColorGroup,
 } from '../lib/color-utils';
 import { generateThemeCSS, modifiedProperties } from '../lib/css-generator';
@@ -154,9 +153,9 @@ describe('modifiedProperties', () => {
       );
       for (const vars of [light, dark]) {
         expect(vars['--wa-color-brand-on-loud']).toBe('white');
-        const fill = vars['--wa-color-brand-fill-loud'];
-        const ratio = 1.05 / (relativeLuminance(...hexToRgb(fill)) + 0.05);
-        expect(ratio).toBeGreaterThanOrEqual(4.5);
+        expect(
+          contrastRatio('#ffffff', vars['--wa-color-brand-fill-loud'])
+        ).toBeGreaterThanOrEqual(4.5);
       }
     }
   );

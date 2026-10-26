@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
+  contrastRatio,
   hexToRgb,
   hexToOklch,
   generateBrandPalette,
   generateBrandVariables,
   generateSemanticVariables,
-  relativeLuminance,
   PALETTE_STEPS,
 } from '../lib/color-utils';
 
@@ -201,13 +201,8 @@ describe('generateBrandVariables', () => {
 });
 
 describe('brand fill', () => {
-  /** WCAG 2.1 contrast of white text on `hex`. */
-  function whiteOn(hex: string): number {
-    return 1.05 / (relativeLuminance(...hexToRgb(hex)) + 0.05);
-  }
-
-  // The default brand and the brands whose step-50 fill measured under
-  // 4.5:1 with white text (issue #202).
+  // The default brand and brands whose step-50 fill carries white text
+  // under 4.5:1.
   it.each(['#0071ec', '#0891b2', '#16a34a', '#ca8a04'])(
     'carries white text at 4.5:1 for %s in both modes',
     (brand) => {
@@ -215,7 +210,7 @@ describe('brand fill', () => {
         const vars = generateBrandVariables(brand, mode);
         expect(vars['--wa-color-brand-on-loud']).toBe('white');
         expect(
-          whiteOn(vars['--wa-color-brand-fill-loud'])
+          contrastRatio('#ffffff', vars['--wa-color-brand-fill-loud'])
         ).toBeGreaterThanOrEqual(4.5);
       }
     }
