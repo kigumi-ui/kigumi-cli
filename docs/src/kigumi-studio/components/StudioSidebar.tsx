@@ -25,14 +25,14 @@ import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 interface StudioSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
-  onImport?: () => void;
+  onCustomCSS?: () => void;
   onExport?: () => void;
 }
 
 export function StudioSidebar({
   collapsed,
   onToggle,
-  onImport,
+  onCustomCSS,
   onExport,
 }: StudioSidebarProps) {
   const { editMode, setEditMode, setPreviewMode, values, importValues } =
@@ -103,7 +103,9 @@ export function StudioSidebar({
 
   return (
     <div
-      className={`studio-sidebar-wrapper ${collapsed ? 'studio-sidebar-wrapper--collapsed' : ''}`}
+      className={`studio-sidebar-wrapper ${
+        collapsed ? 'studio-sidebar-wrapper--collapsed' : ''
+      }`}
     >
       <aside className="studio-sidebar" aria-label="Styles">
         <div className="studio-panel-header wa-cluster wa-align-items-center">
@@ -163,10 +165,10 @@ export function StudioSidebar({
                 variant="neutral"
                 appearance="outlined"
                 size="small"
-                onClick={onImport}
+                onClick={onCustomCSS}
               >
-                <Icon name="download" slot="start" />
-                Import
+                <Icon name="wrench" slot="start" />
+                Custom CSS
               </Button>
               <Button variant="brand" size="small" onClick={onExport}>
                 <Icon name="upload" slot="start" />

@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { StudioHeader } from './StudioHeader';
 import { StudioSidebar } from './StudioSidebar';
 import { StudioPreview } from './StudioPreview';
-import { ImportDialog } from './toolbar/ImportDialog';
+import { CustomCSSDialog } from './toolbar/CustomCSSDialog';
 import { ExportDialog } from './toolbar/ExportDialog';
 import { PanelToggle } from './PanelToggle';
 import { hasThemeAgentAccess } from '../theme-agent/access';
@@ -17,7 +17,10 @@ const ThemeAgentSidebar = lazy(() =>
 );
 
 export function StudioLayout() {
-  const [importOpen, setImportOpen] = useState(false);
+  const [customCSSOpen, setCustomCSSOpen] = useState(false);
+  // A fresh dialog on every open, so its editor starts from the custom CSS
+  // as it is now (a preset may have changed it since).
+  const [customCSSKey, setCustomCSSKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [themeAgentAvailable] = useState(() =>
@@ -39,7 +42,10 @@ export function StudioLayout() {
         <StudioSidebar
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-          onImport={() => setImportOpen(true)}
+          onCustomCSS={() => {
+            setCustomCSSKey((key) => key + 1);
+            setCustomCSSOpen(true);
+          }}
           onExport={() => setExportOpen(true)}
         />
         <StudioPreview />
@@ -67,7 +73,11 @@ export function StudioLayout() {
           </div>
         )}
       </div>
-      <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
+      <CustomCSSDialog
+        key={customCSSKey}
+        open={customCSSOpen}
+        onClose={() => setCustomCSSOpen(false)}
+      />
       <ExportDialog open={exportOpen} onClose={() => setExportOpen(false)} />
     </div>
   );

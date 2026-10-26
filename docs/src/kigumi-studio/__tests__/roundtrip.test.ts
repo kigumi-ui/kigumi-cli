@@ -29,7 +29,7 @@ describe('round-trip: generate → parse → verify', () => {
       {},
       { shadowComponents: ['Card', 'Button', 'Badge'] }
     );
-    const overrides = parseComponentOverrides(css, '.studio-preview');
+    const overrides = parseComponentOverrides(css);
     expect(overrides.shadowComponents.sort()).toEqual(
       ['Badge', 'Button', 'Card'].sort()
     );
@@ -37,15 +37,14 @@ describe('round-trip: generate → parse → verify', () => {
 
   it('round-trips custom CSS through generate → parse', () => {
     const customCSS =
-      '.studio-preview .Card > .inner {\n  box-shadow: none;\n}';
+      '.Card > .inner {\n  box-shadow: none;\n}\n\n@media (max-width: 600px) {\n  .Card { padding: 0; }\n}';
     const css = generateThemeCSS(
       { '--wa-color-brand': '#ff0000' },
       {},
       { customCSS }
     );
-    const overrides = parseComponentOverrides(css, '.studio-preview');
-    expect(overrides.customCSS).toContain('.Card > .inner');
-    expect(overrides.customCSS).toContain('box-shadow: none');
+    const overrides = parseComponentOverrides(css);
+    expect(overrides.customCSS).toBe(customCSS);
   });
 
   it('round-trips shadow color+opacity combination', () => {

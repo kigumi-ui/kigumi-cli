@@ -87,13 +87,11 @@ describe('generateThemeCSS', () => {
       { '--wa-color-brand': '#ff0000' },
       {},
       {
-        customCSS: '.studio-preview .Card > .Card {\n  box-shadow: none;\n}',
+        customCSS: '.Card > .Card {\n  box-shadow: none;\n}',
       }
     );
     expect(result).toContain('/* Custom Styles */');
     expect(result).toContain('.Card > .Card {\n  box-shadow: none;\n}');
-    // Custom CSS should be unscoped (no .studio-preview prefix)
-    expect(result).not.toContain('.studio-preview');
   });
 
   it('outputs shadow rules before custom CSS', () => {
@@ -102,7 +100,7 @@ describe('generateThemeCSS', () => {
       {},
       {
         shadowComponents: ['Card'],
-        customCSS: '.studio-preview .Card > .Card { box-shadow: none; }',
+        customCSS: '.Card > .Card { box-shadow: none; }',
       }
     );
     const shadowIndex = result.indexOf('/* Component Shadows */');

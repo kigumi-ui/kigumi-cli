@@ -26,6 +26,7 @@ import {
   type ThemeMode,
   type ThemeValue,
 } from '../lib/defaults';
+import { storedCustomCSS } from '../lib/custom-css';
 import { AVAILABLE_FONTS } from '../lib/font-definitions';
 import { buildPreviewStyle } from '../lib/preview-style';
 import {
@@ -176,8 +177,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [shadowComponents, setShadowComponents] = useState<string[]>(
     () => getPersistedOnce()?.shadowComponents ?? []
   );
-  const [customCSS, setCustomCSS] = useState<string | null>(
-    () => getPersistedOnce()?.customCSS ?? null
+  const [customCSS, setCustomCSS] = useState<string | null>(() =>
+    storedCustomCSS(getPersistedOnce()?.customCSS)
   );
   const [selectedPreset, setSelectedPreset] = useState<string | null>(
     () => getPersistedOnce()?.selectedPreset ?? null

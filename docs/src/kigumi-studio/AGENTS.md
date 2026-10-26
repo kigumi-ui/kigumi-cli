@@ -26,6 +26,7 @@ Visual theme builder for Web Awesome CSS custom properties.
 - ALWAYS verify after changes: `pnpm dev` + TypeScript check
 - ALWAYS use inline `style` with CSS custom properties for the preview wrapper
 - ALWAYS maintain preview isolation: Studio theme must not leak to Landing Page
+- ALWAYS store custom CSS unscoped, as it goes into a project's `overrides.css` (ADR 0009); only `StudioPreview` scopes it, with `scopeCustomCSS()`, so no rule reaches Studio's own UI. Scoping puts every selector under the preview's theme root (`.component-showcase`) and keeps the rules unlayered and last: the custom theme's values sit inline on that root, and a cascade layer would lose to them and to Studio's own CSS. A rule for `:root`, `html`, `body`, `.wa-dark` or `.wa-light` lands on the theme root, and its custom properties on the root's children, where they beat the inline values
 
 ## Architecture
 
@@ -34,7 +35,7 @@ KigumiStudio (page)
   StudioProvider (context: ~43 CSS properties, light/dark modes)
     StudioLayout
       StudioHeader (back link, logo, site theme, knowledge base)
-      StudioSidebar ("Styles": preset, mode, generate, import/export; one Accordion, an EditorSection AccordionItem per property group)
+      StudioSidebar ("Styles": preset, mode, generate, custom CSS, export; one Accordion, an EditorSection AccordionItem per property group)
       StudioPreview (live component showcase with applied theme)
       Theme Agent panel (only with the access cookie; ThemeAgentSidebar loads on first open)
 ```
@@ -56,7 +57,9 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 | `contexts/StudioContext.tsx` | State management (~43 properties, light/dark). `onThemeReplaced()` tells subscribers when `resetAll` replaces the whole theme (a preset, Default, an import) |
 | `lib/property-definitions.ts` | Property metadata (43 definitions) |
 | `lib/defaults.ts` | Default values from Web Awesome |
-| `lib/css-parser.ts` | Parse `:root {}` and `.wa-dark {}` blocks |
+| `lib/css-parser.ts` | Parse `:root {}` and `.wa-dark {}` blocks; `parseComponentOverrides()` splits the rest into shadow components and custom CSS, kept as written |
+| `lib/custom-css.ts` | Custom CSS: `validateCustomCSS()` (structure check before Apply and paste), `scopeCustomCSS()` (the preview's scoping), `splitStylesheet()`, `storedCustomCSS()` (reads what an earlier Studio saved with the preview scope) |
+| `components/toolbar/CustomCSSDialog.tsx` | The "Custom CSS" toolbar dialog: edit the custom CSS (Apply checks it first), or "Paste a theme" to replace the whole custom theme |
 | `lib/css-generator.ts` | Generate CSS output |
 | `lib/preview-style.ts` | `buildPreviewStyle()`: the custom properties the preview sets, derived palettes included. `getStyleObject()` and the contrast check both read it |
 | `lib/preset-loader.ts` | Load preset CSS files via `import.meta.glob` |

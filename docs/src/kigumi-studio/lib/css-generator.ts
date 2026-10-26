@@ -77,14 +77,6 @@ function extractFontImports(
 }
 
 /**
- * Remove the ".studio-preview " scope prefix from custom CSS selectors.
- * The scope is used for preview isolation but should not appear in exported CSS.
- */
-function unscopeCSS(scopedCSS: string): string {
-  return scopedCSS.replace(/\.studio-preview\s+/g, '');
-}
-
-/**
  * Process properties to combine shadow color + opacity.
  * Web Awesome expects --wa-color-shadow as rgb(r g b / opacity).
  */
@@ -166,7 +158,7 @@ function sortProperties(
  * 3. :root {} (light mode tokens)
  * 4. .wa-dark {} (dark mode tokens)
  * 5. Shadow component rules
- * 6. Custom CSS (from preset .css file)
+ * 6. Custom CSS (stored unscoped, as it goes into a project)
  */
 export function generateThemeCSS(
   light: Record<string, string>,
@@ -183,8 +175,8 @@ export function generateThemeCSS(
   const darkBlock = formatBlock('.wa-dark', processedDark);
   const shadowBlock = formatShadowRules(shadowComponents);
 
-  // Unscope custom CSS for export (remove .studio-preview prefix)
-  const unscopedCustomCSS = customCSS ? unscopeCSS(customCSS).trim() : '';
+  // Custom CSS is stored as it goes into a project, unscoped.
+  const unscopedCustomCSS = customCSS ? customCSS.trim() : '';
 
   if (
     !rootBlock &&
@@ -221,7 +213,7 @@ export function generateThemeCSS(
     parts.push(shadowBlock);
   }
 
-  // 5. Custom CSS (from preset .css file, unscoped)
+  // 5. Custom CSS
   if (unscopedCustomCSS) {
     parts.push(`/* Custom Styles */\n${unscopedCustomCSS}`);
   }

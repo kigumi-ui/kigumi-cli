@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  parseThemeCSS,
-  extractComponentOverrides,
-  parseComponentOverrides,
-} from '../lib/css-parser';
+import { parseThemeCSS, parseComponentOverrides } from '../lib/css-parser';
 
 describe('parseThemeCSS', () => {
   it('parses :root block with a single property', () => {
@@ -163,44 +159,13 @@ describe('parseThemeCSS', () => {
   });
 });
 
-describe('extractComponentOverrides', () => {
-  it('extracts component rules and skips :root and .wa-dark', () => {
-    const css = `:root { --wa-color-brand: #000; }
-.Card {
-  box-shadow: var(--wa-shadow-m);
-}
-.wa-dark { --wa-color-surface-default: #1e1e1e; }`;
-    const result = extractComponentOverrides(css, '.studio-preview');
-    expect(result).toContain('.studio-preview .Card');
-    expect(result).toContain('box-shadow: var(--wa-shadow-m)');
-    expect(result).not.toContain(':root');
-    expect(result).not.toContain('.wa-dark');
-  });
-
-  it('returns empty string when only :root and .wa-dark exist', () => {
-    const css = `:root { --wa-color-brand: #000; }
-.wa-dark { --wa-color-surface-default: #111; }`;
-    const result = extractComponentOverrides(css, '.studio-preview');
-    expect(result).toBe('');
-  });
-
-  it('scopes multiple selectors', () => {
-    const css = `.Card, .Button {
-  box-shadow: var(--wa-shadow-m);
-}`;
-    const result = extractComponentOverrides(css, '.studio-preview');
-    expect(result).toContain('.studio-preview .Card');
-    expect(result).toContain('.studio-preview .Button');
-  });
-});
-
 describe('parseComponentOverrides', () => {
   it('detects simple shadow rules as shadowComponents', () => {
     const css = `:root { --wa-color-brand: #000; }
 .Card {
   box-shadow: var(--wa-shadow-m);
 }`;
-    const result = parseComponentOverrides(css, '.studio-preview');
+    const result = parseComponentOverrides(css);
     expect(result.shadowComponents).toEqual(['Card']);
     expect(result.customCSS).toBe('');
   });
@@ -212,9 +177,10 @@ describe('parseComponentOverrides', () => {
 .Card > .Card {
   box-shadow: none;
 }`;
-    const result = parseComponentOverrides(css, '.studio-preview');
+    const result = parseComponentOverrides(css);
     expect(result.shadowComponents).toEqual(['Card']);
-    expect(result.customCSS).toContain('.studio-preview .Card > .Card');
+    expect(result.customCSS).toContain('.Card > .Card');
+    expect(result.customCSS).not.toContain('.studio-preview');
     expect(result.customCSS).toContain('box-shadow: none');
   });
 
@@ -225,7 +191,7 @@ describe('parseComponentOverrides', () => {
 .Badge {
   box-shadow: var(--wa-shadow-s);
 }`;
-    const result = parseComponentOverrides(css, '.studio-preview');
+    const result = parseComponentOverrides(css);
     expect(result.shadowComponents).toEqual(['Card', 'Badge']);
     expect(result.customCSS).toBe('');
   });
@@ -234,10 +200,9 @@ describe('parseComponentOverrides', () => {
     const css = `.Card {
   border-radius: 0;
 }`;
-    const result = parseComponentOverrides(css, '.studio-preview');
+    const result = parseComponentOverrides(css);
     expect(result.shadowComponents).toEqual([]);
-    expect(result.customCSS).toContain('.studio-preview .Card');
-    expect(result.customCSS).toContain('border-radius: 0');
+    expect(result.customCSS).toBe('.Card {\n  border-radius: 0;\n}');
   });
 
   it('treats multi-property blocks with box-shadow as custom CSS', () => {
@@ -245,17 +210,60 @@ describe('parseComponentOverrides', () => {
   box-shadow: var(--wa-shadow-m);
   border: 1px solid red;
 }`;
-    const result = parseComponentOverrides(css, '.studio-preview');
+    const result = parseComponentOverrides(css);
     expect(result.shadowComponents).toEqual([]);
-    expect(result.customCSS).toContain('.studio-preview .Card');
+    expect(result.customCSS).toContain('border: 1px solid red');
   });
 
   it('returns empty results when only :root and .wa-dark exist', () => {
     const css = `:root { --wa-color-brand: #000; }
 .wa-dark { --wa-color-surface-default: #111; }`;
-    const result = parseComponentOverrides(css, '.studio-preview');
+    const result = parseComponentOverrides(css);
     expect(result.shadowComponents).toEqual([]);
     expect(result.customCSS).toBe('');
+  });
+
+  it('keeps custom CSS as written, unscoped, @media blocks included', () => {
+    const css = `.Card > .Card {
+  box-shadow: none;
+}
+@media (max-width: 600px) {
+  .Card { padding: 0; }
+}`;
+    const result = parseComponentOverrides(css);
+    expect(result.customCSS).toBe(
+      `.Card > .Card {
+  box-shadow: none;
+}
+
+@media (max-width: 600px) {
+  .Card { padding: 0; }
+}`
+    );
+  });
+
+  it('reads theme.css and overrides.css pasted together', () => {
+    const css = `@import url('https://fonts.bunny.net/css?family=inter:400');
+:root {
+  --wa-color-brand: #0891b2;
+}
+.wa-dark {
+  --wa-color-surface-default: #0f172a;
+}
+/* Component Shadows */
+.Card {
+  box-shadow: var(--wa-shadow-m);
+}
+
+/* overrides.css */
+.Card > .Card {
+  box-shadow: none;
+}`;
+    const result = parseComponentOverrides(css);
+    expect(result.shadowComponents).toEqual(['Card']);
+    expect(result.customCSS).toBe(`.Card > .Card {
+  box-shadow: none;
+}`);
   });
 
   it('ignores @import statements', () => {
@@ -263,7 +271,7 @@ describe('parseComponentOverrides', () => {
 .Card {
   box-shadow: var(--wa-shadow-m);
 }`;
-    const result = parseComponentOverrides(css, '.studio-preview');
+    const result = parseComponentOverrides(css);
     expect(result.shadowComponents).toEqual(['Card']);
     expect(result.customCSS).toBe('');
   });
