@@ -96,8 +96,11 @@ export function addOverridesLayer(content: string): string | undefined {
   const masked = maskComments(content);
   const themeImport = THEME_IMPORT.exec(masked);
   if (!themeImport) return undefined;
-  const [, directory, rest] = themeImport;
-  const qualifier = /\blayer\(/.test(rest) ? ' layer(overrides)' : '';
+  // What follows the path up to the `;`: layer(), supports(), media queries.
+  const [, directory, importQualifiers] = themeImport;
+  const qualifier = /\blayer\(/.test(importQualifiers)
+    ? ' layer(overrides)'
+    : '';
   const eol = content.includes('\r\n') ? '\r\n' : '\n';
 
   // Insertions as [index, text], applied from the end so earlier indices hold.
