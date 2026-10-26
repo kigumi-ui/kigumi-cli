@@ -29,6 +29,9 @@
  * build on it defensible. Broad-spectrum scanning is gitleaks' job, run
  * separately; this guard is the narrow, always-on tripwire.
  *
+ * NO FILE IS EXEMPT, this guard's own tests included: they build their
+ * credential-shaped fixtures at runtime, so no tracked line holds one.
+ *
  * PLACEHOLDERS ARE ALLOWED so docs and tests can show the real shape:
  * anything whose secret body is obviously fake (`your_token_here`, `xxx`,
  * `example`, repeated characters, or the sequential `abc123.../abcdefghij...`
@@ -230,19 +233,6 @@ export function isScannable(file: string): boolean {
   return !BINARY_EXT.test(file);
 }
 
-/**
- * The one file allowed to contain credential-shaped literals.
- *
- * This guard's own tests must carry realistic tokens, otherwise they cannot
- * prove the matchers fire. Exempting the test file rather than weakening the
- * patterns keeps the check strict everywhere it matters. The exemption is a
- * single exact path, not a glob, so it cannot quietly widen: a second file
- * wanting in has to be added deliberately here.
- */
-const EXEMPT_FILES: ReadonlySet<string> = new Set([
-  'tests/unit/scripts/validate-no-secrets.test.ts',
-]);
-
 export interface SecretScanResult {
   readonly passed: boolean;
   readonly filesScanned: number;
@@ -258,7 +248,6 @@ export function validateNoSecrets(): SecretScanResult {
 
   for (const file of tracked) {
     if (!isScannable(file)) continue;
-    if (EXEMPT_FILES.has(file)) continue;
     const abs = path.join(PROJECT_ROOT, file);
     let content: string;
     try {

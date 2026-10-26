@@ -26,6 +26,37 @@ import {
   isScannable,
 } from '../../../scripts/validate-no-secrets.js';
 
+/**
+ * Credential-shaped fixtures are built at runtime as `prefix + body`, with a
+ * generated body. No line of this file holds a provider prefix next to a
+ * token body, so `validate:no-secrets` scans this file like any other and
+ * needs no exemption. The bodies are made up here, never copied from `.env`
+ * or an npmrc: an earlier "realistic" fixture turned out to be the live
+ * token from `.env`.
+ */
+
+/** Repeats `alphabet` until it is `length` characters long. */
+const repeatToLength = (alphabet: string, length: number): string =>
+  alphabet.repeat(Math.ceil(length / alphabet.length)).slice(0, length);
+
+/** Lowercase hex with digits, the shape of a Chromatic token body. */
+const hexBody = (length: number): string =>
+  repeatToLength('7c4e9a1f3b', length);
+
+/** Mixed case with digits, the shape most provider token bodies take. */
+const mixedBody = (length: number): string =>
+  repeatToLength('Q7mZ2kXw9R', length);
+
+/** Uppercase with digits, the shape of an AWS access key id body. */
+const upperBody = (length: number): string =>
+  repeatToLength('Q7MZ2KXW9R', length);
+
+const CHROMATIC_BODY = hexBody(15);
+const CHROMATIC = 'chpt_' + CHROMATIC_BODY;
+
+/** A home directory name that is not in the scanner's generic list. */
+const HOME_USER = 'mmustermann';
+
 describe('isPlaceholder', () => {
   it.each([
     ['your_token_here', 'the .env.example convention'],
@@ -39,9 +70,12 @@ describe('isPlaceholder', () => {
   });
 
   it.each([
-    ['4e3397305b8d707', 'the real Chromatic token that motivated this guard'],
-    ['q35C7wv3msiiSrTRR1Ln_', 'a real Web Awesome Pro token shape'],
-    ['oWNZNH2SvMIfF0LPE_KuZ', 'another real Pro token shape'],
+    [hexBody(15), 'a lowercase hex body, the shape of a Chromatic token'],
+    [mixedBody(21), 'a mixed-case alphanumeric body'],
+    [
+      upperBody(16),
+      'an uppercase alphanumeric body, the shape of an AWS key id',
+    ],
   ])('treats %s as a real credential (%s)', (value) => {
     expect(isPlaceholder(value)).toBe(false);
   });
@@ -51,7 +85,7 @@ describe('findSecretsInText', () => {
   it('catches the exact line this guard was written for', () => {
     const findings = findSecretsInText(
       'docs/package.json',
-      '    "chromatic": "chromatic --project-token=chpt_4e3397305b8d707",'
+      `    "chromatic": "chromatic --project-token=${CHROMATIC}",`
     );
 
     expect(findings).toHaveLength(1);
@@ -60,28 +94,30 @@ describe('findSecretsInText', () => {
   });
 
   it('redacts the credential so it is not reprinted in CI logs', () => {
-    const findings = findSecretsInText('x.json', 'token=chpt_4e3397305b8d707');
+    const findings = findSecretsInText('x.json', `token=${CHROMATIC}`);
 
-    expect(findings[0]!.excerpt).not.toContain('4e3397305b8d707');
+    expect(findings[0]!.excerpt).not.toContain(CHROMATIC_BODY);
     expect(findings[0]!.excerpt).toContain('*');
   });
 
   it('reports the correct 1-based line number', () => {
     const findings = findSecretsInText(
       'x.ts',
-      ['first', 'second', 'ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8'].join('\n')
+      ['first', 'second', 'ghp_' + mixedBody(36)].join('\n')
     );
 
     expect(findings).toHaveLength(1);
     expect(findings[0]!.line).toBe(3);
   });
 
+  // Each body keeps the length of the fixture it replaced, which is at or
+  // above its pattern's minimum (AWS takes exactly 16).
   it.each([
-    ['npm access token', 'npm_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8'],
-    ['GitHub token', 'ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8'],
-    ['AWS access key id', 'AKIAQ7RSTUVW3XYZ2ABC'],
-    ['Anthropic API key', 'sk-ant-A1b2C3d4E5f6G7h8I9j0K1l2M3'],
-    ['Stripe live key', 'sk_live_A1b2C3d4E5f6G7h8I9j0'],
+    ['npm access token', 'npm_' + mixedBody(36)],
+    ['GitHub token', 'ghp_' + mixedBody(36)],
+    ['AWS access key id', 'AKIA' + upperBody(16)],
+    ['Anthropic API key', 'sk-ant-' + mixedBody(26)],
+    ['Stripe live key', 'sk_live_' + mixedBody(20)],
   ])('detects a %s', (kind, literal) => {
     const findings = findSecretsInText('x.ts', `const t = "${literal}";`);
     expect(findings.map((f) => f.kind)).toContain(kind);
@@ -101,7 +137,7 @@ describe('findSecretsInText', () => {
   it('finds every occurrence when one line carries two credentials', () => {
     const findings = findSecretsInText(
       'x.ts',
-      'a=chpt_4e3397305b8d707 b=chpt_9f8e7d6c5b4a321'
+      `a=${CHROMATIC} b=${'chpt_' + mixedBody(15)}`
     );
 
     expect(findings).toHaveLength(2);
@@ -112,7 +148,7 @@ describe('findSecretsInText', () => {
     // lastIndex explicitly; the exec loop running to completion is what does
     // it. This pins that, so an early `break` added later fails here rather
     // than silently skipping every second occurrence.
-    const line = 'token=chpt_4e3397305b8d707';
+    const line = `token=${CHROMATIC}`;
     const findings = findSecretsInText('x.ts', [line, line, line].join('\n'));
 
     expect(findings.map((f) => f.line)).toEqual([1, 2, 3]);
@@ -126,7 +162,7 @@ describe('findHomePaths', () => {
   it('catches the hook line this check was written for', () => {
     const findings = findHomePaths(
       '.husky/post-commit',
-      "_PINNED='/Users/mmustermann/Library/Application Support/x/bin/python'"
+      `_PINNED='/Users/${HOME_USER}/Library/Application Support/x/bin/python'`
     );
 
     expect(findings).toHaveLength(1);
@@ -135,7 +171,7 @@ describe('findHomePaths', () => {
 
   it('catches a Linux home path too', () => {
     expect(
-      findHomePaths('x.sh', 'PATH=/home/mmustermann/.local/bin')
+      findHomePaths('x.sh', `PATH=/home/${HOME_USER}/.local/bin`)
     ).toHaveLength(1);
   });
 
@@ -155,7 +191,9 @@ describe('findHomePaths', () => {
   it('reports each occurrence with its line number', () => {
     const findings = findHomePaths(
       'x.sh',
-      ['a=/Users/mmustermann/one', 'b=2', 'c=/home/mmustermann/two'].join('\n')
+      [`a=/Users/${HOME_USER}/one`, 'b=2', `c=/home/${HOME_USER}/two`].join(
+        '\n'
+      )
     );
 
     expect(findings.map((f) => f.line)).toEqual([1, 3]);
@@ -164,7 +202,7 @@ describe('findHomePaths', () => {
   it('does not leak regex state across calls', () => {
     // The pattern is module-level and global. Two identical calls must give
     // identical results, or a stale lastIndex is silently skipping matches.
-    const line = 'p=/Users/mmustermann/x';
+    const line = `p=/Users/${HOME_USER}/x`;
     expect(findHomePaths('a.sh', line)).toHaveLength(1);
     expect(findHomePaths('b.sh', line)).toHaveLength(1);
     expect(findHomePaths('c.sh', line)).toHaveLength(1);
