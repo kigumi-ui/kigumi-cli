@@ -28,6 +28,8 @@ on:
 
 permissions:
   contents: read
+  # The organization copy of Web Awesome Pro on GitHub Packages.
+  packages: read
 
 concurrency:
   group: cache-warm
@@ -51,25 +53,20 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      # A push to main has access to secrets, unlike a fork PR, so the Pro
-      # registry is reachable here. Guarded anyway so a repo without the
-      # secret configured skips rather than fails.
+      # A push to main can read the organization copy of Web Awesome Pro,
+      # unlike a fork PR. Guarded anyway so a repository whose Actions access
+      # to that package is missing skips rather than fails.
       - name: Check Pro registry access
         id: pro
         env:
-          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "$WA_TOKEN" ]; then
+          if node scripts/setup-npmrc.mjs --probe; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping cache warm: no Web Awesome Pro token."
+            echo "::notice::Skipping cache warm: the Web Awesome Pro package is not readable here."
           fi
-
-      - name: Configure Pro registry for docs
-        if: steps.pro.outputs.available == 'true'
-        run: |
-          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install docs dependencies
         if: steps.pro.outputs.available == 'true'

@@ -1,3 +1,2 @@
-@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro
-# _authToken is added by: pnpm run setup:npmrc (reads from .env)
-//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true
+@kigumi-ui:registry=https://npm.pkg.github.com
+# _authToken is added by: pnpm run setup:npmrc (GITHUB_PACKAGES_TOKEN, else `gh auth token`)

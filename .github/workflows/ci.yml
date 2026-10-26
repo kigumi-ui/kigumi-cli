@@ -12,6 +12,8 @@ permissions:
   contents: read
   pull-requests: read
   security-events: write
+  # The organization copy of Web Awesome Pro on GitHub Packages.
+  packages: read
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
@@ -296,6 +298,7 @@ jobs:
     # catches it, and gating it would reopen exactly that hole (issue #43).
     permissions:
       contents: read
+      packages: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -303,37 +306,31 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
 
-      # Cache only when the Pro token is present. Fork and Dependabot pulls
-      # receive no secrets, so install is skipped below. setup-node still tries
-      # to save the pnpm store in post and fails the job when that path was
-      # never created.
+      # Check A regenerates every template and diffs it against what is
+      # committed, which needs a manifest describing all components -- only the
+      # Pro package has one, and docs/ installs it from the organization copy
+      # on GitHub Packages. A fork pull request cannot read that package, so
+      # detect it and skip loudly. The runner's own Node runs the probe.
+      - name: Check Pro registry access
+        id: pro
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if node scripts/setup-npmrc.mjs --probe; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Generator drift NOT verified: the Web Awesome Pro package is not readable here (expected for pull requests from forks)."
+          fi
+
+      # Cache only when the install below runs: setup-node saves the pnpm
+      # store in post and fails the job when that path was never created.
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 22
-          cache: ${{ secrets.WEBAWESOME_NPM_TOKEN != '' && 'pnpm' || '' }}
+          cache: ${{ steps.pro.outputs.available == 'true' && 'pnpm' || '' }}
           cache-dependency-path: pnpm-lock.yaml
-
-      # Check A regenerates every template and diffs it against what is
-      # committed, which needs a manifest describing all components -- only the
-      # Pro package has one. Fork pull requests receive no secrets, so detect
-      # that and skip loudly rather than failing an outside contribution.
-      - name: Check Pro registry access
-        id: pro
-        env:
-          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
-        run: |
-          if [ -n "$WA_TOKEN" ]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Generator drift NOT verified: no Web Awesome Pro token (expected for pull requests from forks)."
-          fi
-
-      - name: Configure Pro registry for docs
-        if: steps.pro.outputs.available == 'true'
-        run: |
-          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
         if: steps.pro.outputs.available == 'true'
@@ -478,27 +475,42 @@ jobs:
           KIGUMI_CONSUMER_TIER: free
         run: pnpm run test:e2e
 
-      # The Pro consumer tsc suites install the Pro package, which needs a Web
-      # Awesome Pro token. Fork and Dependabot pull requests receive no
-      # secrets: there the Pro consumers report did not run (docs/adr/0003),
-      # never a pass. Any other run without the token is broken and gets no
-      # skip. The expressions only pass context through; the decision is the
-      # shell, which tests/unit/ci-e2e-pro-step.test.ts executes.
+      # The Pro consumer suites run `init` against a local registry that serves
+      # the organization's licensed copy of Web Awesome Pro under its own name
+      # (scripts/local-pro-registry.mjs), the same install a Pro user's `init`
+      # runs against Cloudsmith. Fetching that copy is what makes Pro available
+      # here. Fork and Dependabot pull requests cannot read it: there the Pro
+      # consumers report did not run (docs/adr/0003), never a pass. Any other
+      # run that cannot fetch it is broken and gets no skip.
+      - name: Fetch Web Awesome Pro
+        id: fetch
+        continue-on-error: true
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/local-pro-registry.mjs fetch "$RUNNER_TEMP/web-awesome-pro"
+
+      # The expressions only pass context through; the decision is the shell,
+      # which tests/unit/ci-e2e-pro-step.test.ts executes.
       - name: Check Pro registry access
         id: pro
         env:
-          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+          FETCHED: ${{ steps.fetch.outcome }}
           EVENT: ${{ github.event_name }}
           HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           REPO: ${{ github.repository }}
           ACTOR: ${{ github.actor }}
         run: |
-          if [ -n "$WA_TOKEN" ]; then
+          if [ "$FETCHED" = "success" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT" = "pull_request" ] && { [ "$HEAD_REPO" != "$REPO" ] || [ "$ACTOR" = "dependabot[bot]" ]; }; then
             echo "allow_skip=1" >> "$GITHUB_OUTPUT"
-            echo "::notice::Pro consumer tsc NOT verified: no Web Awesome Pro token (a fork or Dependabot pull request receives no secrets)."
+            echo "::notice::Pro consumer tsc NOT verified: the Web Awesome Pro package is not readable here (a fork or Dependabot pull request cannot read it)."
           fi
+
+      - name: Serve Web Awesome Pro locally
+        id: registry
+        if: steps.pro.outputs.available == 'true'
+        run: node scripts/local-pro-registry.mjs serve "$RUNNER_TEMP"/web-awesome-pro/*.tgz
 
       # The user npmrc auth line a Pro user sets with `npm config set`: `init`
       # finds the token there, writes a registry-only .npmrc, and the package
@@ -507,17 +519,19 @@ jobs:
       - name: Configure Pro registry auth
         if: steps.pro.outputs.available == 'true'
         env:
-          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
-        run: printf '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n' "$WA_TOKEN" >> ~/.npmrc
+          REGISTRY: ${{ steps.registry.outputs.registry }}
+          REGISTRY_TOKEN: ${{ steps.registry.outputs.token }}
+        run: npm config set "${REGISTRY#http:}/:_authToken" "$REGISTRY_TOKEN"
 
       # The Pro consumers alone, with install scripts off: no dependency's
       # install script runs while the token sits in ~/.npmrc. ALLOW_SKIP is
-      # set only where the token is legitimately absent, so a Pro consumer
-      # that cannot run anywhere else fails the job.
+      # set only where the package is legitimately unreadable, so a Pro
+      # consumer that cannot run anywhere else fails the job.
       - name: E2E tests (Pro consumer tsc)
         env:
           KIGUMI_CONSUMER_TIER: pro
           KIGUMI_FRESHNESS_ALLOW_SKIP: ${{ steps.pro.outputs.allow_skip }}
+          KIGUMI_PRO_REGISTRY: ${{ steps.registry.outputs.registry }}
           npm_config_ignore_scripts: 'true'
         run: pnpm exec vitest run --config vitest.e2e.config.ts tests/e2e/consumer-tsc-
 
@@ -699,26 +713,21 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      # The docs site depends on the paid Web Awesome Pro package. Pull requests
-      # from forks do not receive repository secrets, so the install below would
-      # hit Cloudsmith with an empty token and fail with a 401 on an ordinary
-      # contribution. Detect that up front and skip the docs steps instead.
+      # The docs site depends on the paid Web Awesome Pro package, which it
+      # installs from the organization copy on GitHub Packages. A fork pull
+      # request cannot read that package, so the install below would fail on
+      # an ordinary contribution. Detect that up front and skip instead.
       - name: Check Pro registry access
         id: pro
         env:
-          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "$WA_TOKEN" ]; then
+          if node scripts/setup-npmrc.mjs --probe; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping docs type-check: no Web Awesome Pro token (expected for pull requests from forks)."
+            echo "::notice::Skipping docs type-check: the Web Awesome Pro package is not readable here (expected for pull requests from forks)."
           fi
-
-      - name: Configure Pro registry for docs
-        if: steps.pro.outputs.available == 'true'
-        run: |
-          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
         if: steps.pro.outputs.available == 'true'
@@ -774,24 +783,19 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      # Fork pull requests do not receive secrets, so the Pro install below
-      # would fail with a 401. Skip the docs-dependent steps instead.
+      # A fork pull request cannot read the organization copy of Web Awesome
+      # Pro, so the install below would fail. Skip the docs-dependent steps.
       - name: Check Pro registry access
         id: pro
         env:
-          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "$WA_TOKEN" ]; then
+          if node scripts/setup-npmrc.mjs --probe; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping Storybook interaction tests: no Web Awesome Pro token (expected for pull requests from forks)."
+            echo "::notice::Skipping Storybook interaction tests: the Web Awesome Pro package is not readable here (expected for pull requests from forks)."
           fi
-
-      - name: Configure Pro registry for docs
-        if: steps.pro.outputs.available == 'true'
-        run: |
-          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
         if: steps.pro.outputs.available == 'true'
@@ -861,20 +865,22 @@ jobs:
               - 'docs/src/components/**'
               - 'docs/.storybook/**'
 
-      # Building the Storybook needs the paid Web Awesome Pro package, and
-      # Chromatic needs its own token. Fork pull requests have neither, so the
-      # visual job would fail on an ordinary contribution. Skip it instead.
+      # Building the Storybook needs the paid Web Awesome Pro package, read
+      # from the organization copy on GitHub Packages, and Chromatic needs its
+      # own token. Fork pull requests have neither, so the visual job would
+      # fail on an ordinary contribution. Skip it instead. The runner's own
+      # Node runs the probe.
       - name: Check visual-regression credentials
         id: pro
         env:
-          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CHROMATIC_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
         run: |
-          if [ -n "$WA_TOKEN" ] && [ -n "$CHROMATIC_TOKEN" ]; then
+          if [ -n "$CHROMATIC_TOKEN" ] && node scripts/setup-npmrc.mjs --probe; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Skipping visual regression: missing Web Awesome Pro or Chromatic token (expected for pull requests from forks)."
+            echo "::notice::Skipping visual regression: the Web Awesome Pro package is not readable here or the Chromatic token is missing (expected for pull requests from forks)."
           fi
 
       - name: Setup pnpm
@@ -888,11 +894,6 @@ jobs:
           node-version: 22
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
-
-      - name: Configure Pro registry for docs
-        if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))
-        run: |
-          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
         if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))

@@ -8,7 +8,11 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { validateWaPins, collectPins } from '../../scripts/validate-wa-pins.js';
+import {
+  validateWaPins,
+  collectPins,
+  pinnedVersion,
+} from '../../scripts/validate-wa-pins.js';
 import { DEFAULT_WEBAWESOME_VERSION } from '../../src/constants.js';
 import { VERSION_MAP } from '../../src/utils/version-map.js';
 
@@ -57,5 +61,25 @@ describe('validate:wa-pins', () => {
       return pb[0] - pa[0] || pb[1] - pa[1] || pb[2] - pa[2];
     });
     expect(versions).toEqual(sorted);
+  });
+});
+
+describe('pinnedVersion', () => {
+  it('reads the version an npm alias pins', () => {
+    expect(pinnedVersion('npm:@kigumi-ui/webawesome-pro@3.14.0')).toBe(
+      '3.14.0'
+    );
+    expect(pinnedVersion('npm:webawesome-pro@3.14.0')).toBe('3.14.0');
+  });
+
+  it('keeps an alias range, so the exactness check still rejects it', () => {
+    expect(pinnedVersion('npm:@kigumi-ui/webawesome-pro@^3.14.0')).toBe(
+      '^3.14.0'
+    );
+  });
+
+  it('returns a plain spec unchanged', () => {
+    expect(pinnedVersion('3.14.0')).toBe('3.14.0');
+    expect(pinnedVersion('^3.14.0')).toBe('^3.14.0');
   });
 });
