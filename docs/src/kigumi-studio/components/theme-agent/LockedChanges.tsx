@@ -88,31 +88,31 @@ function applyLabel(entry: HeldEntry) {
 function CustomCSSDiff({ change }: { change: HeldCustomCSSChange }) {
   return (
     <Details summary="Custom CSS changes" className="theme-agent__diff">
-      <div className="theme-agent__diff-copy wa-cluster wa-gap-2xs">
+      <div className="theme-agent__diff-body">
         <CopyButton
+          className="theme-agent__diff-copy"
           value={change.proposed}
           copy-label="Copy proposed custom CSS"
           success-label="Copied"
         />
-        <span className="theme-agent__outcome-text">Proposed custom CSS</span>
+        <pre className="theme-agent__diff-lines">
+          {lineDiff(change.was, change.proposed).map((line, i) =>
+            line.kind === 'removed' ? (
+              <del key={i}>
+                <span className="wa-visually-hidden">Removed: </span>
+                {`- ${line.text}`}
+              </del>
+            ) : line.kind === 'added' ? (
+              <ins key={i}>
+                <span className="wa-visually-hidden">Added: </span>
+                {`+ ${line.text}`}
+              </ins>
+            ) : (
+              <span key={i}>{`  ${line.text}`}</span>
+            )
+          )}
+        </pre>
       </div>
-      <pre className="theme-agent__diff-lines">
-        {lineDiff(change.was, change.proposed).map((line, i) =>
-          line.kind === 'removed' ? (
-            <del key={i}>
-              <span className="wa-visually-hidden">Removed: </span>
-              {`- ${line.text}`}
-            </del>
-          ) : line.kind === 'added' ? (
-            <ins key={i}>
-              <span className="wa-visually-hidden">Added: </span>
-              {`+ ${line.text}`}
-            </ins>
-          ) : (
-            <span key={i}>{`  ${line.text}`}</span>
-          )
-        )}
-      </pre>
     </Details>
   );
 }

@@ -350,6 +350,20 @@ export const HeldCustomCSS: Story = {
     const copy = diff.querySelector<HTMLElement & { value: string }>(
       'wa-copy-button'
     );
+    // An icon button alone, in the code block's top right corner.
+    const pre = diff.querySelector('pre');
+    if (!copy || !pre) throw new Error('no copy button or code block');
+    expect(
+      [...(copy.parentElement?.childNodes ?? [])].filter(
+        (node) => node !== copy && node !== pre && node.textContent?.trim()
+      )
+    ).toEqual([]);
+    const button = copy.getBoundingClientRect();
+    const block = pre.getBoundingClientRect();
+    expect(block.right - button.right).toBeLessThan(16);
+    expect(button.top - block.top).toBeLessThan(16);
+    expect(button.right).toBeLessThanOrEqual(block.right);
+    expect(button.top).toBeGreaterThanOrEqual(block.top);
     expect(copy?.value).toBe(
       [
         '.Card::part(base) { border: none; }',

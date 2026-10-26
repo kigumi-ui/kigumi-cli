@@ -79,8 +79,15 @@
   white-space: normal;
 }
 
+.theme-agent__diff-body {
+  position: relative;
+}
+
+/* An icon button in the code block's top right corner. */
 .theme-agent__diff-copy {
-  margin-bottom: var(--wa-space-2xs);
+  position: absolute;
+  inset-block-start: var(--wa-space-2xs);
+  inset-inline-end: var(--wa-space-2xs);
 }
 
 .theme-agent__diff-lines {
@@ -97,7 +104,8 @@
 
   & > * {
     display: block;
-    padding-inline: calc(var(--wa-space-s) + 2ch) var(--wa-space-s);
+    /* The end leaves room for the copy button over the first lines. */
+    padding-inline: calc(var(--wa-space-s) + 2ch) var(--wa-space-2xl);
     text-indent: -2ch;
     text-decoration: none;
   }
