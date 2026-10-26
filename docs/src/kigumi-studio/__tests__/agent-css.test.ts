@@ -196,3 +196,23 @@ describe('custom CSS from the Theme Agent: the user own rules', () => {
     expect(validateAgentCSS(`${long}\n${added}`, long)).toEqual([]);
   });
 });
+
+describe("custom CSS from the Theme Agent: Studio's own classes", () => {
+  it.each([
+    '.component-showcase { background: var(--wa-color-surface-default); }',
+    '.studio-preview .Card { gap: 0; }',
+    '@media (min-width: 40rem) { .showcase-section { gap: 0; } }',
+  ])('refuses a selector on a Studio class: %s', (css) => {
+    expect(validateAgentCSS(css).join('\n')).toMatch(
+      /Studio's own class, in no project/
+    );
+  });
+
+  it('accepts the page as body, html or :root', () => {
+    expect(
+      validateAgentCSS(
+        'body { background: radial-gradient(var(--wa-color-surface-border) 1px, transparent 1px); }\n:root, html { scroll-behavior: smooth; }'
+      )
+    ).toEqual([]);
+  });
+});

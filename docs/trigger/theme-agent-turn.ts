@@ -252,7 +252,7 @@ function customCSSLines(): string[] {
     'Custom CSS (customCSS in the proposal):',
     "- Use it only for what no value or shadow component can express, such as removing a component's border or styling one part of a component; never for what a value above sets. When you use it, your explanation says why no value could make the change.",
     '- customCSS is always the complete custom CSS: it replaces the current custom CSS whole, so keep every current rule you are not changing. Omit customCSS to keep the current one as it is. It is one set of rules for both modes; write dark-mode rules under .wa-dark.',
-    '- Select a component by its Kigumi wrapper class (the component name, such as .Card or .Button) or its wa-* tag (such as wa-card), and style its inside with ::part(), such as .Card::part(header).',
+    "- Select a component by its Kigumi wrapper class (the component name, such as .Card or .Button) or its wa-* tag (such as wa-card), and style its inside with ::part(), such as .Card::part(header). Select body, html or :root for the page, such as for a background pattern (Studio shows them on its preview), and never a class of Studio's own, such as .component-showcase: no project has it.",
     `- In every rule you add or change, take every colour from a var(--wa-*) value, such as var(--wa-color-surface-border): no hex, rgb(), named, vendor-prefixed or other literal colours. No at-rule except @media, @supports and @container, no nested rules, no url(), at most ${MAX_AGENT_CSS_LENGTH} characters of new rules.`,
     "- Keep the user's current rules exactly as written: they are the user's and are not checked, even where they break these rules.",
     '- The custom CSS is in the current custom theme below, as customCSS; empty means none.',

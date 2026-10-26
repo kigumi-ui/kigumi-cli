@@ -88,6 +88,12 @@ const VAR_REFERENCE = /var\(\s*(--[\w-]*)/g;
 
 const TAKE_WA_COLOURS = 'take every colour from a var(--wa-*) value';
 
+/**
+ * Classes of Studio's own preview and UI. They exist in no project, so a
+ * rule on them does nothing there, and the preview scopes it to nothing.
+ */
+const STUDIO_CLASS = /\.(?:studio-|component-showcase|showcase-|theme-agent)/;
+
 /** Why one declaration's value is refused, one sentence each. */
 function declarationErrors(selector: string, declaration: string): string[] {
   const colon = declaration.indexOf(':');
@@ -129,6 +135,11 @@ function nodeErrors(nodes: CssNode[]): string[] {
       return nodeErrors(splitStylesheet(node.body));
     }
     if (node.kind !== 'rule') return [];
+    if (STUDIO_CLASS.test(node.selector)) {
+      return [
+        `${node.selector}: names Studio's own class, in no project; select the page as body, html or :root, and components by Kigumi wrapper class or wa-* tag`,
+      ];
+    }
     if (/[{}]/.test(node.body)) {
       return [
         `${node.selector}: a nested rule is not allowed; write each rule at the top level or inside @media, @supports or @container`,

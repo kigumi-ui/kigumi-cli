@@ -367,3 +367,53 @@ describe('nothing locked, no card border plus a + pattern', () => {
     expect(s.judge(proposals, s.snapshot).pass).toBe(false);
   });
 });
+
+describe('nothing locked, a dot pattern on the page background', () => {
+  const s = scenario('page-dot-pattern');
+  const dots =
+    'radial-gradient(var(--wa-color-surface-border) 1px, transparent 1px)';
+
+  it.each(['body', 'html', ':root'])(
+    'passes with the pattern on %s',
+    (page) => {
+      expect(
+        s.judge(
+          [
+            {
+              light: {},
+              dark: {},
+              customCSS: `${page} { background-image: ${dots}; background-size: 16px 16px; }`,
+            },
+          ],
+          s.snapshot
+        )
+      ).toMatchObject({ pass: true });
+    }
+  );
+
+  it.each([
+    ['nothing proposed', []],
+    [
+      'the pattern on a component',
+      [
+        {
+          light: {},
+          dark: {},
+          customCSS: `.Card { background-image: ${dots}; }`,
+        },
+      ],
+    ],
+    [
+      'a plain page colour',
+      [
+        {
+          light: {},
+          dark: {},
+          customCSS: 'body { background: var(--wa-color-surface-lowered); }',
+        },
+      ],
+    ],
+  ])('fails with %s', (_name, proposals) => {
+    expect(s.judge(proposals, s.snapshot).pass).toBe(false);
+  });
+});

@@ -335,6 +335,32 @@ function cardBorderRemoved(
   return { pass: true, reason: 'custom CSS applied: card border removed' };
 }
 
+/**
+ * A pattern on the page background is custom CSS on the page itself: body,
+ * html or :root. On a preview the agent first tried Studio's own
+ * .component-showcase, which no project has.
+ */
+function pagePatternApplied(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+): Verdict {
+  if (proposals.length === 0) return NO_PROPOSAL;
+  const { applied } = asStudioTakesIt(proposals, snapshot);
+  const css = applied.customCSS;
+  if (!css || css === snapshot.theme.customCSS) {
+    return { pass: false, reason: 'no custom CSS was applied' };
+  }
+  const pageRule =
+    /(^|[},\s])(body|html|:root)\s*[,{][^}]*background[^}]*gradient/;
+  if (!pageRule.test(css)) {
+    return {
+      pass: false,
+      reason: 'no background gradient on body, html or :root',
+    };
+  }
+  return { pass: true, reason: 'custom CSS applied: a pattern on the page' };
+}
+
 /** Every sidebar value, as the browser sends the custom theme. */
 function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
   const theme: CustomTheme = {
@@ -488,5 +514,18 @@ export const SCENARIOS: EvalScenario[] = [
       },
     ],
     judge: cardBorderRemoved,
+  },
+  {
+    id: 'page-dot-pattern',
+    description:
+      'Nothing locked, a dot pattern on the page background: custom CSS on body, html or :root',
+    snapshot: { theme: studioTheme(), locked: NO_LOCKS },
+    messages: [
+      {
+        role: 'user',
+        content: 'Give the page background a subtle dot pattern.',
+      },
+    ],
+    judge: pagePatternApplied,
   },
 ];

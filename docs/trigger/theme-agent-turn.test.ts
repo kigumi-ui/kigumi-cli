@@ -253,6 +253,10 @@ describe('Theme Agent turn', () => {
     expect(rules).toMatch(/::part\(\)/);
     expect(rules).toMatch(/var\(--wa-\*\)/);
     expect(text).not.toMatch(/no custom CSS\)/);
+    // The page is body, html or :root; Studio's preview classes exist in
+    // no project, and a rule on them never shows in the preview either.
+    expect(rules).toMatch(/body, html or :root for the page/);
+    expect(rules).toMatch(/never a class of Studio's own/);
   });
 
   it(`stops after ${MAX_PROPOSAL_ATTEMPTS} rejected proposals`, async () => {
