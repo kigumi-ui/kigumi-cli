@@ -1,5 +1,5 @@
 /**
- * The GitHub half of the PR body and PR log guards (issue #150): thin calls
+ * The GitHub half of the PR body guard (issue #150): thin calls
  * through `gh api`. `{owner}/{repo}` resolves from `GH_REPO` (set in CI) or
  * the git remote of the working directory, so the same calls work locally.
  *
@@ -87,44 +87,6 @@ export function postComment(pr: number, body: string): void {
   );
 }
 
-export interface PullRequestInfo {
-  number: number;
-  draft: boolean;
-  authorType: string;
-  headRef: string;
-  headSha: string;
-  /** The head branch lives in this repository, not in a fork. */
-  sameRepo: boolean;
-  baseRef: string;
-  /** Seconds since the epoch. */
-  createdAt: number;
-  body: string;
-}
-
-export function pullRequest(pr: number): PullRequestInfo {
-  const raw = JSON.parse(ghApi([`repos/{owner}/{repo}/pulls/${pr}`])) as {
-    number: number;
-    draft: boolean;
-    created_at: string;
-    body: string | null;
-    user: { type: string };
-    // `repo` is null once a fork's repository is deleted.
-    head: { ref: string; sha: string; repo: { full_name: string } | null };
-    base: { ref: string; repo: { full_name: string } };
-  };
-  return {
-    number: raw.number,
-    draft: raw.draft,
-    authorType: raw.user.type,
-    headRef: raw.head.ref,
-    headSha: raw.head.sha,
-    sameRepo: raw.head.repo?.full_name === raw.base.repo.full_name,
-    baseRef: raw.base.ref,
-    createdAt: seconds(raw.created_at),
-    body: raw.body ?? '',
-  };
-}
-
 const BODY_REVISIONS = `
   query($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
     repository(owner: $owner, name: $repo) {
@@ -180,31 +142,4 @@ export function lastReadyForReview(pr: number): number | null {
     ])
   ).map(seconds);
   return times.length === 0 ? null : Math.max(...times);
-}
-
-/** Sets a commit status on `sha`. Needs `statuses: write`. */
-export function setStatus(
-  sha: string,
-  status: {
-    context: string;
-    state: string;
-    description: string;
-    targetUrl?: string;
-  }
-): void {
-  ghApi(
-    [
-      '--method',
-      'POST',
-      `repos/{owner}/{repo}/statuses/${sha}`,
-      '--input',
-      '-',
-    ],
-    JSON.stringify({
-      context: status.context,
-      state: status.state,
-      description: status.description,
-      target_url: status.targetUrl,
-    })
-  );
 }
