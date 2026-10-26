@@ -27,14 +27,22 @@ interface ThemeCSSDialogProps {
 
 type Download = 'all' | 'theme.css' | 'overrides.css';
 
-/** Hand `content` to the browser as a file named `name`. */
+/**
+ * Hand `content` to the browser as a file named `name`. The link goes into
+ * the document for the click, and its URL is freed only later: a browser
+ * reads the file name once the download starts, and Safari names a file
+ * after the blob id, without its extension, when the URL is already gone.
+ */
 function saveFile(name: string, content: string) {
   const url = URL.createObjectURL(new Blob([content], { type: 'text/css' }));
   const link = document.createElement('a');
   link.href = url;
   link.download = name;
+  link.hidden = true;
+  document.body.append(link);
   link.click();
-  URL.revokeObjectURL(url);
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 40_000);
 }
 
 function download(theme: CustomThemeState, which: Download) {
