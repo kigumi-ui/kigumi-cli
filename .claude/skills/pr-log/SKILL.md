@@ -16,10 +16,11 @@ per push, never edited afterwards. Reviewers, human or agent, read the body
 and the log together, and the diff decides where they disagree.
 `docs/adr/0006` has the reasoning.
 
-Two guards hold this deterministically, and they are the source of truth for
-every rule: `pnpm validate:pr-body` (the `PR body` check) and
-`pnpm check:pr-log` (the `pr-log` status). Run them locally before GitHub
-does.
+`pnpm validate:pr-body` (the `PR body` check) holds the body
+deterministically and is the source of truth for its rules: run it locally
+before GitHub does. The log is a convention, not a check (`docs/adr/0013`):
+nothing fails when a round is missing, so post one after every push anyway.
+Reviewers rely on it, and the body's `## Verification` names its rounds.
 
 ## Opening a PR
 
@@ -67,12 +68,9 @@ A **round** is one push session. Each round gets exactly one new log comment.
      `pnpm sabotage <cases.json>` prints the bug-injection table, and
      reports a case whose test never ran as did-not-run.
 5. `gh pr comment <pr> --body-file <file>`.
-6. Run `pnpm check:pr-log --pr <pr>`. Done when it exits 0. It exits 1 while
-   a commit sits outside every Covers range; on GitHub that same state shows
-   as a waiting `pending`, not a failure, because a round can only follow
-   its push. A merge of the base branch that resolves nothing by hand
-   (GitHub's "Update branch") needs no round; a merge that resolves a
-   conflict does.
+
+A merge of main that resolves nothing by hand (GitHub's "Update branch")
+needs no round of its own; a merge that resolves a conflict does.
 
 Only log comments by people with write access count (`OWNER`, `MEMBER`,
 `COLLABORATOR`). On a PR from a fork, a maintainer posts the rounds.
@@ -84,10 +82,10 @@ Only log comments by people with write access count (`OWNER`, `MEMBER`,
   Do not backtick runtime/generated files (e.g. `docs/trigger-deploy.log`,
   which is gitignored). Either drop the backticks or move the detail to the
   log comment.
-- **Missing a round after a push**: every commit committed after the PR opened
-  must sit inside a `Covers` range. Push, then post the next round before the
-  checks re-run; otherwise `pr-log` fails with the uncovered commit's SHA and
-  message.
+- **Naming a round that does not exist yet**: on a ready PR, every round
+  `## Verification` names must be a log comment, and the check does not
+  re-run when a comment is posted. Post the round before marking the PR
+  ready.
 
 ## When the body has become wrong
 
@@ -114,7 +112,7 @@ required, and every claim is matched against the diff (Impact against the
 changesets, each `#N`, each backticked repo path, each round or link in
 Verification). Run
 `pnpm validate:pr-body --body-file <file> --pr <pr>` without `--draft`, and
-`pnpm check:pr-log --pr <pr>`, and hand the PR over when both pass.
+hand the PR over when it passes.
 
 ## Bringing an older PR in line
 
