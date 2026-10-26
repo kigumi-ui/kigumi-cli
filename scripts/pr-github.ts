@@ -1,5 +1,5 @@
 /**
- * The GitHub half of the PR body and PR log guards (issue #150): thin calls
+ * The GitHub half of the PR body guard (issue #150): thin calls
  * through `gh api`. `{owner}/{repo}` resolves from `GH_REPO` (set in CI) or
  * the git remote of the working directory, so the same calls work locally.
  *
@@ -180,31 +180,4 @@ export function lastReadyForReview(pr: number): number | null {
     ])
   ).map(seconds);
   return times.length === 0 ? null : Math.max(...times);
-}
-
-/** Sets a commit status on `sha`. Needs `statuses: write`. */
-export function setStatus(
-  sha: string,
-  status: {
-    context: string;
-    state: string;
-    description: string;
-    targetUrl?: string;
-  }
-): void {
-  ghApi(
-    [
-      '--method',
-      'POST',
-      `repos/{owner}/{repo}/statuses/${sha}`,
-      '--input',
-      '-',
-    ],
-    JSON.stringify({
-      context: status.context,
-      state: status.state,
-      description: status.description,
-      target_url: status.targetUrl,
-    })
-  );
 }

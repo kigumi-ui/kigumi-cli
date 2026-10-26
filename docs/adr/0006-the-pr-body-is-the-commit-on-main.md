@@ -64,36 +64,15 @@ two guards hold them:
   every run reads GitHub's own edit history since the PR last became ready,
   so the check keeps failing on later pushes and edits until the PR goes
   back to draft and is marked ready again.
-- `pr-log.yml` (`check:pr-log`) requires every commit committed after the PR
-  opened to sit in some log comment's `Covers:` range. Committer time stands
-  in for push time, which GitHub does not expose per commit: a commit made
-  before the PR opened but pushed later needs no round, and a rebase renews
-  the time, so rewritten commits need one. It runs on
-  `issue_comment` too, since posting the comment is what fixes it, and a
-  comment-triggered job is attached to main rather than the PR, so it reports
-  the `pr-log` commit status instead of a job result. A round names the
-  commits its push brought, so it can only be posted after the push; until
-  then the status is `pending`, not `failure`. Pending blocks the merge as
-  a failure does, so a forgotten round still stops it, without a red check
-  after every push. A merge of the base branch that resolves nothing by hand
-  (every parent but the first already in the base, and no hunk in
-  `git diff-tree --cc`, as GitHub's "Update branch" makes) brings nothing of
-  the PR's own and needs no round; a resolved conflict is new work and
-  does. No run is cancelled: the comment's run cancelling the push's left
-  the cancelled push run red on the PR's head, where no comment run can
-  replace it. A run posts its status only while the PR's head, draft state
-  and comments are still what it read, so an older run that finishes last
-  never overwrites a newer result.
+- The log was enforced by a `pr-log` commit status until ADR 0013, which
+  removed it: the log is a convention of the pr-log skill, and the body's
+  `## Verification` names the rounds that hold the evidence.
 
 Bots and this repository's changesets release PR (not a fork's branch of
 the same name) are exempt from the structure and claim rules and from the
 log: their bodies are generated. The attribution rule still applies, since
 the squash writes their body to main like any other, and the release body
-is built from changesets that agents write. A commit status has no skipped
-state, so `pr-log` passes an exempt PR with the description
-`Not checked: exempt (...)` and keeps a draft `pending`. That is ADR 0003
-applied within what the status API allows: the outcome never claims a
-check ran.
+is built from changesets that agents write.
 
 ## Consequences
 
@@ -101,10 +80,8 @@ The prose of the body stays unverifiable by a script. `/code-review`'s Spec
 axis covers it: it reads the body and the log against the diff and reports
 body claims the diff does not back and user-facing changes the body omits.
 
-Only log comments by `OWNER`, `MEMBER` or `COLLABORATOR` count, so a comment
-from anyone else can neither cover commits nor fail the status with a
-malformed header. A fork's PR therefore gets its log rounds from a
-maintainer, and its `pr-log` status only from comment runs. It gets no edit
+Only log comments by `OWNER`, `MEMBER` or `COLLABORATOR` count as rounds,
+so a fork's PR gets its log rounds from a maintainer. It gets no edit
 trail either: the trail job skips forks, whose token cannot comment. A
 rewrite of its body still fails, since the body check reads GitHub's edit
 history. The repo's PRs come from its own branches, so this is accepted

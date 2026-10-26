@@ -47,8 +47,8 @@ tests/
 │   ├── scripts/check-starter-wa-version.test.ts # Starter job guard: a starter older than DEFAULT_WEBAWESOME_VERSION fails, numeric compare, missing install fails (#138)
 │   ├── parse-custom-elements-import.test.ts # Importing the parser never starts main() (#106)
 │   ├── scripts/validate-cem-sync-coverage.test.ts # cem-sync two-half coverage reporting (presence, and the manifest half: prop-value + attribute drift)
-│   ├── scripts/pr-body-rules.test.ts # PR body rules (headings, noise constructs, size, attribution, claims vs the diff), body-edit ratio and trail, rewrites since ready from the edit history, log coverage and the pr-log status (#150)
-│   ├── scripts/pr-body-context.test.ts # Git facts for the PR guards on real temp repos: changeset bump and known paths (also once main moved on), branch commits, the PR's merge base via a clone, rev-list ranges (#150)
+│   ├── scripts/pr-body-rules.test.ts # PR body rules (headings, noise constructs, size, attribution, claims vs the diff), body-edit ratio and trail, rewrites since ready from the edit history, the log rounds a Verification may name (#150)
+│   ├── scripts/pr-body-context.test.ts # Git facts for the PR body guard on real temp repos: changeset bump and known paths (also once main moved on) (#150)
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
 │   ├── helpers.test.ts              # Cluster S helpers (createRecordingOutput, createTestPrompts, writeTierFixture)
 │   ├── init-config-preservation.test.ts # Init with config preservation scenarios
@@ -133,7 +133,7 @@ tests/
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
 │   ├── validate-agents.test.ts      # Pure matchers for templates/AGENTS.md count claims, for history (date stamp, changelog heading) in agent context files, and the tests/ tree (parseTestTree: rows as paths; findTestTreeDrift: both directions, exact paths and glob rows); checkNoHistory() and checkTestFiles() on a temp git repo
 │   ├── validate-gha-permissions.test.ts # Pure matcher for GHA job-level permissions vs actions/checkout (cluster V)
-│   ├── workflow-cancellation.test.ts # pr-log.yml cancels no run, ci.yml cancels only for a newer commit (`synchronize`): a cancelled run stays red on the PR's head when no later check of that name lands there; an unreadable `cancel-in-progress` fails
+│   ├── workflow-cancellation.test.ts # ci.yml cancels a run only for a newer commit (`synchronize`): a cancelled run stays red on the PR's head when no later check of that name lands there; an unreadable `cancel-in-progress` fails
 │   ├── validate-gha-issue-writes.test.ts # `gh issue` writes in PR-triggered workflows: trigger forms, read vs write subcommands, which `if:` shapes gate off pull_request with `&&` binding tighter than `||`, the fix hint naming every reachable event, the guard outcome (an empty inspection could not run), and the validator on temp workflow dirs (issue #147)
 │   ├── pro-registry.test.ts         # KIGUMI_PRO_REGISTRY: resolveProRegistry's fallbacks, and the registry line `init` writes, the token key and the auth key all following the override
 │   ├── pre-tool-guardrails.test.ts  # Drives the PreToolUse hook end-to-end against real throwaway git repos: default-branch guard, worktree exemption, escape hatch (cluster T)

@@ -1,8 +1,8 @@
 /**
- * The git half of the PR body and PR log guards (issue #150, ADR 0006):
- * reads the facts `pr-body-rules.ts` checks a body and a log against. Kept
- * apart from the rules so those stay pure, and from the CLIs so this half is
- * testable against a real repository.
+ * The git half of the PR body guard (issue #150, ADR 0006): reads the
+ * facts `pr-body-rules.ts` checks a body against. Kept apart from the rules
+ * so those stay pure, and from the CLI so this half is testable against a
+ * real repository.
  *
  * `base` and `head` are commits. Diffs use the merge base (`base...head`),
  * so commits that landed on main after the branch point do not count, and
@@ -76,120 +76,4 @@ export function knownPaths(
       ])
     ),
   ]);
-}
-
-/**
- * The merge base of a PR's head and its base branch, as they are on
- * `origin`. A main checkout (the comment-triggered pr-log run) has neither
- * the PR's commits nor necessarily the base branch's tip, so both are
- * fetched under `refs/pr-log/<n>/`, which only pins them for this read and
- * is removed again, even when the fetch fails halfway.
- */
-export function prMergeBase(
-  cwd: string,
-  pr: { number: number; baseRef: string; headSha: string }
-): string {
-  const headRef = `refs/pr-log/${pr.number}/head`;
-  const baseRef = `refs/pr-log/${pr.number}/base`;
-  try {
-    git(cwd, [
-      'fetch',
-      '--no-tags',
-      '--quiet',
-      'origin',
-      `+refs/pull/${pr.number}/head:${headRef}`,
-      `+refs/heads/${pr.baseRef}:${baseRef}`,
-    ]);
-    return git(cwd, ['merge-base', baseRef, pr.headSha]).trim();
-  } finally {
-    git(cwd, ['update-ref', '-d', headRef]);
-    git(cwd, ['update-ref', '-d', baseRef]);
-  }
-}
-
-export interface BranchCommit {
-  sha: string;
-  /** Committer time, seconds since the epoch. A rebase or amend renews it. */
-  committedAt: number;
-  /** First line of the commit message, for human-readable diagnostics. */
-  message: string;
-  /**
-   * A merge of the base branch that resolves nothing by hand, as GitHub's
-   * "Update branch" makes: it brings only commits main already has, so it
-   * needs no log round.
-   */
-  baseMerge: boolean;
-}
-
-function isAncestor(cwd: string, commit: string, of: string): boolean {
-  try {
-    git(cwd, ['merge-base', '--is-ancestor', commit, of]);
-    return true;
-  } catch (_error) {
-    // Exit 1 means "not an ancestor"; anything else counts as not one either,
-    // so an unreadable merge still needs a round.
-    return false;
-  }
-}
-
-/**
- * Every parent but the first is already in `base`, and `git diff-tree --cc`
- * shows no hunk: the merge result differs from no parent in a way git did
- * not make itself, so a conflict resolved by hand needs a round.
- */
-function isBaseMerge(
-  cwd: string,
-  sha: string,
-  parents: string[],
-  base: string
-): boolean {
-  if (parents.length < 2) return false;
-  if (!parents.slice(1).every((parent) => isAncestor(cwd, parent, base))) {
-    return false;
-  }
-  return (
-    git(cwd, ['diff-tree', '--cc', '--no-commit-id', '-p', sha]).trim() === ''
-  );
-}
-
-/** The commits on the branch (`base..head`), newest first. */
-export function branchCommits(
-  cwd: string,
-  base: string,
-  head: string
-): BranchCommit[] {
-  return lines(
-    git(cwd, ['log', '--format=%H%x09%ct%x09%P%x09%s', `${base}..${head}`])
-  ).map((line) => {
-    const [sha, time, parents, ...messageParts] = line.split('\t');
-    return {
-      sha,
-      committedAt: Number(time),
-      message: messageParts.join('\t'),
-      baseMerge: isBaseMerge(cwd, sha, parents.split(' '), base),
-    };
-  });
-}
-
-function resolves(cwd: string, ref: string): boolean {
-  try {
-    git(cwd, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]);
-    return true;
-  } catch (_error) {
-    // rev-parse exits non-zero for an unknown or ambiguous ref: the range is stale.
-    return false;
-  }
-}
-
-/**
- * `git rev-list from..to` as full SHAs, or null when either end does not
- * exist here, e.g. a range a rebase rewrote away. Feeds `logCoverage`.
- */
-export function rangeResolver(
-  cwd: string
-): (from: string, to: string) => string[] | null {
-  return (from, to) => {
-    if (!resolves(cwd, from) || !resolves(cwd, to)) return null;
-    return lines(git(cwd, ['rev-list', `${from}..${to}`]));
-  };
 }

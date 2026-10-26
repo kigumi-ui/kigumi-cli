@@ -1,14 +1,14 @@
 /**
- * PR body and PR log rules (issue #150, ADR 0006).
+ * PR body rules (issue #150, ADR 0006, ADR 0013).
  *
  * The repo squashes with `squash_merge_commit_message: PR_BODY`, so a PR body
  * becomes the commit message on main. These rules keep that body short and
- * true. Evidence and review history belong in the PR log instead: one
- * append-only comment per push, headed `**Round N** · Covers: a..b`.
+ * true. Evidence and review history belong in the PR log instead: comments
+ * headed `**Round N** · Covers: a..b`, which `## Verification` names.
  *
- * Everything here is pure. The CLIs (`validate-pr-body.ts`,
- * `check-pr-log.ts`) gather the facts from git and the GitHub API and pass
- * them in, so every rule is testable on literal input.
+ * Everything here is pure. The CLI (`validate-pr-body.ts`) gathers the facts
+ * from git and the GitHub API and passes them in, so every rule is testable
+ * on literal input.
  */
 
 import { diffComm } from 'node-diff3';
@@ -648,7 +648,9 @@ export function checkEditHistory(
 
 /**
  * A log comment's first line. `a..b` has git's meaning: the commits after
- * `a` up to and including `b`, as `git rev-list a..b` lists them.
+ * `a` up to and including `b`, as `git rev-list a..b` lists them. No check
+ * holds the ranges to the pushes (ADR 0013); `## Verification` names rounds
+ * by their number.
  */
 const LOG_HEADER =
   /^\*\*Round (\d+)\*\* · Covers: ([0-9a-f]{7,40})\.\.([0-9a-f]{7,40})$/;
@@ -668,75 +670,20 @@ export interface LogComment {
   trusted: boolean;
 }
 
-export interface LogCoverage {
-  /** Required commits no log comment covers, in the order given. */
-  uncovered: string[];
-  /** Comments that start like a log header but do not parse. */
-  unparseable: number[];
-  /** Log comments whose range no longer resolves, e.g. after a rebase. */
-  stale: number[];
-  /** Log comments that parsed. */
-  rounds: number;
-}
-
-/**
- * Checks that every required commit (committed after the PR opened) sits inside
- * some log comment's Covers range. `resolveRange` lists the commits a range
- * covers, or returns null when either end no longer exists.
- */
-/** A trusted comment's log header, or null when it is none; `'unparseable'` when it starts like one. */
-function logHeader(
-  comment: LogComment
-): RegExpExecArray | 'unparseable' | null {
-  if (!comment.trusted) return null;
-  const header = comment.body
-    .replace(/\r\n?/g, '\n')
-    .trim()
-    .split('\n')[0]
-    .trim();
-  if (!header.startsWith('**Round')) return null;
-  return LOG_HEADER.exec(header) ?? 'unparseable';
-}
-
-/** The round numbers of the trusted, parseable log comments, for `## Verification`. */
+/** The round numbers of the trusted log comments, for `## Verification`. */
 export function logRounds(comments: readonly LogComment[]): Set<number> {
   const rounds = new Set<number>();
   for (const comment of comments) {
-    const match = logHeader(comment);
-    if (match && match !== 'unparseable') rounds.add(Number(match[1]));
+    if (!comment.trusted) continue;
+    const header = comment.body
+      .replace(/\r\n?/g, '\n')
+      .trim()
+      .split('\n')[0]
+      .trim();
+    const match = LOG_HEADER.exec(header);
+    if (match) rounds.add(Number(match[1]));
   }
   return rounds;
-}
-
-export function logCoverage(
-  required: readonly string[],
-  comments: readonly LogComment[],
-  resolveRange: (from: string, to: string) => readonly string[] | null
-): LogCoverage {
-  const covered = new Set<string>();
-  const result: LogCoverage = {
-    uncovered: [],
-    unparseable: [],
-    stale: [],
-    rounds: 0,
-  };
-  for (const comment of comments) {
-    const match = logHeader(comment);
-    if (match === null) continue;
-    if (match === 'unparseable') {
-      result.unparseable.push(comment.id);
-      continue;
-    }
-    result.rounds += 1;
-    const commits = resolveRange(match[2], match[3]);
-    if (commits === null) {
-      result.stale.push(comment.id);
-      continue;
-    }
-    for (const sha of commits) covered.add(sha);
-  }
-  result.uncovered = required.filter((sha) => !covered.has(sha));
-  return result;
 }
 
 /**
@@ -755,117 +702,4 @@ export function isExempt(pr: {
     return 'release PR';
   }
   return null;
-}
-
-/**
- * The commits a log round has to cover: committed after the PR opened
- * (committer time stands in for push time), except merges of the base
- * branch that resolve nothing by hand, which bring nothing of the PR's own.
- */
-export function requiredCommits(
-  commits: readonly { sha: string; committedAt: number; baseMerge: boolean }[],
-  openedAt: number
-): { required: string[]; baseMerges: number } {
-  const afterOpening = commits.filter((c) => c.committedAt > openedAt);
-  const required = afterOpening.filter((c) => !c.baseMerge).map((c) => c.sha);
-  return { required, baseMerges: afterOpening.length - required.length };
-}
-
-export interface LogStatus {
-  state: 'success' | 'failure' | 'pending' | 'error';
-  /** GitHub truncates status descriptions at 140 characters. */
-  description: string;
-}
-
-/**
- * What a `pr-log` result is computed from: the PR's head, whether it is a
- * draft, and its comments. The workflow cancels no run, so an older run can
- * finish after a newer one; it posts its status only while these are still
- * what GitHub has, and otherwise leaves the word to the newer run.
- */
-export function logInputs(
-  pr: { headSha: string; draft: boolean },
-  comments: readonly { id: number; body: string }[]
-): string {
-  return JSON.stringify([
-    pr.headSha,
-    pr.draft,
-    comments.map((c) => [c.id, c.body]),
-  ]);
-}
-
-/**
- * `check:pr-log`'s exit code on a local run. An uncovered commit fails it
- * although the status on GitHub only waits: the author running it locally
- * is the one to post the round.
- */
-export function logExitCode(status: LogStatus, coverage: LogCoverage): number {
-  return status.state === 'failure' ||
-    status.state === 'error' ||
-    coverage.uncovered.length > 0
-    ? 1
-    : 0;
-}
-
-/**
- * The `pr-log` commit status. A commit status has no "skipped" state, so the
- * description carries what was not checked (ADR 0003): a draft stays
- * pending, and an exempt PR passes with "Not checked" rather than a bare pass.
- */
-export function logStatus(input: {
-  exempt: string | null;
-  draft: boolean;
-  branchCommits: number;
-  required: number;
-  /** Merges of the base branch that resolve nothing by hand: they need no round. */
-  baseMerges: number;
-  coverage: LogCoverage;
-}): LogStatus {
-  const { exempt, draft, branchCommits, required, baseMerges, coverage } =
-    input;
-  if (exempt)
-    return { state: 'success', description: `Not checked: exempt (${exempt})` };
-  if (draft) {
-    return {
-      state: 'pending',
-      description:
-        'Draft: log coverage is checked when the PR is ready for review',
-    };
-  }
-  if (branchCommits === 0) {
-    return {
-      state: 'error',
-      description:
-        'No commits between base and head: the range or the checkout is wrong',
-    };
-  }
-  const uncovered = `${coverage.uncovered.length} commit(s) in no log comment's Covers range`;
-  if (coverage.unparseable.length > 0) {
-    const problems = [
-      ...(coverage.uncovered.length > 0 ? [uncovered] : []),
-      `unparseable log header in comment ${coverage.unparseable.join(', ')}`,
-    ];
-    return { state: 'failure', description: problems.join('; ').slice(0, 140) };
-  }
-  // A round names the commits a push brought, so it can only follow the
-  // push: until it is posted the status waits. Pending blocks the merge as
-  // failure does, without a red check after every push.
-  if (coverage.uncovered.length > 0) {
-    return {
-      state: 'pending',
-      description: `${uncovered} yet: waiting for this push's round`,
-    };
-  }
-  const merges =
-    baseMerges > 0 ? `; ${baseMerges} merge(s) of the base need none` : '';
-  if (required === 0) {
-    return {
-      state: 'success',
-      description: `No commits committed after the PR opened (${branchCommits} on the branch)${merges}`,
-    };
-  }
-  return {
-    state: 'success',
-    description: `All ${required} commit(s) committed after the PR opened are covered by ${coverage.rounds} log comment(s)${merges}`,
-  };
 }
