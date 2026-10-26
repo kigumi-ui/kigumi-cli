@@ -30,6 +30,11 @@ export interface SabotageCase {
   test: string;
   /** Directory vitest runs in, relative to the repo root (default: root). */
   cwd?: string;
+  /**
+   * Vitest config, relative to `cwd`, for a test outside the default
+   * project: `vitest.storybook.config.ts` for an interaction story.
+   */
+  config?: string;
 }
 
 export interface VitestSummary {
@@ -38,6 +43,12 @@ export interface VitestSummary {
 }
 
 export type Verdict = 'red' | 'green' | 'did-not-run';
+
+/** The `npx` arguments that run a case's test. */
+export function vitestArgs(sabotage: SabotageCase): string[] {
+  const config = sabotage.config ? ['--config', sabotage.config] : [];
+  return ['vitest', 'run', ...config, sabotage.test];
+}
 
 /** `source` with its one occurrence of `find` replaced. */
 export function injectOnce(
@@ -135,7 +146,7 @@ function main(): void {
     writeFileSync(file, injected);
     let output: string;
     try {
-      const run = spawnSync('npx', ['vitest', 'run', sabotage.test], {
+      const run = spawnSync('npx', vitestArgs(sabotage), {
         cwd: path.resolve(root, sabotage.cwd ?? '.'),
         encoding: 'utf8',
       });

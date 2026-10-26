@@ -47,6 +47,7 @@ export const INTERACTION_STORIES = [
   'Tag',
   'TagInput',
   'Textarea',
+  'ThemeAgentSidebar',
   'Tooltip',
   'Tree',
 ] as const;

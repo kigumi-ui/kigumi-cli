@@ -10,7 +10,8 @@ import {
   type Ref,
 } from 'react';
 import { useChat } from '@ai-sdk/react';
-import type { UIMessage } from 'ai';
+import type { ChatTransport, UIMessage } from 'ai';
+import type { TriggerChatTransport } from '@trigger.dev/sdk/chat';
 import { useTriggerChatTransport } from '@trigger.dev/sdk/chat/react';
 import clsx from 'clsx';
 import {
@@ -64,7 +65,7 @@ export interface ThemeAgentChatHandle {
   end(): boolean;
 }
 
-type ThemeAgentMessage = UIMessage<
+export type ThemeAgentMessage = UIMessage<
   unknown,
   { status: { step: string } },
   {
@@ -74,6 +75,14 @@ type ThemeAgentMessage = UIMessage<
     };
   }
 >;
+
+/**
+ * How a conversation reaches its run: trigger.dev's transport, or the canned
+ * one the sidebar's interaction story hands in. `getSession` tells whether a
+ * session exists to close.
+ */
+export type ThemeAgentTransport = ChatTransport<ThemeAgentMessage> &
+  Pick<TriggerChatTransport, 'getSession'>;
 
 function messageText(message: ThemeAgentMessage): string {
   return message.parts
@@ -137,6 +146,8 @@ interface ThemeAgentChatProps {
   onDraftChange: (draft: string) => void;
   /** The user sent a message: the shell's lifecycle notice is stale. */
   onActivity: () => void;
+  /** Replaces trigger.dev's transport; see `ThemeAgentTransport`. */
+  transport?: ThemeAgentTransport;
 }
 
 /** One conversation: its chat id, run, conversation module and messages. */
@@ -146,15 +157,17 @@ export function ThemeAgentChat({
   draft,
   onDraftChange,
   onActivity,
+  transport: storyTransport,
 }: ThemeAgentChatProps) {
   const [chatId] = useState(() => crypto.randomUUID());
-  const transport = useTriggerChatTransport({
+  const triggerTransport = useTriggerChatTransport({
     task: THEME_AGENT_TASK_ID,
     startSession: async ({ chatId: id }) => ({
       publicAccessToken: await requestThemeAgentToken('start', id),
     }),
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
   });
+  const transport = storyTransport ?? triggerTransport;
   const [conversation] = useState(createThemeAgentConversation);
   const { currentTheme, locked, lockedValues, applyTheme, setLocked } =
     useThemeAgentStudio();

@@ -6,11 +6,14 @@ import {
   ThemeAgentChat,
   type ConversationStart,
   type ThemeAgentChatHandle,
+  type ThemeAgentTransport,
 } from './ThemeAgentChat';
 import './ThemeAgentSidebar.css';
 
 interface ThemeAgentSidebarProps {
   open: boolean;
+  /** A canned transport for every conversation, for the interaction story. */
+  transport?: ThemeAgentTransport;
 }
 
 /**
@@ -23,7 +26,7 @@ interface ThemeAgentSidebarProps {
  * message survives. A reload starts a fresh one anyway: the chat id is per
  * mount, the custom theme is Studio's and persists.
  */
-export function ThemeAgentSidebar({ open }: ThemeAgentSidebarProps) {
+export function ThemeAgentSidebar({ open, transport }: ThemeAgentSidebarProps) {
   const { onThemeReplaced } = useThemeAgentStudio();
   const [conversation, setConversation] = useState<{
     key: number;
@@ -95,6 +98,7 @@ export function ThemeAgentSidebar({ open }: ThemeAgentSidebarProps) {
         draft={draft}
         onDraftChange={setDraft}
         onActivity={() => setNotice('')}
+        transport={transport}
       />
     </aside>
   );
