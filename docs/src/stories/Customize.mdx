@@ -83,7 +83,27 @@ import { CodeBlock } from '@/components/CodeBlock';
         </Callout>
       </div>
 
-      {/* Step 4: Use Kigumi Studio */}
+      {/* Step 4: Custom CSS rules in overrides.css */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+
+          <h3 className="wa-heading-l" id="custom-css-rules">Write custom CSS rules in overrides.css</h3>
+        </div>
+        <p className="wa-caption-m">
+          Some changes no token expresses. Write those rules in{' '}
+          <code>src/styles/overrides.css</code>, next to{' '}
+          <code>theme.css</code>. <code>layers.css</code> imports it last, into
+          its own <code>overrides</code> layer, so a rule there beats the same
+          rule in <code>theme.css</code> whatever their specificity (on the
+          Next.js Pages Router, which drops the layers, when it is at least as
+          specific). Kigumi creates the file once and never overwrites it.
+        </p>
+        <CodeBlock value={`.Button::part(base) {
+  text-transform: uppercase;
+}`} multiline />
+      </div>
+
+      {/* Step 5: Use Kigumi Studio */}
       <div className="wa-stack wa-gap-m">
         <div className="wa-cluster wa-gap-xs wa-align-items-center">
 

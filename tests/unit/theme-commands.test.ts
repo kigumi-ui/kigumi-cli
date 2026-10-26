@@ -56,7 +56,10 @@ describe('theme command (parent + default set)', () => {
     const regenerate = await import('../../src/utils/regenerate.js');
     regenerateSpy = vi
       .spyOn(regenerate, 'regenerateKigumiSetup')
-      .mockResolvedValue({ layersPreserved: false });
+      .mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: false, layers: 'present' },
+      });
   });
 
   afterEach(async () => {
@@ -577,7 +580,10 @@ describe('theme/install subcommand', () => {
     const regenerate = await import('../../src/utils/regenerate.js');
     regenerateSpy = vi
       .spyOn(regenerate, 'regenerateKigumiSetup')
-      .mockResolvedValue({ layersPreserved: false });
+      .mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: false, layers: 'present' },
+      });
   });
 
   afterEach(async () => {

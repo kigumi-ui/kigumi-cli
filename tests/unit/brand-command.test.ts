@@ -52,7 +52,10 @@ describe('brandCommand', () => {
     const regenerate = await import('../../src/utils/regenerate.js');
     regenerateSpy = vi
       .spyOn(regenerate, 'regenerateKigumiSetup')
-      .mockResolvedValue({ layersPreserved: false });
+      .mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: false, layers: 'present' },
+      });
   });
 
   afterEach(async () => {
@@ -121,7 +124,10 @@ describe('brandCommand', () => {
         const regenerate = await import('../../src/utils/regenerate.js');
         regenerateSpy = vi
           .spyOn(regenerate, 'regenerateKigumiSetup')
-          .mockResolvedValue({ layersPreserved: false });
+          .mockResolvedValue({
+            layersPreserved: false,
+            overrides: { created: false, layers: 'present' },
+          });
 
         const { brandCommand } = await import('../../src/commands/brand.js');
         await brandCommand.parseAsync(['node', 'brand', color]);

@@ -6,13 +6,14 @@
  *
  * Layer hierarchy (earlier = lower priority):
  * 1. base - Web Awesome foundation + theme styles
- * 2. theme - Your custom CSS overrides (theme.css)
+ * 2. theme - Your theme's custom properties (theme.css)
+ * 3. overrides - Your custom CSS rules (overrides.css)
  *
  * Learn more: https://developer.mozilla.org/en-US/docs/Web/CSS/@layer
  */
 
 /* Define layer order */
-@layer base, theme;
+@layer base, theme, overrides;
 
 /* Layer 1: Web Awesome base styles */
 @import '@awesome.me/webawesome-pro/dist/styles/webawesome.css' layer(base);
@@ -20,5 +21,8 @@
 /* Layer 1: Web Awesome theme styles */
 @import '@awesome.me/webawesome-pro/dist/styles/themes/default.css' layer(base);
 
-/* Layer 2: Your custom CSS overrides */
-@import '@/styles/theme.css' layer(theme);
+/* Layer 2: Your theme customization (sibling of layers.css) */
+@import './theme.css' layer(theme);
+
+/* Layer 3: Your custom CSS rules, which beat the theme (sibling of layers.css) */
+@import './overrides.css' layer(overrides);

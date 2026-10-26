@@ -94,6 +94,62 @@ describe('regenerate utilities', () => {
       expect(result.layersPreserved).toBe(true);
     });
 
+    it('creates overrides.css next to the layers.css it writes, and keeps an existing one', async () => {
+      // Every theme, brand and palette change rewrites layers.css, which
+      // imports overrides.css: a project without one would stop building.
+      const { utilsDir, stylesDir } = config;
+      await fs.ensureDir(path.join(testDir, utilsDir));
+      await fs.ensureDir(path.join(testDir, stylesDir));
+      const overridesPath = path.join(testDir, stylesDir, 'overrides.css');
+
+      const first = await regenerateKigumiSetup(
+        testDir,
+        config,
+        utilsDir,
+        'free'
+      );
+      expect(first.overrides).toEqual({ created: true, layers: 'present' });
+      expect(await fs.pathExists(overridesPath)).toBe(true);
+
+      const mine = '.Card { border: 0 }';
+      await fs.writeFile(overridesPath, mine);
+      const second = await regenerateKigumiSetup(
+        testDir,
+        config,
+        utilsDir,
+        'free'
+      );
+      expect(second.overrides.created).toBe(false);
+      expect(await fs.readFile(overridesPath, 'utf-8')).toBe(mine);
+    });
+
+    it('adds the overrides layer to a layers.css it preserves', async () => {
+      // init keeps an existing layers.css; one from before the overrides
+      // layer must still import overrides.css, or rules there never load.
+      const { utilsDir, stylesDir } = config;
+      await fs.ensureDir(path.join(testDir, utilsDir));
+      await fs.ensureDir(path.join(testDir, stylesDir));
+      const layersPath = path.join(testDir, stylesDir, 'layers.css');
+      await fs.writeFile(
+        layersPath,
+        "@layer base, theme;\n@import './theme.css' layer(theme);\n"
+      );
+
+      const result = await regenerateKigumiSetup(
+        testDir,
+        config,
+        utilsDir,
+        'free',
+        { preserveLayersCSS: true }
+      );
+
+      expect(result.layersPreserved).toBe(true);
+      expect(result.overrides.layers).toBe('added');
+      const content = await fs.readFile(layersPath, 'utf-8');
+      expect(content).toContain('@layer base, theme, overrides;');
+      expect(content).toContain("@import './overrides.css' layer(overrides);");
+    });
+
     it('should generate layers.css when preserveLayersCSS is true but file does not exist', async () => {
       const utilsDir = config.utilsDir;
       const stylesDir = config.stylesDir;
@@ -219,7 +275,23 @@ describe('regenerate utilities', () => {
         'default',
         'src/styles'
       );
-      expect(content).toContain('@layer base, theme;');
+      expect(content).toContain('@layer base, theme, overrides;');
+    });
+
+    it('imports overrides.css into the overrides layer, after theme.css', async () => {
+      // ADR 0009: custom CSS lives in its own file and layer, so it beats
+      // theme.css whatever their specificity.
+      const content = await generateLayersCSS(
+        '@awesome.me/webawesome',
+        'default',
+        'src/styles'
+      );
+      const theme = content.indexOf("@import './theme.css' layer(theme);");
+      const overrides = content.indexOf(
+        "@import './overrides.css' layer(overrides);"
+      );
+      expect(theme).toBeGreaterThan(-1);
+      expect(overrides).toBeGreaterThan(theme);
     });
 
     it('should import built-in theme from package path', async () => {

@@ -54,7 +54,10 @@ describe('paletteCommand', () => {
     const regenerate = await import('../../src/utils/regenerate.js');
     regenerateSpy = vi
       .spyOn(regenerate, 'regenerateKigumiSetup')
-      .mockResolvedValue({ layersPreserved: false });
+      .mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: false, layers: 'present' },
+      });
   });
 
   afterEach(async () => {
@@ -113,7 +116,10 @@ describe('paletteCommand', () => {
         const regenerate = await import('../../src/utils/regenerate.js');
         regenerateSpy = vi
           .spyOn(regenerate, 'regenerateKigumiSetup')
-          .mockResolvedValue({ layersPreserved: false });
+          .mockResolvedValue({
+            layersPreserved: false,
+            overrides: { created: false, layers: 'present' },
+          });
 
         const { paletteCommand } =
           await import('../../src/commands/palette.js');
@@ -147,7 +153,10 @@ describe('paletteCommand', () => {
         const regenerate = await import('../../src/utils/regenerate.js');
         regenerateSpy = vi
           .spyOn(regenerate, 'regenerateKigumiSetup')
-          .mockResolvedValue({ layersPreserved: false });
+          .mockResolvedValue({
+            layersPreserved: false,
+            overrides: { created: false, layers: 'present' },
+          });
 
         const { paletteCommand } =
           await import('../../src/commands/palette.js');

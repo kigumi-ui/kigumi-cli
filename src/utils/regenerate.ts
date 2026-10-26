@@ -5,7 +5,8 @@
  * when configuration changes.
  *
  * EXPORTS:
- * - regenerateKigumiSetup() - Regenerate kigumi.ts + layers.css with theme config
+ * - regenerateKigumiSetup() - Regenerate kigumi.ts + layers.css with theme config,
+ *   and make sure overrides.css exists and is imported
  * - generateLayersCSS() - Generate layers.css with @layer cascade control
  * - surgicalRewriteLayersCss() - Rewrite only the Web Awesome @import lines in
  *   an existing layers.css, preserving user customizations
@@ -32,6 +33,10 @@ import {
 } from './detect-framework.js';
 import { toKigumiAlias } from './project-config.js';
 import { LayersCssRewriteError } from '../errors/layers-css.js';
+import {
+  ensureOverridesLayer,
+  type OverridesLayerResult,
+} from './overrides-css.js';
 
 export interface RegenerateOptions {
   /** Skip regenerating layers.css if it exists (for init command) */
@@ -55,7 +60,8 @@ export interface RegenerateOptions {
  *   already detected this at the command entry should pass it through so
  *   the setup regeneration does not repeat the filesystem probe.
  * @param nextRouterOverride - Pre-resolved Next router. Same contract.
- * @returns Object indicating if layers.css was preserved
+ * @returns Whether layers.css was preserved, and what became of
+ *   overrides.css and its import (see `ensureOverridesLayer`)
  */
 export async function regenerateKigumiSetup(
   cwd: string,
@@ -65,7 +71,7 @@ export async function regenerateKigumiSetup(
   options?: RegenerateOptions,
   isNextOverride?: boolean,
   nextRouterOverride?: NextRouter
-): Promise<{ layersPreserved: boolean }> {
+): Promise<{ layersPreserved: boolean; overrides: OverridesLayerResult }> {
   const packageName = getWebAwesomePackage(tier);
   const stylesDir = config.stylesDir;
   const stylesAlias = toKigumiAlias(stylesDir);
@@ -105,6 +111,10 @@ export async function regenerateKigumiSetup(
     );
     await fs.writeFile(layersPath, layersContent);
   }
+
+  // layers.css imports overrides.css: create it when missing, and add the
+  // layer to a preserved layers.css from before it existed (ADR 0009).
+  const overrides = await ensureOverridesLayer(cwd, stylesDir);
 
   // Generate theme classes script
   const themeClasses =
@@ -156,7 +166,7 @@ export {};
   const setupFilePath = path.join(cwd, utilsDir, 'kigumi.ts');
   await fs.writeFile(setupFilePath, finalSetupFileContent);
 
-  return { layersPreserved };
+  return { layersPreserved, overrides };
 }
 
 /**
@@ -221,13 +231,16 @@ export async function generateLayersCSS(
   // cascade outrank any named layer. That's fine for the stock `theme.css`
   // template (plain `:root { --wa-* }` overrides win via source order), but
   // it does mean a user who wraps overrides in `@layer theme { … }` on Pages
-  // Router will lose to WA's unlayered rules. The `@layer base, theme;`
-  // declaration still emits so any named-layer authoring the user adds keeps
-  // `base < theme` order relative to other named layers.
+  // Router will lose to WA's unlayered rules. `overrides.css` still comes
+  // last, so it beats `theme.css` by source order. The
+  // `@layer base, theme, overrides;` declaration still emits so any
+  // named-layer authoring the user adds keeps that order relative to other
+  // named layers.
   // App Router (Turbopack) and Vite both preserve the qualifier.
   const usePlainImports = nextRouter === 'pages';
   const baseLayer = usePlainImports ? '' : ' layer(base)';
   const themeLayer = usePlainImports ? '' : ' layer(theme)';
+  const overridesLayer = usePlainImports ? '' : ' layer(overrides)';
 
   return `/**
  * Web Awesome CSS Cascade Layers
@@ -237,13 +250,14 @@ export async function generateLayersCSS(
  *
  * Layer hierarchy (earlier = lower priority):
  * 1. base - Web Awesome foundation + theme styles
- * 2. theme - Your custom CSS overrides (theme.css)
+ * 2. theme - Your theme's custom properties (theme.css)
+ * 3. overrides - Your custom CSS rules (overrides.css)
  *
  * Learn more: https://developer.mozilla.org/en-US/docs/Web/CSS/@layer
  */
 
 /* Define layer order */
-@layer base, theme;
+@layer base, theme, overrides;
 
 /* Layer 1: Web Awesome base styles */
 @import '${packageName}/dist/styles/webawesome.css'${baseLayer};
@@ -251,8 +265,11 @@ export async function generateLayersCSS(
 /* Layer 1: Web Awesome theme styles */
 @import '${themeImport}'${baseLayer};
 
-/* Layer 2: Your custom CSS overrides (sibling of layers.css) */
+/* Layer 2: Your theme customization (sibling of layers.css) */
 @import './theme.css'${themeLayer};
+
+/* Layer 3: Your custom CSS rules, which beat the theme (sibling of layers.css) */
+@import './overrides.css'${overridesLayer};
 `;
 }
 

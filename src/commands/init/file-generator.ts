@@ -24,6 +24,7 @@ import {
   generateGitIgnore,
 } from '../../utils/regenerate.js';
 import type { ProjectInfo } from '../../utils/detect-framework.js';
+import { reportOverridesLayer } from '../../utils/overrides-css.js';
 import { writeProjectNpmrc } from '../../utils/npmrc.js';
 import fs from 'fs-extra';
 import path from 'path';
@@ -74,7 +75,7 @@ export async function generateProjectFiles(
     // 2. Generate kigumi.ts (and layers.css)
     spinner.message('Generating kigumi.ts...');
     output.debug(`[DEBUG] Generating kigumi.ts in ${utilsDir}`);
-    const { layersPreserved } = await regenerateKigumiSetup(
+    const { layersPreserved, overrides } = await regenerateKigumiSetup(
       cwd,
       config,
       utilsDir,
@@ -92,6 +93,13 @@ export async function generateProjectFiles(
     } else {
       output.debug(`[DEBUG] ✓ layers.css generated`);
     }
+    // overrides.css is the user's, like theme.css (ADR 0009).
+    if (!overrides.created) {
+      output.info(
+        'ℹ️  Existing overrides.css found - preserving your custom rules'
+      );
+    }
+    reportOverridesLayer(overrides, stylesDir, output);
 
     // 3. Generate theme.css (only if it doesn't exist)
     spinner.message('Generating theme.css...');

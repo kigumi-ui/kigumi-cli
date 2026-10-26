@@ -47,7 +47,8 @@ src/
 │   ├── config.ts         # kigumi.config.json handling
 │   ├── dependency-installer.ts # npm/pnpm install + old-package cleanup (shared by init and upgrade); brings .npmrc in line first; on Pro it passes the token (the one given, else the one found) to the package manager as WEBAWESOME_NPM_TOKEN and warns when the user's own installs will lack it; writes the exact Web Awesome version over an existing range first, since pnpm keeps a `^` despite --save-exact
 │   ├── template.ts       # Template materialization (read + tier-swap)
-│   ├── regenerate.ts     # Auto-generate kigumi.ts, theme.css
+│   ├── regenerate.ts     # Auto-generate kigumi.ts, layers.css, theme.css
+│   ├── overrides-css.ts  # overrides.css and the overrides layer: ensureOverridesLayer() creates the file when missing, never overwrites it, and adds the layer to an older layers.css in place; reportOverridesLayer() words the outcome (ADR 0009)
 │   ├── json.ts           # JSON with comments support
 │   ├── github-fetcher.ts # Registry source parsing + fetch — accepts GitHub URLs and local filesystem paths via the RegistrySource union (parseGitHubUrl, fetchFile, fetchRegistryJson all branch on source.kind)
 │   ├── foreign-files-staging.ts # Stages source-framework files into .kigumi/foreign/<slug>/ with _meta.json for the kigumi-cross-framework skill (paired with kigumi add --cross-framework)
@@ -283,9 +284,10 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, `vite-env.d.ts`, and — for N
 
 **Key Design Decisions:**
 
-- **`layers.css`** (auto-generated): Wraps all Web Awesome imports in `@layer` for cascade control. Base layer (Web Awesome CSS) < theme layer (user custom CSS). Regenerated on every theme/brand/palette change.
+- **`layers.css`** (auto-generated): Wraps all Web Awesome imports in `@layer` for cascade control. Base layer (Web Awesome CSS) < theme layer (`theme.css`) < overrides layer (`overrides.css`, imported last). Regenerated on every theme/brand/palette change.
 - **`kigumi.ts`** (auto-generated): Imports layers.css and applies theme classes to `<html>`. Regenerated on every theme/brand/palette change. For Next.js projects (`isNextProject(cwd)` returns true), `regenerateKigumiSetup` prepends `'use client';` so the `customElements.define` patch runs on the client.
-- **`theme.css`** (user-editable): User's custom CSS overrides ONLY. Generated only on `init` if file doesn't exist, then preserved on subsequent inits.
+- **`theme.css`** (user-editable): The user's design tokens. Generated only on `init` if file doesn't exist, then preserved on subsequent inits.
+- **`overrides.css`** (user-editable, `utils/overrides-css.ts`): The user's custom CSS rules, which beat `theme.css`. `regenerateKigumiSetup` and `upgrade` call `ensureOverridesLayer()`, which creates it when missing and never overwrites it, and adds the layer to a `layers.css` it did not just write (one `init` preserves, or any in `upgrade`): `overrides` after `theme` in the `@layer` statement, and the import right after the `theme.css` import, from the same directory and with the same qualifier. A `layers.css` without a `theme.css` import is left alone with a warning naming the line to add.
 - **`vite-env.d.ts`** / **`web-awesome.d.ts`**: TypeScript declarations for React+TS projects. Written once by `init` via `generateViteEnvDts()` / `generateNextEnvDts()` in `utils/regenerate.ts` — both emit a string literal that imports `CustomElements` and `CustomCssProperties` from the official Web Awesome package and augments `JSX.IntrinsicElements` with `declare global`. `add` does not touch these files; per-component prop types come straight from the WA package. Vite projects get `vite-env.d.ts` (with the `/// <reference types="vite/client" />` directive); Next.js projects get `web-awesome.d.ts` (no vite reference, Next owns `next-env.d.ts`). Vue+TS projects get `env.d.ts` via `configureVueTypes()` in `utils/project-config.ts`.
 
   All three follow the layout `detectSourceLayout()` reports: `src` layout writes into `src/`, root layout writes into the project root. Each creates the target directory before writing — `init` writes into directories it does not otherwise create, and hardcoding `src` here crashed root-layout React and Vue projects with ENOENT (issue #48). `configureVueTypes()` takes `sourceLayout` as an optional fourth parameter defaulting to `'src'`.
@@ -294,6 +296,7 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, `vite-env.d.ts`, and — for N
 
 - `layers.css` + `kigumi.ts`: All theme/brand/palette commands
 - `theme.css`: Only `init` (if file doesn't exist)
+- `overrides.css`: Only when missing, by `init`, theme/brand/palette commands and `upgrade`
 
 ### `utils/naming.ts` - Naming Conventions
 
@@ -340,7 +343,7 @@ Consumers:
 
 - `detect-framework.ts` (`getProjectInfo`) — detects `react + react-dom + next` presence in deps and sets `isNext: true` on the returned `ProjectInfo`.
 - `generateComponent` — prepends `'use client';` to React output when `isNextProject(cwd)`. Same directive for both routers: App Router needs it; Pages Router treats it as a harmless top-level string, so emitting uniformly keeps generated output consistent when a project migrates from Pages to App. **When `detectNextRouter(cwd) === 'pages'`, also strips the per-component `import './<Name>.css';` line** — Next's Pages Router rejects global CSS imports outside `pages/_app.tsx`, including transitively via components. Users add per-component stub CSS to `_app.tsx` manually if they customize it.
-- `regenerateKigumiSetup` — prepends `'use client';` to `kigumi.ts` for the same reason. **When `nextRouter === 'pages'`, also omits the `import '<stylesAlias>/layers.css';` line** for the same Pages-Router CSS policy. An explanatory comment replaces the import so future readers understand why it's missing. Users add `layers.css` + `theme.css` directly to `_app.tsx` per post-install instructions.
+- `regenerateKigumiSetup` — prepends `'use client';` to `kigumi.ts` for the same reason. **When `nextRouter === 'pages'`, also omits the `import '<stylesAlias>/layers.css';` line** for the same Pages-Router CSS policy. An explanatory comment replaces the import so future readers understand why it's missing. Users add `layers.css` directly to `_app.tsx` per post-install instructions; it imports `theme.css` and `overrides.css` itself.
 - `generateNextEnvDts` — sibling of `generateViteEnvDts`; writes `web-awesome.d.ts` without the `vite/client` reference. Location follows `sourceLayout` (`src/` or root).
 - `configureTSConfig(cwd, output, sourceLayout)` — tries `tsconfig.app.json` first, falls back to `tsconfig.json`. When adding a missing `@/*` alias, picks `['./src/*']` for the `src` layout and `['./*']` for the `root` layout so the generated directory structure and the path alias agree.
 - `file-generator.ts` — skips `configureVitePathAliases` for Next; writes `providers.tsx` next to `app/` (either `app/providers.tsx` or `src/app/providers.tsx` depending on layout) **only** when `nextRouter !== 'pages'`. Pages Router projects get a post-install instruction pointing at `pages/_app.tsx` instead — their `_app.tsx` is user-owned.
