@@ -629,7 +629,6 @@ export function showPostInstallInstructions(
     );
     output.info(pc.dim('\tEdit pages/_app.tsx:'));
     output.info(pc.green(`\timport '${stylesAlias}/layers.css';`));
-    output.info(pc.green(`\timport '${stylesAlias}/theme.css';`));
     output.info(pc.green(`\timport '${utilsAlias}/kigumi';`));
     output.info(pc.green("\timport type { AppProps } from 'next/app';\n"));
     output.info(
@@ -642,9 +641,11 @@ export function showPostInstallInstructions(
     output.info(
       pc.dim(
         "\tNext's Pages Router only accepts global CSS imports from _app.tsx,\n" +
-          '\tso layers.css and theme.css must be imported here directly (not\n' +
+          '\tso layers.css must be imported here directly (not\n' +
           `\ttransitively via ${utilsAlias}/kigumi). ${utilsAlias}/kigumi then registers the\n` +
-          '\tWeb Awesome components and applies your theme classes.\n'
+          '\tWeb Awesome components and applies your theme classes. layers.css\n' +
+          '\tbrings theme.css and then overrides.css, so neither needs an import\n' +
+          '\there.\n'
       )
     );
     stepNum++;
@@ -716,6 +717,7 @@ export function showPostInstallInstructions(
   output.info(pc.bold(pc.cyan('ℹ️  Generated Files:\n')));
   output.info(pc.dim(`\tComponents:\t${config.componentsDir}/`));
   output.info(pc.dim(`\tStyles:\t\t${config.stylesDir}/theme.css`));
+  output.info(pc.dim(`\tOverrides:\t${config.stylesDir}/overrides.css`));
   output.info(pc.dim(`\tSetup:\t\t${config.utilsDir}/kigumi.ts\n`));
 
   // Info box with theme details (using display labels for proper capitalization)
@@ -727,8 +729,11 @@ export function showPostInstallInstructions(
   );
   output.info(
     pc.dim(
-      '\tEdit theme.css to customize: https://www.npmjs.com/package/kigumi#customization\n'
+      '\tEdit theme.css to customize: https://www.npmjs.com/package/kigumi#customization'
     )
+  );
+  output.info(
+    pc.dim('\tWrite custom CSS rules in overrides.css: they beat theme.css\n')
   );
 
   // Additional resources

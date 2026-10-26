@@ -23,6 +23,7 @@ tests/
 │   ├── config-error-surface.test.ts # Config error surface (cluster A: ConfigInvalidError vs TypeError)
 │   ├── config-schema.test.ts        # Zod config schema validation
 │   ├── consumer-premise.test.ts     # resolveProPackage + consumerPremise + reportNotRun: a Pro consumer tsc whose pinned Pro package cannot be installed is skipped (locally, fork and Dependabot PRs) or failed (CI), never a pass; CI only ever takes the run branch on this repo's PRs, so this holds the other two (#79)
+│   ├── css-cascade.test.ts          # cascadeWinner: layer order by first appearance (statements and blocks), unlayered beats layered, nested layers rank by their top-level layer, comments ignored
 │   ├── ci-e2e-pro-step.test.ts      # Executes the e2e job's `Check Pro registry access` shell for every kind of run (same-repo, fork, deleted fork, Dependabot, non-PR events) and pins the token's scope: no step before the auth line sees it, and only the Pro consumer step, with install scripts off, runs after it (#79)
 │   ├── detect-framework.test.ts     # Framework/TS/PM detection
 │   ├── diff-command.test.ts         # Diff command (component comparison)
@@ -69,6 +70,7 @@ tests/
 │   ├── package-json.test.ts         # readDependencies contract (missing, unreadable, not a JSON object) + what each detection caller does with each error (issue #99)
 │   ├── package-json-read-error.test.ts # PackageJsonReadError / PackageJsonInvalidError + what `kigumi list`, `init`, `upgrade`, `brand`, `theme install` and `diff` print for a broken package.json, and that the writing commands changed nothing (issues #99, #121)
 │   ├── output-di.test.ts            # Output DI hook (setOutputForTesting / resetOutputForTesting)
+│   ├── overrides-css.test.ts        # overrides.css (ADR 0009, issue #194): created when missing, kept byte for byte, the layer added to an older layers.css in place (relative or aliased theme.css import, qualified or Pages Router plain), left alone without a theme.css import
 │   ├── palette-command.test.ts      # Palette command
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
 │   ├── project-config.test.ts       # Project config helpers
@@ -216,11 +218,12 @@ tests/
 │   ├── smoke.test.ts            # End-to-end workflows
 │   ├── init-source-layout.test.ts # `init` across all 4 framework/layout combos (issue #48)
 │   ├── diff.test.ts             # Real Vite project: modify a component, then `diff` and the snapshot round trip
-│   ├── consumer-tsc-react.test.ts   # Free and Pro: Vite-React init + add --all + strict `tsc -b` (issues #73, #79), then the same add-output under the Next ambient declaration (issue #78) and against React 18's types (issue #81)
+│   ├── consumer-tsc-react.test.ts   # Free and Pro: Vite-React init + add --all + strict `tsc -b` (issues #73, #79), then the same add-output under the Next ambient declaration (issue #78) and against React 18's types (issue #81), and a `vite build` whose CSS must let `overrides.css` beat `theme.css` (issue #194)
 │   ├── consumer-tsc-vue.test.ts     # Free and Pro: create-vite vue-ts init + add --all + `vue-tsc -b` (issues #78, #79)
 │   ├── consumer-tsc-angular.test.ts # Free and Pro: `ng new` init + add --all + `ngc` with strictTemplates (issues #78, #79)
 │   ├── _helpers/
 │   │   ├── consumer.ts              # describeConsumers(): the four checks every consumer suite shares, registered once per tier (KIGUMI_CONSUMER_TIER narrows it to one)
+│   │   ├── css-cascade.ts           # cascadeWinner(): which declaration of a custom property wins in a built stylesheet, by cascade layer then source order (issue #194)
 │   │   └── consumer-premise.ts      # resolveProPackage() + probeProPackage(): can this machine install the pinned Pro package; consumerPremise(): run, skip or fail; reportNotRun(): settles it (docs/adr/0003)
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures, and no fixture without an emitted file (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
@@ -667,7 +670,7 @@ E2E tests create temporary projects in `tests/.tmp-*`:
 | `.tmp-e2e-idempotent/` | `smoke.test.ts` | Second project, for the run-`init`-twice idempotency block |
 | `.tmp-e2e-diff/` | `diff.test.ts` | Component comparison against a modified working copy |
 | `.tmp-e2e-source-layout/` | `init-source-layout.test.ts` | One scaffold per framework/layout combination (issue #48) |
-| `.tmp-e2e-{free,pro}-consumer-tsc-react/` | `consumer-tsc-react.test.ts` | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next and React 18 passes (#73, #78, #79, #81) |
+| `.tmp-e2e-{free,pro}-consumer-tsc-react/` | `consumer-tsc-react.test.ts` | Vite-React `init` + `add --all` + strict `tsc -b`, plus the Next and React 18 passes (#73, #78, #79, #81) and the built-CSS cascade check (#194) |
 | `.tmp-e2e-{free,pro}-consumer-tsc-vue/` | `consumer-tsc-vue.test.ts` | create-vite vue-ts `init` + `add --all` + `vue-tsc -b` (issues #78, #79) |
 | `.tmp-e2e-{free,pro}-consumer-tsc-angular/` | `consumer-tsc-angular.test.ts` | `ng new` `init` + `add --all` + `ngc` (issues #78, #79) |
 

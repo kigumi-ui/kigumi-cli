@@ -360,10 +360,10 @@ Tokens that style all form elements (inputs, selects, textareas, checkboxes, swi
 ## Best Practices
 
 - Override variables at `:root` scope for global changes, or inside `.wa-dark` for dark-mode-only adjustments
-- Use `@layer wa-theme-overrides` for your custom CSS to respect the cascade layer ordering
+- Put token overrides in `theme.css` and custom CSS rules (such as `::part()` styling) in `overrides.css`, both as plain CSS with no `@layer` wrapper; `layers.css` orders them as `base < theme < overrides`
 - Prefer scale tokens (`--wa-space-scale`, `--wa-border-radius-scale`, etc.) for proportional changes
 - Use `::part()` selectors to style individual component internals
-- Never use `!important` -- adjust cascade layer ordering instead
+- Never use `!important` -- the `theme` and `overrides` layers already beat Web Awesome's styles
 - Test overrides in both light mode and `.wa-dark` mode
 
 ## Inspecting Variables

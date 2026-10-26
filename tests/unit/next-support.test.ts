@@ -294,10 +294,11 @@ describe('next.js support', () => {
       // Declaration stays so any named-layer authoring the user adds keeps
       // `base < theme` order. WA rules themselves end up unlayered on this
       // path, which outranks named layers via cascade semantics.
-      expect(layersCss).toContain('@layer base, theme;');
+      expect(layersCss).toContain('@layer base, theme, overrides;');
       // Qualifiers must be absent.
       expect(layersCss).not.toMatch(/layer\(base\)/);
       expect(layersCss).not.toMatch(/layer\(theme\)/);
+      expect(layersCss).not.toMatch(/layer\(overrides\)/);
       // The three @import lines still emit, just unqualified.
       expect(layersCss).toContain(
         "@import '@awesome.me/webawesome/dist/styles/webawesome.css';"
@@ -306,6 +307,10 @@ describe('next.js support', () => {
         "@import '@awesome.me/webawesome/dist/styles/themes/default.css';"
       );
       expect(layersCss).toContain("@import './theme.css';");
+      // Unlayered, overrides.css beats theme.css by source order alone, so
+      // it must be the last import.
+      const imports = layersCss.match(/^@import .*$/gm) ?? [];
+      expect(imports.at(-1)).toBe("@import './overrides.css';");
     });
 
     it('keeps layer() qualifiers on App Router (F-038 regression guard)', async () => {
@@ -323,7 +328,7 @@ describe('next.js support', () => {
         path.join(tempDir, 'src', 'styles', 'layers.css'),
         'utf-8'
       );
-      expect(layersCss).toContain('@layer base, theme;');
+      expect(layersCss).toContain('@layer base, theme, overrides;');
       expect(layersCss).toContain(
         "@import '@awesome.me/webawesome/dist/styles/webawesome.css' layer(base);"
       );
@@ -331,6 +336,9 @@ describe('next.js support', () => {
         "@import '@awesome.me/webawesome/dist/styles/themes/default.css' layer(base);"
       );
       expect(layersCss).toContain("@import './theme.css' layer(theme);");
+      expect(layersCss).toContain(
+        "@import './overrides.css' layer(overrides);"
+      );
     });
 
     it('keeps layer() qualifiers in non-Next projects (F-038 scope guard)', async () => {

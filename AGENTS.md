@@ -47,7 +47,7 @@ node dist/index.js add button --force
 | `src/commands/theme/show.ts` | Show current theme details |
 | `src/commands/list.ts` | List all available components (`--json` supported) |
 | `src/commands/status.ts` | Project status (`--json` supported) |
-| `src/commands/upgrade.ts` | Version upgrade + dependency installation |
+| `src/commands/upgrade.ts` | Version upgrade + dependency installation; brings in `overrides.css` and its layer |
 | `src/commands/diff.ts` | Compare installed components vs current templates |
 | `src/commands/update.ts` | Three-way merge update for installed components |
 | `src/utils/diff-renderer.ts` | Colored unified diff output using node-diff3 diffPatch |
@@ -288,7 +288,7 @@ What this enables:
 - `src/lib/kigumi.ts` (or `lib/kigumi.ts` in root layout) also starts with `'use client';` — the `customElements.define` side-effect needs the browser.
 - Every wrapper's `<wa-*>` host element carries `suppressHydrationWarning`. Lit reflects default attributes to the DOM during `connectedCallback`; `suppressHydrationWarning` is the documented React API for that pattern (one-level, children still reconcile) and a no-op in non-SSR contexts.
 - `init` skips `vite.config.ts` path-aliasing, picks `tsconfig.json` when `tsconfig.app.json` is absent, emits a sibling `web-awesome.d.ts` (no `vite/client` reference) instead of `vite-env.d.ts`, and — **only for App Router** — writes `providers.tsx` with a `KigumiProvider` Client Module next to `app/`.
-- **Pages Router projects are not scaffolded** with a new file; the user's `pages/_app.tsx` is their own. Post-install output prints three imports (`layers.css`, `theme.css`, `@/lib/kigumi`) + the `AppProps` wrapper to add manually.
+- **Pages Router projects are not scaffolded** with a new file; the user's `pages/_app.tsx` is their own. Post-install output prints two imports (`layers.css`, `@/lib/kigumi`) + the `AppProps` wrapper to add manually. `layers.css` brings `theme.css` and `overrides.css` itself.
 - **Pages Router CSS policy**: Next forbids global CSS imports anywhere other than `pages/_app.tsx`. Kigumi handles this at generation time by (a) omitting the `layers.css` import from the generated `lib/kigumi.ts` and (b) stripping the per-component `import './<Name>.css';` line from each generated wrapper. Both are unconditional when `detectNextRouter(cwd) === 'pages'`, and unchanged for App Router. Per-component stub CSS files are still emitted so users can add imports to `_app.tsx` if they want custom styles.
 - `generateGitIgnore` adds `.kigumi/cache/` in addition to `.kigumi/foreign/`. `.kigumi/snapshots/` stays tracked (three-way merge depends on it); `.npmrc` stays committable: it holds no secret, only the registry URL and, on Pro, a `${WEBAWESOME_NPM_TOKEN}` reference unless the user npmrc holds the token.
 
@@ -642,6 +642,8 @@ flowchart LR
 | wa-\* type errors | `vite-env.d.ts` exists? | Run `generateViteEnvDts()` |
 | Theme not applying | CSS imported? HTML classes? | Check `kigumi.ts` imports |
 | Theme conflicts | Duplicate theme imports? | Verify `theme.css` has no `@import` |
+| Rules in `overrides.css` do nothing | `layers.css` imports `overrides.css`? | Run `kigumi upgrade`, which adds the layer; it warns when `layers.css` has no `theme.css` import to add it after |
+| `overrides.css` loses to `theme.css` (Pages Router) | Selector less specific? | Pages Router has no layers, so `overrides.css` wins by order only: match the `theme.css` selector's specificity |
 | Tier wrong | Installed package, then token (env var, user npmrc, `.env`)? | Use `detectTier()` |
 | Free→Pro fails | Migration ran? | Check `migration.ts` |
 | Wrong import paths | Mixed free/pro imports? | Run `kigumi doctor` |
@@ -668,12 +670,13 @@ flowchart LR
 8. **Using `!important` to override Web Awesome styles** (use CSS layers - `theme.css` automatically overrides base)
 9. **Manually editing `layers.css` or `kigumi.ts`** (auto-generated - use `kigumi theme` commands)
 10. **Adding Web Awesome imports to `theme.css`** (all imports handled in `layers.css`)
-11. Making assumptions - ask for help if unsure
-12. **Manually editing community registry files** instead of using `kigumi registry` commands
-13. **Importing `KigumiConfig` from `utils/config.ts`** (old interface, incomplete) — use `schemas/config.ts` (Zod-inferred, has `registries`, `installedThemes`, etc.)
-14. **Hardcoding GitHub URLs** — use `GITHUB_ISSUES_URL` / `GITHUB_REPO_URL` from `src/constants.ts`
-15. **Silent `catch {}` blocks** — always capture the error variable (`catch (_error)`) and add a descriptive comment explaining why it's intentionally ignored
-16. **Using `process.exit()` in commands** — use `handleError(error, output)` from `src/errors/index.ts` for consistent error reporting
+11. **Putting custom CSS rules in `theme.css`** (`theme.css` is for `--wa-*` tokens; rules no token expresses go in `overrides.css`, which beats it)
+12. Making assumptions - ask for help if unsure
+13. **Manually editing community registry files** instead of using `kigumi registry` commands
+14. **Importing `KigumiConfig` from `utils/config.ts`** (old interface, incomplete) — use `schemas/config.ts` (Zod-inferred, has `registries`, `installedThemes`, etc.)
+15. **Hardcoding GitHub URLs** — use `GITHUB_ISSUES_URL` / `GITHUB_REPO_URL` from `src/constants.ts`
+16. **Silent `catch {}` blocks** — always capture the error variable (`catch (_error)`) and add a descriptive comment explaining why it's intentionally ignored
+17. **Using `process.exit()` in commands** — use `handleError(error, output)` from `src/errors/index.ts` for consistent error reporting
 
 ---
 
@@ -683,7 +686,8 @@ flowchart LR
 | --- | --- | --- | --- |
 | `src/lib/kigumi.ts` | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands | ❌ No |
 | `src/styles/layers.css` | Wraps Web Awesome CSS in cascade layers | Theme/brand/palette commands | ❌ No |
-| `src/styles/theme.css` | User custom CSS overrides | Only on init (if missing) | ✅ Yes - preserved |
+| `src/styles/theme.css` | The user's design tokens (`--wa-*` custom properties), in the `theme` layer | Only on init (if missing) | ✅ Yes - preserved |
+| `src/styles/overrides.css` | The user's custom CSS rules, in the `overrides` layer after `theme` (ADR 0009) | Created when missing by init, theme, brand, palette and `upgrade`; never overwritten | ✅ Yes - preserved |
 | `src/vite-env.d.ts` | JSX augmentation importing official Web Awesome `CustomElements` / `CustomCssProperties` | Only on init (React Vite + TS); `kigumi doctor` advisory for legacy `src/types/web-awesome.d.ts` | ❌ No |
 | `src/web-awesome.d.ts` | Next.js-flavored variant of `vite-env.d.ts` (no `vite/client` reference) | Only on init (Next.js + TS) | ❌ No |
 | `src/styles/community-themes/*.css` | Downloaded community theme CSS | `kigumi theme install --from` | ❌ No |
@@ -692,7 +696,9 @@ flowchart LR
 
 **Key Points:**
 
-- `layers.css` uses CSS `@layer` for cascade control (base < theme)
+- `layers.css` uses CSS `@layer` for cascade control (base < theme < overrides), and imports `overrides.css` last. On the Next.js Pages Router the imports carry no `layer(…)` qualifier, so `overrides.css` wins by source order only, at equal or higher specificity
+- A rule in an `@layer overrides { … }` block inside `theme.css` would be the sublayer `theme.overrides` and lose to the rest of `theme.css`: custom rules go in `overrides.css`
+- `regenerateKigumiSetup()` (init, theme, brand, palette) and `upgrade` run `ensureOverridesLayer()` (`src/utils/overrides-css.ts`), which creates `overrides.css` when missing. Theme, brand and palette rewrite `layers.css` with the layer; a `layers.css` the command keeps (`init` preserves an existing one, `upgrade` never rewrites it) gets the layer added in place, after its `theme.css` import, with a warning when there is none
 - `layers.css` distinguishes built-in themes (from WA package) vs community themes (from `community-themes/` dir)
 - `theme.css` is preserved on re-init - existing user styles won't be overwritten
 - Theme/brand commands regenerate `kigumi.ts` + `layers.css` but preserve `theme.css`

@@ -34,7 +34,7 @@
         "Uses wa-button::part(base) or similar ::part() selector",
         "Does NOT recommend --wa-button-background or --wa-button-* tokens (these don't exist)",
         "Shows valid CSS properties like text-transform, background-color",
-        "May reference the cascade layers (wa-theme-overrides) for proper specificity"
+        "Puts the rule in overrides.css (the overrides layer), not inside an @layer wa-theme-overrides block"
       ]
     },
     {

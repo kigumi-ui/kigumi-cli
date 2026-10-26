@@ -366,6 +366,81 @@ describe('upgrade command', () => {
     expect(savedConfig.kigumiVersion).toBe('0.13.0');
   });
 
+  describe('overrides layer', () => {
+    // A project from before the overrides layer (ADR 0009, issue #194).
+    const OLD_LAYERS = `@layer base, theme;\n@import '@awesome.me/webawesome/dist/styles/webawesome.css' layer(base);\n@import './theme.css' layer(theme);\n`;
+    const stylesPath = (name: string) => path.join(testDir, 'src/styles', name);
+
+    beforeEach(async () => {
+      await createConfig({ kigumiVersion: '0.12.0' });
+      await fs.outputFile(stylesPath('layers.css'), OLD_LAYERS);
+    });
+
+    it('creates overrides.css and adds its layer to layers.css', async () => {
+      const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+      await upgradeCommand({ cwd: testDir, yes: true });
+
+      expect(await fs.pathExists(stylesPath('overrides.css'))).toBe(true);
+      const layers = await fs.readFile(stylesPath('layers.css'), 'utf-8');
+      expect(layers).toContain('@layer base, theme, overrides;');
+      expect(layers).toContain("@import './overrides.css' layer(overrides);");
+    });
+
+    it('leaves an existing overrides.css untouched', async () => {
+      const mine = '.Card { border: 0 }';
+      await fs.outputFile(stylesPath('overrides.css'), mine);
+
+      const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+      await upgradeCommand({ cwd: testDir, yes: true });
+
+      expect(await fs.readFile(stylesPath('overrides.css'), 'utf-8')).toBe(
+        mine
+      );
+    });
+
+    it('adds the layer to a project already on this version', async () => {
+      // The version is current, the project still predates the layer.
+      await createConfig({ kigumiVersion: '0.13.0' });
+
+      const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+      await upgradeCommand({ cwd: testDir, yes: true });
+
+      expect(await fs.pathExists(stylesPath('overrides.css'))).toBe(true);
+      expect(await fs.readFile(stylesPath('layers.css'), 'utf-8')).toContain(
+        "@import './overrides.css' layer(overrides);"
+      );
+    });
+
+    it('writes nothing on a dry run', async () => {
+      const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+      await upgradeCommand({ cwd: testDir, dryRun: true });
+
+      expect(await fs.pathExists(stylesPath('overrides.css'))).toBe(false);
+      expect(await fs.readFile(stylesPath('layers.css'), 'utf-8')).toBe(
+        OLD_LAYERS
+      );
+      expect(output.calls).toContainEqual({
+        method: 'info',
+        args: [expect.stringContaining('overrides.css')],
+      });
+    });
+
+    it('warns when layers.css has no theme.css import to add the layer after', async () => {
+      await fs.outputFile(stylesPath('layers.css'), "@import './all.css';\n");
+
+      const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+      await upgradeCommand({ cwd: testDir, yes: true });
+
+      expect(output.calls).toContainEqual({
+        method: 'warning',
+        args: [expect.stringContaining("@import './overrides.css'")],
+      });
+      expect(await fs.readFile(stylesPath('layers.css'), 'utf-8')).toBe(
+        "@import './all.css';\n"
+      );
+    });
+  });
+
   it('should not install when WA version unchanged', async () => {
     await createConfig({ kigumiVersion: '0.12.0' });
 

@@ -52,7 +52,10 @@ describe('brandCommand', () => {
     const regenerate = await import('../../src/utils/regenerate.js');
     regenerateSpy = vi
       .spyOn(regenerate, 'regenerateKigumiSetup')
-      .mockResolvedValue({ layersPreserved: false });
+      .mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: false, layers: 'present' },
+      });
   });
 
   afterEach(async () => {
@@ -121,7 +124,10 @@ describe('brandCommand', () => {
         const regenerate = await import('../../src/utils/regenerate.js');
         regenerateSpy = vi
           .spyOn(regenerate, 'regenerateKigumiSetup')
-          .mockResolvedValue({ layersPreserved: false });
+          .mockResolvedValue({
+            layersPreserved: false,
+            overrides: { created: false, layers: 'present' },
+          });
 
         const { brandCommand } = await import('../../src/commands/brand.js');
         await brandCommand.parseAsync(['node', 'brand', color]);
@@ -140,6 +146,23 @@ describe('brandCommand', () => {
       await brandCommand.parseAsync(['node', 'brand', 'invalid-color']);
 
       expect(process.exit).toHaveBeenCalled();
+    });
+
+    it('says when it created overrides.css', async () => {
+      // The layers.css it rewrites imports overrides.css (ADR 0009).
+      await createConfig();
+      regenerateSpy.mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: true, layers: 'present' },
+      });
+
+      const { brandCommand } = await import('../../src/commands/brand.js');
+      await brandCommand.parseAsync(['node', 'brand', 'red']);
+
+      expect(output.calls).toContainEqual({
+        method: 'info',
+        args: [expect.stringContaining('src/styles/overrides.css')],
+      });
     });
 
     it('should call regenerateKigumiSetup after updating', async () => {

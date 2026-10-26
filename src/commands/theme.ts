@@ -23,6 +23,7 @@ import {
 import { TierRestrictionError } from '../errors/tier.js';
 import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
+import { reportOverridesLayer } from '../utils/overrides-css.js';
 import { detectTier } from '../utils/tier.js';
 import {
   getAvailableThemes,
@@ -100,9 +101,16 @@ async function themeAction(themeName?: string) {
     await saveConfig({ theme: { selected: selectedTheme } }, cwd);
 
     const utilsDir = config.utilsDir;
-    await regenerateKigumiSetup(cwd, config, utilsDir, tier);
+    const { overrides } = await regenerateKigumiSetup(
+      cwd,
+      config,
+      utilsDir,
+      tier
+    );
 
     spinner.stop('Theme updated');
+
+    reportOverridesLayer(overrides, config.stylesDir, output);
 
     output.outro(
       `${pc.green('✓')} Theme set to ${pc.cyan(selectedTheme)}\n` +

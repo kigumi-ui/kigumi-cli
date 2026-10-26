@@ -203,7 +203,8 @@ describe('kigumi init', () => {
       expect(result.stdout).toContain('Pages Router');
       expect(result.stdout).toContain('pages/_app.tsx');
       expect(result.stdout).toContain("import '@/styles/layers.css';");
-      expect(result.stdout).toContain("import '@/styles/theme.css';");
+      // layers.css brings theme.css and overrides.css, in that order.
+      expect(result.stdout).not.toContain("import '@/styles/theme.css';");
       expect(result.stdout).toContain("import '@/lib/kigumi';");
 
       // kigumi.ts must NOT carry the layers.css import — Next's Pages Router
@@ -319,6 +320,24 @@ describe('kigumi init', () => {
 
       // Should show preservation message
       expect(result.stdout).toContain('Existing theme.css found');
+    });
+
+    it('writes overrides.css, and keeps it byte for byte on re-init', async () => {
+      testDir = await createTempProject('react-vite');
+
+      await runKigumi(testDir, ['init', '--no-install', '-y']);
+      expect(await fileExists(testDir, 'src/styles/overrides.css')).toBe(true);
+      expect(await readFile(testDir, 'src/styles/layers.css')).toContain(
+        "@import './overrides.css' layer(overrides);"
+      );
+
+      // Not the CLI's format: CRLF and no trailing newline.
+      const mine = '.Card {\r\n  border: 0;\r\n}';
+      await writeFile(testDir, 'src/styles/overrides.css', mine);
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      expect(await readFile(testDir, 'src/styles/overrides.css')).toBe(mine);
+      expect(result.stdout).toContain('Existing overrides.css found');
     });
 
     it('preserves existing layers.css on re-init', async () => {

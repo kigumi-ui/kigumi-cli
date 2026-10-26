@@ -1,0 +1,16 @@
+/**
+ * Custom CSS overrides
+ *
+ * This file is yours: Kigumi creates it once and never overwrites it.
+ * layers.css imports it last, into the 'overrides' cascade layer, so a rule
+ * here beats the same rule in theme.css, whatever their specificity. On the
+ * Next.js Pages Router, which drops the layers, it wins by coming later, so
+ * give it at least the specificity of the rule it overrides.
+ *
+ * Use theme.css for design tokens (--wa-* custom properties) and this file
+ * for rules no token expresses, for example:
+ *
+ *   wa-button::part(base) {
+ *     text-transform: uppercase;
+ *   }
+ */

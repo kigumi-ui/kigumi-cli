@@ -54,7 +54,10 @@ describe('paletteCommand', () => {
     const regenerate = await import('../../src/utils/regenerate.js');
     regenerateSpy = vi
       .spyOn(regenerate, 'regenerateKigumiSetup')
-      .mockResolvedValue({ layersPreserved: false });
+      .mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: false, layers: 'present' },
+      });
   });
 
   afterEach(async () => {
@@ -113,7 +116,10 @@ describe('paletteCommand', () => {
         const regenerate = await import('../../src/utils/regenerate.js');
         regenerateSpy = vi
           .spyOn(regenerate, 'regenerateKigumiSetup')
-          .mockResolvedValue({ layersPreserved: false });
+          .mockResolvedValue({
+            layersPreserved: false,
+            overrides: { created: false, layers: 'present' },
+          });
 
         const { paletteCommand } =
           await import('../../src/commands/palette.js');
@@ -147,7 +153,10 @@ describe('paletteCommand', () => {
         const regenerate = await import('../../src/utils/regenerate.js');
         regenerateSpy = vi
           .spyOn(regenerate, 'regenerateKigumiSetup')
-          .mockResolvedValue({ layersPreserved: false });
+          .mockResolvedValue({
+            layersPreserved: false,
+            overrides: { created: false, layers: 'present' },
+          });
 
         const { paletteCommand } =
           await import('../../src/commands/palette.js');
@@ -184,6 +193,23 @@ describe('paletteCommand', () => {
 
       // 'custom' is filtered out of available palettes, so it should fail validation
       expect(process.exit).toHaveBeenCalled();
+    });
+
+    it('says when it created overrides.css', async () => {
+      // The layers.css it rewrites imports overrides.css (ADR 0009).
+      await createConfig();
+      regenerateSpy.mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: true, layers: 'present' },
+      });
+
+      const { paletteCommand } = await import('../../src/commands/palette.js');
+      await paletteCommand.parseAsync(['node', 'palette', 'bright']);
+
+      expect(output.calls).toContainEqual({
+        method: 'info',
+        args: [expect.stringContaining('src/styles/overrides.css')],
+      });
     });
 
     it('should call regenerateKigumiSetup after updating', async () => {

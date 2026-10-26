@@ -19,7 +19,7 @@ Ensure you have:
 
 - Initialized Kigumi in your project: `npx kigumi init`
 - A `kigumi.config.json` file in your project root
-- `src/lib/layers.css` generated and imported in your app
+- `layers.css` generated in your styles directory (`src/styles/layers.css` by default) and imported by the generated `kigumi.ts`
 
 ## Level 1: Config-Based (Recommended)
 
@@ -49,7 +49,7 @@ Then regenerate theme files:
 npx kigumi init
 ```
 
-This updates `src/lib/layers.css` with the new brand color. Brand color is applied via the `.wa-brand-{color}` class.
+This updates the generated `layers.css` and `kigumi.ts` with the new brand color. Brand color is applied via the `.wa-brand-{color}` class.
 
 Available brand colors: `red`, `orange`, `yellow`, `green`, `cyan`, `blue`, `indigo`, `purple`, `pink`, `gray`
 
@@ -90,29 +90,35 @@ See [available-themes.md](available-themes.md) for full theme list.
 
 Fine-grained control by overriding specific CSS custom properties. Use this when config-based options are not flexible enough.
 
+Two files of yours hold the customizations, both created by `kigumi init` and never overwritten. Both are plain CSS: the generated `layers.css` already places each file in its cascade layer, so do not add `@layer` wrappers.
+
+- `theme.css` (layer `theme`): design tokens, as `:root { --wa-*: ... }` and `.wa-dark { ... }` blocks
+- `overrides.css` (layer `overrides`): CSS rules no token expresses, such as `::part()` styling
+
+See [The Three Layers](#the-three-layers) for how they stack. The snippets below say which file each belongs in.
+
 ### Scale Token Overrides
 
 Scale tokens are the most powerful single-property customization lever. One value cascades to all derived tokens in that category.
 
 ```css
-@layer wa-theme-overrides {
-  :root {
-    /* Sharp corners everywhere */
-    --wa-border-radius-scale: 0;
+/* src/styles/theme.css */
+:root {
+  /* Sharp corners everywhere */
+  --wa-border-radius-scale: 0;
 
-    /* More spacious layout */
-    --wa-space-scale: 1.5;
+  /* More spacious layout */
+  --wa-space-scale: 1.5;
 
-    /* Larger text globally */
-    --wa-font-size-scale: 1.1;
+  /* Larger text globally */
+  --wa-font-size-scale: 1.1;
 
-    /* Thicker borders */
-    --wa-border-width-scale: 2;
+  /* Thicker borders */
+  --wa-border-width-scale: 2;
 
-    /* Softer, more diffused shadows */
-    --wa-shadow-blur-scale: 3;
-    --wa-shadow-spread-scale: 0;
-  }
+  /* Softer, more diffused shadows */
+  --wa-shadow-blur-scale: 3;
+  --wa-shadow-spread-scale: 0;
 }
 ```
 
@@ -134,42 +140,40 @@ Available scale tokens:
 Override specific colors for your brand:
 
 ```css
-@layer wa-theme-overrides {
-  :root {
-    --wa-color-surface-default: #fafafa;
-    --wa-color-surface-raised: #ffffff;
-    --wa-color-surface-lowered: #f0f0f0;
-    --wa-color-surface-border: #e0e0e0;
+/* src/styles/theme.css */
+:root {
+  --wa-color-surface-default: #fafafa;
+  --wa-color-surface-raised: #ffffff;
+  --wa-color-surface-lowered: #f0f0f0;
+  --wa-color-surface-border: #e0e0e0;
 
-    --wa-color-text-normal: #1a1a2e;
-    --wa-color-text-quiet: #64748b;
-  }
+  --wa-color-text-normal: #1a1a2e;
+  --wa-color-text-quiet: #64748b;
+}
 
-  .wa-dark {
-    --wa-color-surface-default: #0f172a;
-    --wa-color-surface-raised: #1e293b;
-    --wa-color-surface-lowered: #020617;
-    --wa-color-surface-border: #334155;
+.wa-dark {
+  --wa-color-surface-default: #0f172a;
+  --wa-color-surface-raised: #1e293b;
+  --wa-color-surface-lowered: #020617;
+  --wa-color-surface-border: #334155;
 
-    --wa-color-text-normal: #f8fafc;
-    --wa-color-text-quiet: #94a3b8;
-  }
+  --wa-color-text-normal: #f8fafc;
+  --wa-color-text-quiet: #94a3b8;
 }
 ```
 
 ### Typography Overrides
 
 ```css
-@layer wa-theme-overrides {
-  :root {
-    --wa-font-family-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --wa-font-family-heading: 'Cal Sans', var(--wa-font-family-body);
-    --wa-font-family-code: 'JetBrains Mono', ui-monospace, monospace;
+/* src/styles/theme.css */
+:root {
+  --wa-font-family-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --wa-font-family-heading: 'Cal Sans', var(--wa-font-family-body);
+  --wa-font-family-code: 'JetBrains Mono', ui-monospace, monospace;
 
-    --wa-font-weight-bold: 700;
-    --wa-font-weight-heading: 800;
-    --wa-line-height-normal: 1.75;
-  }
+  --wa-font-weight-bold: 700;
+  --wa-font-weight-heading: 800;
+  --wa-line-height-normal: 1.75;
 }
 ```
 
@@ -177,79 +181,84 @@ Override specific colors for your brand:
 
 Web Awesome components expose their internal structure through CSS Parts. This is the public API for styling individual components. There are NO `--wa-button-*`, `--wa-input-*`, or `--wa-card-*` tokens.
 
+Put these rules in `overrides.css`. Select components by their tag (`wa-button::part(base)`), which works in React, Vue and Angular alike. Only the React wrappers also put a PascalCase class on the host (`<wa-button class="Button ...">`), so `.Button::part(base)` is React-only.
+
 ```css
-@layer wa-theme-overrides {
-  /* Make buttons uppercase with sharp corners */
-  wa-button::part(base) {
-    border-radius: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
+/* src/styles/overrides.css */
 
-  /* Custom input background */
-  wa-input::part(base) {
-    background: var(--wa-color-surface-raised);
-  }
+/* Make buttons uppercase with sharp corners */
+wa-button::part(base) {
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 
-  /* Add a bottom border to card headers */
-  wa-card::part(header) {
-    border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border);
-  }
+/* Custom input background */
+wa-input::part(base) {
+  background: var(--wa-color-surface-raised);
+}
 
-  /* Style dialog overlay */
-  wa-dialog::part(overlay) {
-    background: var(--wa-color-overlay-modal);
-    backdrop-filter: blur(4px);
-  }
+/* Add a bottom border to card headers */
+wa-card::part(header) {
+  border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border);
+}
 
-  /* Custom switch track color when checked */
-  wa-switch::part(control--checked) {
-    background: var(--wa-color-brand-fill-loud);
-  }
+/* Separate the dialog header from its body */
+wa-dialog::part(header) {
+  border-bottom: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-surface-border);
+}
+
+/* Lift the switch thumb */
+wa-switch::part(thumb) {
+  box-shadow: var(--wa-shadow-s);
 }
 ```
 
-### The `@layer wa-theme-overrides` Rule
+### The Three Layers
 
-All custom CSS should go in the `wa-theme-overrides` cascade layer. This is the highest-priority layer in the Web Awesome layer stack, so your overrides always win without needing `!important`.
+`layers.css` is generated by Kigumi in your styles directory. It declares `@layer base, theme, overrides;` and imports each source into one layer, ordered from lowest to highest priority:
 
-The 7 cascade layers in order (lowest to highest priority):
-
-1. `wa-native` -- Browser reset / normalization
-2. `wa-utilities` -- Utility classes
-3. `wa-color-palette` -- Palette color definitions
-4. `wa-color-variant` -- Brand/semantic color mapping
-5. `wa-theme` -- Theme token definitions
-6. `wa-theme-dimension` -- Dimensional overrides
-7. `wa-theme-overrides` -- Your custom overrides
-
-Create a `theme.css` file and wrap your overrides:
+1. `base` -- Web Awesome's styles and the selected theme (generated; do not edit)
+2. `theme` -- `theme.css`, your design tokens
+3. `overrides` -- `overrides.css`, your custom CSS rules
 
 ```css
-/* src/styles/theme.css */
-@layer wa-theme-overrides {
-  :root {
-    --wa-border-radius-scale: 0;
-    --wa-font-family-body: 'Inter', system-ui, sans-serif;
-  }
+@layer base, theme, overrides;
+@import '@awesome.me/webawesome/dist/styles/webawesome.css' layer(base);
+@import '@awesome.me/webawesome/dist/styles/themes/<theme>.css' layer(base);
+@import './theme.css' layer(theme);
+@import './overrides.css' layer(overrides);
+```
 
-  .wa-dark {
-    --wa-color-surface-default: #0a0a0a;
-  }
+A later layer beats an earlier one regardless of selector specificity, so your files win over Web Awesome, and `overrides.css` wins over `theme.css`, without `!important`. Web Awesome's own eight internal layers (`wa-native`, `wa-base`, `wa-utilities`, `wa-color-palette`, `wa-color-variant`, `wa-theme`, `wa-theme-dimension`, `wa-theme-overrides`) are nested inside `base`, so they never compete with your files.
 
-  wa-button::part(base) {
-    text-transform: uppercase;
-  }
+**Write plain CSS in `theme.css` and `overrides.css`; do not add `@layer` wrappers.** Each file is already inside its layer. A `@layer wa-theme-overrides { ... }` block in `theme.css` would become the nested layer `theme.wa-theme-overrides`, which loses to unlayered rules in `theme.css` itself and to everything in `overrides.css`.
+
+```css
+/* src/styles/theme.css: tokens */
+:root {
+  --wa-border-radius-scale: 0;
+  --wa-font-family-body: 'Inter', system-ui, sans-serif;
+}
+
+.wa-dark {
+  --wa-color-surface-default: #0a0a0a;
 }
 ```
 
-Import it after `layers.css` in your entry point:
-
-```tsx
-// src/main.tsx
-import './lib/layers.css'; // Kigumi theme (first)
-import './styles/theme.css'; // Your overrides (second)
+```css
+/* src/styles/overrides.css: rules */
+wa-button::part(base) {
+  text-transform: uppercase;
+}
 ```
+
+You do not import these files yourself. `layers.css` imports them, and the generated `kigumi.ts` (`src/lib/kigumi.ts` by default) imports `layers.css`. `kigumi init`, `theme`, `brand`, `palette` and `upgrade` create `overrides.css` when it is missing; `upgrade` also adds the `overrides` layer to a `layers.css` written by an older CLI.
+
+#### Next.js Pages Router
+
+Next's Pages Router CSS pipeline drops an `@import` that carries `layer(...)`, so Kigumi writes these imports without it, and nothing lands in `base`, `theme` or `overrides`. `theme.css` tokens still apply, and `overrides.css` beats `theme.css` only by coming later in source order. A rule in `overrides.css` must therefore be at least as specific as the rule it overrides. Next only allows global CSS imports in `pages/_app.tsx`, so that file imports `@/styles/layers.css` and `@/lib/kigumi` directly.
 
 ## Level 3: Custom Theme
 
@@ -321,80 +330,79 @@ useEffect(() => {
 
 ### Full Custom Theme File
 
+Tokens go in `theme.css`:
+
 ```css
-/* src/styles/my-theme.css */
-@layer wa-theme-overrides {
-  :root {
-    /* Typography */
-    --wa-font-family-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --wa-font-family-heading: var(--wa-font-family-body);
-    --wa-font-family-code: 'Fira Code', ui-monospace, monospace;
-    --wa-font-weight-bold: 700;
-    --wa-font-weight-heading: 700;
+/* src/styles/theme.css */
+:root {
+  /* Typography */
+  --wa-font-family-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --wa-font-family-heading: var(--wa-font-family-body);
+  --wa-font-family-code: 'Fira Code', ui-monospace, monospace;
+  --wa-font-weight-bold: 700;
+  --wa-font-weight-heading: 700;
 
-    /* Scale adjustments */
-    --wa-border-radius-scale: 1.5;
-    --wa-space-scale: 1;
-    --wa-font-size-scale: 1;
+  /* Scale adjustments */
+  --wa-border-radius-scale: 1.5;
+  --wa-space-scale: 1;
+  --wa-font-size-scale: 1;
 
-    /* Surface colors */
-    --wa-color-surface-default: #fefefe;
-    --wa-color-surface-raised: #ffffff;
-    --wa-color-surface-lowered: #f5f5f5;
-    --wa-color-surface-border: #e5e5e5;
+  /* Surface colors */
+  --wa-color-surface-default: #fefefe;
+  --wa-color-surface-raised: #ffffff;
+  --wa-color-surface-lowered: #f5f5f5;
+  --wa-color-surface-border: #e5e5e5;
 
-    /* Text colors */
-    --wa-color-text-normal: #171717;
-    --wa-color-text-quiet: #525252;
-    --wa-color-text-link: #2563eb;
-  }
+  /* Text colors */
+  --wa-color-text-normal: #171717;
+  --wa-color-text-quiet: #525252;
+  --wa-color-text-link: #2563eb;
+}
 
-  .wa-dark {
-    --wa-color-surface-default: #0a0a0a;
-    --wa-color-surface-raised: #171717;
-    --wa-color-surface-lowered: #050505;
-    --wa-color-surface-border: #262626;
+.wa-dark {
+  --wa-color-surface-default: #0a0a0a;
+  --wa-color-surface-raised: #171717;
+  --wa-color-surface-lowered: #050505;
+  --wa-color-surface-border: #262626;
 
-    --wa-color-text-normal: #fafafa;
-    --wa-color-text-quiet: #a3a3a3;
-    --wa-color-text-link: #60a5fa;
-  }
-
-  /* Component-specific styling via ::part() */
-  wa-button::part(base) {
-    font-weight: 600;
-  }
-
-  wa-card::part(base) {
-    border: var(--wa-border-width-s) var(--wa-border-style)
-      var(--wa-color-surface-border);
-  }
+  --wa-color-text-normal: #fafafa;
+  --wa-color-text-quiet: #a3a3a3;
+  --wa-color-text-link: #60a5fa;
 }
 ```
 
-Import it after `layers.css`:
+Component-specific styling via `::part()` goes in `overrides.css`:
 
-```tsx
-import './lib/layers.css';
-import './styles/my-theme.css';
+```css
+/* src/styles/overrides.css */
+wa-button::part(base) {
+  font-weight: 600;
+}
+
+wa-card::part(footer) {
+  border-top: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-surface-border);
+}
 ```
+
+Both files are already imported by the generated `layers.css`, so there is nothing to import. Keep them in the styles directory next to `layers.css`.
 
 ## Best Practices
 
-- Use `@layer wa-theme-overrides` for all custom CSS to respect cascade ordering
+- Put design tokens in `theme.css` and custom CSS rules in `overrides.css`, both as plain CSS with no `@layer` wrapper
 - Prefer scale tokens for proportional changes (radius, spacing, font size, borders, shadows)
 - Use `::part()` to style individual component internals, not invented `--wa-button-*` tokens
 - Test in both light and `.wa-dark` modes
-- Never use `!important` -- the cascade layer system handles specificity
-- Keep customizations in separate files from generated `layers.css`
-- Never edit generated `layers.css` directly (it gets overwritten on `npx kigumi init`)
+- Never use `!important` -- the `base < theme < overrides` layers handle specificity
+- Keep customizations in `theme.css` and `overrides.css`, separate from the generated `layers.css`
+- Never edit generated `layers.css` directly (Kigumi regenerates it when the theme, brand color or palette changes)
 
 ## Troubleshooting
 
 ### Theme not applying
 
-1. Check that `layers.css` is imported in your entry point
-2. Verify your custom CSS is in `@layer wa-theme-overrides`
+1. Check that the generated `kigumi.ts` is imported (it imports `layers.css`); on the Next.js Pages Router, `pages/_app.tsx` must import `@/styles/layers.css` and `@/lib/kigumi`
+2. Verify tokens are in `theme.css` and rules in `overrides.css`, with no `@layer` wrapper in either file
 3. Check browser console for CSS import errors
 4. Verify `kigumi.config.json` has valid theme values
 
@@ -406,10 +414,11 @@ import './styles/my-theme.css';
 
 ### Custom styles not taking effect
 
-1. Ensure overrides are inside `@layer wa-theme-overrides`
-2. Verify import order: `layers.css` first, then your custom CSS
-3. Check that `::part()` names are correct (inspect the component's shadow DOM)
-4. Clear browser cache
+1. Ensure tokens are in `theme.css` and rules in `overrides.css`, as plain CSS without `@layer`
+2. Verify `layers.css` still imports `./theme.css` and `./overrides.css` (`npx kigumi upgrade` adds a missing `overrides.css` import)
+3. On the Next.js Pages Router the layers are not applied, so give the selector in `overrides.css` at least the specificity of the rule it overrides
+4. Check that `::part()` names are correct (inspect the component's shadow DOM)
+5. Clear browser cache
 
 ### Component-specific changes not working
 

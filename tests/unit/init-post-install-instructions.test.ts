@@ -226,9 +226,11 @@ describe('showPostInstallInstructions', () => {
       expect(messages).toEqual(
         expect.arrayContaining([expect.stringContaining('@/styles/layers.css')])
       );
-      expect(messages).toEqual(
-        expect.arrayContaining([expect.stringContaining('@/styles/theme.css')])
-      );
+      // layers.css imports theme.css and then overrides.css, so _app.tsx
+      // imports layers.css alone (issue #194).
+      expect(messages.filter((m) => /import '[^']*\.css'/.test(m))).toEqual([
+        expect.stringContaining("import '@/styles/layers.css';"),
+      ]);
       expect(messages).toEqual(
         expect.arrayContaining([expect.stringContaining('@/lib/kigumi')])
       );

@@ -23,6 +23,7 @@ import {
 import { ValidationError } from '../errors/validation.js';
 import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
+import { reportOverridesLayer } from '../utils/overrides-css.js';
 import { detectTier } from '../utils/tier.js';
 
 const BRAND_COLORS = [
@@ -118,9 +119,16 @@ async function brandAction(colorName?: string, options: BrandOptions = {}) {
     await saveConfig({ theme: { brandColor: selectedColor } }, cwd);
 
     const utilsDir = config.utilsDir;
-    await regenerateKigumiSetup(cwd, config, utilsDir, tier);
+    const { overrides } = await regenerateKigumiSetup(
+      cwd,
+      config,
+      utilsDir,
+      tier
+    );
 
     spinner.stop('Brand color updated');
+
+    reportOverridesLayer(overrides, config.stylesDir, output);
 
     output.outro(
       `${pc.green('✓')} Brand color set to ${pc.cyan(selectedColor)}\n` +

@@ -4,7 +4,7 @@ description: >
   Customize Kigumi themes, CSS variables, design tokens, and dark mode.
   Use when the user asks about theming, colors, brand color, dark mode,
   light mode, CSS custom properties, --wa-* variables, layers.css,
-  or component appearance customization.
+  theme.css, overrides.css, or component appearance customization.
 user-invocable: true
 allowed-tools: Read, Glob, Bash
 ---
@@ -64,17 +64,29 @@ See [references/available-themes.md](references/available-themes.md) for full li
 
 ### 3. Cascade Layers
 
-Web Awesome uses a 7-layer CSS cascade for specificity control. Layers are ordered from lowest to highest priority:
+Kigumi generates `layers.css` in your styles directory (`src/styles/layers.css`, or `styles/layers.css` in a project without `src/`). It declares three cascade layers, ordered from lowest to highest priority:
 
-1. `wa-native` -- Browser reset / normalization
-2. `wa-utilities` -- Utility classes
-3. `wa-color-palette` -- Palette color scales (hue-step values)
-4. `wa-color-variant` -- Brand and semantic variant mapping
-5. `wa-theme` -- Theme token definitions (the bulk of tokens)
-6. `wa-theme-dimension` -- Dimensional overrides
-7. `wa-theme-overrides` -- User custom overrides (highest priority)
+```css
+@layer base, theme, overrides;
+@import '@awesome.me/webawesome/dist/styles/webawesome.css' layer(base);
+@import '@awesome.me/webawesome/dist/styles/themes/<theme>.css' layer(base);
+@import './theme.css' layer(theme);
+@import './overrides.css' layer(overrides);
+```
 
-All custom CSS should go in `@layer wa-theme-overrides` to ensure it wins without `!important`.
+| Layer       | Source                              | Put here                                                             |
+| ----------- | ----------------------------------- | -------------------------------------------------------------------- |
+| `base`      | Web Awesome styles + selected theme | Nothing. Generated; do not edit.                                     |
+| `theme`     | `theme.css` (yours)                 | Design tokens: `:root { --wa-*: ... }` and `.wa-dark { ... }` blocks |
+| `overrides` | `overrides.css` (yours)             | CSS rules no token expresses, such as `::part()` styling             |
+
+Later layers beat earlier ones whatever the selector specificity, so a rule in `overrides.css` beats the same rule in `theme.css`, and both beat Web Awesome, without `!important`. Web Awesome's own eight internal layers (`wa-native` through `wa-theme-overrides`) all end up nested inside `base`, so you never need to write them.
+
+Write plain CSS in both files. Do not wrap it in `@layer`: each file is already placed in its layer by the import. In particular, `@layer wa-theme-overrides { ... }` inside `theme.css` becomes a nested layer that loses to the unlayered rules in your own files, so it makes styles harder to apply, not easier.
+
+`layers.css` is imported by the generated `kigumi.ts` (`src/lib/kigumi.ts` by default), not by your entry point. `theme.css` and `overrides.css` are created once and never overwritten. `kigumi init`, `theme`, `brand`, `palette` and `upgrade` create `overrides.css` when it is missing, and `upgrade` (or `init`, when it keeps your `layers.css`) adds the `overrides` layer to a `layers.css` written by an older CLI.
+
+**Next.js Pages Router exception:** Next's Pages Router CSS pipeline drops an `@import` that carries `layer(...)`, so Kigumi writes these imports without it. Nothing lands in `base`, `theme` or `overrides`, and `overrides.css` beats `theme.css` only by coming later. A rule in `overrides.css` must be at least as specific as the rule it overrides. Pages Router projects import `@/styles/layers.css` and `@/lib/kigumi` from `pages/_app.tsx`, since Next only allows global CSS imports there.
 
 ### 4. Scale Architecture
 
@@ -102,22 +114,25 @@ Individual components are styled through two mechanisms:
 
 There are NO `--wa-button-*`, `--wa-input-*`, or `--wa-card-*` tokens. Style these components with `::part()`:
 
+Put these rules in `overrides.css`, as plain CSS:
+
 ```css
-@layer wa-theme-overrides {
-  wa-button::part(base) {
-    border-radius: 0;
-    text-transform: uppercase;
-  }
+/* src/styles/overrides.css */
+wa-button::part(base) {
+  border-radius: 0;
+  text-transform: uppercase;
+}
 
-  wa-input::part(base) {
-    background: var(--wa-color-surface-raised);
-  }
+wa-input::part(base) {
+  background: var(--wa-color-surface-raised);
+}
 
-  wa-card::part(header) {
-    border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border);
-  }
+wa-card::part(header) {
+  border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border);
 }
 ```
+
+Select components by their tag (`wa-button::part(base)`): that works in React, Vue and Angular alike. Only the React wrappers also put a PascalCase class on the host (`<wa-button class="Button ...">`), so `.Button::part(base)` is React-only.
 
 ### 6. CSS Variables
 
@@ -139,9 +154,9 @@ Users can customize themes at three levels:
 
 **Level 2: CSS Variable Overrides**
 
-- Override CSS variables inside `@layer wa-theme-overrides`
+- Override CSS variables in `theme.css` (plain `:root` and `.wa-dark` blocks, no `@layer` wrapper)
 - Use scale tokens for proportional changes
-- Use `::part()` for component-specific styling
+- Use `::part()` for component-specific styling in `overrides.css`
 
 **Level 3: Custom Theme**
 
@@ -191,31 +206,29 @@ The `.wa-dark` class triggers different CSS variable values defined in the theme
 
 ### Override Surface Colors
 
-In `@layer wa-theme-overrides`:
+In `theme.css`:
 
 ```css
-@layer wa-theme-overrides {
-  :root {
-    --wa-color-surface-default: #fafafa;
-    --wa-color-surface-raised: #ffffff;
-    --wa-color-surface-border: #e0e0e0;
-  }
+:root {
+  --wa-color-surface-default: #fafafa;
+  --wa-color-surface-raised: #ffffff;
+  --wa-color-surface-border: #e0e0e0;
+}
 
-  .wa-dark {
-    --wa-color-surface-default: #0a0a0a;
-    --wa-color-surface-raised: #171717;
-    --wa-color-surface-border: #333333;
-  }
+.wa-dark {
+  --wa-color-surface-default: #0a0a0a;
+  --wa-color-surface-raised: #171717;
+  --wa-color-surface-border: #333333;
 }
 ```
 
 ### Make Everything Sharp-Cornered
 
+In `theme.css`:
+
 ```css
-@layer wa-theme-overrides {
-  :root {
-    --wa-border-radius-scale: 0;
-  }
+:root {
+  --wa-border-radius-scale: 0;
 }
 ```
 
@@ -243,22 +256,26 @@ npx kigumi init
 
 ## Theme Files Location
 
-After running `npx kigumi init`, theme files are generated in:
+After running `npx kigumi init`, these files exist (paths follow `stylesDir` and `utilsDir` in `kigumi.config.json`; a project without `src/` uses `styles/` and `lib/`):
 
 ```
+src/styles/
+  layers.css          # Generated: declares the layers, imports WA CSS, theme.css and overrides.css
+  theme.css           # Yours: design tokens (created once, never overwritten)
+  overrides.css       # Yours: custom CSS rules (created when missing, never overwritten)
 src/lib/
-  layers.css          # Main theme file (imports WA CSS + theme)
+  kigumi.ts           # Generated: imports layers.css and applies theme classes to <html>
 ```
 
-The `layers.css` file is referenced in your project's entry point (e.g., `main.tsx`).
+`layers.css` is imported by the generated `kigumi.ts`, so you do not import it yourself. On the Next.js Pages Router, `pages/_app.tsx` imports `@/styles/layers.css` and `@/lib/kigumi` directly.
 
 ## Important Notes
 
 - **Theme changes require rebuild**: After modifying `kigumi.config.json`, run `npx kigumi init` to regenerate theme files
 - **CSS variables are scoped**: Use `:root` for global changes, `.wa-dark` for dark mode overrides
-- **Use `@layer wa-theme-overrides`**: All custom CSS belongs in this cascade layer
+- **Tokens go in `theme.css`, rules go in `overrides.css`**: both as plain CSS, with no `@layer` wrapper. Never edit the generated `layers.css`
 - **No `--wa-button-*` tokens**: Style components via `::part()` selectors
-- **Never use `!important`**: The 7-layer cascade system handles specificity. If styles aren't applying, check that your CSS is in `@layer wa-theme-overrides`.
+- **Never use `!important`**: The `base < theme < overrides` layers handle specificity. If styles aren't applying, check that tokens are in `theme.css`, rules are in `overrides.css`, and neither file is wrapped in `@layer`.
 - **Scale tokens are powerful**: One override cascades to all derived values
 
 ## Reference Files
@@ -273,7 +290,7 @@ For detailed information, see:
 
 **Theme not applying:**
 
-- Ensure `layers.css` is imported in your entry point
+- Ensure the generated `kigumi.ts` is imported (it imports `layers.css`); on the Next.js Pages Router, `pages/_app.tsx` must import both `@/styles/layers.css` and `@/lib/kigumi`
 - Check browser console for CSS import errors
 - Verify `kigumi.config.json` has valid theme values
 
@@ -285,9 +302,10 @@ For detailed information, see:
 
 **Custom colors not showing:**
 
-- CSS variable overrides must be inside `@layer wa-theme-overrides`
-- Ensure custom CSS is loaded after theme files
-- Never use `!important`. If it isn't working, check cascade layer placement.
+- Token overrides belong in `theme.css`, custom rules in `overrides.css`, both unwrapped (no `@layer`)
+- Confirm `layers.css` still imports `./theme.css` and `./overrides.css`; `npx kigumi upgrade` adds a missing `overrides.css` import
+- Next.js Pages Router: the layers are not applied there, so make the selector in `overrides.css` at least as specific as the rule you want to beat
+- Never use `!important`. If it isn't working, check which file the CSS is in.
 
 **Component styling not working:**
 

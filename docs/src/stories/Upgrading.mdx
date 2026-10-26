@@ -31,7 +31,6 @@ export function KigumiProvider({ children }: { children: React.ReactNode }) {
 
 export const pagesAppSnippet = `import type { AppProps } from 'next/app';
 import '@/styles/layers.css';
-import '@/styles/theme.css';
 import '@/lib/kigumi';
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -181,7 +180,7 @@ export const regenerateSnippet = `npx kigumi update --force`;
         </div>
         <p className="wa-caption-m">
           Pages Router has no RSC boundary, so there's no provider to scaffold.
-          Add three imports to <code>pages/_app.tsx</code>:
+          Add two imports to <code>pages/_app.tsx</code>:
         </p>
 
         <Callout variant="warning">
@@ -242,6 +241,15 @@ export const regenerateSnippet = `npx kigumi update --force`;
           <code>'use client'</code> needed in your <code>_app.tsx</code>
           {' '}(Pages Router code runs in both server and client contexts by
           default).
+        </p>
+        <p className="wa-caption-m">
+          <code>layers.css</code> imports <code>theme.css</code> and then{' '}
+          <code>overrides.css</code> itself, so <code>_app.tsx</code> needs
+          no import of either. A <code>theme.css</code> import an older setup
+          added there is redundant and can go. Pages Router drops the cascade
+          layers, so a rule in <code>overrides.css</code> beats the same rule
+          in <code>theme.css</code> by coming later: give it at least the same
+          specificity.
         </p>
       </div>
 

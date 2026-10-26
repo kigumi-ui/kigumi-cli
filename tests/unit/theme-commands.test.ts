@@ -56,7 +56,10 @@ describe('theme command (parent + default set)', () => {
     const regenerate = await import('../../src/utils/regenerate.js');
     regenerateSpy = vi
       .spyOn(regenerate, 'regenerateKigumiSetup')
-      .mockResolvedValue({ layersPreserved: false });
+      .mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: false, layers: 'present' },
+      });
   });
 
   afterEach(async () => {
@@ -176,6 +179,23 @@ describe('theme command (parent + default set)', () => {
         path.join(testDir, 'kigumi.config.json')
       );
       expect(savedConfig.theme.selected).toBe('brutalist');
+    });
+
+    it('says when it created overrides.css', async () => {
+      // The layers.css it rewrites imports overrides.css (ADR 0009).
+      await createConfig();
+      regenerateSpy.mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: true, layers: 'present' },
+      });
+
+      const { themeCommand } = await import('../../src/commands/theme.js');
+      await themeCommand.parseAsync(['node', 'theme', 'set', 'awesome']);
+
+      expect(output.calls).toContainEqual({
+        method: 'info',
+        args: [expect.stringContaining('src/styles/overrides.css')],
+      });
     });
 
     it('should call regenerateKigumiSetup after updating', async () => {
@@ -577,7 +597,10 @@ describe('theme/install subcommand', () => {
     const regenerate = await import('../../src/utils/regenerate.js');
     regenerateSpy = vi
       .spyOn(regenerate, 'regenerateKigumiSetup')
-      .mockResolvedValue({ layersPreserved: false });
+      .mockResolvedValue({
+        layersPreserved: false,
+        overrides: { created: false, layers: 'present' },
+      });
   });
 
   afterEach(async () => {

@@ -47,7 +47,10 @@ vi.mock('../../src/output/index.js', async () => {
 
 // Keep the theme install from shelling out to regenerate the setup file.
 vi.mock('../../src/utils/regenerate.js', () => ({
-  regenerateKigumiSetup: vi.fn().mockResolvedValue(undefined),
+  regenerateKigumiSetup: vi.fn().mockResolvedValue({
+    layersPreserved: false,
+    overrides: { created: false, layers: 'present' },
+  }),
 }));
 
 async function stageThemeRegistry(registryDir: string): Promise<void> {
