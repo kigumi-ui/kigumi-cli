@@ -174,7 +174,7 @@ tests/
 │   │   ├── validate-doc-links.test.ts          # validate:doc-links matchers: which targets are checkable, normalization, exclusions, broken relative links
 │   │   ├── validate-flush-code.test.ts         # validate:flush-code: a `pre` in a zero-inset docs container must carry `flush-code`
 │   │   ├── validate-no-secrets.test.ts         # validate:no-secrets matchers: placeholders, provider-prefixed secrets, home-directory paths, tracked .env files
-│   │   ├── vercel-ignore-build.test.ts         # The Vercel ignoreCommand: which changed paths build the docs and storybook projects
+│   │   ├── vercel-ignore-build.test.ts         # The Vercel ignoreCommand and git.deploymentEnabled: which branches create a deployment, which changes build docs, that storybook builds only for a release, and that no project's `.vercelignore` drops `.git`
 │   │   └── validate-templates.test.ts          # A Template directory holds exactly getTemplateFileNames(): a missing file and any other file (a per-Template test in particular) both fail, dotfiles skipped (issue #80)
 │   ├── eslint-rules/
 │   │   ├── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config

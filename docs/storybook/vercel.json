@@ -4,6 +4,12 @@
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && node scripts/setup-npmrc.mjs && cd docs && pnpm install",
   "ignoreCommand": "node ../../scripts/vercel-ignore-build.mjs storybook",
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "**": false
+    }
+  },
   "framework": null,
   "headers": [
     {
