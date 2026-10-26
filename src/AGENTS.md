@@ -33,7 +33,7 @@ src/
 │   │   ├── remove-source.ts # Remove registry from config
 │   │   ├── add-component.ts # Add component entry to registry.json
 │   │   └── add-theme.ts  # Add theme entry to registry.json
-│   ├── doctor.ts         # Diagnose/fix imports + version alignment
+│   ├── doctor.ts         # Diagnose/fix imports + version alignment + the palette import in layers.css
 │   ├── status.ts         # Project status (supports --json)
 │   ├── list.ts            # List all available components (supports --json)
 │   ├── upgrade.ts        # Version upgrade + dependency installation; brings in overrides.css and its layer (also on a project already on this version)
@@ -48,7 +48,7 @@ src/
 │   ├── dependency-installer.ts # npm/pnpm install + old-package cleanup (shared by init and upgrade); brings .npmrc in line first; on Pro it passes the token (the one given, else the one found) to the package manager as WEBAWESOME_NPM_TOKEN and warns when the user's own installs will lack it; writes the exact Web Awesome version over an existing range first, since pnpm keeps a `^` despite --save-exact
 │   ├── template.ts       # Template materialization (read + tier-swap)
 │   ├── regenerate.ts     # Auto-generate kigumi.ts, layers.css, theme.css
-│   ├── palette-css.ts    # The palette import in layers.css (issue #174): every palette but `default` is scoped to `.wa-palette-<name>`, so layers.css must load its stylesheet. paletteImport() is the line generateLayersCSS() writes; syncPaletteImport() adds it after the theme import of an older layers.css or points a stale one at the configured palette and package (used by doctor); ensurePaletteImport() does that to the layers.css init preserves
+│   ├── palette-css.ts    # The palette import in layers.css (issue #174): every palette but `default` is scoped to `.wa-palette-<name>`, so layers.css must load its stylesheet. paletteImport() is the line generateLayersCSS() writes; syncPaletteImport() adds it after the theme import of an older layers.css or points a stale one at the configured palette and package (used by doctor); ensurePaletteImport() does that to the layers.css init preserves; importablePalette() falls back to `default` for a palette the tier's package lacks, whose import would fail the build
 │   ├── overrides-css.ts  # overrides.css and the overrides layer: ensureOverridesLayer() creates the file when missing, never overwrites it, and adds the layer to an older layers.css in place; reportOverridesLayer() words the outcome for init, theme, brand, palette and theme install; applyOverridesLayer() is upgrade's step, dry run included (ADR 0009)
 │   ├── json.ts           # JSON with comments support
 │   ├── github-fetcher.ts # Registry source parsing + fetch — accepts GitHub URLs and local filesystem paths via the RegistrySource union (parseGitHubUrl, fetchFile, fetchRegistryJson all branch on source.kind)

@@ -31,6 +31,7 @@ import {
 import { detectTier, getWebAwesomePackage } from '../utils/tier.js';
 import { surgicalRewriteLayersCss } from '../utils/regenerate.js';
 import { paletteSpecifier, syncPaletteImport } from '../utils/palette-css.js';
+import { isPaletteAvailable } from '../utils/tier-restrictions.js';
 import { getConfig } from '../utils/config.js';
 import { getOutput } from '../output/index.js';
 import type { OutputInterface } from '../output/types.js';
@@ -312,11 +313,31 @@ async function diagnosePaletteImport(
 
   const palette = config.theme.palette;
   const packageName = getWebAwesomePackage(tier);
+  const relativePath = path.relative(cwd, filePath);
+  if (!isPaletteAvailable(palette, tier)) {
+    return [
+      {
+        filePath,
+        relativePath,
+        issue: `The "${palette}" palette is not in ${packageName}, so layers.css cannot import it. Run \`kigumi palette\` to pick one this tier has`,
+        fixed: false,
+      },
+    ];
+  }
+
   const content = await fs.readFile(filePath, 'utf-8');
-  const synced = syncPaletteImport(content, packageName, palette);
+  // A dry run left a stale package on the palette line for the package scan
+  // to report; judge the line as that scan would have left it, so it is not
+  // reported twice.
+  const scanned = options.dryRun
+    ? content.replace(
+        tier === 'pro' ? FREE_PACKAGE_REGEX : PRO_PACKAGE_REGEX,
+        packageName
+      )
+    : content;
+  const synced = syncPaletteImport(scanned, packageName, palette);
   if (synced.status === 'present') return [];
 
-  const relativePath = path.relative(cwd, filePath);
   if (synced.status === 'unrecognized') {
     return [
       {

@@ -269,6 +269,29 @@ describe('regenerate utilities', () => {
     });
   });
 
+  describe('regenerateKigumiSetup and a palette the tier lacks', () => {
+    // A Pro palette left in the config after a move to Free names a file
+    // the Free package does not ship: importing it would fail the build.
+    it('imports the default palette instead', async () => {
+      await fs.ensureDir(path.join(testDir, config.utilsDir));
+      await fs.ensureDir(path.join(testDir, config.stylesDir));
+      await regenerateKigumiSetup(
+        testDir,
+        { ...config, theme: { ...config.theme, palette: 'rudimentary' } },
+        config.utilsDir,
+        'free'
+      );
+      const content = await fs.readFile(
+        path.join(testDir, config.stylesDir, 'layers.css'),
+        'utf-8'
+      );
+      expect(content).toContain(
+        "@import '@awesome.me/webawesome/dist/styles/color/palettes/default.css' layer(base);"
+      );
+      expect(content).not.toContain('rudimentary');
+    });
+  });
+
   describe('regenerateKigumiSetup with layers.css preserved (init)', () => {
     // Issue #174: init keeps an existing layers.css, which may predate the
     // palette import or name the palette the project had before.
