@@ -23,8 +23,8 @@ interface ThemeAgentSidebarProps {
  *
  * Owns the conversation's lifecycle: "New chat" and a replaced theme
  * (a preset, Default, an import) end it and mount a fresh chat; the draft
- * message survives. A reload starts a fresh one anyway: the chat id is per
- * mount, the custom theme is Studio's and persists.
+ * message survives. A reload keeps it: the chat restores what the tab saved
+ * (ADR 0014).
  */
 export function ThemeAgentSidebar({ open, transport }: ThemeAgentSidebarProps) {
   const { onThemeReplaced } = useThemeAgentStudio();

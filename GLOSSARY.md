@@ -119,6 +119,13 @@ The AI assistant in Kigumi Studio that builds and refines a custom theme from
 text instructions, in conversation with the user.
 _Avoid_: preset agent, theme generator
 
+**Conversation**:
+The exchange between the user and the Theme Agent about one custom theme: its
+messages, its held changes and the Undo of each answer. It ends with "New
+chat" or when the whole custom theme is replaced. Locked values and the draft
+in the message field are not part of it and outlive it.
+_Avoid_: session, chat, thread
+
 **Locked value**:
 A value in the custom theme, for one mode, that the user locked with its
 "Lock value" switch in the Studio sidebar. A mode-independent value is locked

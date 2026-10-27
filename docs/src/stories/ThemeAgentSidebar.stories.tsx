@@ -5,7 +5,15 @@ import { ThemeAgentSidebar } from '@/kigumi-studio/components/theme-agent/ThemeA
 import type { ThemeAgentTransport } from '@/kigumi-studio/components/theme-agent/ThemeAgentChat';
 import { StudioProvider } from '@/kigumi-studio/contexts/StudioContext';
 import { CUSTOM_CSS_LOCK, type LockedValues } from '@/kigumi-studio/lib/locks';
+import { DEFAULT_VALUES } from '@/kigumi-studio/lib/defaults';
 import { THEME_AGENT_PROPOSE_TOOL } from '@/kigumi-studio/theme-agent/constants';
+import { createThemeAgentConversation } from '@/kigumi-studio/theme-agent/conversation';
+import type { CustomTheme } from '@/kigumi-studio/theme-agent/custom-theme';
+import {
+  clearConversation,
+  loadConversation,
+  saveConversation,
+} from '@/kigumi-studio/theme-agent/stored-conversation';
 import type {
   ProposeThemeOutput,
   ThemeProposalInput,
@@ -142,7 +150,10 @@ function withLockedValues(...cssVars: string[]) {
   });
 }
 
-/** Start from Studio's defaults with `locks` stored, as the switches store them. */
+/**
+ * Start from Studio's defaults with `locks` stored, as the switches store
+ * them, and no conversation saved in the tab.
+ */
 function withStoredLocks(locks: LockedValues) {
   return () => {
     const saved = [LOCKS_KEY, STATE_KEY].map(
@@ -150,7 +161,9 @@ function withStoredLocks(locks: LockedValues) {
     );
     localStorage.removeItem(STATE_KEY);
     localStorage.setItem(LOCKS_KEY, JSON.stringify(locks));
+    clearConversation();
     return () => {
+      clearConversation();
       for (const [key, value] of saved) {
         if (value === null) localStorage.removeItem(key);
         else localStorage.setItem(key, value);
@@ -440,5 +453,93 @@ export const AnswerOutOfOutput: Story = {
       'The answer hit its length limit before the proposal was complete.'
     );
     expect(canvas.queryByText('Thinking…')).not.toBeInTheDocument();
+  },
+};
+
+/** Studio's defaults as the Theme Agent reads them. */
+function defaultTheme(): CustomTheme {
+  const theme: CustomTheme = {
+    light: {},
+    dark: {},
+    shadowComponents: [],
+    customCSS: '',
+  };
+  for (const [cssVar, value] of Object.entries(DEFAULT_VALUES)) {
+    theme.light[cssVar] = value.light;
+    theme.dark[cssVar] = value.dark;
+  }
+  return theme;
+}
+
+/**
+ * What the tab saved before a reload: the answer to "Make it warmer" came in
+ * with the brand locked, so its brand is held.
+ */
+function withConversationBeforeReload() {
+  const locks = withLockedValues('--wa-color-brand');
+  return () => {
+    const restore = locks();
+    const brandLock = {
+      light: ['--wa-color-brand'],
+      dark: ['--wa-color-brand'],
+      shadowComponents: false,
+      customCSS: false,
+    };
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(defaultTheme(), brandLock);
+    conversation.answerReceived(
+      'answer-1',
+      [warmerProposal],
+      defaultTheme(),
+      brandLock
+    );
+    conversation.answerFinished('answer-1');
+    saveConversation({
+      chatId: 'chat-before-reload',
+      messages: [
+        {
+          id: 'message-1',
+          role: 'user',
+          parts: [{ type: 'text', text: 'Make it warmer' }],
+        },
+        {
+          id: 'answer-1',
+          role: 'assistant',
+          parts: [{ type: 'text', text: WARMER }],
+        },
+      ],
+      conversation: conversation.save(),
+      cutOff: [],
+    });
+    return restore;
+  };
+}
+
+/**
+ * After a reload the conversation is back: its messages, the held brand with
+ * "Unlock and apply", and Undo of what that applied. "New chat" ends it, so
+ * the next reload starts fresh.
+ */
+export const RestoredAfterReload: Story = {
+  args: { transport: cannedTransport([]) },
+  beforeEach: withConversationBeforeReload(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    expect(await canvas.findByText('Make it warmer')).toBeInTheDocument();
+    const card = await canvas.findByText(WARMER);
+    await canvas.findByText('Locked, not changed: Brand Color.');
+
+    await userEvent.click(within(card).getByText('Unlock and apply'));
+    await canvas.findByText('Unlocked and applied: Brand Color.');
+
+    await userEvent.click(canvas.getByText('Undo'));
+    await canvas.findByText('Undone');
+
+    await userEvent.click(canvas.getByText('New chat'));
+    await waitFor(() =>
+      expect(canvas.queryByText(WARMER)).not.toBeInTheDocument()
+    );
+    expect(loadConversation()).toBeUndefined();
   },
 };

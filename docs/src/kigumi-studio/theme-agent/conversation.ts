@@ -185,6 +185,34 @@ export interface ThemeAgentConversation {
    * answer is not applied, and no answer of it offers apply or Undo.
    */
   end(): void;
+  /**
+   * What a reload needs to bring this conversation back, as plain data:
+   * `createThemeAgentConversation(saved)` restores it.
+   */
+  save(): SavedConversation;
+}
+
+/** A conversation as `save()` writes it: JSON in, JSON out. */
+export interface SavedConversation {
+  answers: SavedAnswer[];
+  /** The last finished answer, which the next message reports on. */
+  lastAnswerId?: string;
+  /** The theme the latest message carried, which its answer was written for. */
+  sentTheme?: CustomTheme;
+}
+
+/** One answer as saved: its written values as entries instead of Maps. */
+export interface SavedAnswer {
+  id: string;
+  before?: CustomTheme;
+  outcome: AnswerOutcome;
+  effect: {
+    wrote: Record<ThemeMode, Array<[string, string]>>;
+    wroteShadowComponents?: string[];
+    wroteCustomCSS?: string;
+    held: HeldEntry[];
+  };
+  undone: boolean;
 }
 
 /** What one answer did to the custom theme. */
@@ -413,14 +441,48 @@ function valuesOfEntries(entries: HeldEntry[]): LockedValues {
   );
 }
 
-export function createThemeAgentConversation(): ThemeAgentConversation {
-  const answers: AnswerRecord[] = [];
+function savedAnswer(answer: AnswerRecord): SavedAnswer {
+  const { wrote, ...effect } = answer.effect;
+  return structuredClone({
+    id: answer.id,
+    ...(answer.before ? { before: answer.before } : {}),
+    outcome: answer.outcome,
+    effect: {
+      ...effect,
+      wrote: { light: [...wrote.light], dark: [...wrote.dark] },
+    },
+    undone: answer.undone,
+  });
+}
+
+function restoredAnswer(saved: SavedAnswer): AnswerRecord {
+  const { id, before, outcome, effect, undone } = structuredClone(saved);
+  return {
+    id,
+    before,
+    outcome,
+    effect: {
+      ...effect,
+      wrote: {
+        light: new Map(effect.wrote.light),
+        dark: new Map(effect.wrote.dark),
+      },
+    },
+    undone,
+  };
+}
+
+/** A new conversation, or the one `saved` holds, as it was saved. */
+export function createThemeAgentConversation(
+  saved?: SavedConversation
+): ThemeAgentConversation {
+  const answers: AnswerRecord[] = saved?.answers.map(restoredAnswer) ?? [];
   const find = (id: string) => answers.find((answer) => answer.id === id);
   // What can still change the theme on screen: nothing once it has ended.
   const findLive = (id: string) => (ended ? undefined : find(id));
-  let lastAnswerId: string | undefined;
+  let lastAnswerId = saved?.lastAnswerId;
   // The theme the latest message carried, which its answer was written for.
-  let sentTheme: CustomTheme | undefined;
+  let sentTheme = saved?.sentTheme && cloneTheme(saved.sentTheme);
   let ended = false;
 
   const statusOf = (answer: AnswerRecord): AnswerStatus => {
@@ -654,6 +716,14 @@ export function createThemeAgentConversation(): ThemeAgentConversation {
 
     end() {
       ended = true;
+    },
+
+    save() {
+      return {
+        answers: answers.map(savedAnswer),
+        ...(lastAnswerId ? { lastAnswerId } : {}),
+        ...(sentTheme ? { sentTheme: cloneTheme(sentTheme) } : {}),
+      };
     },
   };
 }
