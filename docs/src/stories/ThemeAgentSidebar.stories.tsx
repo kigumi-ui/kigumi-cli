@@ -217,9 +217,9 @@ function belowCard(card: Element, node: Element): boolean {
 const meta = {
   title: 'Studio/Theme Agent Sidebar',
   component: ThemeAgentSidebar,
-  // Maintainer-only: tested in the interaction lane, not listed in the
-  // published Storybook.
-  tags: ['!dev', '!autodocs', 'interaction'],
+  // Maintainer-only: listed in the local Storybook, tested in the
+  // interaction lane, not listed in the published Storybook (.storybook/main.ts).
+  tags: ['maintainer', '!autodocs', 'interaction'],
   parameters: { layout: 'fullscreen' },
   args: { open: true },
   decorators: [

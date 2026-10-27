@@ -9,6 +9,7 @@
     "setup:npmrc": "node ../scripts/setup-npmrc.mjs",
     "deploy:task": "node ../scripts/deploy-theme-agent.mjs",
     "dev": "vite",
+    "dev:agent": "node ../scripts/dev-theme-agent.mjs",
     "prebuild": "node ../scripts/publish-skills.mjs && node ../scripts/generate-skills-index.mjs && cp ../llms.txt public/",
     "build": "tsc -b && vite build",
     "chromatic": "chromatic",

@@ -101,6 +101,8 @@ Browser (useChat + useTriggerChatTransport)
 | `theme-agent/session-client.ts` | The browser's calls to `/api/theme-agent`: a session token (`start`, `refresh`) and `close` |
 | `components/theme-agent/LockedChanges.tsx` | `UnlockAndApply`, the answer's action inside its card: one button for one held value, one per value plus one for all with more; "Unlock and apply" for a locked value, "Apply" for one changed during the run. Held custom CSS shows its diff (`Details`) above the buttons, with a `CopyButton` for the proposed custom CSS alone. `LockedChangesCallouts`, Studio's report below the card: success callouts for what was applied, neutral ones for what stays locked and what the user changed during the run, each naming the contrast pairs it would fix |
 | `../../api/_lib/theme-agent-session.ts` | Access gate + request handling (`start`, `refresh`, `close`), tested with real `Request`s |
+| `../../api/_lib/local-api.ts` | `localApiMiddleware()`: serves the Function from the Vite dev server for `pnpm dev:agent` (`vite.config.ts` adds it only when `THEME_AGENT_LOCAL=1`); never deployed |
+| `../../../scripts/dev-theme-agent.mjs` | `pnpm dev:agent`: checks the keys (`planLocalAgent()`), then starts `trigger dev` and Vite, or Vite alone with `--deployed` |
 | `../../trigger/theme-agent.ts` | The `chat.agent` task: limits, model, snapshot schema, status step |
 | `../../trigger/theme-agent-turn.ts` | One answer: prompt, the `propose_theme` tool, reject-and-retry loop, contrast correction rounds; `THEME_AGENT_MODEL` |
 | `../../eval/theme-agent-scenarios.ts` | The prompt eval's scenarios (snapshot, messages) and their judges, which read accepted proposals and locks, never reply text |
@@ -125,8 +127,8 @@ Guard rails:
 - A conversation ends with "New chat" and whenever the whole custom theme is replaced (a preset, Default, an import: `onThemeReplaced`), so no held change or Undo refers to a theme no longer on screen. Ending calls `conversation.end()` (a late answer from its run is never applied), stops a running answer, mounts a fresh chat with a new chat id, and closes the trigger.dev session through the `close` intent: the run gets the `trigger: "close"` record and exits, then the session is closed, in that order because a closed session refuses appends. A conversation that never sent a message has nothing to end. The draft message survives, and locks stay (ADR 0010, ADR 0012).
 - A reload keeps the conversation (ADR 0014). Each tab saves it in `sessionStorage` as it changes, except the answer being streamed, which a reload resumes from the session: the messages, the conversation module's `save()` (answers with their `before` theme, held changes, Undo, `sentTheme`) and the cut-off answers, plus the transport's session state. After a reload the chat restores all of it, hands the session state to `useTriggerChatTransport` (`sessions`) and resumes an interrupted answer (`useChat` `resume`), which is then applied or held as without the reload. Leaving the page closes nothing: a closed tab leaves its session open with no run, the run having ended after `turnTimeout` (1h); a message after that in an open tab starts a new run on the same session. Not covered: a theme another tab replaced (Undo still leaves every value changed since) and a duplicated tab, which shares the conversation.
 - Every message carries a snapshot of the custom theme as the sidebar has it (`sendMessage` `metadata`, the task's `clientDataSchema`). The task builds its prompt from the snapshot, never from earlier turns, so hand edits between messages are seen.
-- `ANTHROPIC_API_KEY` lives in trigger.dev, in its Production environment, for the task; the prompt eval reads a maintainer's own key from the environment or a gitignored `.env`, never from a committed file. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live only in Vercel (Production and Preview). Nothing secret is imported by `src/`.
-- `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.
+- `ANTHROPIC_API_KEY` lives in trigger.dev, in its Production environment, for the task; the prompt eval reads a maintainer's own key from the environment or a gitignored `.env`, never from a committed file. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live in Vercel (Production and Preview) and, for local runs, in a maintainer's gitignored `docs/.env.local`. Nothing secret is imported by `src/`.
+- `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. Locally that variable is unset, which is why `pnpm dev:agent` can use a `tr_dev_` key. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.
 
 ### Enabling it in a browser
 
@@ -139,9 +141,44 @@ document.cookie =
 
 Then reload Studio. Any value shows the button; only the right one starts a run.
 
+### Trying it locally
+
+Three levels, cheapest first. None needs a push, a Vercel preview or a deploy.
+
+| Level | Command | What answers | Use it for |
+| --- | --- | --- | --- |
+| 1. UI without a model | `pnpm storybook` | Canned answers in `ThemeAgentSidebar.stories.tsx`, through Studio's real conversation module | Layout, actions, held changes, Undo |
+| 2. Studio against the deployed task | `pnpm dev:agent --deployed` | The task in trigger.dev Production | Page and sidebar changes that need real answers but no task change |
+| 3. Everything local | `pnpm dev:agent` | The task on this machine (`trigger dev`), in trigger.dev's dev environment | Any change under `docs/trigger/`, to the prompt, or to what the task validates |
+
+The sidebar stories carry the `maintainer` tag: `pnpm storybook` lists them, and `.storybook/main.ts` leaves them out of the sidebar of every build (the published Storybook and Chromatic's).
+
+`pnpm dev:agent` (from `docs/`) serves Studio on `http://localhost:5173` with `/api/theme-agent` handled by the Vite dev server itself, running `docs/api/theme-agent.ts` unchanged; no Vercel CLI is involved. At level 3 it also runs `trigger dev`, prints which trigger.dev environment it talks to, and stops both processes on Ctrl+C or when either exits. A change to the prompt in `docs/trigger/theme-agent-turn.ts` takes effect in the next answer: `trigger dev` rebuilds the task on save.
+
+One-time setup, in `docs/.env.local` (gitignored, like `docs/.env`; never commit either):
+
+```bash
+THEME_AGENT_ACCESS_KEY=<any value>        # local only; the cookie below must match
+TRIGGER_SECRET_KEY=tr_dev_...             # level 3: trigger.dev dashboard, project, API keys, Development
+ANTHROPIC_API_KEY=sk-ant-...              # level 3: or in docs/.env, where the eval reads it
+TRIGGER_PROD_SECRET_KEY=tr_prod_...       # level 2 only: the key Vercel holds as TRIGGER_SECRET_KEY
+```
+
+- `pnpm exec trigger login` once per machine. `trigger dev` runs under that login, in your own dev environment, so the `tr_dev_` key must come from the same account.
+- The local task reads `ANTHROPIC_API_KEY` from `docs/.env.local` or `docs/.env`, which `trigger dev` hands it; a key only in the shell does not reach it, and the script refuses to start without one in a file.
+- Level 3 refuses a `tr_prod_` key and level 2 a `tr_dev_` one, so the local task and Production are never mixed up. Level 2 runs on Production's Anthropic spend, like kigumi.style.
+- A missing or wrong key stops the script before anything starts, naming each problem.
+
+Then set the cookie on `localhost` in devtools and reload Studio (no `secure` needed on `http://localhost`):
+
+```js
+document.cookie =
+  'kigumi-theme-agent=<THEME_AGENT_ACCESS_KEY>; path=/; max-age=31536000; samesite=strict';
+```
+
 ### Deploying the task
 
-The task deploys by hand; nothing in CI deploys it. Redeploy after every change under `docs/trigger/` or to `docs/trigger.config.ts`, and with every change to `theme-agent/proposal.ts`, `agent-css.ts` or `custom-theme.ts`: a page that validates proposals more strictly than the deployed task refuses what that task accepted, and the agent then believes it changed the theme.
+The task deploys by hand; nothing in CI deploys it. A PR's task and prompt changes are tried locally first (level 3, then `pnpm eval:theme-agent`), and Production is deployed once the PR is merged: deploying from a branch changes the Theme Agent on kigumi.style and on every preview before the change is reviewed. Redeploy after every merged change under `docs/trigger/` or to `docs/trigger.config.ts`, and with every change to `theme-agent/proposal.ts`, `agent-css.ts` or `custom-theme.ts`: a page that validates proposals more strictly than the deployed task refuses what that task accepted, and the agent then believes it changed the theme.
 
 Run the prompt eval first, and deploy only when every scenario passes. The unit tests pin the prompt's wording against a mock model, which returns whatever the test scripts; only the eval shows what the real model does with the prompt. A prompt bug that only changes what the model chooses to propose passes every unit test.
 
@@ -164,4 +201,4 @@ cd docs && pnpm test   # Studio lib tests, the Theme Agent conversation module, 
 cd docs && pnpm storybook:test   # interaction lane, the Theme Agent sidebar included
 ```
 
-The sidebar's layout and actions are tested in a browser, where Web Awesome runs, not in jsdom: `src/stories/ThemeAgentSidebar.stories.tsx` renders it inside a real `StudioProvider`, seeds locks in storage, and hands it a canned transport that streams an answer's text and its accepted `propose_theme` call, so Studio's own conversation module decides what is applied and held. It is in the interaction lane and hidden from the published Storybook (`!dev`). A new answer layout or action gets a story there.
+The sidebar's layout and actions are tested in a browser, where Web Awesome runs, not in jsdom: `src/stories/ThemeAgentSidebar.stories.tsx` renders it inside a real `StudioProvider`, seeds locks in storage, and hands it a canned transport that streams an answer's text and its accepted `propose_theme` call, so Studio's own conversation module decides what is applied and held. It is in the interaction lane, listed in `pnpm storybook`, and left out of the published Storybook's sidebar (the `maintainer` tag). A new answer layout or action gets a story there.
