@@ -52,6 +52,13 @@ snapshot; the transport re-mints an expired token through the `refresh`
 intent. `turnTimeout` only bounds how long a suspended run waits, not how long
 a conversation lives.
 
+The answer being streamed is not saved; the session state the transport
+reports carries the cursor to resume it from. Between the end of an answer
+and the save that follows (one render), the session already reports the
+turn finished: a reload in that moment shows the message without its
+answer, and nothing resumes it. The answer is in the session's snapshot, so
+the agent still knows it.
+
 Whether reattaching, resuming a running answer and a run started after
 `turnTimeout` behave as described is checked against trigger.dev on a preview
 deployment, not by the unit tests, which stub the trigger.dev calls.

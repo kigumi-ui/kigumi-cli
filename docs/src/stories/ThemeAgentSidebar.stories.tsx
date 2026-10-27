@@ -29,6 +29,7 @@ import type {
 type CannedAnswer =
   | { text: string; proposal: ThemeProposalInput }
   | { running: true }
+  | { streaming: string }
   | { thinkingOnly: true };
 
 interface CannedTransport extends ThemeAgentTransport {
@@ -110,6 +111,21 @@ function cannedTransport(answers: CannedAnswer[]): CannedTransport {
               controller.enqueue(chunk);
             }
             controller.close();
+            return;
+          }
+          if ('streaming' in answer) {
+            const id = `answer-${sent}`;
+            for (const chunk of [
+              { type: 'start', messageId: id },
+              { type: 'start-step' },
+              { type: 'text-start', id: `${id}-text` },
+              { type: 'text-delta', id: `${id}-text`, delta: answer.streaming },
+            ] satisfies UIMessageChunk[]) {
+              controller.enqueue(chunk);
+            }
+            abortSignal?.addEventListener('abort', () => controller.close(), {
+              once: true,
+            });
             return;
           }
           if ('running' in answer) {
@@ -541,5 +557,33 @@ export const RestoredAfterReload: Story = {
       expect(canvas.queryByText(WARMER)).not.toBeInTheDocument()
     );
     expect(loadConversation()).toBeUndefined();
+  },
+};
+
+/**
+ * While the next answer streams, Undo of an earlier one is saved at once:
+ * a reload in the middle of the answer keeps it. The answer itself is not
+ * saved; the reload resumes it from the session.
+ */
+export const SavedWhileAnswering: Story = {
+  args: {
+    transport: cannedTransport([{ streaming: 'Rounding the corners' }]),
+  },
+  beforeEach: withConversationBeforeReload(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByText(WARMER);
+    await send(canvasElement, 'Rounder corners');
+    // The answer is streaming: its text is on screen, and it is not done.
+    await canvas.findByText('Rounding the corners');
+    expect(canvas.getByText('Thinking…')).toBeInTheDocument();
+
+    await userEvent.click(canvas.getByText('Undo'));
+    await canvas.findByText('Undone');
+
+    const saved = loadConversation();
+    expect(saved?.conversation.answers[0]?.undone).toBe(true);
+    expect(saved?.messages.at(-1)?.role).toBe('user');
+    expect(saved?.messages).toHaveLength(3);
   },
 };
