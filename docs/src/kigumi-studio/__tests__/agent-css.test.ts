@@ -320,8 +320,15 @@ describe('custom CSS from the Theme Agent: animations and reduced motion', () =>
     expect(validateAgentCSS(`${keyframes}\n${css}`)).toEqual([]);
   });
 
-  it('accepts animation: none anywhere, which starts nothing', () => {
-    expect(validateAgentCSS('.Badge { animation: none; }')).toEqual([]);
+  it.each(['none', 'none !important', 'NONE'])(
+    'accepts animation: %s anywhere, which starts nothing',
+    (value) => {
+      expect(validateAgentCSS(`.Badge { animation: ${value}; }`)).toEqual([]);
+    }
+  );
+
+  it('refuses -ms-animation outside the reduced-motion query, like every vendor prefix', () => {
+    expect(motion('.Badge { -ms-animation: pulse 2s; }')).toHaveLength(1);
   });
 
   it.each([
@@ -357,11 +364,40 @@ describe('custom CSS from the Theme Agent: what a @keyframes holds', () => {
     ['ease-in-out', '@keyframes ease-in-out { to { opacity: 0; } }'],
     ['forwards', '@keyframes forwards { to { opacity: 0; } }'],
     ['paused', '@keyframes paused { to { opacity: 0; } }'],
+    // Reserved: no custom identifier may be `default`.
+    ['default', '@keyframes default { to { opacity: 0; } }'],
+    // A comment reads as a space: two names, not one.
+    ['a comment inside the name', '@keyframes a/**/b { to { opacity: 0; } }'],
     ['no name', '@keyframes { to { opacity: 0; } }'],
   ])('refuses %s as the keyframes name', (_name, css) => {
     expect(validateAgentCSS(css).join('\n')).toMatch(
       /a keyframes name is a plain identifier, such as skeleton-shimmer/
     );
+  });
+
+  it.each(['replace', 'add', 'accumulate', 'steps', 'end'])(
+    'accepts %s, which the animation shorthand reads as a name',
+    (name) => {
+      expect(
+        validateAgentCSS(`@keyframes ${name} { to { opacity: 0; } }`)
+      ).toEqual([]);
+    }
+  );
+
+  it('refuses an at-rule inside @keyframes', () => {
+    expect(
+      validateAgentCSS(
+        '@keyframes fade { @media print { to { opacity: 0; } } }'
+      )
+    ).toEqual(['@keyframes fade: holds only from, to and percentage blocks']);
+  });
+
+  it('refuses a url() inside a keyframe block', () => {
+    expect(
+      validateAgentCSS(
+        '@keyframes fade { to { background-image: url(https://example.com/x.png); } }'
+      )
+    ).toContain('customCSS: url() loads a resource and is not allowed');
   });
 
   it('accepts from, to and percentages, also in a list', () => {
@@ -384,8 +420,10 @@ describe('custom CSS from the Theme Agent: what a @keyframes holds', () => {
     expect(
       validateAgentCSS(
         '@keyframes fade { to { & .Card { color: var(--wa-color-brand); } } }'
-      ).join('\n')
-    ).toMatch(/@keyframes fade to: a nested rule is not allowed/);
+      )
+    ).toEqual([
+      '@keyframes fade to: a keyframe block holds only declarations, no nested rule',
+    ]);
   });
 
   it('refuses a declaration outside any keyframe block', () => {

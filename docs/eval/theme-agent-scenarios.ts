@@ -373,6 +373,7 @@ function skeletonShimmerApplied(
   if (!css || css === snapshot.theme.customCSS) {
     return { pass: false, reason: 'no custom CSS was applied' };
   }
+  // Only [\w-] characters, so each name goes into a RegExp as it is.
   const names = [...css.matchAll(/@keyframes\s+([\w-]+)/g)].map((m) => m[1]);
   if (names.length === 0) {
     return { pass: false, reason: 'the custom CSS defines no @keyframes' };

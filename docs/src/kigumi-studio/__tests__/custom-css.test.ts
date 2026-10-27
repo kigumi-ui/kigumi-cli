@@ -158,6 +158,47 @@ describe('custom CSS in the preview: global at-rules', () => {
   });
 });
 
+describe('custom CSS in the preview: animation names', () => {
+  // Only the name is renamed: a function or a word inside one (a timing
+  // function, its step position, var(), calc()) is not the name, whatever
+  // it is called.
+  it.each([
+    [
+      'steps',
+      '.A { animation: steps 1s steps(4, end) infinite; }',
+      '.A { animation: kigumi-preview-steps 1s steps(4, end) infinite; }',
+    ],
+    [
+      'end',
+      '.A { animation: end 1s steps(4, end); }',
+      '.A { animation: kigumi-preview-end 1s steps(4, end); }',
+    ],
+    [
+      'cubic-bezier',
+      '.A { animation: cubic-bezier 1s cubic-bezier(0.2, 0, 0, 1); }',
+      '.A { animation: kigumi-preview-cubic-bezier 1s cubic-bezier(0.2, 0, 0, 1); }',
+    ],
+    [
+      'calc',
+      '.A { animation-name: calc, fade; animation-duration: calc(1s * 2); }',
+      '.A { animation-name: kigumi-preview-calc, fade; animation-duration: calc(1s * 2); }',
+    ],
+  ])('renames %s only where it is the name', (name, rule, scoped) => {
+    expect(
+      flat(
+        scopeCustomCSS(
+          `@keyframes ${name} { to { opacity: 0; } }\n${rule}`,
+          ROOT
+        )
+      )
+    ).toEqual([
+      `@keyframes kigumi-preview-${name} { to { opacity: 0; }`,
+      '}',
+      scoped.replace('.A', `${ROOT} .A`),
+    ]);
+  });
+});
+
 describe('custom CSS check before Apply', () => {
   it('accepts rules, at-rules, comments and braces inside strings', () => {
     expect(

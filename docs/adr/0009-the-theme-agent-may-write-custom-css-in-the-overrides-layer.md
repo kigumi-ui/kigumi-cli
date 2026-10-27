@@ -33,18 +33,21 @@ the prompt:
   An animated colour is painted on the page as much as a static one, and the
   contrast check covers it only when it is one of the theme's values.
 - A rule that starts an animation (`animation` or `animation-name`, also
-  vendor-prefixed, any value but `none`) sits inside
+  vendor-prefixed, any value but `none`, `!important` or not) sits inside
   `@media (prefers-reduced-motion: no-preference)`: every query in that
   list must hold the feature and none may be negated or joined with `or`,
-  so the animation never runs for a user who asked for reduced motion
-  (WCAG 2.3.3).
-- The name is a plain identifier, not a string, a CSS-wide keyword or a
-  keyword of the `animation` shorthand (such as `infinite` or `ease`), which
-  the shorthand would read as that keyword. The
-  preview prefixes every keyframes name (`scopeCustomCSS()`), so a name
-  cannot redefine one of Studio's own animations; the export writes it as
-  proposed.
+  so the animation never runs for a user who asked for reduced motion.
+  WCAG 2.1 AA asks for a way to stop motion that starts on its own (2.2.2);
+  following the system preference goes beyond it, to 2.3.3.
+- The name is a plain identifier: not a string, a CSS-wide keyword,
+  `default` (no custom identifier may be one) or a keyword of the
+  `animation` shorthand (such as `infinite` or `ease`), which the shorthand
+  reads as that keyword and never as the name. The preview prefixes every
+  keyframes name (`scopeCustomCSS()`), only where it stands as a name and
+  never inside a function such as `steps()`, so a name cannot redefine one
+  of Studio's own animations; the export writes it as proposed.
 
+`@keyframes` may also sit inside `@media`, `@supports` or `@container`.
 `@-webkit-keyframes` and every other at-rule stay refused.
 
 ## Considered Options

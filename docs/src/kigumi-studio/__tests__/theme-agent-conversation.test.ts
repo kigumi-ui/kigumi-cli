@@ -152,6 +152,16 @@ describe('Theme Agent conversation: rejected proposals', () => {
       'customCSS: url() loads a resource and is not allowed',
     ],
     [
+      'custom CSS with an animation outside the reduced-motion query',
+      {
+        light: {},
+        dark: {},
+        customCSS:
+          '@keyframes pulse { 50% { opacity: 0.6; } }\n.Badge { animation: pulse 2s infinite; }',
+      },
+      '.Badge animation: an animation must sit inside @media (prefers-reduced-motion: no-preference)',
+    ],
+    [
       'custom CSS with an @import',
       { light: {}, dark: {}, customCSS: '@import "x.css";' },
       'customCSS: @import is not allowed',

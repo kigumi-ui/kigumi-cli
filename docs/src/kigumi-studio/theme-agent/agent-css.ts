@@ -30,18 +30,16 @@ const KEYFRAMES = /^@keyframes(?![\w-])\s*([\s\S]*)$/i;
 
 /**
  * A plain identifier: no string, no escape (refused as script-like anyway),
- * and no keyword the animation shorthand reads as something other than the
- * name. Such a name would also be renamed where it stands as that keyword
- * when the preview prefixes the name, so the preview would differ from the
- * export.
+ * not a CSS-wide keyword or `default` (no custom identifier may be one), and
+ * no keyword the animation shorthand reads as something other than the name,
+ * which would never name the keyframes there.
  */
 const KEYFRAMES_NAME = /^[a-z][\w-]*$/i;
 const NOT_A_KEYFRAMES_NAME = new Set(
   (
-    'none initial inherit unset revert revert-layer default ' +
+    'initial inherit unset revert revert-layer default none ' +
     'infinite normal reverse alternate alternate-reverse ' +
     'forwards backwards both running paused auto ' +
-    'replace add accumulate ' +
     'ease ease-in ease-out ease-in-out linear step-start step-end'
   ).split(' ')
 );
@@ -189,7 +187,7 @@ function bodyErrors(selector: string, body: string): string[] {
 }
 
 /** A property that starts an animation, vendor-prefixed too. */
-const STARTS_ANIMATION = /^(?:-(?:webkit|moz|o)-)?animation(?:-name)?$/i;
+const STARTS_ANIMATION = /^(?:-(?:webkit|moz|ms|o)-)?animation(?:-name)?$/i;
 
 const REDUCED_MOTION_FEATURE = '(prefers-reduced-motion:no-preference)';
 
@@ -198,7 +196,7 @@ const REDUCED_MOTION_FEATURE = '(prefers-reduced-motion:no-preference)';
  * for reduced motion: every query in its list is a conjunction (no `not`,
  * no `or`) with (prefers-reduced-motion: no-preference) as one of its terms.
  */
-function onlyWithoutReducedMotion(prelude: string): boolean {
+function allowsMotion(prelude: string): boolean {
   const media = /^@media\s+([\s\S]*)$/i.exec(prelude);
   if (!media) return false;
   const queries = splitTopLevel(media[1], ',');
@@ -224,7 +222,8 @@ function motionErrors(selector: string, body: string): string[] {
     if (colon === -1) return [];
     const property = declaration.slice(0, colon).trim();
     const value = declaration.slice(colon + 1).trim();
-    if (!STARTS_ANIMATION.test(property) || /^none$/i.test(value)) return [];
+    if (!STARTS_ANIMATION.test(property)) return [];
+    if (/^none(?:\s*!\s*important)?$/i.test(value)) return [];
     return [
       `${selector} ${property}: an animation must sit inside @media (prefers-reduced-motion: no-preference), so it stops for users who ask for reduced motion`,
     ];
@@ -264,18 +263,20 @@ function keyframesErrors(prelude: string, body: string): string[] {
       ];
     }
     if (/[{}]/.test(node.body)) {
-      return [`${where} ${node.selector}: ${NESTED_RULE}`];
+      return [
+        `${where} ${node.selector}: a keyframe block holds only declarations, no nested rule`,
+      ];
     }
     return bodyErrors(`${where} ${node.selector}`, node.body);
   });
 }
 
 /**
- * Why `nodes` are refused. `withoutReducedMotion` is set inside an @media
+ * Why `nodes` are refused. `motionAllowed` is set inside an @media
  * that holds only when the user has not asked for reduced motion, where a
  * rule may start an animation.
  */
-function nodeErrors(nodes: CssNode[], withoutReducedMotion = false): string[] {
+function nodeErrors(nodes: CssNode[], motionAllowed = false): string[] {
   return nodes.flatMap((node) => {
     if (node.kind === 'at-rule' && KEYFRAMES.test(node.prelude)) {
       return keyframesErrors(node.prelude, node.body);
@@ -283,7 +284,7 @@ function nodeErrors(nodes: CssNode[], withoutReducedMotion = false): string[] {
     if (node.kind === 'at-rule') {
       return nodeErrors(
         splitStylesheet(node.body),
-        withoutReducedMotion || onlyWithoutReducedMotion(node.prelude)
+        motionAllowed || allowsMotion(node.prelude)
       );
     }
     if (node.kind !== 'rule') return [];
@@ -297,7 +298,7 @@ function nodeErrors(nodes: CssNode[], withoutReducedMotion = false): string[] {
     }
     return [
       ...bodyErrors(node.selector, node.body),
-      ...(withoutReducedMotion ? [] : motionErrors(node.selector, node.body)),
+      ...(motionAllowed ? [] : motionErrors(node.selector, node.body)),
     ];
   });
 }
