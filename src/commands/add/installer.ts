@@ -170,7 +170,7 @@ export class ComponentInstaller {
     if (componentExists) {
       // --all without --force: never touch an installed component
       if (options.all && !options.force) {
-        return { name: component.name, success: true, skipped: 'exists' };
+        return { name: component.name, success: true, skipped: 'installed' };
       }
 
       const checks = await Promise.all([

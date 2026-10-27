@@ -192,7 +192,7 @@ describe('skipped and failed', () => {
   });
 
   it('points --all skips at --force', () => {
-    printSummary([result({ skipped: 'exists' })], config('react'), output);
+    printSummary([result({ skipped: 'installed' })], config('react'), output);
     expect(textOf('info')).toBe(
       'Skipped 1 installed component(s): pass --force to overwrite'
     );
@@ -207,7 +207,7 @@ describe('skipped and failed', () => {
     printSummary(
       [
         result({ name: 'Button', skipped: 'up-to-date' }),
-        result({ name: 'Card', skipped: 'exists' }),
+        result({ name: 'Card', skipped: 'installed' }),
         result({ name: 'Input', skipped: 'declined' }),
       ],
       config('react'),
@@ -248,7 +248,7 @@ describe('the closing line', () => {
 
   it('reports nothing added when a skip leaves something to do', () => {
     printSummary(
-      [result({ skipped: 'up-to-date' }), result({ skipped: 'exists' })],
+      [result({ skipped: 'up-to-date' }), result({ skipped: 'installed' })],
       config('react'),
       output
     );
@@ -286,7 +286,7 @@ describe('the four concerns are independent', () => {
           sourceFramework: 'react',
           stagedPath: 'p',
         }),
-        result({ name: 'Input', skipped: 'exists' }),
+        result({ name: 'Input', skipped: 'installed' }),
         result({ name: 'Select', success: false, error: 'boom' }),
       ],
       config('vue'),

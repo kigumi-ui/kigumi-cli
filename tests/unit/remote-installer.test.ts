@@ -9,13 +9,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import { stripVTControlCharacters } from 'util';
 import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
 import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
 import type { GitHubRegistrySource } from '../../src/utils/github-fetcher.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
 import { createTestAddOptions } from './_helpers/add-options.js';
-import { createRecordingOutput } from './_helpers/output.js';
+import { createRecordingOutput, spinnerLines } from './_helpers/output.js';
 import { createTestPrompts } from './_helpers/prompts.js';
 
 // ---------------------------------------------------------------------------
@@ -553,7 +552,7 @@ describe('RemoteComponentInstaller - why a component was skipped (#177)', () => 
     );
     return {
       skipped: results[0].skipped,
-      lines: output.spinnerStops.map((m) => stripVTControlCharacters(m)),
+      lines: spinnerLines(output),
     };
   }
 
@@ -593,7 +592,7 @@ describe('RemoteComponentInstaller - why a component was skipped (#177)', () => 
 
     const { skipped, lines } = await install({ all: true });
 
-    expect(skipped).toBe('exists');
+    expect(skipped).toBe('installed');
     expect(lines).toEqual([
       '○ Skipped MyCard (already installed, pass --force to overwrite)',
     ]);

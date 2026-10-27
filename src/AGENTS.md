@@ -396,7 +396,7 @@ if (previousTier !== newTier) {
 | `validator.ts` | Validate component exists, tier access |
 | `component-selector.ts` | Interactive component picker (built-in registry) |
 | `installer.ts` | Copy templates, run transforms, detect modifications |
-| `skip-reasons.ts` | `SkipReason` (`exists` / `declined` / `up-to-date`) with each reason's spinner and summary line, read by both installers and `printSummary` |
+| `skip-reasons.ts` | `SkipReason` (`installed` / `declined` / `up-to-date`) with each reason's spinner and summary line, read by both installers and `printSummary` |
 | `remote-installer.ts` | Download + install from GitHub (no template substitution) |
 | `remote-component-selector.ts` | Interactive picker (community registry) |
 
