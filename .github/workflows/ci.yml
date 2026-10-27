@@ -797,7 +797,10 @@ jobs:
 
   story-interactions:
     name: Story Interactions (Storybook Vitest)
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.58 has no Chromium build for Ubuntu 26.04, which
+    # ubuntu-latest now resolves to. Lift with a Playwright bump that supports it.
+    # cache-warm.yml must run on the same image (validate:cache-keys).
+    runs-on: ubuntu-24.04
     needs: changes
     if: |
       github.actor != 'dependabot[bot]'

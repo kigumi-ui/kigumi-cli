@@ -38,7 +38,10 @@ concurrency:
 jobs:
   playwright:
     name: Warm Playwright cache
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.58 has no Chromium build for Ubuntu 26.04, which
+    # ubuntu-latest now resolves to. Lift with a Playwright bump that supports it.
+    # ci.yml's story-interactions job must run on the same image (validate:cache-keys).
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v7
