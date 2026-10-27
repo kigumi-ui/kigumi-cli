@@ -43,11 +43,6 @@
   width: 100%;
 }
 
-.theme-css-dialog__hint {
-  color: var(--wa-color-text-quiet);
-  font-size: var(--wa-font-size-s);
-}
-
 /* The label names the field for screen readers; the dialog title shows it. */
 .theme-css-dialog__editor::part(form-control-label) {
   position: absolute;

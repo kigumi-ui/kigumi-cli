@@ -163,7 +163,7 @@ function readThemeText(text: string): ReadTheme {
   };
 }
 
-/** What Apply changes: the user's edits from `before` to `after`. */
+/** What a save changes: the user's edits from `before` to `after`. */
 export interface ThemeEdits {
   errors: string[];
   warnings: string[];
@@ -175,7 +175,7 @@ export interface ThemeEdits {
 
 /**
  * The edits the user made to the Theme CSS text, from the text the dialog
- * showed (`before`) to the text at Apply (`after`). Only what changed is
+ * showed (`before`) to the text at a save (`after`). Only what changed is
  * applied, so the unchanged text changes nothing, and a change elsewhere
  * since the dialog opened (a Theme Agent answer) is not overwritten. A
  * `locked` value, shadow list or custom CSS keeps what it has, with a

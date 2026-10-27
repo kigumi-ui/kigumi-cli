@@ -199,7 +199,7 @@ describe('custom CSS in the preview: animation names', () => {
   });
 });
 
-describe('custom CSS check before Apply', () => {
+describe('custom CSS check before a save', () => {
   it('accepts rules, at-rules, comments and braces inside strings', () => {
     expect(
       validateCustomCSS(
