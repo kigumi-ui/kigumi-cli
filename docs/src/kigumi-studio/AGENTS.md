@@ -145,6 +145,8 @@ Then reload Studio. Any value shows the button; only the right one starts a run.
 
 Three levels, cheapest first. None needs a push, a Vercel preview or a deploy.
 
+Who can run what: every level needs `docs/` installed, which needs read access to the organization's Web Awesome Pro package (`pnpm run setup:npmrc`, a Pro seat). Levels 2 and 3 also need membership of the trigger.dev project named in `docs/trigger.config.ts`: `trigger dev` registers its worker in that project, and both secret keys come from its dashboard. A contributor without both stops at the unit tests. Level 3 answers are paid with your own Anthropic key; level 2 answers with Production's, like kigumi.style.
+
 | Level | Command | What answers | Use it for |
 | --- | --- | --- | --- |
 | 1. UI without a model | `pnpm storybook` | Canned answers in `ThemeAgentSidebar.stories.tsx`, through Studio's real conversation module | Layout, actions, held changes, Undo |
@@ -166,7 +168,8 @@ TRIGGER_PROD_SECRET_KEY=tr_prod_...       # level 2 only: the key Vercel holds a
 
 - `pnpm exec trigger login` once per machine. `trigger dev` runs under that login, in your own dev environment, so the `tr_dev_` key must come from the same account.
 - `trigger dev` hands its environment to the local task. The script gives it the shell's environment and `ANTHROPIC_API_KEY`, never the keys only Vite needs (`TRIGGER_SECRET_KEY`, `TRIGGER_PROD_SECRET_KEY`, `THEME_AGENT_ACCESS_KEY`). `trigger dev` also reads the env files in its own directory itself, so a worktree's own `docs/.env.local` reaches the task whole.
-- Level 3 refuses a `tr_prod_` key and level 2 a `tr_dev_` one, so the local task and Production are never mixed up. Level 2 runs on Production's Anthropic spend, like kigumi.style.
+- Level 3 refuses a `tr_prod_` key and level 2 a `tr_dev_` one, so the local task and Production are never mixed up.
+- A key set in the shell wins over the files: `THEME_AGENT_ACCESS_KEY=<value> pnpm dev:agent` runs with that access key for this run only.
 - A missing or wrong key, and at level 3 a trigger.dev CLI without a login, stops the script before anything starts, naming each problem.
 
 Then set the cookie on `localhost` in devtools and reload Studio (no `secure` needed on `http://localhost`):
@@ -175,6 +178,14 @@ Then set the cookie on `localhost` in devtools and reload Studio (no `secure` ne
 document.cookie =
   'kigumi-theme-agent=<THEME_AGENT_ACCESS_KEY>; path=/; max-age=31536000; samesite=strict';
 ```
+
+#### For agents
+
+- Pick the level from the change. A sidebar or conversation-module change is proven by `pnpm storybook:test` (no keys, no cost), plus a story for a new layout or action (see Testing). Start `pnpm dev:agent` only for a change under `docs/trigger/` or to a module the task shares (`proposal.ts`, `agent-css.ts`, `custom-theme.ts`, `contrast.ts`), and run `pnpm eval:theme-agent` before handing over such a change. Level 3 spends the maintainer's Anthropic tokens: one or two messages that exercise the change, not a session.
+- Never read `docs/.env.local`, `docs/.env` or any key: check that a file exists, and let `pnpm dev:agent` check the keys. Its messages name keys, never values. Never copy the files into a worktree; the script reads the main checkout's.
+- Choose the access key yourself, so the cookie never needs the maintainer's: `THEME_AGENT_ACCESS_KEY=<a value you pick> pnpm dev:agent`, then set the cookie to that value with the browser tool.
+- `pnpm dev:agent` runs until stopped: start it in the background, wait for Vite's URL and trigger.dev's "Local worker ready", and stop it when done. Leave no `vite` or `trigger dev` process behind.
+- Report what the answer showed, and the run in the trigger.dev dev environment, as evidence. A level the session could not run (no Pro access, no trigger.dev login, no Anthropic key) is reported as not verified, never as passed.
 
 ### Deploying the task
 
