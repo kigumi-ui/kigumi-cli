@@ -89,8 +89,12 @@ function parseCss(css: string): ParsedCss {
     }
     if (skipped !== undefined) {
       const text = css.slice(i, skipped);
-      if (text.startsWith('/*')) comments.push(text);
-      else prelude += text;
+      // A comment reads as a space, as a browser reads it: a/**/b is two
+      // words, never the one word ab.
+      if (text.startsWith('/*')) {
+        comments.push(text);
+        prelude += ' ';
+      } else prelude += text;
       i = skipped - 1;
       continue;
     }
@@ -235,15 +239,35 @@ function keyframesNames(nodes: CssNode[]): string[] {
   });
 }
 
+/**
+ * `value` with each of `names` that stands as a name renamed: outside
+ * parentheses and not a function's own name, so steps(4, end) or
+ * cubic-bezier(…) stays as written whatever the keyframes are called.
+ */
+function withPreviewNames(value: string, names: Set<string>): string {
+  let depth = 0;
+  return value.replace(
+    /[()]|(?<![\w-])[\w-]+(?![\w-])(\s*\()?/g,
+    (token: string, call: string | undefined) => {
+      if (token === '(') depth++;
+      else if (token === ')') depth = Math.max(0, depth - 1);
+      else if (call) depth++;
+      else if (depth === 0 && names.has(token)) {
+        return `${PREVIEW_KEYFRAMES_PREFIX}${token}`;
+      }
+      return token;
+    }
+  );
+}
+
 /** `body` with its animations pointing at the preview names of `names`. */
 function withPreviewAnimations(body: string, names: string[]): string {
   if (names.length === 0) return body;
-  const escaped = names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  const name = new RegExp(`(?<![\\w-])(${escaped.join('|')})(?![\\w-])`, 'g');
+  const known = new Set(names);
   return body.replace(
     /(animation(?:-name)?\s*:\s*)([^;}]+)/gi,
     (_match, head: string, value: string) =>
-      head + value.replace(name, `${PREVIEW_KEYFRAMES_PREFIX}$1`)
+      head + withPreviewNames(value, known)
   );
 }
 
