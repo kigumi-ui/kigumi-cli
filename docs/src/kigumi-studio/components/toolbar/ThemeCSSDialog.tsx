@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Dialog,
   Button,
@@ -15,6 +15,7 @@ import {
   themeDownloads,
   themeEdits,
   themeText,
+  withImportedValues,
   type CustomThemeState,
 } from '../../lib/theme-css';
 import { useStudio } from '../../contexts/StudioContext';
@@ -28,6 +29,14 @@ interface ThemeCSSDialogProps {
 }
 
 type Download = 'all' | 'theme.css' | 'overrides.css';
+
+/** How long the text rests after the last keystroke before it is saved. */
+const SAVE_DELAY_MS = 1000;
+/** The least time Save shows as saving, so the save can be seen. */
+const SAVING_MIN_MS = 400;
+
+/** `edited`: the text differs from what was last saved. */
+type SaveStatus = 'edited' | 'saving' | 'saved';
 
 /**
  * Hand `content` to the browser as a file named `name`. The link goes into
@@ -57,9 +66,11 @@ function download(theme: CustomThemeState, which: Download) {
 /**
  * The "Customize theme CSS" dialog: the whole custom theme as the CSS a
  * project gets, theme.css then overrides.css, in one text field to read and
- * edit, and to download as the two files. Apply takes only the edits made to
- * the text (`themeEdits`). Mounted afresh on every open (StudioLayout keys
- * it), so the text starts from the custom theme as it is.
+ * edit, and to download as the two files. An edit saves itself a second
+ * after the last keystroke, and Save, Close and a download save it at once;
+ * a save takes only the edits made to the text (`themeEdits`), and text that
+ * does not parse is never saved. Mounted afresh on every open (StudioLayout
+ * keys it), so the text starts from the custom theme as it is.
  */
 export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   const {
@@ -74,24 +85,20 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   } = useStudio();
   const customCSSLock = useCustomCSSLock();
   const current = { values, shadowComponents, customCSS };
-  // What the text showed when it was last applied, or when the dialog opened.
+  // What the text showed when it was last saved, or when the dialog opened.
   const [shown, setShown] = useState(() => themeText(current));
   const [draft, setDraft] = useState(shown);
+  const [status, setStatus] = useState<SaveStatus>('saved');
   const [errors, setErrors] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
-  const edited = draft !== shown;
-
-  const onDownloadSelect: NonNullable<DropdownProps['onSelect']> = (event) => {
-    // Web Awesome types `detail.item` as `Element`; the value is the
-    // DropdownItem's, narrowed below to the two file names.
-    const { item } = event.detail;
-    const value = 'value' in item ? item.value : undefined;
-    if (value === 'theme.css' || value === 'overrides.css') {
-      download(current, value);
-    }
-  };
-
-  const apply = () => {
+  const [savedOnce, setSavedOnce] = useState(false);
+  /**
+   * Save the text's edits, and return the theme as saved; null when the
+   * text does not parse. The theme is built here, since the Studio's state
+   * shows the save only on the next render.
+   */
+  const save = (): CustomThemeState | null => {
+    if (draft === shown) return current;
     const edits = themeEdits(
       shown,
       draft,
@@ -99,33 +106,74 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
     );
     if (edits.errors.length > 0) {
       setErrors(edits.errors);
-      return;
+      return null;
     }
     importValues(edits.values);
     if (edits.shadowComponents) setShadowComponents(edits.shadowComponents);
     if (edits.customCSS !== undefined) setCustomCSS(edits.customCSS);
-    if (edits.warnings.length === 0) {
-      onClose();
-      return;
-    }
-    // Stay open to say what was not taken; the next Apply takes only new edits.
     setWarnings(edits.warnings);
     setShown(draft);
+    setStatus('saving');
+    setSavedOnce(true);
+    return {
+      values: withImportedValues(values, edits.values),
+      shadowComponents: edits.shadowComponents ?? shadowComponents,
+      customCSS: edits.customCSS !== undefined ? edits.customCSS : customCSS,
+    };
+  };
+
+  // The timer reads the latest `save`, so a re-render (a Theme Agent answer
+  // arriving) does not restart the delay; only a keystroke does.
+  const saveRef = useRef(save);
+  saveRef.current = save;
+  useEffect(() => {
+    if (draft === shown) return;
+    const timer = setTimeout(() => saveRef.current(), SAVE_DELAY_MS);
+    return () => clearTimeout(timer);
+    // `shown` changes only by a save, which needs no new timer.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
+
+  useEffect(() => {
+    if (status !== 'saving') return;
+    const timer = setTimeout(() => setStatus('saved'), SAVING_MIN_MS);
+    return () => clearTimeout(timer);
+  }, [status]);
+
+  const requestDownload = (which: Download) => {
+    const theme = save();
+    if (theme) download(theme, which);
+  };
+
+  const close = () => {
+    // Text that does not parse is dropped; the error already says why.
+    save();
+    onClose();
+  };
+
+  const onDownloadSelect: NonNullable<DropdownProps['onSelect']> = (event) => {
+    // Web Awesome types `detail.item` as `Element`; the value is the
+    // DropdownItem's, narrowed below to the two file names.
+    const { item } = event.detail;
+    const value = 'value' in item ? item.value : undefined;
+    if (value === 'theme.css' || value === 'overrides.css') {
+      requestDownload(value);
+    }
   };
 
   return (
     <Dialog
       open={open}
       label="Customize theme CSS"
-      onHide={onClose}
+      onHide={close}
       className="theme-css-dialog"
     >
       <div className="theme-css-dialog__content">
         <p className="theme-css-dialog__description">
           The custom theme as a project gets it: <code>theme.css</code> with the
           values, then <code>overrides.css</code> with the custom CSS, which
-          wins. Edit either part, or paste a whole theme over the text; Apply
-          takes what you changed.
+          wins. Edit either part, or paste a whole theme over the text; what you
+          changed saves itself a second after you stop typing.
         </p>
 
         <Textarea
@@ -137,6 +185,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
           value={draft}
           onInput={(event) => {
             setDraft((event.target as HTMLTextAreaElement).value);
+            setStatus('edited');
             setErrors([]);
             setWarnings([]);
           }}
@@ -153,7 +202,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
         {errors.length > 0 && (
           <Callout variant="danger" appearance="outlined" size="small">
             <Icon name="circle-exclamation" slot="icon" />
-            Not applied: the CSS does not parse.
+            Not saved: the CSS does not parse.
             <ul className="theme-css-dialog__list">
               {errors.map((error, i) => (
                 <li key={i}>{error}</li>
@@ -165,7 +214,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
         {warnings.length > 0 && (
           <Callout variant="warning" appearance="outlined" size="small">
             <Icon name="triangle-exclamation" slot="icon" />
-            Applied, except:
+            Saved, except:
             <ul className="theme-css-dialog__list">
               {warnings.map((warning, i) => (
                 <li key={i}>{warning}</li>
@@ -176,63 +225,58 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
       </div>
 
       <div slot="footer" className="theme-css-dialog__footer wa-split">
-        {/* The applied theme as files; unapplied edits are not in it. */}
-        <div className="wa-cluster wa-gap-s wa-align-items-center">
-          <ButtonGroup label="Download">
+        {/* A download saves the text first, so it holds every edit. */}
+        <ButtonGroup label="Download">
+          <Button
+            variant="neutral"
+            appearance="outlined"
+            size="small"
+            onClick={() => requestDownload('all')}
+          >
+            <Icon name="download" slot="start" />
+            Download all
+          </Button>
+          <Dropdown
+            size="small"
+            placement="top-end"
+            onSelect={onDownloadSelect}
+          >
             <Button
+              slot="trigger"
               variant="neutral"
               appearance="outlined"
               size="small"
-              disabled={edited}
-              onClick={() => download(current, 'all')}
             >
-              <Icon name="download" slot="start" />
-              Download all
+              <Icon name="chevron-down" label="More downloads" />
             </Button>
-            <Dropdown
-              size="small"
-              placement="top-end"
-              disabled={edited}
-              onSelect={onDownloadSelect}
-            >
-              <Button
-                slot="trigger"
-                variant="neutral"
-                appearance="outlined"
-                size="small"
-                disabled={edited}
-              >
-                <Icon name="chevron-down" label="More downloads" />
-              </Button>
-              <DropdownItem value="theme.css">Download theme.css</DropdownItem>
-              <DropdownItem value="overrides.css">
-                Download overrides.css
-              </DropdownItem>
-            </Dropdown>
-          </ButtonGroup>
-          {edited && (
-            <span className="theme-css-dialog__hint">
-              Apply to download your edits
-            </span>
-          )}
-        </div>
+            <DropdownItem value="theme.css">Download theme.css</DropdownItem>
+            <DropdownItem value="overrides.css">
+              Download overrides.css
+            </DropdownItem>
+          </Dropdown>
+        </ButtonGroup>
         <div className="wa-cluster wa-gap-s">
           <Button
             variant="neutral"
             appearance="outlined"
             size="small"
-            onClick={onClose}
+            onClick={close}
           >
-            Cancel
+            Close
           </Button>
           <Button
             variant="brand"
             size="small"
-            disabled={!edited}
-            onClick={apply}
+            loading={status === 'saving'}
+            onClick={() => save()}
           >
-            Apply
+            {status === 'saved' && <Icon name="check" slot="start" />}
+            {status === 'saved' ? 'Saved' : 'Save'}
           </Button>
+          {/* Says "Saved" to a screen reader, which the button change does not. */}
+          <span role="status" className="wa-visually-hidden">
+            {status === 'saved' && savedOnce ? 'Saved' : ''}
+          </span>
         </div>
       </div>
     </Dialog>
