@@ -95,16 +95,16 @@ afterEach(() => {
 });
 
 describe('ThemeCSSDialog: saving', () => {
-  it('opens as saved, with nothing disabled', () => {
+  it('opens with Save, and nothing disabled', () => {
     renderDialog();
-    expect(saveButton().textContent).toBe('Saved');
-    expect(saveButton().querySelector('[data-icon="check"]')).not.toBeNull();
+    expect(saveButton().textContent).toBe('Save');
+    expect(saveButton().querySelector('[data-icon]')).toBeNull();
     expect(
       screen.getByRole('button', { name: /Download all/ })
     ).not.toHaveProperty('disabled', true);
   });
 
-  it('saves an edit a second after the last keystroke, then says so', () => {
+  it('saves an edit a second after the last keystroke, then says so for a second', () => {
     renderDialog();
     type(validEdit());
     expect(saveButton().textContent).toBe('Save');
@@ -121,6 +121,12 @@ describe('ThemeCSSDialog: saving', () => {
     expect(saveButton().getAttribute('aria-busy')).not.toBe('true');
     expect(saveButton().textContent).toBe('Saved');
     expect(saveButton().querySelector('[data-icon="check"]')).not.toBeNull();
+
+    act(() => vi.advanceTimersByTime(999));
+    expect(saveButton().textContent).toBe('Saved');
+    act(() => vi.advanceTimersByTime(1));
+    expect(saveButton().textContent).toBe('Save');
+    expect(saveButton().querySelector('[data-icon]')).toBeNull();
   });
 
   it('saves at once from the Save button', () => {

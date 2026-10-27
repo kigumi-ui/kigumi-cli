@@ -34,9 +34,10 @@ type Download = 'all' | 'theme.css' | 'overrides.css';
 const SAVE_DELAY_MS = 1000;
 /** The least time Save shows as saving, so the save can be seen. */
 const SAVING_MIN_MS = 400;
+/** How long Save shows "Saved" before it reads Save again. */
+const SAVED_SHOWN_MS = 1000;
 
-/** `edited`: the text differs from what was last saved. */
-type SaveStatus = 'edited' | 'saving' | 'saved';
+type SaveStatus = 'idle' | 'saving' | 'saved';
 
 /**
  * Hand `content` to the browser as a file named `name`. The link goes into
@@ -88,10 +89,9 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   // What the text showed when it was last saved, or when the dialog opened.
   const [shown, setShown] = useState(() => themeText(current));
   const [draft, setDraft] = useState(shown);
-  const [status, setStatus] = useState<SaveStatus>('saved');
+  const [status, setStatus] = useState<SaveStatus>('idle');
   const [errors, setErrors] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
-  const [savedOnce, setSavedOnce] = useState(false);
   /**
    * Save the text's edits, and return the theme as saved; null when the
    * text does not parse. The theme is built here, since the Studio's state
@@ -114,7 +114,6 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
     setWarnings(edits.warnings);
     setShown(draft);
     setStatus('saving');
-    setSavedOnce(true);
     return {
       values: withImportedValues(values, edits.values),
       shadowComponents: edits.shadowComponents ?? shadowComponents,
@@ -135,8 +134,11 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
   }, [draft]);
 
   useEffect(() => {
-    if (status !== 'saving') return;
-    const timer = setTimeout(() => setStatus('saved'), SAVING_MIN_MS);
+    if (status === 'idle') return;
+    const timer =
+      status === 'saving'
+        ? setTimeout(() => setStatus('saved'), SAVING_MIN_MS)
+        : setTimeout(() => setStatus('idle'), SAVED_SHOWN_MS);
     return () => clearTimeout(timer);
   }, [status]);
 
@@ -185,7 +187,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
           value={draft}
           onInput={(event) => {
             setDraft((event.target as HTMLTextAreaElement).value);
-            setStatus('edited');
+            setStatus('idle');
             setErrors([]);
             setWarnings([]);
           }}
@@ -200,7 +202,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
         />
 
         {errors.length > 0 && (
-          <Callout variant="danger" appearance="outlined" size="small">
+          <Callout variant="danger" appearance="filled" size="small">
             <Icon name="circle-exclamation" slot="icon" />
             Not saved: the CSS does not parse.
             <ul className="theme-css-dialog__list">
@@ -212,7 +214,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
         )}
 
         {warnings.length > 0 && (
-          <Callout variant="warning" appearance="outlined" size="small">
+          <Callout variant="warning" appearance="filled" size="small">
             <Icon name="triangle-exclamation" slot="icon" />
             Saved, except:
             <ul className="theme-css-dialog__list">
@@ -275,7 +277,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
           </Button>
           {/* Says "Saved" to a screen reader, which the button change does not. */}
           <span role="status" className="wa-visually-hidden">
-            {status === 'saved' && savedOnce ? 'Saved' : ''}
+            {status === 'saved' ? 'Saved' : ''}
           </span>
         </div>
       </div>
