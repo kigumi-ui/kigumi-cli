@@ -1,13 +1,5 @@
-import { useState } from 'react';
 import clsx from 'clsx';
-import {
-  Accordion,
-  Button,
-  Icon,
-  Divider,
-  ButtonGroup,
-  Dialog,
-} from '@/components/ui';
+import { Accordion, Button, Icon, Divider, ButtonGroup } from '@/components/ui';
 import { PanelToggle } from './PanelToggle';
 import { useStudio } from '../contexts/StudioContext';
 import { ColorEditor } from './editor/ColorEditor';
@@ -20,8 +12,6 @@ import { FocusEditor } from './editor/FocusEditor';
 import { TransitionEditor } from './editor/TransitionEditor';
 import './StudioSidebar.css';
 import { PresetSelector } from './toolbar/PresetSelector';
-import { generateOppositeMode } from '../lib/color-utils';
-import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
 
 interface StudioSidebarProps {
   collapsed: boolean;
@@ -34,70 +24,11 @@ export function StudioSidebar({
   onToggle,
   onThemeCSS,
 }: StudioSidebarProps) {
-  const { editMode, setEditMode, setPreviewMode, values, importValues } =
-    useStudio();
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const { editMode, setEditMode, setPreviewMode } = useStudio();
 
   const handleModeChange = (mode: 'light' | 'dark') => {
     setEditMode(mode);
     setPreviewMode(mode);
-  };
-
-  const sourceMode = editMode === 'dark' ? 'light' : 'dark';
-
-  const handleGenerate = () => {
-    // Read the OPPOSITE mode's colors as source, generate for the CURRENT mode
-    const neutralHex =
-      values['--wa-color-neutral']?.[sourceMode] ??
-      values['--wa-color-neutral']?.light ??
-      '#6b7280';
-    const brandHex =
-      values['--wa-color-brand']?.[sourceMode] ??
-      values['--wa-color-brand']?.light ??
-      '#0071ec';
-
-    // Collect source mode's mode-dependent values for context (shadow opacity etc.)
-    const sourceColors: Record<string, string> = {};
-    for (const prop of PROPERTY_DEFINITIONS) {
-      if (!prop.modeDependent) continue;
-      const val = values[prop.cssVar]?.[sourceMode];
-      if (val) sourceColors[prop.cssVar] = val;
-    }
-
-    // Generate current mode colors from source mode using WA palette architecture
-    const generated = generateOppositeMode(
-      neutralHex,
-      brandHex,
-      editMode,
-      sourceColors
-    );
-
-    // Apply generated values to the current edit mode
-    const importRecord: Record<string, { light?: string; dark?: string }> = {};
-    for (const [cssVar, val] of Object.entries(generated)) {
-      importRecord[cssVar] =
-        editMode === 'light' ? { light: val } : { dark: val };
-    }
-
-    // Sync mode-independent color properties from source to current mode
-    const modeIndependentColors = [
-      '--wa-color-brand',
-      '--wa-color-success',
-      '--wa-color-warning',
-      '--wa-color-danger',
-      '--wa-color-neutral',
-    ];
-    for (const cssVar of modeIndependentColors) {
-      const sourceVal = values[cssVar]?.[sourceMode];
-      if (sourceVal) {
-        importRecord[cssVar] = {
-          ...importRecord[cssVar],
-          [editMode]: sourceVal,
-        };
-      }
-    }
-
-    importValues(importRecord);
   };
 
   return (
@@ -145,25 +76,15 @@ export function StudioSidebar({
                 </div>
               </div>
               <div className="wa-stack wa-gap-2xs">
-                <span className="wa-caption-xs">Color mode</span>
+                <span className="wa-caption-xs">Theme CSS</span>
                 <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                  <Button
-                    variant="neutral"
-                    appearance="outlined"
-                    size="small"
-                    onClick={() => setConfirmOpen(true)}
-                    title={`Generate ${editMode} mode colors from ${sourceMode} mode`}
-                  >
-                    <Icon name="wand-magic-sparkles" slot="start" />
-                    Generate from {sourceMode}
+                  <Button variant="brand" size="small" onClick={onThemeCSS}>
+                    <Icon name="wrench" slot="start" />
+                    Customize
                   </Button>
                 </div>
               </div>
             </div>
-            <Button variant="brand" size="small" onClick={onThemeCSS}>
-              <Icon name="wrench" slot="start" />
-              Customize theme CSS
-            </Button>
           </div>
           <Divider />
           {/* One accordion: each editor renders its sections as its items. */}
@@ -186,40 +107,6 @@ export function StudioSidebar({
         label="Styles"
         onToggle={onToggle}
       />
-      <Dialog
-        open={confirmOpen}
-        label={`Override ${editMode} mode colors?`}
-        onHide={() => setConfirmOpen(false)}
-      >
-        <p>
-          This will replace all {editMode} color tokens with values generated
-          from your {sourceMode} mode, adjusted for {editMode} contrast and
-          readability.
-        </p>
-        <div
-          slot="footer"
-          className="wa-cluster wa-gap-xs wa-justify-content-end"
-        >
-          <Button
-            variant="neutral"
-            appearance="outlined"
-            size="small"
-            onClick={() => setConfirmOpen(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="brand"
-            size="small"
-            onClick={() => {
-              handleGenerate();
-              setConfirmOpen(false);
-            }}
-          >
-            Generate
-          </Button>
-        </div>
-      </Dialog>
     </div>
   );
 }
