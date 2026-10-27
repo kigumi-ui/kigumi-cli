@@ -508,14 +508,3 @@ export function contrastRatio(hex1: string, hex2: string): number {
   const darker = Math.min(l1, l2);
   return (lighter + 0.05) / (darker + 0.05);
 }
-
-/**
- * Format an OKLCH color as a CSS oklch() value.
- * More precise than hex and natively supported in modern browsers.
- */
-export function formatOklch(L: number, C: number, H: number): string {
-  const pct = (L * 100).toFixed(2);
-  const chroma = C.toFixed(4);
-  const hue = H.toFixed(2);
-  return `oklch(${pct}% ${chroma} ${hue})`;
-}
