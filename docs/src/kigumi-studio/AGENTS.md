@@ -153,7 +153,7 @@ Three levels, cheapest first. None needs a push, a Vercel preview or a deploy.
 
 The sidebar stories carry the `maintainer` tag: `pnpm storybook` lists them, and `.storybook/main.ts` leaves them out of the sidebar of every build (the published Storybook and Chromatic's).
 
-`pnpm dev:agent` (from `docs/`) serves Studio on `http://localhost:5173` with `/api/theme-agent` handled by the Vite dev server itself, running `docs/api/theme-agent.ts` unchanged; no Vercel CLI is involved. At level 3 it also runs `trigger dev`, prints which trigger.dev environment it talks to, and stops both processes on Ctrl+C or when either exits. A change to the prompt in `docs/trigger/theme-agent-turn.ts` takes effect in the next answer: `trigger dev` rebuilds the task on save.
+`pnpm dev:agent` (from `docs/`) serves Studio on the localhost URL Vite prints (port 5173 unless taken) with `/api/theme-agent` handled by the Vite dev server itself, running `docs/api/theme-agent.ts` unchanged; no Vercel CLI is involved. At level 3 it also runs `trigger dev`, prints which trigger.dev environment it talks to, and stops both processes on Ctrl+C or when either exits. A change to the prompt in `docs/trigger/theme-agent-turn.ts` takes effect in the next answer: `trigger dev` rebuilds the task on save.
 
 One-time setup, in `docs/.env.local` (gitignored, like `docs/.env`; never commit either):
 
@@ -167,7 +167,7 @@ TRIGGER_PROD_SECRET_KEY=tr_prod_...       # level 2 only: the key Vercel holds a
 - `pnpm exec trigger login` once per machine. `trigger dev` runs under that login, in your own dev environment, so the `tr_dev_` key must come from the same account.
 - The local task reads `ANTHROPIC_API_KEY` from `docs/.env.local` or `docs/.env`, which `trigger dev` hands it; a key only in the shell does not reach it, and the script refuses to start without one in a file.
 - Level 3 refuses a `tr_prod_` key and level 2 a `tr_dev_` one, so the local task and Production are never mixed up. Level 2 runs on Production's Anthropic spend, like kigumi.style.
-- A missing or wrong key stops the script before anything starts, naming each problem.
+- A missing or wrong key, and at level 3 a trigger.dev CLI without a login, stops the script before anything starts, naming each problem.
 
 Then set the cookie on `localhost` in devtools and reload Studio (no `secure` needed on `http://localhost`):
 

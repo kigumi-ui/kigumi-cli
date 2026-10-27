@@ -16,9 +16,8 @@
  * locally". Run from docs/: pnpm dev:agent [--deployed].
  */
 
-import { spawn } from 'node:child_process';
-import fs from 'node:fs';
-import { realpathSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import fs, { realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseEnv } from 'node:util';
@@ -125,6 +124,22 @@ function main() {
     process.exit(1);
   }
 
+  // `trigger dev` without a login would fail after Vite is already serving:
+  // a page whose agent never answers. Check before starting anything.
+  if (plan.environment === 'dev') {
+    const whoami = spawnSync(
+      path.resolve('node_modules', '.bin', 'trigger'),
+      ['whoami'],
+      { stdio: 'ignore' }
+    );
+    if (whoami.status !== 0) {
+      console.error(
+        `Theme Agent not started:\n\n  - trigger.dev CLI is not logged in: run \`pnpm exec trigger login\` once.\n\nSetup: ${SETUP}`
+      );
+      process.exit(1);
+    }
+  }
+
   console.log(
     plan.environment === 'dev'
       ? 'Theme Agent: trigger.dev dev environment. The task runs here (trigger dev); changes under docs/trigger/ apply to the next message.'
@@ -137,6 +152,16 @@ function main() {
   process.on('SIGINT', () => {
     stopping = true;
   });
+  // A SIGTERM or SIGHUP reaches only this process: pass it on, or the
+  // children outlive it.
+  for (const signal of /** @type {const} */ (['SIGTERM', 'SIGHUP'])) {
+    process.on(signal, () => {
+      stopping = true;
+      for (const child of children) {
+        if (child.exitCode === null) child.kill(signal);
+      }
+    });
+  }
 
   const children = plan.processes.map(({ name, args, env }) => {
     const bin = path.resolve('node_modules', '.bin', name);
