@@ -171,7 +171,7 @@ tests/
 │   │   ├── check-wa-upgrade.test.ts            # Manifest comparators of check:wa-upgrade (components added/removed, attributes removed or retyped) on hand-built manifests
 │   │   ├── generate-css-template.test.ts       # generateCssTemplate, pinned by assertion: one emitter for all three frameworks, docsUrl honoured (issue #30)
 │   │   ├── release-readiness.test.ts           # decideGoNoGo, renderReport and judgeGate: a gate that exits 0 but reports NOT verified fails
-│   │   ├── validate-cache-keys.test.ts         # validate:cache-keys: the Playwright cache key and path must match between cache-warm.yml and ci.yml
+│   │   ├── validate-cache-keys.test.ts         # validate:cache-keys: the Playwright cache key, path and job runner must match between cache-warm.yml and ci.yml
 │   │   ├── validate-changesets.test.ts         # validate:changesets: frontmatter strip and the Keep a Changelog category header every changeset needs
 │   │   ├── validate-doc-links.test.ts          # validate:doc-links matchers: which targets are checkable, normalization, exclusions, broken relative links
 │   │   ├── validate-flush-code.test.ts         # validate:flush-code: a `pre` in a zero-inset docs container must carry `flush-code`

@@ -47,6 +47,25 @@ const SHARED_CACHES: SharedCache[] = [
   },
 ];
 
+/**
+ * The `runs-on` value of the job that holds the cache key, or undefined when
+ * the key or the runner cannot be found. Jobs sit at two-space indent under
+ * `jobs:`; the job block ends at the next job header.
+ */
+export function runnerOfCachingJob(
+  source: string,
+  keyPattern: RegExp
+): string | undefined {
+  const jobsAt = source.search(/^jobs:\s*$/m);
+  if (jobsAt === -1) return undefined;
+  const blocks = source
+    .slice(jobsAt)
+    .split(/^(?= {2}[\w-]+:\s*$)/m)
+    .slice(1);
+  const block = blocks.find((b) => keyPattern.test(b));
+  return block?.match(/^ {4}runs-on:\s*(\S+)/m)?.[1];
+}
+
 export interface CacheKeyFinding {
   cache: string;
   message: string;
@@ -101,6 +120,22 @@ export function compareCacheDefinition(
     findings.push({
       cache: cache.name,
       message: `Path drift.\n      ${cache.producer}: ${producerPath}\n      ${cache.consumer}: ${consumerPath}`,
+    });
+  }
+
+  // Browsers cached on one image do not fit another: the browser build is
+  // chosen by the OS, so writer and reader must run on the same runner.
+  const producerRunner = runnerOfCachingJob(producerSource, cache.keyPattern);
+  const consumerRunner = runnerOfCachingJob(consumerSource, cache.keyPattern);
+  if (!producerRunner || !consumerRunner) {
+    findings.push({
+      cache: cache.name,
+      message: `Runner missing for the job caching this in ${!producerRunner ? cache.producer : cache.consumer}. Both jobs must declare the same \`runs-on\`.`,
+    });
+  } else if (producerRunner !== consumerRunner) {
+    findings.push({
+      cache: cache.name,
+      message: `Runner drift.\n      ${cache.producer}: ${producerRunner}\n      ${cache.consumer}: ${consumerRunner}`,
     });
   }
 

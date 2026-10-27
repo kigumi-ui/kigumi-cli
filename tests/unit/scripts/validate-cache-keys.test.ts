@@ -10,7 +10,11 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { runsOnPushToMain } from '../../../scripts/validate-cache-keys.js';
+import {
+  compareCacheDefinition,
+  runnerOfCachingJob,
+  runsOnPushToMain,
+} from '../../../scripts/validate-cache-keys.js';
 
 describe('validate:cache-keys', () => {
   describe('runsOnPushToMain', () => {
@@ -138,6 +142,65 @@ describe('validate:cache-keys', () => {
       ].join('\n');
 
       expect(runsOnPushToMain(source)).toBe(false);
+    });
+  });
+
+  describe('runner agreement', () => {
+    const cache = {
+      name: 'Playwright browsers',
+      producer: 'cache-warm.yml',
+      consumer: 'ci.yml',
+      keyPattern: /key:\s*(playwright-chromium-\$\{\{[^}]*\}\})/,
+      pathPattern: /path:\s*(\S*ms-playwright\S*)/,
+    };
+    const workflow = (runner: string, other = 'ubuntu-latest') =>
+      [
+        'jobs:',
+        '  lint:',
+        `    runs-on: ${other}`,
+        '  browsers:',
+        `    runs-on: ${runner}`,
+        '    steps:',
+        '      - uses: actions/cache@v4',
+        '        with:',
+        '          path: ~/.cache/ms-playwright',
+        "          key: playwright-chromium-${{ hashFiles('x') }}",
+        '',
+      ].join('\n');
+
+    it('reads the runner of the job that holds the key, not a neighbour', () => {
+      expect(
+        runnerOfCachingJob(workflow('ubuntu-24.04'), cache.keyPattern)
+      ).toBe('ubuntu-24.04');
+    });
+
+    it('passes when writer and reader share a runner', () => {
+      expect(
+        compareCacheDefinition(
+          cache,
+          workflow('ubuntu-24.04'),
+          workflow('ubuntu-24.04', 'ubuntu-24.04')
+        )
+      ).toEqual([]);
+    });
+
+    it('fails when the runners differ', () => {
+      const findings = compareCacheDefinition(
+        cache,
+        workflow('ubuntu-24.04'),
+        workflow('ubuntu-latest')
+      );
+      expect(findings).toHaveLength(1);
+      expect(findings[0].message).toContain('Runner drift');
+    });
+
+    it('fails when a runner cannot be read', () => {
+      const findings = compareCacheDefinition(
+        cache,
+        workflow('ubuntu-24.04'),
+        workflow('ubuntu-24.04').replace('    runs-on: ubuntu-24.04\n', '')
+      );
+      expect(findings.map((f) => f.message).join()).toContain('Runner missing');
     });
   });
 });
