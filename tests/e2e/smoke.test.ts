@@ -12,6 +12,7 @@ import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
 import { FREE_TIER_ENV } from '../_helpers/free-tier-env.js';
+import { CREATE_VITE_VERSION } from '../../src/constants.js';
 
 // Use workspace temp directory to avoid system permission issues
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-smoke');
@@ -86,10 +87,14 @@ describe('E2E Smoke Test - Free Tier', () => {
     await fs.ensureDir(TEST_DIR);
 
     // Create Vite project using pnpm
-    await execa('pnpm', ['create', 'vite', '.', '--template', 'react-ts'], {
-      cwd: TEST_DIR,
-      env: { ...process.env },
-    });
+    await execa(
+      'pnpm',
+      ['create', `vite@${CREATE_VITE_VERSION}`, '.', '--template', 'react-ts'],
+      {
+        cwd: TEST_DIR,
+        env: { ...process.env },
+      }
+    );
 
     // Vite ships tsconfig.app.json as JSONC (`/* Bundler mode */` and
     // `/* Linting */` section headers), so JSON.parse rejects it outright.
@@ -305,10 +310,14 @@ describe('E2E Smoke Test - Idempotency', () => {
     await fs.remove(IDEMPOTENT_DIR);
     await fs.ensureDir(IDEMPOTENT_DIR);
 
-    await execa('pnpm', ['create', 'vite', '.', '--template', 'react-ts'], {
-      cwd: IDEMPOTENT_DIR,
-      env: { ...process.env },
-    });
+    await execa(
+      'pnpm',
+      ['create', `vite@${CREATE_VITE_VERSION}`, '.', '--template', 'react-ts'],
+      {
+        cwd: IDEMPOTENT_DIR,
+        env: { ...process.env },
+      }
+    );
   }, 180000);
 
   afterAll(async () => {

@@ -12,6 +12,7 @@ import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
 import { FREE_TIER_ENV } from '../_helpers/free-tier-env.js';
+import { CREATE_VITE_VERSION } from '../../src/constants.js';
 
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-diff');
 const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
@@ -23,10 +24,14 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
     await fs.ensureDir(TEST_DIR);
 
     // Create a real Vite project
-    await execa('pnpm', ['create', 'vite', '.', '--template', 'react-ts'], {
-      cwd: TEST_DIR,
-      env: { ...process.env },
-    });
+    await execa(
+      'pnpm',
+      ['create', `vite@${CREATE_VITE_VERSION}`, '.', '--template', 'react-ts'],
+      {
+        cwd: TEST_DIR,
+        env: { ...process.env },
+      }
+    );
   }, 180000);
 
   afterAll(async () => {
