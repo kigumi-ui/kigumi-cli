@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { planLocalAgent } from '../../../scripts/dev-theme-agent.mjs';
+import {
+  envFileDirs,
+  planLocalAgent,
+} from '../../../scripts/dev-theme-agent.mjs';
 
 const ACCESS = { THEME_AGENT_ACCESS_KEY: 'local-access' };
 const DEV_KEY = { TRIGGER_SECRET_KEY: 'tr_dev_abc' };
@@ -24,10 +27,11 @@ describe('planLocalAgent', () => {
       THEME_AGENT_ACCESS_KEY: 'local-access',
       TRIGGER_SECRET_KEY: 'tr_dev_abc',
     });
-    // The trigger CLI authenticates with its login, not a secret key.
+    // The trigger CLI authenticates with its login, not a secret key, and
+    // hands its environment to the task: only what the task needs.
     const trigger = plan.processes.find((p) => p.name === 'trigger')!;
     expect(trigger.args).toEqual(['dev']);
-    expect(trigger.env).not.toHaveProperty('TRIGGER_SECRET_KEY');
+    expect(trigger.env).toEqual({ ANTHROPIC_API_KEY: 'sk-ant-test' });
   });
 
   it('names every missing key at once', () => {
@@ -72,17 +76,36 @@ describe('planLocalAgent', () => {
     expect(plan.ok).toBe(true);
   });
 
-  it('does not count an Anthropic key only the shell holds, which the local task never sees', () => {
+  it('takes the Anthropic key from the shell too, which trigger dev hands to the task', () => {
     const plan = planLocalAgent({
       deployed: false,
-      processEnv: ANTHROPIC,
+      processEnv: { ...ANTHROPIC, PATH: '/bin' },
       envLocal: { ...ACCESS, ...DEV_KEY },
       envFile: {},
     });
 
-    expect(plan.ok).toBe(false);
-    if (plan.ok) return;
-    expect(plan.problems).toEqual([expect.stringMatching(/ANTHROPIC_API_KEY/)]);
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    const trigger = plan.processes.find((p) => p.name === 'trigger')!;
+    expect(trigger.env).toEqual({ ...ANTHROPIC, PATH: '/bin' });
+  });
+
+  it('keeps every other key from the files and the shell away from the local task', () => {
+    const plan = planLocalAgent({
+      deployed: false,
+      processEnv: { TRIGGER_SECRET_KEY: 'tr_dev_shell' },
+      envLocal: {
+        ...ACCESS,
+        ...ANTHROPIC,
+        TRIGGER_PROD_SECRET_KEY: 'tr_prod_xyz',
+      },
+      envFile: {},
+    });
+
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    const trigger = plan.processes.find((p) => p.name === 'trigger')!;
+    expect(trigger.env).toEqual(ANTHROPIC);
   });
 
   it('lets the shell override a key from the files', () => {
@@ -140,5 +163,28 @@ describe('planLocalAgent', () => {
 
       expect(plan.ok).toBe(false);
     });
+  });
+});
+
+describe('envFileDirs', () => {
+  it('reads the main checkout first and the worktree over it', () => {
+    expect(
+      envFileDirs({
+        docsDir: '/repo/.claude/worktrees/feature/docs',
+        commonGitDir: '/repo/.git',
+      })
+    ).toEqual(['/repo/docs', '/repo/.claude/worktrees/feature/docs']);
+  });
+
+  it('reads one directory in the main checkout', () => {
+    expect(
+      envFileDirs({ docsDir: '/repo/docs', commonGitDir: '/repo/.git' })
+    ).toEqual(['/repo/docs']);
+  });
+
+  it('reads only docs/ when git is not there to ask', () => {
+    expect(
+      envFileDirs({ docsDir: '/repo/docs', commonGitDir: undefined })
+    ).toEqual(['/repo/docs']);
   });
 });

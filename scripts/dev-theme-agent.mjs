@@ -10,19 +10,27 @@
  *
  * --deployed: Vite only, against the task deployed to Production.
  *
- * Keys come from docs/.env.local (and the Anthropic key from there or
- * docs/.env); both are gitignored. A missing key stops the script before
- * anything starts. Setup: docs/src/kigumi-studio/AGENTS.md, "Trying it
+ * Keys come from docs/.env.local and docs/.env, both gitignored, or the
+ * shell. In a git worktree the main checkout's files are read first and the
+ * worktree's own over them, so the keys need no copy per worktree. A missing
+ * key stops the script before anything starts. Setup: docs/src/kigumi-studio/AGENTS.md, "Trying it
  * locally". Run from docs/: pnpm dev:agent [--deployed].
  */
 
-import { spawn, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import fs, { realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseEnv } from 'node:util';
 
 const SETUP = 'docs/src/kigumi-studio/AGENTS.md, "Trying it locally"';
+
+/** Keys only Vite and the Function use, never handed to the local task. */
+const VITE_ONLY_KEYS = [
+  'TRIGGER_SECRET_KEY',
+  'TRIGGER_PROD_SECRET_KEY',
+  'THEME_AGENT_ACCESS_KEY',
+];
 
 /**
  * @typedef {Record<string, string | undefined>} Env
@@ -35,9 +43,9 @@ const SETUP = 'docs/src/kigumi-studio/AGENTS.md, "Trying it locally"';
 /**
  * Decide what to start from the keys at hand, or every reason not to.
  * `processEnv` wins over `envLocal` (docs/.env.local), which wins over
- * `envFile` (docs/.env). The Anthropic key counts only from the two files:
- * `trigger dev` hands the local task what those files hold, not its own
- * environment.
+ * `envFile` (docs/.env). `trigger dev` hands its own environment to the
+ * local task, so it gets the shell's environment and the Anthropic key, and
+ * none of the keys only Vite needs.
  *
  * @param {{ deployed: boolean, processEnv: Env, envLocal: Env, envFile: Env }} input
  * @returns {LocalAgentPlan}
@@ -66,17 +74,20 @@ export function planLocalAgent({ deployed, processEnv, envLocal, envFile }) {
     );
   }
 
-  if (!deployed && !(envLocal.ANTHROPIC_API_KEY || envFile.ANTHROPIC_API_KEY)) {
+  if (!deployed && !env.ANTHROPIC_API_KEY) {
     problems.push(
-      'ANTHROPIC_API_KEY is not set in docs/.env.local or docs/.env: the local task reads it from there.'
+      'ANTHROPIC_API_KEY is not set: your Anthropic key, for the local task, in docs/.env.local or docs/.env.'
     );
   }
 
   if (problems.length > 0) return { ok: false, problems };
 
-  // The trigger CLI authenticates with its own login (`trigger login`); a
-  // secret key in its environment is never what it should use.
-  const { TRIGGER_SECRET_KEY: _unused, ...triggerEnv } = env;
+  // The trigger CLI authenticates with its own login (`trigger login`), and
+  // whatever is in its environment reaches the task.
+  const triggerEnv = Object.fromEntries(
+    Object.entries(processEnv).filter(([key]) => !VITE_ONLY_KEYS.includes(key))
+  );
+  triggerEnv.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;
   /** @type {AgentProcess} */
   const vite = {
     name: 'vite',
@@ -103,18 +114,55 @@ export function planLocalAgent({ deployed, processEnv, envLocal, envFile }) {
       };
 }
 
-/** @param {string} file */
-function readEnvFile(file) {
-  return fs.existsSync(file) ? parseEnv(fs.readFileSync(file, 'utf8')) : {};
+/**
+ * The docs/ directories whose env files count, lowest precedence first: in a
+ * git worktree the main checkout's docs/, then the worktree's own.
+ *
+ * @param {{ docsDir: string, commonGitDir: string | undefined }} input
+ *   `commonGitDir` is `git rev-parse --git-common-dir`, absolute.
+ * @returns {string[]}
+ */
+export function envFileDirs({ docsDir, commonGitDir }) {
+  if (!commonGitDir) return [docsDir];
+  const mainDocsDir = path.join(path.dirname(commonGitDir), 'docs');
+  return mainDocsDir === docsDir ? [docsDir] : [mainDocsDir, docsDir];
+}
+
+function readCommonGitDir() {
+  try {
+    return execFileSync(
+      'git',
+      ['rev-parse', '--path-format=absolute', '--git-common-dir'],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim();
+  } catch (_error) {
+    // Not a git checkout (an extracted archive): docs/ alone counts.
+    return undefined;
+  }
+}
+
+/** @param {string[]} dirs @param {string} name */
+function readEnvFiles(dirs, name) {
+  return Object.assign(
+    {},
+    ...dirs.map((dir) => {
+      const file = path.join(dir, name);
+      return fs.existsSync(file) ? parseEnv(fs.readFileSync(file, 'utf8')) : {};
+    })
+  );
 }
 
 function main() {
   const deployed = process.argv.includes('--deployed');
+  const dirs = envFileDirs({
+    docsDir: realpathSync(process.cwd()),
+    commonGitDir: readCommonGitDir(),
+  });
   const plan = planLocalAgent({
     deployed,
     processEnv: process.env,
-    envLocal: readEnvFile(path.resolve('.env.local')),
-    envFile: readEnvFile(path.resolve('.env')),
+    envLocal: readEnvFiles(dirs, '.env.local'),
+    envFile: readEnvFiles(dirs, '.env'),
   });
 
   if (!plan.ok) {
