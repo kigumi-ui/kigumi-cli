@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import React, { type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { StudioProvider } from '../contexts/StudioContext';

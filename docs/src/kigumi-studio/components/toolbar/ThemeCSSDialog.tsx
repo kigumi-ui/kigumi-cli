@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import {
   Dialog,
   Button,
@@ -121,17 +121,14 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
     };
   };
 
-  // The timer reads the latest `save`, so a re-render (a Theme Agent answer
-  // arriving) does not restart the delay; only a keystroke does.
-  const saveRef = useRef(save);
-  saveRef.current = save;
+  // An effect event reads the latest `save`, so a re-render (a Theme Agent
+  // answer arriving) does not restart the delay; only a keystroke does.
+  const saveAfterDelay = useEffectEvent(() => save());
   useEffect(() => {
     if (draft === shown) return;
-    const timer = setTimeout(() => saveRef.current(), SAVE_DELAY_MS);
+    const timer = setTimeout(saveAfterDelay, SAVE_DELAY_MS);
     return () => clearTimeout(timer);
-    // `shown` changes only by a save, which needs no new timer.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft]);
+  }, [draft, shown]);
 
   useEffect(() => {
     if (status === 'idle') return;
@@ -147,11 +144,37 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
     if (theme) download(theme, which);
   };
 
-  const close = () => {
-    // Text that does not parse is dropped; the error already says why.
-    save();
+  /** Save; with nothing to save, still say the text is saved. */
+  const saveNow = () => {
+    if (draft === shown) setStatus('saved');
+    else save();
+  };
+
+  /**
+   * Close, saving the text first. Text that does not parse is dropped, but
+   * only once its error has been seen: when this Close is what finds it, the
+   * dialog stays open to show why (`event` is Escape's or the overlay's hide
+   * request, refused), and the next Close drops it.
+   */
+  const close = (event?: Event) => {
+    const errorShown = errors.length > 0;
+    if (!save() && !errorShown) {
+      event?.preventDefault();
+      return;
+    }
     onClose();
   };
+
+  // What the status region says, for a screen reader: the button and the
+  // callouts change without moving focus.
+  const announcement =
+    errors.length > 0
+      ? 'Not saved: the CSS does not parse.'
+      : status !== 'saved'
+        ? ''
+        : warnings.length > 0
+          ? `Saved, except: ${warnings.join(' ')}`
+          : 'Saved';
 
   const onDownloadSelect: NonNullable<DropdownProps['onSelect']> = (event) => {
     // Web Awesome types `detail.item` as `Element`; the value is the
@@ -262,7 +285,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
             variant="neutral"
             appearance="outlined"
             size="small"
-            onClick={close}
+            onClick={() => close()}
           >
             Close
           </Button>
@@ -270,14 +293,13 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
             variant="brand"
             size="small"
             loading={status === 'saving'}
-            onClick={() => save()}
+            onClick={saveNow}
           >
             {status === 'saved' && <Icon name="check" slot="start" />}
             {status === 'saved' ? 'Saved' : 'Save'}
           </Button>
-          {/* Says "Saved" to a screen reader, which the button change does not. */}
           <span role="status" className="wa-visually-hidden">
-            {status === 'saved' ? 'Saved' : ''}
+            {announcement}
           </span>
         </div>
       </div>
