@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ChatSessionPersistedState } from '@trigger.dev/sdk/chat';
-import type { ThemeAgentMessage } from '../components/theme-agent/ThemeAgentChat';
+import type { ThemeAgentMessage } from './message';
 import type { ContrastViolation } from './contrast';
 import type {
   AnswerOutcome,
