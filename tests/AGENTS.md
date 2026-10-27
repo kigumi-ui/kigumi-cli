@@ -26,6 +26,7 @@ tests/
 │   ├── css-cascade.test.ts          # cascadeWinner: layer order by first appearance (statements and blocks), unlayered beats layered, nested layers rank by their top-level layer, comments ignored
 │   ├── ci-pro-probe-steps.test.ts   # Executes the Pro probe decision of every docs-installing job (freshness, docs-typecheck, story-interactions, chromatic, cache-warm) for every kind of run: readable runs, fork and Dependabot pull requests skip, any other unreadable run fails; a missing Chromatic token only skips; the GitHub token reaches the probe alone
 │   ├── ci-e2e-pro-step.test.ts      # Executes the e2e job's `Check Pro registry access` shell for every kind of run (fetched or not; same-repo, fork, deleted fork, Dependabot, non-PR events) and pins the credentials' scope: the GitHub token reaches the fetch alone, the local registry's token the auth line alone, and only the Pro consumer step, with install scripts off, runs after it (#79)
+│   ├── e2e-scaffold-pins.test.ts    # Every `create vite` call under `tests/e2e` and `tests/integration` names a version (`CREATE_VITE_VERSION`): an unpinned call floats to a create-vite release that can ship broken (9.3.2 lacked its react-ts template)
 │   ├── detect-framework.test.ts     # Framework/TS/PM detection
 │   ├── diff-command.test.ts         # Diff command (component comparison)
 │   ├── diff-renderer.test.ts        # Diff renderer terminal output
