@@ -15,11 +15,11 @@
 import pc from 'picocolors';
 
 /**
- * - `exists`: `--all` without `--force` never touches an installed component
+ * - `installed`: `--all` without `--force` never touches an installed component
  * - `declined`: the user answered no to the overwrite prompt
  * - `up-to-date`: every file already matches, so there was nothing to write
  */
-export type SkipReason = 'exists' | 'declined' | 'up-to-date';
+export type SkipReason = 'installed' | 'declined' | 'up-to-date';
 
 const MESSAGES: Record<
   SkipReason,
@@ -29,7 +29,7 @@ const MESSAGES: Record<
     line: (name) => `${pc.dim('○')} ${name} is already up to date`,
     summary: (n) => `${n} component(s) already up to date`,
   },
-  exists: {
+  installed: {
     line: (name) =>
       `${pc.yellow('○')} Skipped ${name} (already installed, pass --force to overwrite)`,
     summary: (n) =>

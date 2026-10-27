@@ -1,3 +1,4 @@
+import { stripVTControlCharacters } from 'util';
 import { vi } from 'vitest';
 import type {
   OutputInterface,
@@ -86,4 +87,9 @@ export function createRecordingOutput(): RecordingOutput {
       spinnerStops.length = 0;
     },
   };
+}
+
+/** The spinner stop messages, without colour codes (picocolors colours them in CI). */
+export function spinnerLines(output: RecordingOutput): string[] {
+  return output.spinnerStops.map((m) => stripVTControlCharacters(m));
 }

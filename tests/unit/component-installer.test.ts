@@ -22,11 +22,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import { stripVTControlCharacters } from 'util';
 import { createTestAddOptions } from './_helpers/add-options.js';
 import { createTestKigumiConfig } from './_helpers/kigumi-config.js';
 import {
   createRecordingOutput,
+  spinnerLines,
   type RecordingOutput,
 } from './_helpers/output.js';
 import { createTestPrompts } from './_helpers/prompts.js';
@@ -99,11 +99,6 @@ async function createInstaller(testDir: string) {
     installer: new ComponentInstaller(testDir, BASE_CONFIG, output, 'free'),
     output,
   };
-}
-
-/** The spinner lines, without colour codes (picocolors colours them in CI). */
-function spinnerLines(output: RecordingOutput): string[] {
-  return output.spinnerStops.map((m) => stripVTControlCharacters(m));
 }
 
 function warnMessages(output: RecordingOutput): string[] {
@@ -256,7 +251,7 @@ describe('ComponentInstaller', () => {
       createTestAddOptions({ all: true })
     );
 
-    expect(results[0].skipped).toBe('exists');
+    expect(results[0].skipped).toBe('installed');
     expect(spinnerLines(output)).toEqual([
       '○ Skipped Button (already installed, pass --force to overwrite)',
     ]);

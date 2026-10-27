@@ -1,7 +1,3 @@
-import type { KigumiConfig } from '../../schemas/config.js';
-import type { OutputInterface } from '../../output/types.js';
-import type { InstallResult } from './installer.js';
-import { SKIP_REASONS, skipSummary } from './skip-reasons.js';
 /**
  * Add Command - Main Orchestrator
  *
@@ -12,6 +8,10 @@ import { SKIP_REASONS, skipSummary } from './skip-reasons.js';
  */
 
 import { getOutput } from '../../output/index.js';
+import type { KigumiConfig } from '../../schemas/config.js';
+import type { OutputInterface } from '../../output/types.js';
+import type { InstallResult } from './installer.js';
+import { SKIP_REASONS, skipSummary } from './skip-reasons.js';
 import { CheckRunner, ConfigExistsCheck } from '../../checks/index.js';
 import {
   handleError,

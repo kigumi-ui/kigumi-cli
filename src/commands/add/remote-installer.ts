@@ -296,7 +296,7 @@ export class RemoteComponentInstaller {
     if (componentExists) {
       // --all without --force: never touch an installed component
       if (options.all && !options.force) {
-        return 'exists';
+        return 'installed';
       }
 
       // Download content first (without writing) for diff comparison
