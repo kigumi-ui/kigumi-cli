@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { ThemeAgentMessage } from '../components/theme-agent/ThemeAgentChat';
+import type { ThemeAgentMessage } from '../theme-agent/message';
 import {
   clearConversation,
   loadConversation,

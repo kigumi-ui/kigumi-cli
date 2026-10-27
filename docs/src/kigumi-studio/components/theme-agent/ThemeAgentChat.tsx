@@ -10,7 +10,7 @@ import {
   type Ref,
 } from 'react';
 import { useChat } from '@ai-sdk/react';
-import type { ChatTransport, UIMessage } from 'ai';
+import type { ChatTransport } from 'ai';
 import type { TriggerChatTransport } from '@trigger.dev/sdk/chat';
 import { useTriggerChatTransport } from '@trigger.dev/sdk/chat/react';
 import clsx from 'clsx';
@@ -40,11 +40,9 @@ import {
   type HeldReason,
 } from '../../theme-agent/conversation';
 import { lockedValueLabel } from '../../theme-agent/describe-held-change';
+import type { ThemeAgentMessage } from '../../theme-agent/message';
 import { hasLocks, type LockedValues } from '../../lib/locks';
-import type {
-  ProposeThemeOutput,
-  ThemeProposalInput,
-} from '../../theme-agent/proposal';
+import type { ThemeProposalInput } from '../../theme-agent/proposal';
 import {
   closeThemeAgentSession,
   requestThemeAgentToken,
@@ -72,17 +70,6 @@ export interface ThemeAgentChatHandle {
    */
   end(): boolean;
 }
-
-export type ThemeAgentMessage = UIMessage<
-  unknown,
-  { status: { step: string } },
-  {
-    [THEME_AGENT_PROPOSE_TOOL]: {
-      input: ThemeProposalInput;
-      output: ProposeThemeOutput;
-    };
-  }
->;
 
 /**
  * How a conversation reaches its run: trigger.dev's transport, or the canned
@@ -224,7 +211,7 @@ export function ThemeAgentChat({
       id: chatId,
       messages: restored?.messages,
       // Picks up an answer the reload interrupted; none when it finished.
-      resume: restoredSession !== undefined,
+      resume: restoredSession?.isStreaming === true,
       transport,
       onData: (part) => {
         if (part.type === 'data-status') setStatusStep(part.data.step);
