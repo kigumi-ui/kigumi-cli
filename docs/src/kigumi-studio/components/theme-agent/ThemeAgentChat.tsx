@@ -164,7 +164,11 @@ interface ThemeAgentChatProps {
  */
 function restorableConversation(): StoredConversation | undefined {
   const stored = loadConversation();
-  if (!stored || loadSession(stored.chatId)?.closed) return undefined;
+  if (!stored) return undefined;
+  if (loadSession(stored.chatId)?.closed) {
+    clearConversation();
+    return undefined;
+  }
   return stored;
 }
 
@@ -326,19 +330,26 @@ export function ThemeAgentChat({
     ]
   );
 
-  // Saved whenever no answer is streaming: with the message as it is sent,
-  // whose answer a reload resumes from the session, and once it is in.
+  // The answer being streamed is never saved: a reload resumes it from the
+  // session, from the start of its turn. Everything else is saved as it
+  // changes, Undo of an earlier answer while one streams included, but not
+  // once per streamed token.
+  const latestMessages = useRef(messages);
   useEffect(() => {
-    if (ended.current || messages.length === 0 || status === 'streaming') {
-      return;
-    }
+    latestMessages.current = messages;
+  }, [messages]);
+  const streamingAnswer =
+    status === 'streaming' && messages.at(-1)?.role === 'assistant';
+  const savedCount = messages.length - (streamingAnswer ? 1 : 0);
+  useEffect(() => {
+    if (ended.current || savedCount === 0) return;
     saveConversation({
       chatId,
-      messages,
+      messages: latestMessages.current.slice(0, savedCount),
       conversation: conversation.save(),
       cutOff: [...cutOff],
     });
-  }, [chatId, messages, status, conversation, cutOff, revision]);
+  }, [chatId, savedCount, status, conversation, cutOff, revision]);
 
   const send = () => {
     const text = draft.trim();

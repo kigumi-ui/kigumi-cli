@@ -145,7 +145,7 @@ function parseJSON(text: string): unknown {
 }
 
 /** The stored text, `null` without one or without storage. */
-function read(key: string): string | null {
+function readStorage(key: string): string | null {
   try {
     return sessionStorage.getItem(key);
   } catch {
@@ -155,7 +155,7 @@ function read(key: string): string | null {
 }
 
 /** Store `text` under `key`, or remove it for `null`. */
-function write(key: string, text: string | null): void {
+function writeStorage(key: string, text: string | null): void {
   try {
     if (text === null) sessionStorage.removeItem(key);
     else sessionStorage.setItem(key, text);
@@ -166,12 +166,12 @@ function write(key: string, text: string | null): void {
 }
 
 export function saveConversation(stored: StoredConversation): void {
-  write(CONVERSATION_KEY, JSON.stringify(stored));
+  writeStorage(CONVERSATION_KEY, JSON.stringify(stored));
 }
 
 /** The conversation this tab saved, if it can be read. */
 export function loadConversation(): StoredConversation | undefined {
-  const text = read(CONVERSATION_KEY);
+  const text = readStorage(CONVERSATION_KEY);
   if (text === null) return undefined;
   const parsed = storedConversationSchema.safeParse(parseJSON(text));
   if (!parsed.success) return undefined;
@@ -186,14 +186,14 @@ export function saveSession(
   chatId: string,
   state: ChatSessionPersistedState | null
 ): void {
-  write(SESSION_KEY, state && JSON.stringify({ chatId, state }));
+  writeStorage(SESSION_KEY, state && JSON.stringify({ chatId, state }));
 }
 
 /** The transport's state this tab saved for `chatId`, if it can be read. */
 export function loadSession(
   chatId: string
 ): ChatSessionPersistedState | undefined {
-  const text = read(SESSION_KEY);
+  const text = readStorage(SESSION_KEY);
   if (text === null) return undefined;
   const parsed = storedSessionSchema.safeParse(parseJSON(text));
   if (!parsed.success || parsed.data.chatId !== chatId) return undefined;
@@ -202,6 +202,6 @@ export function loadSession(
 
 /** The conversation ended: a reload starts a fresh one. */
 export function clearConversation(): void {
-  write(CONVERSATION_KEY, null);
-  write(SESSION_KEY, null);
+  writeStorage(CONVERSATION_KEY, null);
+  writeStorage(SESSION_KEY, null);
 }
