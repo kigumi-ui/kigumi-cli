@@ -37,18 +37,13 @@ export async function requestThemeAgentToken(
 
 /**
  * Close the chat session for good: its run exits instead of waiting for the
- * next message, and trigger.dev lists the session as closed. `keepalive`
- * lets the request outlive the page, for `pagehide`.
+ * next message, and trigger.dev lists the session as closed.
  */
-export async function closeThemeAgentSession(
-  chatId: string,
-  { keepalive = false }: { keepalive?: boolean } = {}
-): Promise<void> {
+export async function closeThemeAgentSession(chatId: string): Promise<void> {
   const response = await fetch(THEME_AGENT_ENDPOINT, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     credentials: 'same-origin',
-    keepalive,
     body: JSON.stringify({ intent: 'close', chatId }),
   });
   if (!response.ok) {

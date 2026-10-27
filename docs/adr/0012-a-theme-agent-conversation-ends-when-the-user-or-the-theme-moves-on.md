@@ -46,3 +46,8 @@ sent a message has no session and nothing to end.
 Whether the run and the session end as described is checked against
 trigger.dev on a preview deployment, not by the unit tests, which stub the
 trigger.dev calls.
+
+Superseded in part by ADR 0014. Leaving the page no longer closes the
+session, and a reload restores the conversation instead of starting a fresh
+one: each tab keeps it in `sessionStorage`. "New chat" and a replaced custom
+theme still end the conversation and close its session as described here.

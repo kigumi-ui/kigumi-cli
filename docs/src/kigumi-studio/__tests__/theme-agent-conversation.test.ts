@@ -1541,3 +1541,83 @@ describe('Theme Agent conversation: custom CSS', () => {
     });
   });
 });
+
+describe('Theme Agent conversation: restored after a reload', () => {
+  /** The conversation as a reload brings it back: saved, through JSON, restored. */
+  function reloaded(
+    conversation: ReturnType<typeof createThemeAgentConversation>
+  ) {
+    return createThemeAgentConversation(
+      JSON.parse(JSON.stringify(conversation.save()))
+    );
+  }
+
+  it('undoes an answer applied before the reload', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
+      studioDefaults(),
+      NO_LOCKS
+    );
+    if (!outcome.applied) throw new Error('the answer was not applied');
+
+    const restored = reloaded(conversation);
+
+    expect(restored.answerStatus('answer-1')).toBe('applied');
+    const reverted = restored.undo('answer-1', outcome.theme);
+    expect(reverted?.theme.light['--wa-color-brand']).toBe('#0071ec');
+    expect(reverted?.theme.dark['--wa-color-brand']).toBe('#0071ec');
+    expect(restored.answerStatus('answer-1')).toBe('undone');
+  });
+
+  it('applies a change held before the reload and reports the answer in the next message', () => {
+    const conversation = createThemeAgentConversation();
+    const brandLock = valueLock('--wa-color-brand', ['light', 'dark']);
+    conversation.messageSent(studioDefaults(), brandLock);
+    conversation.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
+      studioDefaults(),
+      brandLock
+    );
+    conversation.answerFinished('answer-1');
+
+    const restored = reloaded(conversation);
+
+    expect(
+      restored.heldChanges('answer-1').map((entry) => entry.state)
+    ).toEqual(['held']);
+    const result = restored.applyHeld('answer-1', studioDefaults());
+    expect(result?.theme.light['--wa-color-brand']).toBe('#0891b2');
+    expect(result?.unlock).toEqual(brandLock);
+    const snapshot = restored.messageSent(result!.theme, NO_LOCKS);
+    expect(snapshot.previous).toEqual({
+      status: 'applied',
+      held: [],
+      errors: [],
+    });
+  });
+
+  it('holds a value changed during an answer that arrives after the reload', () => {
+    const conversation = createThemeAgentConversation();
+    conversation.messageSent(studioDefaults(), NO_LOCKS);
+    const restored = reloaded(conversation);
+    const edited = studioDefaults();
+    edited.light['--wa-color-brand'] = '#ff0000';
+    edited.dark['--wa-color-brand'] = '#ff0000';
+
+    const outcome = restored.answerReceived(
+      'answer-1',
+      [{ light: { '--wa-color-brand': '#0891b2' }, dark: {} }],
+      edited,
+      NO_LOCKS
+    );
+
+    expect(outcome.applied).toBe(true);
+    if (!outcome.applied) return;
+    expect(outcome.theme.light['--wa-color-brand']).toBe('#ff0000');
+    expect(outcome.held.map((change) => change.reason)).toEqual(['edited']);
+  });
+});

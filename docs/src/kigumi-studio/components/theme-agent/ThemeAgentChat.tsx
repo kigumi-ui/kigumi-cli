@@ -49,6 +49,14 @@ import {
   closeThemeAgentSession,
   requestThemeAgentToken,
 } from '../../theme-agent/session-client';
+import {
+  clearConversation,
+  loadConversation,
+  loadSession,
+  saveConversation,
+  saveSession,
+  type StoredConversation,
+} from '../../theme-agent/stored-conversation';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
 import { LockedChangesCallouts, UnlockAndApply } from './LockedChanges';
 
@@ -132,8 +140,8 @@ function acceptedProposals(
   return accepted.length > 0 ? accepted : null;
 }
 
-function closeSession(chatId: string, keepalive = false) {
-  closeThemeAgentSession(chatId, { keepalive }).catch((error: unknown) => {
+function closeSession(chatId: string) {
+  closeThemeAgentSession(chatId).catch((error: unknown) => {
     // Not the user's problem: the run still ends after turnTimeout.
     console.warn('Theme Agent session close failed:', error);
   });
@@ -150,7 +158,21 @@ interface ThemeAgentChatProps {
   transport?: ThemeAgentTransport;
 }
 
-/** One conversation: its chat id, run, conversation module and messages. */
+/**
+ * The conversation this tab saved before a reload, unless its session was
+ * closed: a closed session takes no further message.
+ */
+function restorableConversation(): StoredConversation | undefined {
+  const stored = loadConversation();
+  if (!stored || loadSession(stored.chatId)?.closed) return undefined;
+  return stored;
+}
+
+/**
+ * One conversation: its chat id, run, conversation module and messages.
+ * Kept in the tab's sessionStorage, so a reload restores it and resumes an
+ * answer that was still being written (ADR 0014).
+ */
 export function ThemeAgentChat({
   ref,
   startedBy,
@@ -159,28 +181,46 @@ export function ThemeAgentChat({
   onActivity,
   transport: storyTransport,
 }: ThemeAgentChatProps) {
-  const [chatId] = useState(() => crypto.randomUUID());
+  // Read once per mount: after "New chat" there is nothing stored.
+  const [restored] = useState(restorableConversation);
+  const [chatId] = useState(() => restored?.chatId ?? crypto.randomUUID());
+  const [restoredSession] = useState(() =>
+    restored ? loadSession(restored.chatId) : undefined
+  );
+  // Set by end(): nothing of this conversation is stored after that.
+  const ended = useRef(false);
   const triggerTransport = useTriggerChatTransport({
     task: THEME_AGENT_TASK_ID,
     startSession: async ({ chatId: id }) => ({
       publicAccessToken: await requestThemeAgentToken('start', id),
     }),
     accessToken: ({ chatId: id }) => requestThemeAgentToken('refresh', id),
+    sessions: restoredSession ? { [chatId]: restoredSession } : undefined,
+    onSessionChange: (id, state) => {
+      if (!ended.current) saveSession(id, state);
+    },
   });
   const transport = storyTransport ?? triggerTransport;
-  const [conversation] = useState(createThemeAgentConversation);
+  const [conversation] = useState(() =>
+    createThemeAgentConversation(restored?.conversation)
+  );
   const { currentTheme, locked, lockedValues, applyTheme, setLocked } =
     useThemeAgentStudio();
   // The conversation module is plain state; re-render after each event.
-  const [, conversationChanged] = useReducer((n: number) => n + 1, 0);
+  const [revision, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
   // Answers that hit the per-step output limit.
-  const [cutOff, setCutOff] = useState<ReadonlySet<string>>(() => new Set());
+  const [cutOff, setCutOff] = useState<ReadonlySet<string>>(
+    () => new Set(restored?.cutOff)
+  );
 
   const { messages, sendMessage, status, error, stop } =
     useChat<ThemeAgentMessage>({
       id: chatId,
+      messages: restored?.messages,
+      // Picks up an answer the reload interrupted; none when it finished.
+      resume: restoredSession !== undefined,
       transport,
       onData: (part) => {
         if (part.type === 'data-status') setStatusStep(part.data.step);
@@ -267,6 +307,8 @@ export function ThemeAgentChat({
       focus: focusMessage,
       end: () => {
         if (messages.length === 0) return false;
+        ended.current = true;
+        clearConversation();
         conversation.end();
         if (running) stop();
         if (transport.getSession(chatId)) closeSession(chatId);
@@ -284,16 +326,19 @@ export function ThemeAgentChat({
     ]
   );
 
-  // Leaving the page ends the conversation; one kept in the back/forward
-  // cache may come back, so it stays open (turnTimeout ends it otherwise).
+  // Saved whenever no answer is streaming: with the message as it is sent,
+  // whose answer a reload resumes from the session, and once it is in.
   useEffect(() => {
-    const onPageHide = (event: PageTransitionEvent) => {
-      if (event.persisted || !transport.getSession(chatId)) return;
-      closeSession(chatId, true);
-    };
-    window.addEventListener('pagehide', onPageHide);
-    return () => window.removeEventListener('pagehide', onPageHide);
-  }, [transport, chatId]);
+    if (ended.current || messages.length === 0 || status === 'streaming') {
+      return;
+    }
+    saveConversation({
+      chatId,
+      messages,
+      conversation: conversation.save(),
+      cutOff: [...cutOff],
+    });
+  }, [chatId, messages, status, conversation, cutOff, revision]);
 
   const send = () => {
     const text = draft.trim();
