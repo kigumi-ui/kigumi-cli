@@ -64,7 +64,10 @@ read the auth line from the global `~/.npmrc` (checked with pnpm 10).
 pnpm dev      # Start dev server
 pnpm build    # Build for production
 pnpm preview  # Preview production build
+pnpm dev:agent  # Studio with a working Theme Agent (maintainers)
 ```
+
+The Theme Agent in Kigumi Studio needs keys and access to its trigger.dev project. Setup, the three ways to try it, and the rules for agents are in [the Studio guide](src/kigumi-studio/AGENTS.md#trying-it-locally).
 
 ## Troubleshooting
 
