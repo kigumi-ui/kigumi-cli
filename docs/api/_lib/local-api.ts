@@ -59,7 +59,7 @@ export function localApiMiddleware(
     void (async () => {
       try {
         const handler = (await load())[req.method ?? 'GET'];
-        if (!handler) {
+        if (typeof handler !== 'function') {
           res.statusCode = 405;
           res.end();
           return;
