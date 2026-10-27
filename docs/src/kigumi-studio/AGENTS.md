@@ -155,7 +155,7 @@ The sidebar stories carry the `maintainer` tag: `pnpm storybook` lists them, and
 
 `pnpm dev:agent` (from `docs/`) serves Studio on the localhost URL Vite prints (port 5173 unless taken) with `/api/theme-agent` handled by the Vite dev server itself, running `docs/api/theme-agent.ts` unchanged; no Vercel CLI is involved. At level 3 it also runs `trigger dev`, prints which trigger.dev environment it talks to, and stops both processes on Ctrl+C or when either exits. A change to the prompt in `docs/trigger/theme-agent-turn.ts` takes effect in the next answer: `trigger dev` rebuilds the task on save.
 
-One-time setup, in `docs/.env.local` (gitignored, like `docs/.env`; never commit either):
+One-time setup, in `docs/.env.local` of the main checkout (gitignored, like `docs/.env`; never commit either). A git worktree reads the main checkout's files first and its own over them, so do not copy the keys into worktrees: every copy is one more file an agent without a secret-read guard can open.
 
 ```bash
 THEME_AGENT_ACCESS_KEY=<any value>        # local only; the cookie below must match
@@ -165,7 +165,7 @@ TRIGGER_PROD_SECRET_KEY=tr_prod_...       # level 2 only: the key Vercel holds a
 ```
 
 - `pnpm exec trigger login` once per machine. `trigger dev` runs under that login, in your own dev environment, so the `tr_dev_` key must come from the same account.
-- The local task reads `ANTHROPIC_API_KEY` from `docs/.env.local` or `docs/.env`, which `trigger dev` hands it; a key only in the shell does not reach it, and the script refuses to start without one in a file.
+- `trigger dev` hands its environment to the local task. The script gives it the shell's environment and `ANTHROPIC_API_KEY`, never the keys only Vite needs (`TRIGGER_SECRET_KEY`, `TRIGGER_PROD_SECRET_KEY`, `THEME_AGENT_ACCESS_KEY`). `trigger dev` also reads the env files in its own directory itself, so a worktree's own `docs/.env.local` reaches the task whole.
 - Level 3 refuses a `tr_prod_` key and level 2 a `tr_dev_` one, so the local task and Production are never mixed up. Level 2 runs on Production's Anthropic spend, like kigumi.style.
 - A missing or wrong key, and at level 3 a trigger.dev CLI without a login, stops the script before anything starts, naming each problem.
 
