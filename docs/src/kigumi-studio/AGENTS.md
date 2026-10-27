@@ -36,7 +36,7 @@ KigumiStudio (page)
   StudioProvider (context: ~43 CSS properties, light/dark modes)
     StudioLayout
       StudioHeader (back link, logo, site theme, knowledge base)
-      StudioSidebar ("Styles": preset, mode, generate, Customize theme CSS; one Accordion, an EditorSection AccordionItem per property group)
+      StudioSidebar ("Styles": preset, mode, and "Theme CSS" with a Customize button that opens the Customize theme CSS dialog; one Accordion, an EditorSection AccordionItem per property group)
       StudioPreview (live component showcase with applied theme)
       Theme Agent panel (only with the access cookie; ThemeAgentSidebar loads on first open)
 ```
