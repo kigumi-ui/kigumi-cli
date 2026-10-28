@@ -134,8 +134,8 @@ export function ShadowComponentEditor() {
       </Combobox>
 
       <p className="shadow-component-editor__hint">
-        Selected components get <code>box-shadow: var(--wa-shadow-m)</code>
-        on the element that draws them: the component, or its part.
+        Selected components get <code>box-shadow: var(--wa-shadow-m)</code> on
+        the element that draws them: the component, or its part.
       </p>
 
       {selectedCount > 0 && (

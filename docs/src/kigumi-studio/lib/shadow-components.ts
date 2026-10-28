@@ -19,6 +19,7 @@ export interface ShadowComponent {
   /** The part that draws the visible box; absent when the host does. */
   part?: string;
 }
+
 export type ShadowCategory =
   | 'Actions'
   | 'Feedback'

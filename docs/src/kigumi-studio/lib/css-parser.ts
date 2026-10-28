@@ -169,12 +169,12 @@ export function parseComponentOverrides(
     const body = node.body.trim();
     const isShadowOnly =
       /^\s*box-shadow\s*:\s*var\(--wa-shadow-[\w-]+\)\s*;?\s*$/.test(body);
-    const shadowComponent = isShadowOnly
+    const shadowClassName = isShadowOnly
       ? shadowComponentOf(node.selector)
       : undefined;
 
-    if (shadowComponent) {
-      shadowComponents.push(shadowComponent);
+    if (shadowClassName) {
+      shadowComponents.push(shadowClassName);
     } else {
       customRules.push(
         withComments(node.comments, `${node.selector} {\n  ${body}\n}`)
