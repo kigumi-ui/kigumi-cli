@@ -141,7 +141,7 @@ See [references/fonts.md](references/fonts.md) for the full Bunny Fonts list.
 
 ### Step 6: Configure Shadows
 
-See [references/shadow-components.md](references/shadow-components.md) for the list of 35 shadow-eligible components.
+See [references/shadow-components.md](references/shadow-components.md) for the list of 21 shadow-eligible components.
 
 **Brutalist:** blur=0, spread=0, offset-x=0.5, offset-y=0.5
 **Elegant:** blur=1.5-2.5, spread=-0.3 to -0.5, opacity=0.15 (light) / 0.4 (dark)
@@ -242,7 +242,7 @@ Beyond the 43 Studio tokens, you can include additional Web Awesome tokens in a 
 | `docs/src/kigumi-studio/lib/preset-schema.ts`            | PresetJSON TypeScript interface      |
 | `docs/src/kigumi-studio/lib/preset-loader.ts`            | Auto-discovery of JSON + CSS presets |
 | `docs/src/kigumi-studio/lib/font-definitions.ts`         | All 26 Bunny Fonts with URLs         |
-| `docs/src/kigumi-studio/lib/shadow-components.ts`        | 35 shadow-eligible components        |
+| `docs/src/kigumi-studio/lib/shadow-components.ts`        | 21 shadow-eligible components        |
 | `docs/src/kigumi-studio/lib/color-utils.ts`              | OKLCH palette generation             |
 | `docs/src/kigumi-studio/lib/css-generator.ts`            | CSS export format logic              |
 | `docs/src/kigumi-studio/lib/css-parser.ts`               | CSS import/parse logic               |

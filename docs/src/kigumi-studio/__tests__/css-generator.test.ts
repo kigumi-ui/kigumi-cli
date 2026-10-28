@@ -93,6 +93,40 @@ describe('generateThemeCSS', () => {
     expect(result).toContain('.Badge {\n  box-shadow: var(--wa-shadow-m);\n}');
   });
 
+  it('puts a shadow on the part that draws the component, where the host does not', () => {
+    const result = generateThemeCSS(
+      {},
+      {},
+      { shadowComponents: ['Button', 'Switch', 'Dialog'] }
+    );
+    expect(result).toBe(
+      `/* Component Shadows */
+.Button::part(base) {
+  box-shadow: var(--wa-shadow-m);
+}
+
+.Switch::part(control) {
+  box-shadow: var(--wa-shadow-m);
+}
+
+.Dialog::part(dialog) {
+  box-shadow: var(--wa-shadow-m);
+}
+`
+    );
+  });
+
+  it('writes no shadow rule for a component that is not in the list', () => {
+    const result = generateThemeCSS(
+      {},
+      {},
+      { shadowComponents: ['Menu', 'Popup', 'Card'] }
+    );
+    expect(result).toBe(
+      '/* Component Shadows */\n.Card {\n  box-shadow: var(--wa-shadow-m);\n}\n'
+    );
+  });
+
   it('combines shadow color and opacity into rgb()', () => {
     const result = generateThemeCSS(
       {

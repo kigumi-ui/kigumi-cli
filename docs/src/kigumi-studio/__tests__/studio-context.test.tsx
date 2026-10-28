@@ -325,13 +325,41 @@ describe('useStudio - getStyleObject', () => {
     expect(style['--wa-shadow-opacity']).toBeUndefined();
   });
 
-  it('neutralizes built-in shadow variables to none', () => {
+  it('neutralizes the built-in shadow sizes Studio does not use to none', () => {
     const { result } = renderHook(() => useStudio(), { wrapper });
     const style = result.current.getStyleObject('light');
     expect(style['--wa-shadow-s']).toBe('none');
-    expect(style['--wa-shadow-m']).toBe('none');
     expect(style['--wa-shadow-l']).toBe('none');
     expect(style['--wa-shadow-xl']).toBe('none');
+  });
+
+  it("resolves --wa-shadow-m on the theme root from Studio's shadow values", () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      result.current.setProperty('--wa-shadow-offset-y-scale', '3');
+      result.current.setProperty('--wa-shadow-blur-scale', '2');
+    });
+    const style = result.current.getStyleObject('light');
+    // Web Awesome's own formula, declared beside the values it reads, so
+    // the shadow follows every Studio value.
+    expect(style['--wa-shadow-m']).toBe(
+      'var(--wa-shadow-offset-x-m) var(--wa-shadow-offset-y-m) var(--wa-shadow-blur-m) var(--wa-shadow-spread-m) var(--wa-color-shadow)'
+    );
+    expect(style['--wa-shadow-offset-x-m']).toBe(
+      'calc(var(--wa-shadow-offset-x-scale) * 0.25rem)'
+    );
+    expect(style['--wa-shadow-offset-y-m']).toBe(
+      'calc(var(--wa-shadow-offset-y-scale) * 0.25rem)'
+    );
+    expect(style['--wa-shadow-blur-m']).toBe(
+      'calc(var(--wa-shadow-blur-scale) * 0.25rem)'
+    );
+    expect(style['--wa-shadow-spread-m']).toBe(
+      'calc(var(--wa-shadow-spread-scale) * 0.25rem)'
+    );
+    expect(style['--wa-shadow-offset-y-scale']).toBe('3');
+    expect(style['--wa-shadow-blur-scale']).toBe('2');
+    expect(style['--wa-color-shadow']).toBe('rgb(0 0 0 / 0.2)');
   });
 });
 
@@ -585,5 +613,40 @@ describe('useStudio - locked values', () => {
       );
       expect(withCookie.result.current.locked).toBe(true);
     });
+  });
+});
+
+describe('useStudio - shadow components no longer in the list', () => {
+  it('drops them from a saved state', async () => {
+    localStorage.setItem(
+      'kigumi-studio-state',
+      JSON.stringify({
+        version: '2.0',
+        editMode: 'dark',
+        previewMode: 'dark',
+        modifiedProperties: { light: {}, dark: {} },
+        shadowComponents: ['Menu', 'Card', 'Alert', 'Button'],
+        customCSS: null,
+        selectedPreset: null,
+        timestamp: 0,
+      })
+    );
+    // The saved state is read once per module.
+    vi.resetModules();
+    const fresh = await import('../contexts/StudioContext');
+    const { result } = renderHook(() => fresh.useStudio(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <fresh.StudioProvider>{children}</fresh.StudioProvider>
+      ),
+    });
+    expect(result.current.shadowComponents).toEqual(['Card', 'Button']);
+  });
+
+  it('drops them from a list a preset or a stored theme sets', () => {
+    const { result } = renderHook(() => useStudio(), { wrapper });
+    act(() => {
+      result.current.setShadowComponents(['Popup', 'Button', 'ImageComparer']);
+    });
+    expect(result.current.shadowComponents).toEqual(['Button']);
   });
 });
