@@ -14,7 +14,7 @@ export function derivedBrandFill(brand: string, mode: ThemeMode): string {
 }
 
 /** The fill the user set in `mode`, or `undefined` while it follows the brand. */
-export function setBrandFill(
+export function userBrandFill(
   values: Record<string, ThemeValue>,
   mode: ThemeMode
 ): string | undefined {
@@ -26,19 +26,18 @@ type ImportedValues = Record<string, { light?: string; dark?: string }>;
 
 /**
  * `imported` with a brand fill that is only what its brand derives stored
- * unset, so it follows the brand from then on. The export writes the derived
- * fill with every changed brand (a project needs it), and Studio reads the
- * export back on a reload and from the Theme CSS text: kept as a value, it
- * would stop following the brand. The brand is the imported one, else
- * `brand`, else the default.
+ * unset, so it follows the brand from then on. For a state an earlier Studio
+ * stored (version 2.0): it kept the export, which writes the derived fill
+ * with every changed brand, so a fill there is not one the user set unless
+ * it differs. Studio now stores the user's own values, and an import keeps
+ * every fill it names (ADR 0015).
  */
 export function withDerivedBrandFillUnset(
-  imported: ImportedValues,
-  brand?: string
+  imported: ImportedValues
 ): ImportedValues {
   const fill = imported[BRAND_FILL];
   if (!fill) return imported;
-  const from = imported[BRAND]?.light ?? brand ?? DEFAULT_VALUES[BRAND].light;
+  const from = imported[BRAND]?.light ?? DEFAULT_VALUES[BRAND].light;
   const stored = { ...fill };
   for (const mode of ['light', 'dark'] as const) {
     if (stored[mode]?.toLowerCase() === derivedBrandFill(from, mode)) {

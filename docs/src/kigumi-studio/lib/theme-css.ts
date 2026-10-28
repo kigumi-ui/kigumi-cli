@@ -1,7 +1,6 @@
 // The Theme CSS dialog's text: the whole custom theme as the CSS a project
 // gets, theme.css first, then overrides.css (ADR 0009). Studio writes it from
 // the custom theme and reads the user's edits to it back.
-import { BRAND, withDerivedBrandFillUnset } from './brand-fill';
 import { generateThemeCSS, modifiedProperties } from './css-generator';
 import { parseComponentOverrides, parseThemeCSS } from './css-parser';
 import { validateCustomCSS } from './custom-css';
@@ -192,7 +191,7 @@ export function themeEdits(
   if (now.errors.length > 0) {
     return { errors: now.errors, warnings: [], values: {} };
   }
-  let values: ImportedValues = {};
+  const values: ImportedValues = {};
   for (const cssVar of new Set([
     ...Object.keys(was.values),
     ...Object.keys(now.values),
@@ -217,9 +216,6 @@ export function themeEdits(
       values[cssVar] = { light: edited.light, dark: edited.light };
     }
   }
-  // A brand fill edited to what the text's brand derives, as a pasted export
-  // has it, follows the brand. One the edit left alone is no edit at all.
-  values = withDerivedBrandFillUnset(values, now.values[BRAND]?.light);
   const warnings = now.warnings.filter((w) => !was.warnings.includes(w));
   for (const [cssVar, modes] of Object.entries(values)) {
     const lockedModes = THEME_MODES.filter(

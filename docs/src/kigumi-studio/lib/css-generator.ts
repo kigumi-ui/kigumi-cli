@@ -11,7 +11,7 @@ import {
   BRAND,
   BRAND_FILL,
   derivedBrandFill,
-  setBrandFill,
+  userBrandFill,
 } from './brand-fill';
 import { DEFAULT_VALUES, type ThemeValue } from './defaults';
 import { PROPERTY_DEFINITIONS } from './property-definitions';
@@ -303,14 +303,14 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
     }
     for (const [key, val] of Object.entries(variables(baseHex, 'light'))) {
       if (key === cssVar) continue;
-      if (key === BRAND_FILL && setBrandFill(values, 'light')) continue;
+      if (key === BRAND_FILL && userBrandFill(values, 'light')) continue;
       light[key] = val;
     }
     // Dark: skip palette steps (already in light/root), only add semantic vars
     for (const [key, val] of Object.entries(variables(baseHex, 'dark'))) {
       if (key === cssVar) continue;
       if (paletteStepRegex.test(key)) continue;
-      if (key === BRAND_FILL && setBrandFill(values, 'dark')) continue;
+      if (key === BRAND_FILL && userBrandFill(values, 'dark')) continue;
       dark[key] = val;
     }
   }

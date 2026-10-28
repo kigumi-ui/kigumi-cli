@@ -360,38 +360,29 @@ describe('Theme Agent turn', () => {
     expect(locked).not.toMatch(/never propose/i);
   });
 
-  it('lets the model change the brand when the user asks to fix the brand fill', async () => {
-    // "never to fix contrast" kept the model from proposing a locked brand
-    // when the user asked to improve the brand fill warning: nothing was
-    // held, so no Unlock and apply.
+  it('keeps the brand out of contrast fixes: the brand fill pair is fixed through the fill', async () => {
+    // ADR 0015: the fill is a value of its own, so a failing brand fill
+    // pair no longer needs the user's brand.
     const text = await systemPrompt(lockedSnapshot);
-    const brand = text
-      .split('\n')
-      .find((line) => line.includes("brand colour is the user's"));
-    expect(brand).toMatch(/asks to fix a failing brand fill pair/);
-    expect(brand).toMatch(/never on your own to fix contrast/);
-    // A bare "improve" after that report still got a general theme change
-    // and no brand: the eval's locked-brand-improve-fill scenario.
-    expect(brand).toMatch(
-      /a short request to improve or fix[^.]*right after an answer that reported a failing brand fill pair asks for that fix/
+    const lines = text.split('\n');
+    const brand = lines.find((line) =>
+      line.includes("brand colour is the user's")
     );
-  });
-
-  it('tells the model an empty brand fill follows the brand and a set one is corrected like any value', async () => {
-    const text = await systemPrompt(snapshot);
-    const fill = text
-      .split('\n')
-      .find((line) => line.startsWith('- --wa-color-brand-fill-loud is'));
+    expect(brand).toMatch(
+      /only when the latest message asks to change the brand/
+    );
+    expect(brand).toMatch(/never to fix contrast/);
+    expect(brand).not.toMatch(/brand fill pair/);
+    const fill = lines.find((line) =>
+      line.startsWith('- --wa-color-brand-fill-loud is')
+    );
+    expect(fill).toMatch(
+      /Fix a failing brand fill pair by changing it, set or empty, without being asked, never by changing the brand/
+    );
     expect(fill).toMatch(/Empty \(""\) follows the brand/);
-    expect(fill).toMatch(/leave it empty unless the latest message asks/);
     expect(fill).toMatch(
       /propose "" when the user asks for the fill to follow the brand again/
     );
-    expect(fill).toMatch(/correct a failing brand fill pair by changing it/);
-    const brand = text
-      .split('\n')
-      .find((line) => line.includes("brand colour is the user's"));
-    expect(brand).toMatch(/while --wa-color-brand-fill-loud is empty/);
   });
 
   it('tells the model an earlier held change can no longer be applied from the chat', async () => {

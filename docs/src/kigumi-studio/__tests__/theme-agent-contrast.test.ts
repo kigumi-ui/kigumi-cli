@@ -143,7 +143,6 @@ describe('Theme Agent contrast check', () => {
         foreground: '--wa-color-brand-on-loud',
         background: '--wa-color-brand-fill-loud',
         minimum: 4.5,
-        setBy: '--wa-color-brand',
       })
     );
   });
@@ -194,11 +193,15 @@ describe('Theme Agent contrast: which violations go back to the model', () => {
     expect(correctableViolations([quiet], [quiet])).toEqual([quiet]);
   });
 
-  it('never sends back a pair another value sets, such as the brand fill', () => {
-    const pair = CONTRAST_PAIRS.find((p) => p.setBy);
-    if (!pair) throw new Error('no checked pair is set by another value');
+  it('sends back the brand fill pair, set or unset: the fill fixes it, not the brand', () => {
+    const pair = CONTRAST_PAIRS.find(
+      (p) => p.background === '--wa-color-brand-fill-loud'
+    );
+    if (!pair) throw new Error('the brand fill pair is not checked');
     const brandFill = violation({ ...pair, ratio: 4.2 });
-    expect(correctableViolations([brandFill], [brandFill])).toEqual([]);
+    expect(correctableViolations([brandFill], [brandFill])).toEqual([
+      brandFill,
+    ]);
   });
 
   it('leaves out a pair the held values fix', () => {
@@ -259,11 +262,13 @@ describe('Theme Agent contrast: locked values behind a violation', () => {
     ]);
   });
 
-  it('names the brand behind the brand fill', () => {
-    // No brand fails the brand fill today; the pair is still checked, so a
-    // failing one names the value that sets it.
-    const pair = CONTRAST_PAIRS.find((p) => p.setBy);
-    if (!pair) throw new Error('no checked pair is set by another value');
+  it('names the locked fill behind an unset brand fill, never the brand', () => {
+    // No brand fails the fill Studio derives today; the pair is still
+    // checked, so a failing one names the value that fixes it: the fill.
+    const pair = CONTRAST_PAIRS.find(
+      (p) => p.background === '--wa-color-brand-fill-loud'
+    );
+    if (!pair) throw new Error('the brand fill pair is not checked');
     const brandFill: ContrastViolation = {
       ...pair,
       mode: 'light',
@@ -272,8 +277,14 @@ describe('Theme Agent contrast: locked values behind a violation', () => {
       ratio: 4.2,
     };
     expect(
+      lockedSources(
+        brandFill,
+        valueLock('--wa-color-brand-fill-loud', ['light'])
+      )
+    ).toEqual(['--wa-color-brand-fill-loud']);
+    expect(
       lockedSources(brandFill, valueLock('--wa-color-brand', ['light', 'dark']))
-    ).toEqual(['--wa-color-brand']);
+    ).toEqual([]);
   });
 });
 
@@ -300,7 +311,6 @@ describe('Theme Agent contrast: a brand fill the user set', () => {
       }),
     ]);
     expect(violations[0].ratio).toBeLessThan(4.5);
-    expect(violations[0].setBy).toBeUndefined();
   });
 
   it('passes a set fill that carries white text', () => {

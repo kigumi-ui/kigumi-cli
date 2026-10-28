@@ -7,7 +7,7 @@ import {
   generateTextVariables,
   type SemanticColorGroup,
 } from './color-utils';
-import { BRAND_FILL, setBrandFill } from './brand-fill';
+import { BRAND_FILL, userBrandFill } from './brand-fill';
 
 /**
  * The CSS custom properties the Studio preview sets for one mode: every
@@ -52,7 +52,7 @@ export function buildPreviewStyle(
     }
   }
   // A brand fill the user set replaces the derived one, in its mode only.
-  const fill = setBrandFill(values, mode);
+  const fill = userBrandFill(values, mode);
   if (fill) style[BRAND_FILL] = fill;
 
   // Generate derived semantic color variables for success, warning, danger, neutral

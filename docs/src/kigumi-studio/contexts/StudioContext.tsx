@@ -33,12 +33,16 @@ import { buildPreviewStyle } from '../lib/preview-style';
 import { withDerivedBrandFillUnset } from '../lib/brand-fill';
 
 const STORAGE_KEY = 'kigumi-studio-state';
-const STORAGE_VERSION = '2.0';
+// 2.1 stores the values the user changed; 2.0 stored the export, derived
+// values included, and still loads.
+const STORAGE_VERSION = '2.1';
+const EXPORT_STORAGE_VERSION = '2.0';
 
 interface PersistedState {
   version: string;
   editMode: ThemeMode;
   previewMode: ThemeMode;
+  /** The values the user changed, per mode (2.0: the export). */
   modifiedProperties: {
     light: Record<string, string>;
     dark: Record<string, string>;
@@ -102,12 +106,35 @@ function cloneDefaults(): Record<string, ThemeValue> {
   return clone;
 }
 
+/** The values the user changed from Studio's defaults, per mode, as stored. */
+function changedValues(values: Record<string, ThemeValue>): {
+  light: Record<string, string>;
+  dark: Record<string, string>;
+} {
+  const changed = {
+    light: {} as Record<string, string>,
+    dark: {} as Record<string, string>,
+  };
+  for (const [cssVar, value] of Object.entries(values)) {
+    const defaults = DEFAULT_VALUES[cssVar];
+    if (!defaults) continue;
+    if (value.light !== defaults.light) changed.light[cssVar] = value.light;
+    if (value.dark !== defaults.dark) changed.dark[cssVar] = value.dark;
+  }
+  return changed;
+}
+
 function loadPersistedState(): PersistedState | null {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return null;
     const parsed = JSON.parse(stored) as PersistedState;
-    if (parsed.version !== STORAGE_VERSION) return null;
+    if (
+      parsed.version !== STORAGE_VERSION &&
+      parsed.version !== EXPORT_STORAGE_VERSION
+    ) {
+      return null;
+    }
     return parsed;
   } catch {
     return null;
@@ -132,9 +159,11 @@ function loadInitialValues(
     imported[cssVar] = { ...imported[cssVar], dark: value };
   }
 
-  // The stored state is the export, which writes the derived brand fill
-  // with every changed brand: kept as a value, it would stop following it.
-  imported = withDerivedBrandFillUnset(imported);
+  // A 2.0 state is the export, which writes the derived brand fill with
+  // every changed brand: kept as a value, it would stop following it.
+  if (persisted.version === EXPORT_STORAGE_VERSION) {
+    imported = withDerivedBrandFillUnset(imported);
+  }
 
   for (const [cssVar, modes] of Object.entries(imported)) {
     if (!base[cssVar]) continue;
@@ -283,7 +312,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   // from the debounced effect and synchronously on unmount.
   const persistState = useCallback(() => {
     try {
-      const modified = getModifiedProperties();
+      // The user's own values, never the export: a derived value read back
+      // as one would stop following what it derives from.
+      const modified = changedValues(values);
       const hasModifications =
         Object.keys(modified.light).length > 0 ||
         Object.keys(modified.dark).length > 0 ||
@@ -315,7 +346,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     shadowComponents,
     customCSS,
     selectedPreset,
-    getModifiedProperties,
+    values,
   ]);
 
   // Save to localStorage on change (debounced)

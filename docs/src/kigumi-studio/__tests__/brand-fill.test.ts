@@ -112,12 +112,22 @@ describe('brand fill: import through the Theme CSS text', () => {
     });
   });
 
-  it("keeps a fill that is only its brand's derivation unset", () => {
-    // Pasting another theme's export over the text: its fill is derived.
+  it('keeps a pasted fill declaration as a set value, the derived colour too', () => {
+    // Pasting another theme's export over the text: the fill it names is set.
     const green = theme({ [BRAND]: { light: '#16a34a', dark: '#16a34a' } });
     const edits = themeEdits(text(red), text(green)).values;
-    expect(edits[FILL]).toEqual({ light: '', dark: '' });
+    expect(edits[FILL]).toEqual({ light: '#007530', dark: '#007530' });
     expect(edits[BRAND]).toEqual({ light: '#16a34a', dark: '#16a34a' });
+  });
+
+  it('restores a fill set per mode from its own export, with no warning', () => {
+    const set = theme({
+      [BRAND]: { light: '#dc2626', dark: '#dc2626' },
+      [FILL]: { light: '#7a1010', dark: '#e05050' },
+    });
+    const edits = themeEdits(text(theme()), text(set));
+    expect(edits.values[FILL]).toEqual({ light: '#7a1010', dark: '#e05050' });
+    expect(edits.warnings).toEqual([]);
   });
 
   it('leaves the fill unset when only the brand changes', () => {
