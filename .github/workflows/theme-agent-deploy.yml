@@ -1,0 +1,105 @@
+name: Theme Agent deploy
+
+# Deploys the Theme Agent's trigger.dev task to Production when a file it
+# bundles changed since its last deployment (scripts/theme-agent-deploy.mjs).
+# The deploy job runs in the `trigger-prod` environment, which requires a
+# maintainer's approval and holds ANTHROPIC_API_KEY (the prompt eval) and
+# TRIGGER_ACCESS_TOKEN (the deploy). Nothing is deployed unless every eval
+# scenario passes.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One deploy at a time; a newer push waits rather than racing it.
+concurrency:
+  group: theme-agent-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Does the task need a deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: read
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # The commit of the last successful deployment of `trigger-prod`;
+      # none on the first run, which then deploys.
+      - name: Find the deployed commit
+        id: base
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          base=""
+          for id_sha in $(gh api "repos/$REPO/deployments?environment=trigger-prod&per_page=30" --jq '.[] | "\(.id):\(.sha)"'); do
+            state=$(gh api "repos/$REPO/deployments/${id_sha%%:*}/statuses?per_page=1" --jq '.[0].state // ""')
+            if [ "$state" = "success" ]; then base="${id_sha#*:}"; break; fi
+          done
+          echo "sha=$base" >> "$GITHUB_OUTPUT"
+
+      - name: Compare the bundled files
+        id: check
+        run: node scripts/theme-agent-deploy.mjs "${{ steps.base.outputs.sha }}"
+
+  deploy:
+    name: Eval and deploy to Production
+    needs: changes
+    if: needs.changes.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment: trigger-prod
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      # The docs dependencies include Web Awesome Pro from the organization
+      # copy on GitHub Packages; on main it is always readable.
+      - name: Write docs/.npmrc
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/setup-npmrc.mjs
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install docs dependencies
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+
+      # The real model on the fixed scenarios; any FAIL stops the deploy.
+      - name: Prompt eval
+        working-directory: docs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: pnpm eval:theme-agent
+
+      - name: Deploy to Production
+        working-directory: docs
+        env:
+          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
+        run: pnpm exec trigger deploy --prod
