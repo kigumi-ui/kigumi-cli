@@ -1,3 +1,4 @@
+import type { ThemeValue } from './defaults';
 import { AVAILABLE_FONTS, FONT_WEIGHTS } from './font-definitions';
 
 export type PropertyInputType = 'color' | 'text' | 'select' | 'slider';
@@ -46,11 +47,13 @@ export interface PropertyDefinition {
   follows?: string;
   /**
    * Web Awesome's own default, in a mode where Studio's differs because
-   * Web Awesome's fails Studio's contrast check. The export compares against
+   * Web Awesome's fails Studio's contrast check: what a project paints when
+   * its theme.css has no line for the value. The export compares against
    * it, so a project gets Studio's default even when the user never touched
-   * it (ADR 0016).
+   * it. The sidebar's "modified" compares against Studio's default, which
+   * Reset restores (ADR 0016).
    */
-  webAwesomeDefault?: { light?: string; dark?: string };
+  webAwesomeDefault?: Partial<ThemeValue>;
 }
 
 export interface PropertyGroupInfo {

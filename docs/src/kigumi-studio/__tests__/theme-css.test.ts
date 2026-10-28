@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { DEFAULT_VALUES, type ThemeValue } from '../lib/defaults';
+import { withWebAwesomeDefaults } from './web-awesome-defaults';
 import {
   themeDownloads,
   themeEdits,
@@ -66,9 +67,7 @@ function defaults(): Record<string, ThemeValue> {
  * one theme whose theme.css has nothing to write.
  */
 function unwrittenDefaults(): Record<string, ThemeValue> {
-  const values = defaults();
-  values['--wa-form-control-border-color'].dark = '#545868';
-  return values;
+  return withWebAwesomeDefaults(defaults());
 }
 
 function state(overrides: Partial<CustomThemeState> = {}): CustomThemeState {
@@ -251,6 +250,19 @@ describe('Theme CSS edits', () => {
         dark: DEFAULT_VALUES['--wa-color-surface-default'].dark,
       },
     });
+  });
+
+  it('reads an export without the dark form control border as the default', () => {
+    // An export written while Studio's border was Web Awesome's, pasted
+    // over the text shown for an untouched theme.
+    const before = themeText(state());
+    const after = ':root {\n  --wa-border-radius-scale: 2;\n}\n';
+    const { values, errors } = themeEdits(before, after);
+    expect(errors).toEqual([]);
+    const applied = withImportedValues(defaults(), values);
+    // Studio's default, not Web Awesome's #545868.
+    expect(applied['--wa-form-control-border-color'].dark).toBe('#717584');
+    expect(applied['--wa-border-radius-scale'].light).toBe('2');
   });
 
   it('reports an unknown property and does not take it', () => {

@@ -5,12 +5,11 @@ import { themeFiles } from '../lib/theme-css';
 import { checkContrast } from '../theme-agent/contrast';
 import type { CustomTheme } from '../theme-agent/custom-theme';
 import { BRANDS_UNDER_AA_AT_STEP_50 } from './brand-fill-fixtures';
+import { withWebAwesomeDefaults } from './web-awesome-defaults';
 // Recorded on origin/main (4d206ddc), before the brand fill became a Studio
 // value: per brand, the preview style in both modes, theme.css, and the
 // contrast check of Studio's defaults with that brand.
 import baseline from './brand-fill-unset-baseline.json';
-
-const BORDER = '--wa-form-control-border-color';
 
 const BRANDS = [
   ...new Set([...BRANDS_UNDER_AA_AT_STEP_50, '#dc2626', '#7c3aed']),
@@ -24,8 +23,8 @@ describe('brand fill: unset, every value is what #202 produced', () => {
   it.each(BRANDS)('for %s: preview, export and contrast check', (brand) => {
     const values = buildDefaultValues();
     values['--wa-color-brand'] = { light: brand, dark: brand };
-    // Recorded when Studio's dark form control border was Web Awesome's.
-    values[BORDER] = { ...values[BORDER], dark: '#545868' };
+    // The recording is of Web Awesome's defaults, where Studio differs.
+    withWebAwesomeDefaults(values);
     const theme: CustomTheme = {
       light: {},
       dark: {},

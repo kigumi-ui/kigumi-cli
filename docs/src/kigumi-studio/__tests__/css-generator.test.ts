@@ -151,7 +151,7 @@ describe('modifiedProperties', () => {
     return values;
   }
 
-  it('returns for the defaults only where Studio differs from Web Awesome', () => {
+  it("writes, for the defaults, only what Studio sets apart from Web Awesome's", () => {
     // Web Awesome's dark border (#545868) fails 3:1 on its background;
     // Studio's passes, and a project only gets it from the export.
     expect(modifiedProperties(buildDefaultValues())).toEqual({

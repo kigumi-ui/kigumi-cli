@@ -37,3 +37,10 @@ theme yet". Deleting that line in the dialog puts the value back to Studio's
 default, which is written again; a project that wants Web Awesome's border
 writes `#545868`, which the export then leaves out. A `theme.css` without the
 line (an export from before, or Web Awesome's own) reads as Studio's default.
+
+Two baselines now differ for this value, and each has one job. The sidebar's
+"modified" and Reset compare against Studio's default, so a fresh Studio
+shows the border unmodified although its export writes it. The export
+compares against what a project paints without the line, so a border set to
+Web Awesome's shows as modified and is left out; the project paints the same
+colour either way.
