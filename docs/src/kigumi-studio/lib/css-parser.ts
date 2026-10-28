@@ -1,5 +1,6 @@
 import { splitStylesheet } from './custom-css';
 import { PROPERTIES_BY_VAR } from './property-definitions';
+import { shadowComponent, shadowSelector } from './shadow-components';
 
 export interface ParseResult {
   light: Record<string, string>;
@@ -100,6 +101,20 @@ function splitShadowColor(props: Record<string, string>): void {
   props['--wa-shadow-opacity'] = match[4];
 }
 
+/**
+ * The shadow component a shadow rule's selector stands for: the selector
+ * the export writes for it (`shadowSelector`), or the bare class an older
+ * export wrote for every component, so importing it upgrades the rule.
+ */
+function shadowComponentOf(selector: string): string | undefined {
+  const host = /^\.([A-Z][\w-]*)/.exec(selector);
+  const comp = host ? shadowComponent(host[1]) : undefined;
+  if (!comp) return undefined;
+  const matches =
+    selector === shadowSelector(comp) || selector === `.${comp.className}`;
+  return matches ? comp.className : undefined;
+}
+
 interface ParsedOverrides {
   shadowComponents: string[];
   customCSS: string;
@@ -111,8 +126,10 @@ interface ParsedOverrides {
  * `parseThemeCSS`) and `@import` lines the fonts, which the export writes
  * again from the values.
  *
- * Shadow rules are simple `.ClassName { box-shadow: var(--wa-shadow-*); }`
- * blocks that map to the shadowComponents system. Everything else, at-rule
+ * Shadow rules are single `box-shadow: var(--wa-shadow-*)` blocks on the
+ * selector the export writes for a shadow component (`.Card`,
+ * `.Button::part(base)`), or on its bare class as older exports wrote it;
+ * they map to the shadowComponents system. Everything else, at-rule
  * blocks included, is custom CSS, kept as written with the comments before
  * each rule, and unscoped: the preview scopes it (`scopeCustomCSS`).
  * `ignoreComments` are comments Studio writes itself, never custom CSS.
@@ -150,13 +167,14 @@ export function parseComponentOverrides(
     if (node.selector === ':root' || node.selector === '.wa-dark') continue;
 
     const body = node.body.trim();
-    // A single class, a single box-shadow from a WA token: a shadow component.
-    const isSingleClassSelector = /^\.[A-Z][\w-]*$/.test(node.selector);
     const isShadowOnly =
       /^\s*box-shadow\s*:\s*var\(--wa-shadow-[\w-]+\)\s*;?\s*$/.test(body);
+    const shadowComponent = isShadowOnly
+      ? shadowComponentOf(node.selector)
+      : undefined;
 
-    if (isSingleClassSelector && isShadowOnly) {
-      shadowComponents.push(node.selector.slice(1));
+    if (shadowComponent) {
+      shadowComponents.push(shadowComponent);
     } else {
       customRules.push(
         withComments(node.comments, `${node.selector} {\n  ${body}\n}`)

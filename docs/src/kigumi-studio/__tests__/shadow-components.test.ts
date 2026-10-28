@@ -1,13 +1,43 @@
 import { describe, it, expect } from 'vitest';
 import {
+  knownShadowComponents,
   SHADOW_COMPONENTS,
   SHADOW_CATEGORIES,
   SHADOW_COMPONENTS_BY_CATEGORY,
 } from '../lib/shadow-components';
 
 describe('SHADOW_COMPONENTS', () => {
-  it('has at least 30 components', () => {
-    expect(SHADOW_COMPONENTS.length).toBeGreaterThanOrEqual(30);
+  it('leaves out components that do not exist or draw no box of their own', () => {
+    const classNames = new Set(SHADOW_COMPONENTS.map((c) => c.className));
+    for (const removed of [
+      // Neither in Web Awesome's manifest nor in Kigumi's registry.
+      'Menu',
+      'MenuItem',
+      'MenuLabel',
+      'Alert',
+      'ImageComparer',
+      // Neither the host nor a part paints a box a shadow could follow.
+      'ButtonGroup',
+      'Toast',
+      'RadioGroup',
+      'Carousel',
+      'Breadcrumb',
+      'BreadcrumbItem',
+      'Tab',
+      'TabGroup',
+      'TabPanel',
+      'Tree',
+      'TreeItem',
+      'Popup',
+    ]) {
+      expect(classNames.has(removed), removed).toBe(false);
+    }
+  });
+
+  it('names a part only as a CSS part name', () => {
+    for (const comp of SHADOW_COMPONENTS) {
+      if (comp.part !== undefined) expect(comp.part).toMatch(/^[a-z][a-z-]*$/);
+    }
   });
 
   it('every component has non-empty name and className', () => {
@@ -83,5 +113,14 @@ describe('SHADOW_COMPONENTS_BY_CATEGORY', () => {
   it('Organization category contains Card', () => {
     const orgComps = SHADOW_COMPONENTS_BY_CATEGORY.get('Organization')!;
     expect(orgComps.find((c) => c.className === 'Card')).toBeDefined();
+  });
+});
+
+describe('knownShadowComponents', () => {
+  it('drops the names the list no longer has, keeping the order of the rest', () => {
+    expect(knownShadowComponents(['Menu', 'Card', 'Alert', 'Button'])).toEqual([
+      'Card',
+      'Button',
+    ]);
   });
 });
