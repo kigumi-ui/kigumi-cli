@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useStudio } from '../contexts/StudioContext';
 import { THEME_MODES, type LockedValues } from '../lib/locks';
-import type { CustomTheme } from './custom-theme';
+import { customThemeOf, type CustomTheme } from './custom-theme';
 
 /**
  * The Theme Agent's thin adapter onto Studio: read the custom theme and its
@@ -31,19 +31,15 @@ export function useThemeAgentStudio() {
     latest.current = { values, shadowComponents, customCSS, lockedValues };
   }, [values, shadowComponents, customCSS, lockedValues]);
 
-  const currentTheme = useCallback((): CustomTheme => {
-    const theme: CustomTheme = {
-      light: {},
-      dark: {},
-      shadowComponents: [...latest.current.shadowComponents],
-      customCSS: latest.current.customCSS ?? '',
-    };
-    for (const [cssVar, value] of Object.entries(latest.current.values)) {
-      theme.light[cssVar] = value.light;
-      theme.dark[cssVar] = value.dark;
-    }
-    return theme;
-  }, []);
+  const currentTheme = useCallback(
+    (): CustomTheme =>
+      customThemeOf(
+        latest.current.values,
+        latest.current.shadowComponents,
+        latest.current.customCSS
+      ),
+    []
+  );
 
   const locked = useCallback(
     (): LockedValues => latest.current.lockedValues,

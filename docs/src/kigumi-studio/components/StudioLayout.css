@@ -11,6 +11,15 @@
   overflow: hidden;
 }
 
+/* The preview with the Studio console under it. */
+.studio-layout__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
 /* ── Side panels: Styles (start) and Theme Agent (end) ── */
 
 /* The headline on top of a side panel; the same height with or without a

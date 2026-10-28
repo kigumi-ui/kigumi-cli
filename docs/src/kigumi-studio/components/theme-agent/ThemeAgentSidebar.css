@@ -73,6 +73,16 @@
   overflow-wrap: anywhere;
 }
 
+/* A warning's pair that passes on the theme as it is now. */
+.theme-agent__fixed {
+  color: var(--wa-color-success-on-quiet);
+  font-weight: var(--wa-font-weight-semibold);
+}
+
+.theme-agent__show-contrast {
+  margin-top: var(--wa-space-xs);
+}
+
 /* A held custom CSS change: the text it replaces and the text it brings. */
 .theme-agent__diff {
   margin-top: var(--wa-space-s);

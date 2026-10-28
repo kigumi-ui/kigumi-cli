@@ -114,6 +114,19 @@ A finished custom theme that ships with Kigumi Studio as a starting point.
 Loading one replaces the custom theme being edited.
 _Avoid_: template, theme
 
+**Studio console**:
+The panel along the bottom of the Kigumi Studio preview, for every visitor.
+Collapsed it is a bar with a count per kind of finding waiting for the user;
+open it has a tab per kind. Its Accessibility tab shows every checked
+contrast pair of the custom theme as it is now, in both modes.
+_Avoid_: devtools, footer, status bar
+
+**Contrast pair**:
+A text or boundary colour and the background it sits on, checked against its
+WCAG 2.1 AA minimum in each mode. A pair fails when its ratio is below the
+minimum, a colour cannot be resolved, or its background is translucent.
+_Avoid_: colour pair, contrast check (that is the act of checking)
+
 **Theme Agent**:
 The AI assistant in Kigumi Studio that builds and refines a custom theme from
 text instructions, in conversation with the user.

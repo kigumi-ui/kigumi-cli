@@ -5,6 +5,7 @@ import { StudioSidebar } from './StudioSidebar';
 import { StudioPreview } from './StudioPreview';
 import { ThemeCSSDialog } from './toolbar/ThemeCSSDialog';
 import { PanelToggle } from './PanelToggle';
+import { StudioConsole } from './console/StudioConsole';
 import { hasThemeAgentAccess } from '../theme-agent/access';
 import './StudioLayout.css';
 
@@ -45,7 +46,12 @@ export function StudioLayout() {
             setThemeCSSOpen(true);
           }}
         />
-        <StudioPreview />
+        {/* The console sits under the preview only, so both side panels
+            keep the body's full height. */}
+        <div className="studio-layout__main">
+          <StudioPreview />
+          <StudioConsole />
+        </div>
         {/* The panel and its toggle load with Studio; the chat inside
             loads on first open. */}
         {themeAgentAvailable && (
