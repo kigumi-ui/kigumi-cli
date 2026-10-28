@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   CONTRAST_PAIRS,
   checkContrast,
+  contrastResults,
   correctableViolations,
   lockedSources,
   type ContrastViolation,
@@ -171,6 +172,98 @@ describe('Theme Agent contrast check', () => {
       expect.objectContaining({ ratio: null }),
       expect.objectContaining({ ratio: null }),
     ]);
+  });
+});
+
+describe('Contrast results: every checked pair, passing or not', () => {
+  it('returns every pair in both modes, light first, in CONTRAST_PAIRS order', () => {
+    const results = contrastResults(readableTheme());
+
+    expect(results).toHaveLength(CONTRAST_PAIRS.length * 2);
+    expect(results.map((result) => `${result.mode} ${result.label}`)).toEqual(
+      (['light', 'dark'] as const).flatMap((mode) =>
+        CONTRAST_PAIRS.map((pair) => `${mode} ${pair.label}`)
+      )
+    );
+    expect(results.every((result) => result.passes)).toBe(true);
+  });
+
+  it('marks a failing pair, and checkContrast() is exactly the failing ones', () => {
+    const theme = readableTheme();
+    theme.light['--wa-color-surface-raised'] = '#ffffff';
+    theme.light['--wa-color-text-quiet'] = '#949494';
+
+    const results = contrastResults(theme);
+    const failing = results.filter((result) => !result.passes);
+
+    // #949494 is under 4.5:1 on every light surface.
+    expect(failing.map((result) => result.label)).toEqual([
+      'quiet text on the raised surface',
+      'quiet text on the default surface',
+      'quiet text on the lowered surface',
+    ]);
+    // The same violations, with no field of the view's own added.
+    const violations = checkContrast(theme);
+    expect(violations).toHaveLength(failing.length);
+    violations.forEach((violation, index) => {
+      expect(Object.keys(violation)).not.toContain('passes');
+      expect(Object.keys(violation)).not.toContain('foregroundSwatch');
+      expect(failing[index]).toMatchObject(violation);
+    });
+  });
+
+  it('gives each colour as the swatch paints it', () => {
+    const theme = readableTheme();
+    theme.light['--wa-color-surface-raised'] = '#ffffff';
+    theme.light['--wa-color-text-quiet'] = '#949494';
+
+    const quiet = contrastResults(theme).find(
+      (result) =>
+        result.mode === 'light' &&
+        result.label === 'quiet text on the raised surface'
+    );
+    expect(quiet).toMatchObject({
+      foregroundSwatch: '#949494',
+      backgroundSwatch: '#ffffff',
+    });
+
+    // The on-colour is the keyword white, the fill a palette step.
+    const fill = contrastResults(theme).find(
+      (result) => result.background === '--wa-color-brand-fill-loud'
+    );
+    expect(fill?.foregroundSwatch).toBe('#ffffff');
+    expect(fill?.backgroundSwatch).toMatch(/^#[0-9a-f]{6}$/);
+  });
+
+  it('counts a colour it cannot resolve as failing, with no swatch', () => {
+    const theme = readableTheme();
+    theme.dark['--wa-color-surface-lowered'] = 'color(display-p3 0 0 0)';
+
+    const lowered = contrastResults(theme).filter(
+      (result) =>
+        result.mode === 'dark' &&
+        result.background === '--wa-color-surface-lowered'
+    );
+    expect(lowered).toHaveLength(3);
+    for (const result of lowered) {
+      expect(result).toMatchObject({
+        passes: false,
+        ratio: null,
+        backgroundSwatch: null,
+      });
+      expect(result.foregroundSwatch).not.toBeNull();
+    }
+  });
+
+  it('keeps a translucent colour translucent in its swatch', () => {
+    const theme = readableTheme();
+    theme.light['--wa-color-text-quiet'] = 'rgb(0 0 0 / 50%)';
+
+    const quiet = contrastResults(theme).find(
+      (result) =>
+        result.mode === 'light' && result.foreground === '--wa-color-text-quiet'
+    );
+    expect(quiet?.foregroundSwatch).toBe('rgb(0 0 0 / 0.5)');
   });
 });
 

@@ -1,0 +1,88 @@
+.studio-contrast__summary {
+  margin: 0;
+}
+
+/* A narrow console scrolls the table, never the page. */
+.studio-contrast__scroll {
+  overflow-x: auto;
+}
+
+.studio-contrast__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--wa-font-size-s);
+}
+
+.studio-contrast__table caption {
+  text-align: start;
+  font-weight: var(--wa-font-weight-semibold);
+  padding-block-end: var(--wa-space-xs);
+}
+
+.studio-contrast__table th,
+.studio-contrast__table td {
+  padding: var(--wa-space-xs) var(--wa-space-s);
+  text-align: start;
+  vertical-align: top;
+  border-bottom: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-surface-border);
+}
+
+.studio-contrast__table thead th {
+  font-weight: var(--wa-font-weight-semibold);
+  color: var(--wa-color-text-quiet);
+}
+
+.studio-contrast__table tbody th {
+  font-weight: var(--wa-font-weight-normal);
+}
+
+.studio-contrast__label {
+  display: block;
+}
+
+.studio-contrast__tokens,
+.studio-contrast__set-by {
+  display: block;
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-xs);
+}
+
+.studio-contrast__number {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.studio-contrast__colour {
+  white-space: nowrap;
+}
+
+.studio-contrast__swatch {
+  flex-shrink: 0;
+  width: var(--wa-space-m);
+  height: var(--wa-space-m);
+  border: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-neutral-border-normal);
+  border-radius: var(--wa-border-radius-s);
+  background: var(--studio-swatch);
+}
+
+/* No colour to show: a struck-through square, the text says why. */
+.studio-contrast__swatch--unresolved {
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 1px),
+    var(--wa-color-text-quiet) 50%,
+    transparent calc(50% + 1px)
+  );
+}
+
+.studio-contrast__row--failing .studio-contrast__result {
+  color: var(--wa-color-danger-on-quiet);
+  font-weight: var(--wa-font-weight-semibold);
+}
+
+.studio-contrast__row:not(.studio-contrast__row--failing)
+  .studio-contrast__result {
+  color: var(--wa-color-success-on-quiet);
+}

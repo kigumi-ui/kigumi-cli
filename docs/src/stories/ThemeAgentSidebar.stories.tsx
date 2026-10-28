@@ -1,9 +1,16 @@
+import { useEffect } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { UIMessageChunk } from 'ai';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { ThemeAgentSidebar } from '@/kigumi-studio/components/theme-agent/ThemeAgentSidebar';
 import type { ThemeAgentTransport } from '@/kigumi-studio/components/theme-agent/ThemeAgentChat';
-import { StudioProvider } from '@/kigumi-studio/contexts/StudioContext';
+import { Button } from '@/components/ui';
+import { StudioConsole } from '@/kigumi-studio/components/console/StudioConsole';
+import { StudioConsoleProvider } from '@/kigumi-studio/components/console/StudioConsoleProvider';
+import {
+  StudioProvider,
+  useStudio,
+} from '@/kigumi-studio/contexts/StudioContext';
 import { CUSTOM_CSS_LOCK, type LockedValues } from '@/kigumi-studio/lib/locks';
 import { DEFAULT_VALUES } from '@/kigumi-studio/lib/defaults';
 import { THEME_AGENT_PROPOSE_TOOL } from '@/kigumi-studio/theme-agent/constants';
@@ -585,5 +592,88 @@ export const SavedWhileAnswering: Story = {
     expect(saved?.conversation.answers[0]?.undone).toBe(true);
     expect(saved?.messages.at(-1)?.role).toBe('user');
     expect(saved?.messages).toHaveLength(3);
+  },
+};
+
+/** Quiet text in light mode set by hand, as the sidebar's colour editor sets it. */
+function DarkerQuietText() {
+  const { setEditMode, setProperty } = useStudio();
+  useEffect(() => setEditMode('light'), [setEditMode]);
+  return (
+    <Button
+      size="small"
+      onClick={() => setProperty('--wa-color-text-quiet', '#595959')}
+    >
+      Darker quiet text
+    </Button>
+  );
+}
+
+const PALE_QUIET = 'Quieter secondary text, as asked.';
+
+/**
+ * The accessibility warning keeps the pairs the answer left failing; once a
+ * hand edit fixes them, each shows as fixed on the theme as it is now. Its
+ * button opens the Studio console on the Accessibility tab.
+ */
+export const ContrastWarningFollowsTheTheme: Story = {
+  args: {
+    transport: cannedTransport([
+      {
+        text: PALE_QUIET,
+        proposal: { light: { '--wa-color-text-quiet': '#949494' }, dark: {} },
+      },
+    ]),
+  },
+  beforeEach: withLockedValues(),
+  decorators: [
+    (Story) => (
+      <StudioConsoleProvider>
+        <div className="wa-stack wa-gap-m">
+          <DarkerQuietText />
+          <Story />
+          <StudioConsole />
+        </div>
+      </StudioConsoleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await send(canvasElement, 'Quieter secondary text');
+
+    const warning = (
+      await canvas.findByText('Accessibility warning:', { exact: false })
+    ).closest('wa-callout');
+    if (!warning) throw new Error('accessibility warning not found');
+    const quiet = within(warning).getByText(
+      'Light mode, quiet text on the raised surface: 3.03:1, needs 4.5:1',
+      { exact: false }
+    );
+    expect(quiet.textContent).not.toContain('Fixed since');
+
+    await userEvent.click(canvas.getByText('Darker quiet text'));
+
+    // The record stays; the pair shows as fixed beside it.
+    await waitFor(() =>
+      expect(quiet.textContent).toContain('Fixed since: now 7.00:1')
+    );
+    expect(quiet.textContent).toContain('3.03:1, needs 4.5:1');
+    // Studio's defaults fail the dark form control border, which no edit
+    // here touched: still listed, not fixed.
+    const border = within(warning).getByText(
+      'Dark mode, form control border on its background',
+      { exact: false }
+    );
+    expect(border.textContent).not.toContain('Fixed since');
+
+    expect(canvasElement.querySelector('wa-tab-group')).toBeNull();
+    await userEvent.click(within(warning).getByText('Show contrast now'));
+    const tab = await canvas.findByText('Accessibility');
+    expect(tab.closest('wa-tab')?.hasAttribute('active')).toBe(true);
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('.studio-console__panel')
+      ).toHaveFocus()
+    );
   },
 };

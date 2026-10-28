@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { ThemeValue } from '../lib/defaults';
 import { parseLocks, type LockedValues } from '../lib/locks';
 
 // Shared by the browser and the trigger.dev task (docs/trigger).
@@ -23,6 +24,25 @@ export const customThemeSchema = z.object({
   // A page older than custom CSS in answers sends none.
   customCSS: z.string().default(''),
 });
+
+/** The custom theme of Studio's state: its values per mode, shadows and custom CSS. */
+export function customThemeOf(
+  values: Record<string, ThemeValue>,
+  shadowComponents: string[],
+  customCSS: string | null
+): CustomTheme {
+  const theme: CustomTheme = {
+    light: {},
+    dark: {},
+    shadowComponents: [...shadowComponents],
+    customCSS: customCSS ?? '',
+  };
+  for (const [cssVar, value] of Object.entries(values)) {
+    theme.light[cssVar] = value.light;
+    theme.dark[cssVar] = value.dark;
+  }
+  return theme;
+}
 
 /** One string per shadow component list; order and duplicates do not count. */
 export function componentListKey(list: string[]): string {

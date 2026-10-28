@@ -1,0 +1,37 @@
+/* Along the bottom of the preview, between the side panels. */
+.studio-console {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-surface-border);
+  background: var(--wa-color-surface-default);
+}
+
+.studio-console__bar {
+  padding: var(--wa-space-3xs) var(--wa-space-s);
+}
+
+/* The toggle at the bar's far end, the counts at its start. */
+.studio-console__toggle {
+  margin-inline-start: auto;
+}
+
+.studio-console__count {
+  font-variant-numeric: tabular-nums;
+}
+
+.studio-console__panel {
+  max-height: 40vh;
+  overflow-y: auto;
+  padding: 0 var(--wa-space-m) var(--wa-space-m);
+}
+
+.studio-console__panel:focus-visible {
+  outline: var(--wa-focus-ring);
+  outline-offset: calc(var(--wa-focus-ring-offset) * -1);
+}
+
+.studio-console__tab-count {
+  margin-inline-start: var(--wa-space-2xs);
+}

@@ -28,9 +28,11 @@ import {
   THEME_AGENT_TASK_ID,
 } from '../../theme-agent/constants';
 import {
+  formatRatio,
   lockedSources,
   summarizeViolation,
   violationKey,
+  type ContrastResult,
   type ContrastViolation,
 } from '../../theme-agent/contrast';
 import {
@@ -42,6 +44,8 @@ import {
 import { lockedValueLabel } from '../../theme-agent/describe-held-change';
 import type { ThemeAgentMessage } from '../../theme-agent/message';
 import { hasLocks, type LockedValues } from '../../lib/locks';
+import { useContrastResults } from '../../lib/use-contrast-results';
+import { useStudioConsole } from '../console/studio-console';
 import type { ThemeProposalInput } from '../../theme-agent/proposal';
 import {
   closeThemeAgentSession,
@@ -197,6 +201,12 @@ export function ThemeAgentChat({
   );
   const { currentTheme, locked, lockedValues, applyTheme, setLocked } =
     useThemeAgentStudio();
+  // The theme on screen, against which a warning's pairs show as fixed.
+  const contrastResults = useContrastResults();
+  const contrastNow = new Map(
+    contrastResults.map((result) => [violationKey(result), result])
+  );
+  const studioConsole = useStudioConsole();
   // The conversation module is plain state; re-render after each event.
   const [revision, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
@@ -459,6 +469,10 @@ export function ThemeAgentChat({
                   onUndo={() => undo(message.id)}
                   held={heldEntries}
                   locked={lockedValues}
+                  contrastNow={contrastNow}
+                  onShowContrast={
+                    studioConsole && (() => studioConsole.show('accessibility'))
+                  }
                 />
               )}
             </Fragment>
@@ -604,6 +618,10 @@ interface AnswerReportProps {
   held: HeldEntry[];
   /** The values locked now, named in the accessibility warning. */
   locked: LockedValues;
+  /** Every pair on the theme as it is now, by `violationKey()`. */
+  contrastNow: Map<string, ContrastResult>;
+  /** Opens the console's Accessibility tab; absent without a console. */
+  onShowContrast?: () => void;
 }
 
 /**
@@ -617,6 +635,8 @@ function AnswerReport({
   onUndo,
   held,
   locked,
+  contrastNow,
+  onShowContrast,
 }: AnswerReportProps) {
   const lockedCallout = held.length > 0 && (
     <LockedChangesCallouts entries={held} />
@@ -630,12 +650,41 @@ function AnswerReport({
         : `these ${violations.length} pairs fall`}{' '}
       short of WCAG 2.1 AA contrast.
       <ul className="theme-agent__reasons">
-        {violations.map((violation) => (
-          <li key={violationKey(violation)}>
-            {violationLine(violation, locked)}
-          </li>
-        ))}
+        {violations.map((violation) => {
+          // The warning is this answer's record; the theme may have moved
+          // on since, by hand or by a later answer.
+          const now = contrastNow.get(violationKey(violation));
+          const fixedRatio = now?.passes ? now.ratio : null;
+          return (
+            <li
+              key={violationKey(violation)}
+              className={clsx(
+                fixedRatio !== null && 'theme-agent__reason--fixed'
+              )}
+            >
+              {violationLine(violation, locked)}
+              {fixedRatio !== null && (
+                <span className="theme-agent__fixed">
+                  {' '}
+                  <Icon name="circle-check" />
+                  Fixed since: now {formatRatio(fixedRatio)}
+                </span>
+              )}
+            </li>
+          );
+        })}
       </ul>
+      {onShowContrast && (
+        <Button
+          className="theme-agent__show-contrast"
+          size="small"
+          appearance="outlined"
+          onClick={onShowContrast}
+        >
+          <Icon slot="start" name="universal-access" />
+          Show contrast now
+        </Button>
+      )}
     </Callout>
   );
   switch (outcome) {
