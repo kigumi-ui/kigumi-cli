@@ -5,7 +5,7 @@ import { themeFiles } from '../lib/theme-css';
 import { checkContrast } from '../theme-agent/contrast';
 import type { CustomTheme } from '../theme-agent/custom-theme';
 import { BRANDS_UNDER_AA_AT_STEP_50 } from './brand-fill-fixtures';
-// Recorded on origin/main (ce389ba8), before the brand fill became a Studio
+// Recorded on origin/main (4d206ddc), before the brand fill became a Studio
 // value: per brand, the preview style in both modes, theme.css, and the
 // contrast check of Studio's defaults with that brand.
 import baseline from './brand-fill-unset-baseline.json';

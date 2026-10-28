@@ -31,6 +31,7 @@ import { withImportedValues } from '../lib/theme-css';
 import { AVAILABLE_FONTS } from '../lib/font-definitions';
 import { buildPreviewStyle } from '../lib/preview-style';
 import { withDerivedBrandFillUnset } from '../lib/brand-fill';
+import { knownShadowComponents } from '../lib/shadow-components';
 
 const STORAGE_KEY = 'kigumi-studio-state';
 // 2.1 stores the values the user changed; 2.0 stored the export, derived
@@ -201,8 +202,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [previewMode, setPreviewMode] = useState<ThemeMode>(
     () => getPersistedOnce()?.previewMode ?? 'dark'
   );
-  const [shadowComponents, setShadowComponents] = useState<string[]>(
-    () => getPersistedOnce()?.shadowComponents ?? []
+  // A saved state, a preset or a stored theme may name a shadow component
+  // the list no longer has: the name is dropped.
+  const [shadowComponents, setShadowComponentsState] = useState<string[]>(() =>
+    knownShadowComponents(getPersistedOnce()?.shadowComponents ?? [])
+  );
+  const setShadowComponents = useCallback(
+    (components: string[]) =>
+      setShadowComponentsState(knownShadowComponents(components)),
+    []
   );
   const [customCSS, setCustomCSS] = useState<string | null>(() =>
     storedCustomCSS(getPersistedOnce()?.customCSS)
@@ -254,7 +262,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const resetAll = useCallback(() => {
     setValues(cloneDefaults());
-    setShadowComponents([]);
+    setShadowComponentsState([]);
     setCustomCSS(null);
     setSelectedPreset(null);
     for (const listener of themeReplacedListeners.current) listener();
@@ -455,6 +463,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setLocked,
       locksAvailable,
       setProperty,
+      setShadowComponents,
       resetAll,
       onThemeReplaced,
       resetGroup,
