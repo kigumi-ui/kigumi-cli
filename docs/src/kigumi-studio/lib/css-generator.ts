@@ -9,7 +9,7 @@ import {
 } from './color-utils';
 import { DEFAULT_VALUES, type ThemeValue } from './defaults';
 import { PROPERTY_DEFINITIONS } from './property-definitions';
-import { shadowComponent, shadowSelector } from './shadow-components';
+import { findShadowComponent, shadowSelector } from './shadow-components';
 
 const SEMANTIC_GROUPS: SemanticColorGroup[] = [
   'success',
@@ -40,7 +40,7 @@ function formatBlock(
  */
 export function formatShadowRules(classNames: string[]): string {
   const rules = classNames
-    .map(shadowComponent)
+    .map(findShadowComponent)
     .filter((comp) => comp !== undefined)
     .map(
       (comp) =>

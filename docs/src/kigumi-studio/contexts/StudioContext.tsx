@@ -170,12 +170,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   );
   // A saved state, a preset or a stored theme may name a shadow component
   // the list no longer has: the name is dropped.
-  const [shadowComponents, setKnownShadowComponents] = useState<string[]>(() =>
+  const [shadowComponents, setShadowComponentsState] = useState<string[]>(() =>
     knownShadowComponents(getPersistedOnce()?.shadowComponents ?? [])
   );
   const setShadowComponents = useCallback(
     (components: string[]) =>
-      setKnownShadowComponents(knownShadowComponents(components)),
+      setShadowComponentsState(knownShadowComponents(components)),
     []
   );
   const [customCSS, setCustomCSS] = useState<string | null>(() =>
@@ -228,7 +228,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const resetAll = useCallback(() => {
     setValues(cloneDefaults());
-    setKnownShadowComponents([]);
+    setShadowComponentsState([]);
     setCustomCSS(null);
     setSelectedPreset(null);
     for (const listener of themeReplacedListeners.current) listener();

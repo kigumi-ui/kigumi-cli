@@ -1,6 +1,6 @@
 import { splitStylesheet } from './custom-css';
 import { PROPERTIES_BY_VAR } from './property-definitions';
-import { shadowComponent, shadowSelector } from './shadow-components';
+import { findShadowComponent, shadowSelector } from './shadow-components';
 
 export interface ParseResult {
   light: Record<string, string>;
@@ -108,7 +108,7 @@ function splitShadowColor(props: Record<string, string>): void {
  */
 function shadowComponentOf(selector: string): string | undefined {
   const host = /^\.([A-Z][\w-]*)/.exec(selector);
-  const comp = host ? shadowComponent(host[1]) : undefined;
+  const comp = host ? findShadowComponent(host[1]) : undefined;
   if (!comp) return undefined;
   const matches =
     selector === shadowSelector(comp) || selector === `.${comp.className}`;
@@ -174,7 +174,10 @@ export function parseComponentOverrides(
       : undefined;
 
     if (shadowClassName) {
-      shadowComponents.push(shadowClassName);
+      // Once, also when an older and a newer rule both name it.
+      if (!shadowComponents.includes(shadowClassName)) {
+        shadowComponents.push(shadowClassName);
+      }
     } else {
       customRules.push(
         withComments(node.comments, `${node.selector} {\n  ${body}\n}`)

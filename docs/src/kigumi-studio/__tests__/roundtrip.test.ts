@@ -70,6 +70,18 @@ describe('round-trip: generate → parse → verify', () => {
     );
   });
 
+  it('reads a component once when the CSS holds both its old and its new rule', () => {
+    const css =
+      '.Button {\n  box-shadow: var(--wa-shadow-m);\n}\n\n.Button::part(base) {\n  box-shadow: var(--wa-shadow-m);\n}';
+    const overrides = parseComponentOverrides(css);
+    expect(overrides).toEqual({ shadowComponents: ['Button'], customCSS: '' });
+    expect(
+      generateThemeCSS({}, {}, { shadowComponents: overrides.shadowComponents })
+    ).toBe(
+      '/* Component Shadows */\n.Button::part(base) {\n  box-shadow: var(--wa-shadow-m);\n}\n'
+    );
+  });
+
   it('keeps a shadow rule the export never writes as custom CSS', () => {
     const rules = [
       // A part on a component whose host is its box.
