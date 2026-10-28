@@ -1,10 +1,16 @@
-.studio-contrast__summary {
-  margin: 0;
-}
-
-/* A narrow console scrolls the table, never the page. */
+/* A narrow console scrolls the table, never the page, and never wraps a
+   colour, a number or a result: a swatch stays beside its value. */
 .studio-contrast__scroll {
   overflow-x: auto;
+}
+
+.studio-contrast__table td {
+  white-space: nowrap;
+}
+
+.studio-contrast__colour,
+.studio-contrast__result {
+  flex-wrap: nowrap;
 }
 
 .studio-contrast__table {
@@ -14,6 +20,8 @@
 }
 
 .studio-contrast__table caption {
+  /* The size of the summary above, not the table's smaller text. */
+  font-size: var(--wa-font-size-m);
   text-align: start;
   font-weight: var(--wa-font-weight-semibold);
   padding-block-end: var(--wa-space-xs);
@@ -50,10 +58,6 @@
 
 .studio-contrast__number {
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.studio-contrast__colour {
   white-space: nowrap;
 }
 

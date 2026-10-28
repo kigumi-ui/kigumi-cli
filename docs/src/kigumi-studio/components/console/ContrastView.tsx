@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import clsx from 'clsx';
-import { Icon } from '@/components/ui';
+import { Callout, Icon } from '@/components/ui';
 import {
   formatRatio,
   violationKey,
@@ -19,12 +19,13 @@ export function ContrastView({ results }: { results: ContrastResult[] }) {
   const failing = results.filter((result) => !result.passes).length;
   return (
     <div className="wa-stack wa-gap-m studio-contrast">
-      <p className="studio-contrast__summary">
+      <Callout variant="brand">
+        <Icon slot="icon" name="circle-info" />
         {failing === 0
           ? `All ${results.length} pairs meet WCAG 2.1 AA contrast.`
           : `${failing} of ${results.length} pairs fall short of WCAG 2.1 AA contrast.`}{' '}
         Checked on every change to the custom theme.
-      </p>
+      </Callout>
       {MODES.map(([mode, caption]) => (
         <div key={mode} className="studio-contrast__scroll">
           <table className="studio-contrast__table">
@@ -62,9 +63,10 @@ function ContrastRow({ result }: { result: ContrastResult }) {
     >
       <th scope="row">
         <span className="studio-contrast__label">{result.label}</span>
-        <code className="studio-contrast__tokens">
-          {result.foreground} on {result.background}
-        </code>
+        {/* Each property its own code, so the pair does not read as one. */}
+        <span className="studio-contrast__tokens">
+          <code>{result.foreground}</code> on <code>{result.background}</code>
+        </span>
         {result.setBy && (
           <span className="studio-contrast__set-by">
             Set by <code>{result.setBy}</code>
