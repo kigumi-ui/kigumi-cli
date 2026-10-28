@@ -55,9 +55,9 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 
 | File | Purpose |
 | --- | --- |
-| `contexts/StudioContext.tsx` | State management (~44 properties, light/dark). A reload reads the stored export back with a brand fill that is only its brand's derivation unset (`withDerivedBrandFillUnset()`). `onThemeReplaced()` tells subscribers when `resetAll` replaces the whole theme (a preset, Default, an import) |
+| `contexts/StudioContext.tsx` | State management (~44 properties, light/dark). A reload reads the stored export back with the brand fill normalised (`lib/brand-fill.ts`). `onThemeReplaced()` tells subscribers when `resetAll` replaces the whole theme (a preset, Default, an import) |
 | `lib/property-definitions.ts` | Property metadata (44 definitions). A definition with `follows` (the brand fill) is unset, `''`, by default: Studio derives it from that value until the user sets it, and the sidebar row shows the derived colour |
-| `lib/brand-fill.ts` | The brand fill (`--wa-color-brand-fill-loud`), set per mode: unset, it follows the brand (palette step 40, `derivedBrandFill()`); set, the preview paints it and the export writes it in its mode and the derived fill in the other. `withDerivedBrandFillUnset()` stores a fill that is only its brand's derivation unset, so a reload or a pasted export never freezes it |
+| `lib/brand-fill.ts` | The brand fill (`--wa-color-brand-fill-loud`), set per mode: unset, it follows the brand (palette step 40, `derivedBrandFill()`); set, the preview paints it and the export writes it in its mode and the derived fill in the other. A fill that is only its brand's derivation is stored unset on a reload and from the Theme CSS text, so neither freezes it. A proposal may set it to `''`, which unsets it |
 | `lib/defaults.ts` | Default values from Web Awesome |
 | `lib/css-parser.ts` | Parse `:root {}` and `.wa-dark {}` blocks; `parseComponentOverrides()` splits the rest into shadow components and custom CSS, kept as written |
 | `lib/custom-css.ts` | Custom CSS: `validateCustomCSS()` (structure check before a save), `scopeCustomCSS()` (the preview's scoping), `splitStylesheet()` (rules with the comments before them), `storedCustomCSS()` (reads what an earlier Studio saved with the preview scope) |

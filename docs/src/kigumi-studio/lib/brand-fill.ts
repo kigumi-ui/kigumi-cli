@@ -1,4 +1,4 @@
-// The brand fill (issue #220): the fill of brand buttons and badges, under
+// The brand fill: the fill of brand buttons and badges, under
 // white text. Unset (`''`, its default) it follows the brand: Studio derives
 // it from the brand's palette step 40 (`generateBrandVariables`). Set, it is
 // the user's colour in that mode, and nothing in Studio changes it.
@@ -34,21 +34,16 @@ type ImportedValues = Record<string, { light?: string; dark?: string }>;
  */
 export function withDerivedBrandFillUnset(
   imported: ImportedValues,
-  brand: string = DEFAULT_VALUES[BRAND].light
+  brand?: string
 ): ImportedValues {
   const fill = imported[BRAND_FILL];
   if (!fill) return imported;
-  const importedBrand = imported[BRAND]?.light ?? brand;
-  const unset = (mode: ThemeMode): string | undefined =>
-    fill[mode] !== undefined &&
-    fill[mode].toLowerCase() === derivedBrandFill(importedBrand, mode)
-      ? ''
-      : fill[mode];
-  return {
-    ...imported,
-    [BRAND_FILL]: {
-      ...(fill.light !== undefined ? { light: unset('light') } : {}),
-      ...(fill.dark !== undefined ? { dark: unset('dark') } : {}),
-    },
-  };
+  const from = imported[BRAND]?.light ?? brand ?? DEFAULT_VALUES[BRAND].light;
+  const stored = { ...fill };
+  for (const mode of ['light', 'dark'] as const) {
+    if (stored[mode]?.toLowerCase() === derivedBrandFill(from, mode)) {
+      stored[mode] = '';
+    }
+  }
+  return { ...imported, [BRAND_FILL]: stored };
 }

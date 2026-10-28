@@ -384,6 +384,9 @@ describe('Theme Agent turn', () => {
       .find((line) => line.startsWith('- --wa-color-brand-fill-loud is'));
     expect(fill).toMatch(/Empty \(""\) follows the brand/);
     expect(fill).toMatch(/leave it empty unless the latest message asks/);
+    expect(fill).toMatch(
+      /propose "" when the user asks for the fill to follow the brand again/
+    );
     expect(fill).toMatch(/correct a failing brand fill pair by changing it/);
     const brand = text
       .split('\n')

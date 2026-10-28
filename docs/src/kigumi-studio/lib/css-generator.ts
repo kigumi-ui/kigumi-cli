@@ -285,7 +285,7 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
       mode: 'light' | 'dark'
     ) => Record<string, string>;
   }> = [
-    { cssVar: '--wa-color-brand', variables: generateBrandVariables },
+    { cssVar: BRAND, variables: generateBrandVariables },
     ...SEMANTIC_GROUPS.map((group) => ({
       cssVar: `--wa-color-${group}`,
       variables: (baseHex: string, mode: 'light' | 'dark') =>
@@ -325,11 +325,11 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
 
   // 3. Auto-derive surface/text from neutral (only for unmodified properties)
   const neutralModified = isBaseModified('--wa-color-neutral');
-  const brandModified = isBaseModified('--wa-color-brand');
+  const brandModified = isBaseModified(BRAND);
 
   if (neutralModified) {
     const neutralHex = values['--wa-color-neutral'].light;
-    const brandHex = values['--wa-color-brand'].light;
+    const brandHex = values[BRAND].light;
 
     const surfaceLight = generateSurfaceVariables(neutralHex, 'light');
     const surfaceDark = generateSurfaceVariables(neutralHex, 'dark');
@@ -350,7 +350,7 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
     }
   } else if (brandModified) {
     // Only brand changed: auto-derive text-link and focus from brand palette
-    const brandHex = values['--wa-color-brand'].light;
+    const brandHex = values[BRAND].light;
     const brandPalette = generateBrandPalette(brandHex);
 
     const isLinkModified = isBaseModified('--wa-color-text-link');

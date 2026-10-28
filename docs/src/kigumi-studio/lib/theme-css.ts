@@ -219,10 +219,7 @@ export function themeEdits(
   }
   // A brand fill edited to what the text's brand derives, as a pasted export
   // has it, follows the brand. One the edit left alone is no edit at all.
-  values = withDerivedBrandFillUnset(
-    values,
-    now.values[BRAND]?.light ?? DEFAULT_VALUES[BRAND].light
-  );
+  values = withDerivedBrandFillUnset(values, now.values[BRAND]?.light);
   const warnings = now.warnings.filter((w) => !was.warnings.includes(w));
   for (const [cssVar, modes] of Object.entries(values)) {
     const lockedModes = THEME_MODES.filter(

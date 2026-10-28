@@ -8,6 +8,7 @@ import {
 import { buildPreviewStyle } from '../lib/preview-style';
 import { modifiedProperties } from '../lib/css-generator';
 import { themeEdits, themeFiles, themeText } from '../lib/theme-css';
+import { validateProposal } from '../theme-agent/proposal';
 
 const FILL = '--wa-color-brand-fill-loud';
 const BRAND = '--wa-color-brand';
@@ -138,5 +139,20 @@ describe('brand fill: import through the Theme CSS text', () => {
       ''
     );
     expect(themeEdits(before, after).values[FILL]).toEqual({ light: '' });
+  });
+});
+
+describe('brand fill: a Theme Agent proposal', () => {
+  it('may unset the fill, so it follows the brand again', () => {
+    expect(validateProposal({ light: { [FILL]: '' }, dark: {} })).toEqual({
+      valid: true,
+      proposal: { light: { [FILL]: '' }, dark: {} },
+    });
+  });
+
+  it('may not leave any other colour empty', () => {
+    expect(
+      validateProposal({ light: { '--wa-color-text-link': '' }, dark: {} })
+    ).toMatchObject({ valid: false });
   });
 });
