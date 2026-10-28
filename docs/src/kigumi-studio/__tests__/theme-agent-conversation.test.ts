@@ -697,6 +697,38 @@ describe('Theme Agent conversation: locked values', () => {
     ]);
   });
 
+  it('holds a brand fill locked in one mode and applies the other', () => {
+    const conversation = createThemeAgentConversation();
+    const current = studioDefaults();
+    current.light['--wa-color-brand-fill-loud'] = '#7a1010';
+    current.dark['--wa-color-brand-fill-loud'] = '#7a1010';
+
+    const outcome = conversation.answerReceived(
+      'answer-1',
+      [
+        {
+          light: { '--wa-color-brand-fill-loud': '#003d82' },
+          dark: { '--wa-color-brand-fill-loud': '#003d82' },
+        },
+      ],
+      current,
+      locks(valueLock('--wa-color-brand-fill-loud', ['light']))
+    );
+
+    if (!outcome.applied) throw new Error('answer was not applied');
+    expect(outcome.theme.light['--wa-color-brand-fill-loud']).toBe('#7a1010');
+    expect(outcome.theme.dark['--wa-color-brand-fill-loud']).toBe('#003d82');
+    expect(outcome.held).toEqual([
+      {
+        kind: 'value',
+        reason: 'locked',
+        cssVar: '--wa-color-brand-fill-loud',
+        proposed: { light: '#003d82' },
+        was: { light: '#7a1010' },
+      },
+    ]);
+  });
+
   it('unlock and apply one value leaves the others held', () => {
     const conversation = createThemeAgentConversation();
     const outcome = conversation.answerReceived(
