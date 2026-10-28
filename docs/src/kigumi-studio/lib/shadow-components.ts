@@ -147,7 +147,7 @@ const SHADOW_COMPONENTS_BY_CLASS = new Map(
 );
 
 /** The shadow component with this class name, if it is in the list. */
-export function shadowComponent(
+export function findShadowComponent(
   className: string
 ): ShadowComponent | undefined {
   return SHADOW_COMPONENTS_BY_CLASS.get(className);
