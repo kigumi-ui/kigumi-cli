@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { buildDefaultValues, DEFAULT_VALUES } from '../lib/defaults';
-import { PROPERTY_DEFINITIONS } from '../lib/property-definitions';
+import {
+  PROPERTIES_BY_VAR,
+  PROPERTY_DEFINITIONS,
+} from '../lib/property-definitions';
 
 describe('buildDefaultValues', () => {
   it('returns a record with one entry per PROPERTY_DEFINITION', () => {
@@ -18,6 +21,8 @@ describe('buildDefaultValues', () => {
   it('every value has non-empty light and dark strings', () => {
     const defaults = buildDefaultValues();
     for (const [key, val] of Object.entries(defaults)) {
+      // A value that follows another is unset, '', by default.
+      if (PROPERTIES_BY_VAR.get(key)?.follows) continue;
       expect(val.light, `${key}.light`).toBeTruthy();
       expect(val.dark, `${key}.dark`).toBeTruthy();
     }

@@ -49,8 +49,7 @@
   display: block;
 }
 
-.studio-contrast__tokens,
-.studio-contrast__set-by {
+.studio-contrast__tokens {
   display: block;
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-xs);

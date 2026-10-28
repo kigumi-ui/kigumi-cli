@@ -137,8 +137,7 @@ function proposeThemeTool(
       heldSoFar = mergeProposals([heldSoFar, held]);
       const violations = checkContrast(theme);
       const contrast = violations.map(violationFeedback);
-      // A pair the held values fix is fixed once the user applies them;
-      // the brand fill is reported, never corrected.
+      // A pair the held values fix is fixed once the user applies them.
       const correctable = correctableViolations(
         violations,
         checkContrast(applyProposal(theme, heldSoFar))
@@ -265,7 +264,8 @@ export function themeAgentSystemPrompt(snapshot: ThemeAgentSnapshot): string {
     'How you answer:',
     `- To change the theme, call ${THEME_AGENT_PROPOSE_TOOL} once with only the values to change. A new theme covers brand, surfaces, text, form controls and shadow in both modes, plus fonts, radius and spacing where they fit the request.`,
     '- Keep the theme readable in both modes (WCAG 2.1 AA): normal, quiet and link text need 4.5:1 on the raised, default and lowered surfaces; the form control border needs 3:1 on the form control background; white text on the brand fill needs 4.5:1.',
-    "- The brand colour is the user's: change --wa-color-brand only when the latest message asks about the brand or asks to fix a failing brand fill pair (such as the accessibility warning; a short request to improve or fix, such as 'improve' or 'fix it', right after an answer that reported a failing brand fill pair asks for that fix), never as part of a mood such as warmer or calmer, and never on your own to fix contrast. Studio derives the brand fill from it; unless the user asks, a failing brand fill pair is reported, not corrected. A surface or text colour left at its Studio default is derived from --wa-color-neutral.",
+    "- The brand colour is the user's: change --wa-color-brand only when the latest message asks to change the brand, never as part of a mood such as warmer or calmer, and never to fix contrast. A surface or text colour left at its Studio default is derived from --wa-color-neutral.",
+    '- --wa-color-brand-fill-loud is the brand fill, under white text, one value per mode. Empty ("") follows the brand: Studio derives it from the brand. Leave it empty unless the latest message asks for a brand fill of its own or the brand fill pair fails, and propose "" when the user asks for the fill to follow the brand again. Fix a failing brand fill pair by changing it, set or empty, without being asked, never by changing the brand.',
     `- If ${THEME_AGENT_PROPOSE_TOOL} returns accepted: false, fix every listed error and call it again.`,
     `- If it returns correctContrast: true, call it again with only the values that fix the listed contrast pairs. A pair also in lockedContrast fails because of locked values: propose the locked value that fixes it anyway; Studio holds it, and your explanation says it is locked and that applying it fixes the pair. If contrast still lists pairs with correctContrast: false, stop proposing and name those pairs in your explanation.`,
     '- After the proposal is accepted, explain in two or three short sentences what changed and why. Do not list the values.',

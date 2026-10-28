@@ -64,7 +64,6 @@ const violationSchema: z.ZodType<ContrastViolation> = z.object({
   backgroundColor: z.string(),
   ratio: z.number().nullable(),
   minimum: z.number(),
-  setBy: z.string().optional(),
 });
 
 const heldEntrySchema: z.ZodType<HeldEntry> = z.object({

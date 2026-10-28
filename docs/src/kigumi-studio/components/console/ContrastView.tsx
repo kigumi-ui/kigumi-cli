@@ -67,11 +67,6 @@ function ContrastRow({ result }: { result: ContrastResult }) {
         <span className="studio-contrast__tokens">
           <code>{result.foreground}</code> on <code>{result.background}</code>
         </span>
-        {result.setBy && (
-          <span className="studio-contrast__set-by">
-            Set by <code>{result.setBy}</code>
-          </span>
-        )}
       </th>
       <td>
         <div className="wa-stack wa-gap-2xs">

@@ -7,6 +7,12 @@ import {
   generateTextVariables,
   type SemanticColorGroup,
 } from './color-utils';
+import {
+  BRAND,
+  BRAND_FILL,
+  derivedBrandFill,
+  userBrandFill,
+} from './brand-fill';
 import { DEFAULT_VALUES, type ThemeValue } from './defaults';
 import { PROPERTY_DEFINITIONS } from './property-definitions';
 import { findShadowComponent, shadowSelector } from './shadow-components';
@@ -232,7 +238,8 @@ export function generateThemeCSS(
 /**
  * The values the export writes, per mode: every Studio value that differs
  * from its default, with unit, and what Studio derives from the colour
- * groups (palettes, semantic variables, surfaces and text from neutral).
+ * groups (palettes, semantic variables, surfaces and text from neutral). A
+ * brand fill the user set replaces the derived one in its mode.
  */
 export function modifiedProperties(values: Record<string, ThemeValue>): {
   light: Record<string, string>;
@@ -285,7 +292,7 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
       mode: 'light' | 'dark'
     ) => Record<string, string>;
   }> = [
-    { cssVar: '--wa-color-brand', variables: generateBrandVariables },
+    { cssVar: BRAND, variables: generateBrandVariables },
     ...SEMANTIC_GROUPS.map((group) => ({
       cssVar: `--wa-color-${group}`,
       variables: (baseHex: string, mode: 'light' | 'dark') =>
@@ -303,23 +310,33 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
     }
     for (const [key, val] of Object.entries(variables(baseHex, 'light'))) {
       if (key === cssVar) continue;
+      if (key === BRAND_FILL && userBrandFill(values, 'light')) continue;
       light[key] = val;
     }
     // Dark: skip palette steps (already in light/root), only add semantic vars
     for (const [key, val] of Object.entries(variables(baseHex, 'dark'))) {
       if (key === cssVar) continue;
       if (paletteStepRegex.test(key)) continue;
+      if (key === BRAND_FILL && userBrandFill(values, 'dark')) continue;
       dark[key] = val;
     }
   }
 
+  // A brand fill set in one mode only: the other mode gets the derived one,
+  // or a project's :root fill would paint dark mode too.
+  if (!isBaseModified(BRAND) && (BRAND_FILL in light || BRAND_FILL in dark)) {
+    const brandHex = values[BRAND].light;
+    light[BRAND_FILL] ??= derivedBrandFill(brandHex, 'light');
+    dark[BRAND_FILL] ??= derivedBrandFill(brandHex, 'dark');
+  }
+
   // 3. Auto-derive surface/text from neutral (only for unmodified properties)
   const neutralModified = isBaseModified('--wa-color-neutral');
-  const brandModified = isBaseModified('--wa-color-brand');
+  const brandModified = isBaseModified(BRAND);
 
   if (neutralModified) {
     const neutralHex = values['--wa-color-neutral'].light;
-    const brandHex = values['--wa-color-brand'].light;
+    const brandHex = values[BRAND].light;
 
     const surfaceLight = generateSurfaceVariables(neutralHex, 'light');
     const surfaceDark = generateSurfaceVariables(neutralHex, 'dark');
@@ -340,7 +357,7 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
     }
   } else if (brandModified) {
     // Only brand changed: auto-derive text-link and focus from brand palette
-    const brandHex = values['--wa-color-brand'].light;
+    const brandHex = values[BRAND].light;
     const brandPalette = generateBrandPalette(brandHex);
 
     const isLinkModified = isBaseModified('--wa-color-text-link');

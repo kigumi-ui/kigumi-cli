@@ -145,13 +145,6 @@ export const ContrastFollowsAnEdit: Story = {
     expect(quiet.cells[4].textContent).toBe('Fails');
     expect(quiet.classList).toContain('studio-contrast__row--failing');
 
-    const fill = contrastRow(
-      canvasElement,
-      'Dark mode',
-      'text on the brand fill'
-    );
-    expect(fill.textContent).toContain('Set by --wa-color-brand');
-
     await userEvent.click(canvas.getByText('Dark quiet text'));
     await waitFor(() => expect(quiet.cells[4].textContent).toBe('Passes'));
     expect(quiet.classList).not.toContain('studio-contrast__row--failing');

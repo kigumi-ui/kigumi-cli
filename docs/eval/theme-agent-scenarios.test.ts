@@ -123,35 +123,39 @@ describe('brand locked, make the brand red', () => {
   });
 });
 
-describe('brand locked, improve the brand fill warning', () => {
+describe('brand locked, improve a failing brand fill', () => {
   const s = scenario('locked-brand-improve-fill');
 
-  it('carries the warning in the conversation it answers', () => {
-    expect(JSON.stringify(s.messages)).toContain(
-      'Light mode, text on the brand fill: 3.81:1'
+  it('locks the brand and starts from a failing fill the user set', () => {
+    expect(s.snapshot.locked.light).toEqual(['--wa-color-brand']);
+    expect(s.snapshot.theme.light['--wa-color-brand-fill-loud']).toBe(
+      '#22c55e'
     );
-    expect(s.messages.at(-1)).toMatchObject({ role: 'user' });
+    expect(s.messages).toEqual([{ role: 'user', content: 'improve' }]);
   });
 
-  it('passes when another brand is held', () => {
-    const verdict = s.judge([both('--wa-color-brand', '#dc2626')], s.snapshot);
+  it('passes when a new fill carries white text in both modes', () => {
+    const verdict = s.judge(
+      [both('--wa-color-brand-fill-loud', '#15803d')],
+      s.snapshot
+    );
     expect(verdict).toMatchObject({ pass: true });
-    expect(verdict.reason).toContain('#dc2626');
   });
 
-  it('fails when the held brand is the green it already has', () => {
-    const verdict = s.judge([both('--wa-color-brand', '#22c55e')], s.snapshot);
+  it('fails when the locked brand is proposed instead', () => {
+    // Studio would hold it, but the fill fixes the pair (ADR 0015).
+    const verdict = s.judge([both('--wa-color-brand', '#15803d')], s.snapshot);
     expect(verdict.pass).toBe(false);
-    expect(verdict.reason).toContain('the brand it already has');
+    expect(verdict.reason).toContain("the brand is the user's");
   });
 
-  it('fails when the brand is not proposed', () => {
+  it('fails when the fill is not proposed', () => {
     const verdict = s.judge(
       [both('--wa-color-text-normal', '#000000')],
       s.snapshot
     );
     expect(verdict.pass).toBe(false);
-    expect(verdict.reason).toContain('--wa-color-brand');
+    expect(verdict.reason).toContain('text on the brand fill');
   });
 });
 
@@ -230,6 +234,19 @@ describe('nothing locked, make it warmer', () => {
     expect(
       s.judge([both('--wa-color-surface-default', '#fff7ed')], s.snapshot)
     ).toMatchObject({ pass: true });
+  });
+
+  it('fails when the brand fill is set for a mood', () => {
+    // An unset fill follows the brand; set, it stops following it.
+    const verdict = s.judge(
+      [
+        both('--wa-color-surface-default', '#fff7ed'),
+        both('--wa-color-brand-fill-loud', '#9a3412'),
+      ],
+      s.snapshot
+    );
+    expect(verdict.pass).toBe(false);
+    expect(verdict.reason).toContain('--wa-color-brand-fill-loud');
   });
 
   it('fails when the brand is proposed', () => {
@@ -472,5 +489,58 @@ describe('nothing locked, a subtle shimmer on skeletons', () => {
       pass: false,
       reason: 'the custom CSS defines no @keyframes',
     });
+  });
+});
+
+describe('a failing brand fill the user set, make the corners rounder', () => {
+  const s = scenario('set-fill-corrected');
+
+  it('starts from a brand fill the user set that fails under white text', () => {
+    expect(s.snapshot.theme.light['--wa-color-brand-fill-loud']).toBe(
+      '#22c55e'
+    );
+    expect(s.snapshot.theme.dark['--wa-color-brand-fill-loud']).toBe('#22c55e');
+  });
+
+  it('passes when a new fill carries white text in both modes', () => {
+    const verdict = s.judge(
+      [
+        both('--wa-border-radius-scale', '2'),
+        both('--wa-color-brand-fill-loud', '#15803d'),
+      ],
+      s.snapshot
+    );
+    expect(verdict).toMatchObject({ pass: true });
+    expect(verdict.reason).toContain('#15803d');
+  });
+
+  it('fails when the fill is left failing', () => {
+    const verdict = s.judge(
+      [both('--wa-border-radius-scale', '2')],
+      s.snapshot
+    );
+    expect(verdict.pass).toBe(false);
+    expect(verdict.reason).toContain('text on the brand fill');
+  });
+
+  it('fails when only one mode is fixed', () => {
+    const verdict = s.judge(
+      [{ light: { '--wa-color-brand-fill-loud': '#15803d' }, dark: {} }],
+      s.snapshot
+    );
+    expect(verdict.pass).toBe(false);
+    expect(verdict.reason).toContain('Dark mode, text on the brand fill');
+  });
+
+  it('fails when the brand is changed instead', () => {
+    const verdict = s.judge(
+      [
+        both('--wa-color-brand', '#15803d'),
+        both('--wa-color-brand-fill-loud', '#15803d'),
+      ],
+      s.snapshot
+    );
+    expect(verdict.pass).toBe(false);
+    expect(verdict.reason).toContain("the brand is the user's");
   });
 });

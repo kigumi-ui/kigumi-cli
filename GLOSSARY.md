@@ -124,8 +124,7 @@ _Avoid_: devtools, footer, status bar
 **Contrast pair**:
 A text or boundary colour and the background it sits on, checked against its
 WCAG 2.1 AA minimum in each mode. A pair fails when its ratio is below the
-minimum or a colour cannot be resolved. Some pairs are set by another value:
-the brand fill comes from the brand colour.
+minimum, a colour cannot be resolved, or its background is translucent.
 _Avoid_: colour pair, contrast check (that is the act of checking)
 
 **Theme Agent**:
