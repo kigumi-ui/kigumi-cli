@@ -248,17 +248,20 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
   const light: Record<string, string> = {};
   const dark: Record<string, string> = {};
 
-  // 1. Collect explicitly modified base properties
+  // 1. Collect explicitly modified base properties, each against what a
+  // project paints without its line: Web Awesome's default where Studio's
+  // differs from it, so Studio's own is written too.
   for (const prop of PROPERTY_DEFINITIONS) {
     const current = values[prop.cssVar];
     const defaults = DEFAULT_VALUES[prop.cssVar];
     if (!current || !defaults) continue;
 
     const suffix = prop.unit ?? '';
-    if (current.light !== defaults.light) {
+    const withoutLine = { ...defaults, ...prop.webAwesomeDefault };
+    if (current.light !== withoutLine.light) {
       light[prop.cssVar] = `${current.light}${suffix}`;
     }
-    if (current.dark !== defaults.dark) {
+    if (current.dark !== withoutLine.dark) {
       dark[prop.cssVar] = `${current.dark}${suffix}`;
     }
   }

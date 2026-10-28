@@ -1,3 +1,4 @@
+import type { ThemeValue } from './defaults';
 import { AVAILABLE_FONTS, FONT_WEIGHTS } from './font-definitions';
 
 export type PropertyInputType = 'color' | 'text' | 'select' | 'slider';
@@ -44,6 +45,15 @@ export interface PropertyDefinition {
    * `''`, unset: the preview and the export use what Studio derives.
    */
   follows?: string;
+  /**
+   * Web Awesome's own default, in a mode where Studio's differs because
+   * Web Awesome's fails Studio's contrast check: what a project paints when
+   * its theme.css has no line for the value. The export compares against
+   * it, so a project gets Studio's default even when the user never touched
+   * it. The sidebar's "modified" compares against Studio's default, which
+   * Reset restores (ADR 0016).
+   */
+  webAwesomeDefault?: Partial<ThemeValue>;
 }
 
 export interface PropertyGroupInfo {
@@ -599,8 +609,11 @@ export const PROPERTY_DEFINITIONS: PropertyDefinition[] = [
     group: 'form-controls',
     inputType: 'color',
     defaultLight: '#9194a2',
-    defaultDark: '#545868',
+    // Web Awesome's neutral-40 is 2.64:1 on the dark background, under 3:1;
+    // neutral-50 is 4.07:1.
+    defaultDark: '#717584',
     modeDependent: true,
+    webAwesomeDefault: { dark: '#545868' },
     description: 'Form input border color',
   },
   {

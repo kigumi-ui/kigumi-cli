@@ -9,6 +9,7 @@ import { buildPreviewStyle } from '../lib/preview-style';
 import { modifiedProperties } from '../lib/css-generator';
 import { themeEdits, themeFiles, themeText } from '../lib/theme-css';
 import { validateProposal } from '../theme-agent/proposal';
+import { withWebAwesomeDefaults } from './web-awesome-defaults';
 
 const FILL = '--wa-color-brand-fill-loud';
 const BRAND = '--wa-color-brand';
@@ -17,6 +18,9 @@ function theme(
   edits: Record<string, Partial<ThemeValue>> = {}
 ): Record<string, ThemeValue> {
   const values = buildDefaultValues();
+  // At Web Awesome's defaults, so the export holds only what the brand
+  // writes, as #202's recording does.
+  withWebAwesomeDefaults(values);
   for (const [cssVar, modes] of Object.entries(edits)) {
     values[cssVar] = { ...values[cssVar], ...modes };
   }

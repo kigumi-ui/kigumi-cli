@@ -152,11 +152,13 @@ describe('useStudio - isModified', () => {
 });
 
 describe('useStudio - getModifiedProperties', () => {
-  it('returns empty light and dark when nothing modified', () => {
+  it('returns only the default Studio sets apart from Web Awesome when nothing modified', () => {
     const { result } = renderHook(() => useStudio(), { wrapper });
     const modified = result.current.getModifiedProperties();
-    expect(Object.keys(modified.light)).toHaveLength(0);
-    expect(Object.keys(modified.dark)).toHaveLength(0);
+    expect(modified).toEqual({
+      light: {},
+      dark: { '--wa-form-control-border-color': '#717584' },
+    });
   });
 
   it('returns modified property with unit suffix appended', () => {

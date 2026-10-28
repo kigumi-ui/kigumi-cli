@@ -175,6 +175,20 @@ describe('Theme Agent contrast check', () => {
 });
 
 describe('Contrast results: every checked pair, passing or not', () => {
+  it("passes every pair on Studio's defaults, both modes", () => {
+    const untouched = {
+      light: {},
+      dark: {},
+      shadowComponents: [],
+      customCSS: '',
+    };
+    expect(
+      contrastResults(untouched)
+        .filter((result) => !result.passes)
+        .map((result) => `${result.mode} ${result.label}`)
+    ).toEqual([]);
+  });
+
   it('returns every pair in both modes, light first, in CONTRAST_PAIRS order', () => {
     const results = contrastResults(readableTheme());
 

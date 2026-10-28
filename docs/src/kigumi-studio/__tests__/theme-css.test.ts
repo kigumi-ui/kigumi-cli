@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { DEFAULT_VALUES, type ThemeValue } from '../lib/defaults';
+import { withWebAwesomeDefaults } from './web-awesome-defaults';
 import {
   themeDownloads,
   themeEdits,
@@ -61,6 +62,14 @@ function defaults(): Record<string, ThemeValue> {
   );
 }
 
+/**
+ * Defaults with the dark form control border at Web Awesome's own value: the
+ * one theme whose theme.css has nothing to write.
+ */
+function unwrittenDefaults(): Record<string, ThemeValue> {
+  return withWebAwesomeDefaults(defaults());
+}
+
 function state(overrides: Partial<CustomThemeState> = {}): CustomThemeState {
   return {
     values: defaults(),
@@ -98,10 +107,16 @@ describe('Theme CSS text', () => {
     expect(overridesPart).toContain('.Card > .Card {\n  box-shadow: none;\n}');
   });
 
-  it('says so when there is no custom CSS, and no change from the default theme', () => {
-    const text = themeText(state());
+  it('says so when there is no custom CSS, and nothing for theme.css to write', () => {
+    const text = themeText(state({ values: unwrittenDefaults() }));
     expect(text).toContain('No changes from the default theme yet.');
     expect(text).toContain('No custom CSS yet.');
+  });
+
+  it("writes Studio's dark form control border for an untouched theme", () => {
+    const text = themeText(state());
+    expect(text).toContain('--wa-form-control-border-color: #717584;');
+    expect(text).not.toContain('No changes from the default theme yet.');
   });
 
   it('copies each file without the headers or custom CSS in theme.css', () => {
@@ -225,12 +240,29 @@ describe('Theme CSS edits', () => {
       dark: '#0a0a0a',
     };
     const before = themeText(state({ values }));
-    const after = before.replace(/\.wa-dark \{[^}]*\}/, '');
+    const after = before.replace(
+      /\n\s*--wa-color-surface-default: #0a0a0a;/,
+      ''
+    );
+    expect(after).not.toBe(before);
     expect(themeEdits(before, after).values).toEqual({
       '--wa-color-surface-default': {
         dark: DEFAULT_VALUES['--wa-color-surface-default'].dark,
       },
     });
+  });
+
+  it('reads an export without the dark form control border as the default', () => {
+    // An export written while Studio's border was Web Awesome's, pasted
+    // over the text shown for an untouched theme.
+    const before = themeText(state());
+    const after = ':root {\n  --wa-border-radius-scale: 2;\n}\n';
+    const { values, errors } = themeEdits(before, after);
+    expect(errors).toEqual([]);
+    const applied = withImportedValues(defaults(), values);
+    // Studio's default, not Web Awesome's #545868.
+    expect(applied['--wa-form-control-border-color'].dark).toBe('#717584');
+    expect(applied['--wa-border-radius-scale'].light).toBe('2');
   });
 
   it('reports an unknown property and does not take it', () => {
@@ -333,7 +365,9 @@ describe('Theme CSS downloads', () => {
   });
 
   it('says so in a file with nothing to put in it', () => {
-    const [theme, overrides] = themeDownloads(state());
+    const [theme, overrides] = themeDownloads(
+      state({ values: unwrittenDefaults() })
+    );
     expect(theme.content).toBe(
       '/* No changes from the default theme yet. */\n'
     );

@@ -5,6 +5,7 @@ import { themeFiles } from '../lib/theme-css';
 import { checkContrast } from '../theme-agent/contrast';
 import type { CustomTheme } from '../theme-agent/custom-theme';
 import { BRANDS_UNDER_AA_AT_STEP_50 } from './brand-fill-fixtures';
+import { withWebAwesomeDefaults } from './web-awesome-defaults';
 // Recorded on origin/main (4d206ddc), before the brand fill became a Studio
 // value: per brand, the preview style in both modes, theme.css, and the
 // contrast check of Studio's defaults with that brand.
@@ -22,6 +23,8 @@ describe('brand fill: unset, every value is what #202 produced', () => {
   it.each(BRANDS)('for %s: preview, export and contrast check', (brand) => {
     const values = buildDefaultValues();
     values['--wa-color-brand'] = { light: brand, dark: brand };
+    // The recording is of Web Awesome's defaults, where Studio differs.
+    withWebAwesomeDefaults(values);
     const theme: CustomTheme = {
       light: {},
       dark: {},

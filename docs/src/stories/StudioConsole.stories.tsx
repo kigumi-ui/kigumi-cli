@@ -109,16 +109,15 @@ export const ContrastFollowsAnEdit: Story = {
     const canvas = within(canvasElement);
     const count = contrastCount(canvasElement);
 
-    // Collapsed by default. Studio's defaults fail one pair already: the
-    // dark form control border on its background.
+    // Collapsed by default; Studio's defaults pass every pair.
     expect(canvasElement.querySelector('wa-tab-group')).toBeNull();
     await waitFor(() =>
-      expect(count.textContent).toBe('1 failing contrast pair')
+      expect(count.textContent).toBe('0 failing contrast pairs')
     );
 
     await userEvent.click(canvas.getByText('Light quiet text'));
     await waitFor(() =>
-      expect(count.textContent).toBe('4 failing contrast pairs')
+      expect(count.textContent).toBe('3 failing contrast pairs')
     );
 
     // Open from the count, by keyboard alone.
@@ -148,7 +147,7 @@ export const ContrastFollowsAnEdit: Story = {
     await userEvent.click(canvas.getByText('Dark quiet text'));
     await waitFor(() => expect(quiet.cells[4].textContent).toBe('Passes'));
     expect(quiet.classList).not.toContain('studio-contrast__row--failing');
-    expect(count.textContent).toBe('1 failing contrast pair');
+    expect(count.textContent).toBe('0 failing contrast pairs');
 
     // Closed again by its toggle, by keyboard alone.
     const toggle = canvas
