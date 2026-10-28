@@ -61,6 +61,16 @@ function defaults(): Record<string, ThemeValue> {
   );
 }
 
+/**
+ * Defaults with the dark form control border at Web Awesome's own value: the
+ * one theme whose theme.css has nothing to write.
+ */
+function unwrittenDefaults(): Record<string, ThemeValue> {
+  const values = defaults();
+  values['--wa-form-control-border-color'].dark = '#545868';
+  return values;
+}
+
 function state(overrides: Partial<CustomThemeState> = {}): CustomThemeState {
   return {
     values: defaults(),
@@ -98,10 +108,16 @@ describe('Theme CSS text', () => {
     expect(overridesPart).toContain('.Card > .Card {\n  box-shadow: none;\n}');
   });
 
-  it('says so when there is no custom CSS, and no change from the default theme', () => {
-    const text = themeText(state());
+  it('says so when there is no custom CSS, and nothing for theme.css to write', () => {
+    const text = themeText(state({ values: unwrittenDefaults() }));
     expect(text).toContain('No changes from the default theme yet.');
     expect(text).toContain('No custom CSS yet.');
+  });
+
+  it("writes Studio's dark form control border for an untouched theme", () => {
+    const text = themeText(state());
+    expect(text).toContain('--wa-form-control-border-color: #717584;');
+    expect(text).not.toContain('No changes from the default theme yet.');
   });
 
   it('copies each file without the headers or custom CSS in theme.css', () => {
@@ -225,7 +241,11 @@ describe('Theme CSS edits', () => {
       dark: '#0a0a0a',
     };
     const before = themeText(state({ values }));
-    const after = before.replace(/\.wa-dark \{[^}]*\}/, '');
+    const after = before.replace(
+      /\n\s*--wa-color-surface-default: #0a0a0a;/,
+      ''
+    );
+    expect(after).not.toBe(before);
     expect(themeEdits(before, after).values).toEqual({
       '--wa-color-surface-default': {
         dark: DEFAULT_VALUES['--wa-color-surface-default'].dark,
@@ -333,7 +353,9 @@ describe('Theme CSS downloads', () => {
   });
 
   it('says so in a file with nothing to put in it', () => {
-    const [theme, overrides] = themeDownloads(state());
+    const [theme, overrides] = themeDownloads(
+      state({ values: unwrittenDefaults() })
+    );
     expect(theme.content).toBe(
       '/* No changes from the default theme yet. */\n'
     );

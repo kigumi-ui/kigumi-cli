@@ -17,6 +17,9 @@ function theme(
   edits: Record<string, Partial<ThemeValue>> = {}
 ): Record<string, ThemeValue> {
   const values = buildDefaultValues();
+  // Web Awesome's dark form control border, Studio's default when #202's
+  // export was recorded, so the export holds only what the brand writes.
+  values['--wa-form-control-border-color'].dark = '#545868';
   for (const [cssVar, modes] of Object.entries(edits)) {
     values[cssVar] = { ...values[cssVar], ...modes };
   }

@@ -151,10 +151,24 @@ describe('modifiedProperties', () => {
     return values;
   }
 
-  it('returns nothing for the defaults', () => {
+  it('returns for the defaults only where Studio differs from Web Awesome', () => {
+    // Web Awesome's dark border (#545868) fails 3:1 on its background;
+    // Studio's passes, and a project only gets it from the export.
     expect(modifiedProperties(buildDefaultValues())).toEqual({
       light: {},
-      dark: {},
+      dark: { '--wa-form-control-border-color': '#717584' },
+    });
+  });
+
+  it("leaves out a value set back to Web Awesome's own default", () => {
+    const values = edit('--wa-form-control-border-color', 'dark', '#545868');
+    expect(modifiedProperties(values)).toEqual({ light: {}, dark: {} });
+  });
+
+  it('writes a value the user set over a default Studio differs on', () => {
+    const values = edit('--wa-form-control-border-color', 'dark', '#8a8a8a');
+    expect(modifiedProperties(values).dark).toEqual({
+      '--wa-form-control-border-color': '#8a8a8a',
     });
   });
 

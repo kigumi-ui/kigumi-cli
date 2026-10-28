@@ -44,6 +44,13 @@ export interface PropertyDefinition {
    * `''`, unset: the preview and the export use what Studio derives.
    */
   follows?: string;
+  /**
+   * Web Awesome's own default, in a mode where Studio's differs because
+   * Web Awesome's fails Studio's contrast check. The export compares against
+   * it, so a project gets Studio's default even when the user never touched
+   * it (ADR 0016).
+   */
+  webAwesomeDefault?: { light?: string; dark?: string };
 }
 
 export interface PropertyGroupInfo {
@@ -599,8 +606,11 @@ export const PROPERTY_DEFINITIONS: PropertyDefinition[] = [
     group: 'form-controls',
     inputType: 'color',
     defaultLight: '#9194a2',
-    defaultDark: '#545868',
+    // Web Awesome's neutral-40 is 2.64:1 on the dark background, under 3:1;
+    // neutral-50 is 4.07:1.
+    defaultDark: '#717584',
     modeDependent: true,
+    webAwesomeDefault: { dark: '#545868' },
     description: 'Form input border color',
   },
   {

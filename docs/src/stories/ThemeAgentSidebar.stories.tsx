@@ -621,7 +621,10 @@ export const ContrastWarningFollowsTheTheme: Story = {
     transport: cannedTransport([
       {
         text: PALE_QUIET,
-        proposal: { light: { '--wa-color-text-quiet': '#949494' }, dark: {} },
+        proposal: {
+          light: { '--wa-color-text-quiet': '#949494' },
+          dark: { '--wa-color-text-quiet': '#3a3a3a' },
+        },
       },
     ]),
   },
@@ -658,13 +661,13 @@ export const ContrastWarningFollowsTheTheme: Story = {
       expect(quiet.textContent).toContain('Fixed since: now 7.00:1')
     );
     expect(quiet.textContent).toContain('3.03:1, needs 4.5:1');
-    // Studio's defaults fail the dark form control border, which no edit
-    // here touched: still listed, not fixed.
-    const border = within(warning).getByText(
-      'Dark mode, form control border on its background',
+    // The edit was in light mode: dark quiet text still fails, still
+    // listed, not fixed.
+    const dark = within(warning).getByText(
+      'Dark mode, quiet text on the raised surface',
       { exact: false }
     );
-    expect(border.textContent).not.toContain('Fixed since');
+    expect(dark.textContent).not.toContain('Fixed since');
 
     expect(canvasElement.querySelector('wa-tab-group')).toBeNull();
     await userEvent.click(within(warning).getByText('Show contrast now'));
