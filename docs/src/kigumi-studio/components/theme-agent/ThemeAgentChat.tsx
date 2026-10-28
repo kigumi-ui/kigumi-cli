@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -203,8 +204,10 @@ export function ThemeAgentChat({
     useThemeAgentStudio();
   // The theme on screen, against which a warning's pairs show as fixed.
   const contrastResults = useContrastResults();
-  const contrastNow = new Map(
-    contrastResults.map((result) => [violationKey(result), result])
+  const contrastNow = useMemo(
+    () =>
+      new Map(contrastResults.map((result) => [violationKey(result), result])),
+    [contrastResults]
   );
   const studioConsole = useStudioConsole();
   // The conversation module is plain state; re-render after each event.

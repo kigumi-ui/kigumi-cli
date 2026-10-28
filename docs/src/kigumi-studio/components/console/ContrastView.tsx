@@ -13,13 +13,9 @@ const MODES = [
   ['dark', 'Dark mode'],
 ] as const;
 
-export function ContrastView({
-  results,
-  failing,
-}: {
-  results: ContrastResult[];
-  failing: number;
-}) {
+/** One table per mode, a row per checked pair, under a summary of the failing ones. */
+export function ContrastView({ results }: { results: ContrastResult[] }) {
+  const failing = results.filter((result) => !result.passes).length;
   return (
     <div className="wa-stack wa-gap-m studio-contrast">
       <p className="studio-contrast__summary">

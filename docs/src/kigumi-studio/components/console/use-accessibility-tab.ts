@@ -14,6 +14,6 @@ export function useAccessibilityTab(): ConsoleTab {
     count: failing,
     countLabel:
       failing === 1 ? 'failing contrast pair' : 'failing contrast pairs',
-    content: createElement(ContrastView, { results, failing }),
+    content: createElement(ContrastView, { results }),
   };
 }

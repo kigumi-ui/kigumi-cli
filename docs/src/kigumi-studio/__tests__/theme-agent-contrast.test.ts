@@ -179,6 +179,8 @@ describe('Contrast results: every checked pair, passing or not', () => {
   it('returns every pair in both modes, light first, in CONTRAST_PAIRS order', () => {
     const results = contrastResults(readableTheme());
 
+    // Three texts on three surfaces, the form control border, the brand fill.
+    expect(CONTRAST_PAIRS).toHaveLength(11);
     expect(results).toHaveLength(CONTRAST_PAIRS.length * 2);
     expect(results.map((result) => `${result.mode} ${result.label}`)).toEqual(
       (['light', 'dark'] as const).flatMap((mode) =>
