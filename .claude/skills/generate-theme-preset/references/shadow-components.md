@@ -1,14 +1,16 @@
-# Shadow Components (35 components, 6 categories)
+# Shadow Components (21 components, 6 categories)
 
-Presets can specify which components receive `box-shadow` via the `shadowComponents` array. Values are PascalCase class names:
+Presets can specify which components receive a shadow via the `shadowComponents` array. Values are PascalCase class names. The export puts `box-shadow: var(--wa-shadow-m)` on the element that draws each component: the host (`.Card`) or a CSS part (`.Button::part(base)`), as `shadow-components.ts` records per component.
 
-| Category               | Components                                                                                         |
-| ---------------------- | -------------------------------------------------------------------------------------------------- |
-| **Actions** (6)        | Button, ButtonGroup, Dropdown, Menu, MenuItem, MenuLabel                                           |
-| **Feedback** (6)       | Alert, Badge, Callout, Tag, Toast, Tooltip                                                         |
-| **Form Controls** (10) | Checkbox, Combobox, DatePicker, FileInput, Input, Radio, RadioGroup, Select, Switch, Textarea      |
-| **Imagery** (3)        | Avatar, Carousel, ImageComparer                                                                    |
-| **Organization** (11)  | Breadcrumb, BreadcrumbItem, Card, Details, Dialog, Drawer, Tab, TabGroup, TabPanel, Tree, TreeItem |
-| **Utilities** (2)      | Popover, Popup                                                                                     |
+| Category              | Components                                                                        |
+| --------------------- | --------------------------------------------------------------------------------- |
+| **Actions** (2)       | Button, Dropdown                                                                  |
+| **Feedback** (4)      | Badge, Callout, Tag, Tooltip                                                      |
+| **Form Controls** (9) | Checkbox, Combobox, DatePicker, FileInput, Input, Radio, Select, Switch, Textarea |
+| **Imagery** (1)       | Avatar                                                                            |
+| **Organization** (4)  | Card, Details, Dialog, Drawer                                                     |
+| **Utilities** (1)     | Popover                                                                           |
 
-**Usage in JSON:** `"shadowComponents": ["Card", "Button", "Alert"]`
+A name not in the list is dropped when the preset loads.
+
+**Usage in JSON:** `"shadowComponents": ["Card", "Button", "Input"]`

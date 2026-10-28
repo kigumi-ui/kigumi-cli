@@ -98,12 +98,19 @@ export function buildPreviewStyle(
     delete style['--wa-shadow-opacity'];
   }
 
-  // Neutralize WA built-in shadows: shadows are opt-in via shadowComponents only.
-  // Components like Card have box-shadow: var(--wa-shadow-m) in their Shadow DOM.
-  // Setting these to 'none' disables all native shadows; the shadowComponents system
-  // uses filter: drop-shadow() independently and is NOT affected.
+  // --wa-shadow-m, the size the shadow components use, is Web Awesome's own
+  // formula declared again here: the theme declares it at the document root,
+  // where Studio's values are not set, so it would never follow them.
+  // Declared beside the values, it resolves from them.
+  for (const part of ['offset-x', 'offset-y', 'blur', 'spread']) {
+    style[`--wa-shadow-${part}-m`] =
+      `calc(var(--wa-shadow-${part}-scale) * 0.25rem)`;
+  }
+  style['--wa-shadow-m'] =
+    'var(--wa-shadow-offset-x-m) var(--wa-shadow-offset-y-m) var(--wa-shadow-blur-m) var(--wa-shadow-spread-m) var(--wa-color-shadow)';
+
+  // The other sizes stay off: shadows are opt-in via shadowComponents.
   style['--wa-shadow-s'] = 'none';
-  style['--wa-shadow-m'] = 'none';
   style['--wa-shadow-l'] = 'none';
   style['--wa-shadow-xl'] = 'none';
 

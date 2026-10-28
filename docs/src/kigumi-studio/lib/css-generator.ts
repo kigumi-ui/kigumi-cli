@@ -9,6 +9,7 @@ import {
 } from './color-utils';
 import { DEFAULT_VALUES, type ThemeValue } from './defaults';
 import { PROPERTY_DEFINITIONS } from './property-definitions';
+import { shadowComponent, shadowSelector } from './shadow-components';
 
 const SEMANTIC_GROUPS: SemanticColorGroup[] = [
   'success',
@@ -33,14 +34,20 @@ function formatBlock(
 }
 
 /**
- * Generate CSS rules for components that should receive box-shadow.
+ * The shadow rules for the components that get a shadow, one per component
+ * on the element that draws it (`shadowSelector`); a name not in the list
+ * gets none. The export writes them and the preview applies them, scoped.
  */
-function formatShadowRules(classNames: string[]): string {
-  if (classNames.length === 0) return '';
-
+export function formatShadowRules(classNames: string[]): string {
   const rules = classNames
-    .map((className) => `.${className} {\n  box-shadow: var(--wa-shadow-m);\n}`)
+    .map(shadowComponent)
+    .filter((comp) => comp !== undefined)
+    .map(
+      (comp) =>
+        `${shadowSelector(comp)} {\n  box-shadow: var(--wa-shadow-m);\n}`
+    )
     .join('\n\n');
+  if (!rules) return '';
 
   return `/* Component Shadows */\n${rules}`;
 }
