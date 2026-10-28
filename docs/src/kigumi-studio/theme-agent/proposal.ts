@@ -61,6 +61,8 @@ function valueError(
   property: PropertyDefinition,
   value: string
 ): string | undefined {
+  // Empty unsets a value that follows another, such as the brand fill.
+  if (property.follows && value === '') return undefined;
   switch (property.inputType) {
     case 'color':
       // The sidebar's colour picker, the brand palette and the shadow colour

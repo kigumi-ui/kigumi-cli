@@ -15,11 +15,23 @@ describe('PROPERTY_DEFINITIONS', () => {
   });
 
   it('all properties have defaultLight and defaultDark defined', () => {
-    for (const prop of PROPERTY_DEFINITIONS) {
+    // A value that follows another is unset by default: ''.
+    for (const prop of PROPERTY_DEFINITIONS.filter((p) => !p.follows)) {
       expect(prop.defaultLight).toBeDefined();
       expect(prop.defaultLight.length).toBeGreaterThan(0);
       expect(prop.defaultDark).toBeDefined();
       expect(prop.defaultDark.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('leaves a value that follows another unset by default', () => {
+    const following = PROPERTY_DEFINITIONS.filter((p) => p.follows);
+    expect(following.map((p) => p.cssVar)).toEqual([
+      '--wa-color-brand-fill-loud',
+    ]);
+    for (const prop of following) {
+      expect([prop.defaultLight, prop.defaultDark]).toEqual(['', '']);
+      expect(PROPERTIES_BY_VAR.has(prop.follows ?? '')).toBe(true);
     }
   });
 

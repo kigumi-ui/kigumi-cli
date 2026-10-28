@@ -143,7 +143,6 @@ describe('Theme Agent contrast check', () => {
         foreground: '--wa-color-brand-on-loud',
         background: '--wa-color-brand-fill-loud',
         minimum: 4.5,
-        setBy: '--wa-color-brand',
       })
     );
   });
@@ -194,11 +193,15 @@ describe('Theme Agent contrast: which violations go back to the model', () => {
     expect(correctableViolations([quiet], [quiet])).toEqual([quiet]);
   });
 
-  it('never sends back a pair another value sets, such as the brand fill', () => {
-    const pair = CONTRAST_PAIRS.find((p) => p.setBy);
-    if (!pair) throw new Error('no checked pair is set by another value');
+  it('sends back the brand fill pair, set or unset: the fill fixes it, not the brand', () => {
+    const pair = CONTRAST_PAIRS.find(
+      (p) => p.background === '--wa-color-brand-fill-loud'
+    );
+    if (!pair) throw new Error('the brand fill pair is not checked');
     const brandFill = violation({ ...pair, ratio: 4.2 });
-    expect(correctableViolations([brandFill], [brandFill])).toEqual([]);
+    expect(correctableViolations([brandFill], [brandFill])).toEqual([
+      brandFill,
+    ]);
   });
 
   it('leaves out a pair the held values fix', () => {
@@ -259,11 +262,13 @@ describe('Theme Agent contrast: locked values behind a violation', () => {
     ]);
   });
 
-  it('names the brand behind the brand fill', () => {
-    // No brand fails the brand fill today; the pair is still checked, so a
-    // failing one names the value that sets it.
-    const pair = CONTRAST_PAIRS.find((p) => p.setBy);
-    if (!pair) throw new Error('no checked pair is set by another value');
+  it('names the locked fill behind an unset brand fill, never the brand', () => {
+    // No brand fails the fill Studio derives today; the pair is still
+    // checked, so a failing one names the value that fixes it: the fill.
+    const pair = CONTRAST_PAIRS.find(
+      (p) => p.background === '--wa-color-brand-fill-loud'
+    );
+    if (!pair) throw new Error('the brand fill pair is not checked');
     const brandFill: ContrastViolation = {
       ...pair,
       mode: 'light',
@@ -272,7 +277,62 @@ describe('Theme Agent contrast: locked values behind a violation', () => {
       ratio: 4.2,
     };
     expect(
+      lockedSources(
+        brandFill,
+        valueLock('--wa-color-brand-fill-loud', ['light'])
+      )
+    ).toEqual(['--wa-color-brand-fill-loud']);
+    expect(
       lockedSources(brandFill, valueLock('--wa-color-brand', ['light', 'dark']))
-    ).toEqual(['--wa-color-brand']);
+    ).toEqual([]);
+  });
+});
+
+describe('Theme Agent contrast: a brand fill the user set', () => {
+  const FILL = '--wa-color-brand-fill-loud';
+
+  function withLightFill(fill: string): CustomTheme {
+    const theme = readableTheme();
+    theme.light[FILL] = fill;
+    return theme;
+  }
+
+  it('reports a set fill that fails under white text as its own pair', () => {
+    // #22c55e carries white text at about 2.3:1.
+    const violations = checkContrast(withLightFill('#22c55e'));
+
+    expect(violations).toEqual([
+      expect.objectContaining({
+        mode: 'light',
+        foreground: '--wa-color-brand-on-loud',
+        background: FILL,
+        foregroundColor: 'white',
+        backgroundColor: '#22c55e',
+      }),
+    ]);
+    expect(violations[0].ratio).toBeLessThan(4.5);
+  });
+
+  it('passes a set fill that carries white text', () => {
+    expect(checkContrast(withLightFill('#003d82'))).toEqual([]);
+  });
+
+  it('sends a failing set fill back to the model to correct', () => {
+    const violations = checkContrast(withLightFill('#22c55e'));
+    expect(correctableViolations(violations, violations)).toEqual(violations);
+  });
+
+  it('names the fill when the user locked it, not the brand', () => {
+    const [violation] = checkContrast(withLightFill('#22c55e'));
+    const fillLocked = withLocks(NO_LOCKS, valueLock(FILL, ['light']), true);
+    const brandLocked = withLocks(
+      NO_LOCKS,
+      valueLock('--wa-color-brand', ['light']),
+      true
+    );
+
+    expect(lockedSources(violation, fillLocked)).toEqual([FILL]);
+    expect(lockedSources(violation, brandLocked)).toEqual([]);
+    expect(lockedSources(violation, NO_LOCKS)).toEqual([]);
   });
 });

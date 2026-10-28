@@ -6,6 +6,7 @@ import {
 } from '../lib/defaults';
 import type { LockedValues } from '../lib/locks';
 import { buildPreviewStyle } from '../lib/preview-style';
+import { PROPERTIES_BY_VAR } from '../lib/property-definitions';
 import type { CustomTheme } from './custom-theme';
 
 // Shared by the browser and the trigger.dev task (docs/trigger): the task
@@ -18,8 +19,6 @@ interface ContrastPair {
   /** How the chat names the pair, e.g. "quiet text on the lowered surface". */
   label: string;
   minimum: number;
-  /** The Studio value that sets a derived colour, when it is not the pair's own. */
-  setBy?: string;
 }
 
 const TEXT = [
@@ -52,14 +51,14 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
     label: 'form control border on its background',
     minimum: 3,
   },
-  // What the preview paints for brand-filled controls: Studio derives the
-  // fill from the brand colour, and its text is the on-colour.
+  // What the preview paints for brand-filled controls: the brand fill the
+  // user set, else what Studio derives from the brand colour; its text is
+  // the on-colour. The fill fixes the pair, never the brand (ADR 0015).
   {
     foreground: '--wa-color-brand-on-loud',
     background: '--wa-color-brand-fill-loud',
     label: 'text on the brand fill',
     minimum: 4.5,
-    setBy: '--wa-color-brand',
   },
 ];
 
@@ -74,7 +73,6 @@ export interface ContrastViolation {
   /** `null` when a colour could not be resolved, which never passes. */
   ratio: number | null;
   minimum: number;
-  setBy?: string;
 }
 
 interface Rgba {
@@ -239,7 +237,6 @@ export function checkContrast(theme: CustomTheme): ContrastViolation[] {
         backgroundColor,
         ratio,
         minimum: pair.minimum,
-        ...(pair.setBy ? { setBy: pair.setBy } : {}),
       });
     }
   }
@@ -254,34 +251,31 @@ export function violationKey(violation: ContrastViolation): string {
 /**
  * The violations that go back to the model to correct: `violations` less the
  * pairs the held values fix (those not in `leftWithHeld`, the violations of
- * the theme with the held values applied) and less every pair another value
- * sets. That is the brand fill, derived from the brand, which is the user's:
- * it is reported, never corrected. Studio derives the fill where white text
- * passes for every brand, so it fails only if that derivation changes.
+ * the theme with the held values applied). The brand fill pair is one of
+ * them, set or unset: the fill fixes it, never the brand (ADR 0015).
  */
 export function correctableViolations(
   violations: ContrastViolation[],
   leftWithHeld: ContrastViolation[]
 ): ContrastViolation[] {
   const left = new Set(leftWithHeld.map(violationKey));
-  return violations.filter(
-    (violation) => !violation.setBy && left.has(violationKey(violation))
-  );
+  return violations.filter((violation) => left.has(violationKey(violation)));
 }
 
 /**
  * The locked Studio values behind `violation` when every value behind it is
  * locked in its mode, so the Theme Agent may not fix it; none while one is
- * free to change. Behind a pair are its two colours, or the value that sets
- * a derived one (the brand behind the brand fill).
+ * free to change. Behind a pair are its colours that are Studio values: for
+ * the brand fill pair, the fill, set or unset, since its on-colour is no
+ * Studio value.
  */
 export function lockedSources(
   violation: ContrastViolation,
   locked: LockedValues
 ): string[] {
-  const sources = violation.setBy
-    ? [violation.setBy]
-    : [violation.foreground, violation.background];
+  const sources = [violation.foreground, violation.background].filter(
+    (cssVar) => PROPERTIES_BY_VAR.has(cssVar)
+  );
   const lockedInMode = locked[violation.mode];
   return sources.every((cssVar) => lockedInMode.includes(cssVar))
     ? sources
@@ -301,8 +295,7 @@ export function formatRatio(ratio: number): string {
  */
 export function violationFeedback(violation: ContrastViolation): string {
   const colours = `${violation.foreground} ${violation.foregroundColor} on ${violation.background} ${violation.backgroundColor}`;
-  const setBy = violation.setBy ? `, set by ${violation.setBy}` : '';
-  return `${summarizeViolation(violation)} (${colours}${setBy})`;
+  return `${summarizeViolation(violation)} (${colours})`;
 }
 
 /** Mode and pair, e.g. "Dark mode, quiet text on the lowered surface". */

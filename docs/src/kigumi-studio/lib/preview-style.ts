@@ -7,11 +7,13 @@ import {
   generateTextVariables,
   type SemanticColorGroup,
 } from './color-utils';
+import { BRAND_FILL, userBrandFill } from './brand-fill';
 
 /**
  * The CSS custom properties the Studio preview sets for one mode: every
  * sidebar value plus the variables Studio derives from them (brand and
- * semantic palettes, surfaces and text from neutral, the shadow colour).
+ * semantic palettes, surfaces and text from neutral, the shadow colour, the
+ * brand fill while unset).
  * Shared by the preview and the Theme Agent's contrast check, so the check
  * reads the colours the preview paints.
  */
@@ -49,6 +51,9 @@ export function buildPreviewStyle(
       style[key] = val;
     }
   }
+  // A brand fill the user set replaces the derived one, in its mode only.
+  const fill = userBrandFill(values, mode);
+  if (fill) style[BRAND_FILL] = fill;
 
   // Generate derived semantic color variables for success, warning, danger, neutral
   const semanticGroups: SemanticColorGroup[] = [

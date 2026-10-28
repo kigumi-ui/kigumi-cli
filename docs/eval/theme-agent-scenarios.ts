@@ -1,9 +1,9 @@
 import type { ModelMessage } from 'ai';
 import { THEME_AGENT_PROPOSE_TOOL } from '../src/kigumi-studio/theme-agent/constants';
 import {
-  CONTRAST_PAIRS,
+  checkContrast,
   paintedStyle,
-  violationFeedback,
+  summarizeViolation,
 } from '../src/kigumi-studio/theme-agent/contrast';
 import type {
   CustomTheme,
@@ -16,11 +16,7 @@ import {
   validateProposal,
   type ThemeProposal,
 } from '../src/kigumi-studio/theme-agent/proposal';
-import {
-  contrastRatio,
-  generateBrandPalette,
-  hexToOklch,
-} from '../src/kigumi-studio/lib/color-utils';
+import { hexToOklch } from '../src/kigumi-studio/lib/color-utils';
 import { DEFAULT_VALUES } from '../src/kigumi-studio/lib/defaults';
 import { CUSTOM_CSS_LOCK, NO_LOCKS } from '../src/kigumi-studio/lib/locks';
 
@@ -30,6 +26,7 @@ import { CUSTOM_CSS_LOCK, NO_LOCKS } from '../src/kigumi-studio/lib/locks';
 // theme-agent.eval.ts; these judges are proven in the unit tests.
 
 const BRAND = '--wa-color-brand';
+const FILL = '--wa-color-brand-fill-loud';
 const SURFACE = '--wa-color-surface-default';
 const LIGHT_SURFACES = [
   '--wa-color-surface-raised',
@@ -145,28 +142,6 @@ function redBrandHeld(
 }
 
 /**
- * The brand is proposed and held, and it is another brand than the one the
- * warning was about. Every brand passes the brand fill Studio derives, so
- * any other brand fixes it.
- */
-function brandFillFixHeld(
-  proposals: ThemeProposal[],
-  snapshot: ThemeAgentSnapshot
-): Verdict {
-  const verdict = brandHeld(proposals, snapshot);
-  if (!verdict.pass) return verdict;
-  const { held } = asStudioTakesIt(proposals, snapshot);
-  const brand = held.light[BRAND] ?? held.dark[BRAND];
-  if (brand.toLowerCase() === snapshot.theme.light[BRAND].toLowerCase()) {
-    return {
-      pass: false,
-      reason: `${verdict.reason}, but it is the brand it already has`,
-    };
-  }
-  return verdict;
-}
-
-/**
  * A light surface the preview paints changes; the locked dark surface does
  * not, whether the model left it out or Studio held it. Any light surface
  * counts: Studio paints the default and raised ones white whatever the
@@ -215,7 +190,10 @@ function lightSurfaceChanged(
   };
 }
 
-/** A mood leaves the brand alone: it is the user's. */
+/**
+ * A mood leaves the brand alone, since it is the user's, and the unset
+ * brand fill too, which would stop following the brand once set.
+ */
 function brandLeftAlone(
   proposals: ThemeProposal[],
   snapshot: ThemeAgentSnapshot
@@ -229,9 +207,48 @@ function brandLeftAlone(
       reason: `${BRAND} was proposed as ${brand} for a mood; the brand is the user's`,
     };
   }
+  const fill = merged.light[FILL] ?? merged.dark[FILL];
+  if (fill !== undefined) {
+    return {
+      pass: false,
+      reason: `${FILL} was set to ${fill} for a mood; unset, it follows the brand`,
+    };
+  }
   return {
     pass: true,
     reason: `${BRAND} left alone; proposed: ${describeProposal(merged)}`,
+  };
+}
+
+/**
+ * A failing brand fill the user set is corrected like any other value: by
+ * a new fill that carries white text in both modes, never by the brand.
+ */
+function setFillCorrected(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+): Verdict {
+  if (proposals.length === 0) return NO_PROPOSAL;
+  const { merged, applied } = asStudioTakesIt(proposals, snapshot);
+  const brand = merged.light[BRAND] ?? merged.dark[BRAND];
+  if (brand !== undefined) {
+    return {
+      pass: false,
+      reason: `${BRAND} was proposed as ${brand} to fix the brand fill; the brand is the user's, the fill is the value to change`,
+    };
+  }
+  const left = checkContrast(applied).filter(
+    (violation) => violation.background === FILL
+  );
+  if (left.length > 0) {
+    return {
+      pass: false,
+      reason: `applied, it still fails: ${left.map(summarizeViolation).join('; ')}; proposed: ${describeProposal(merged)}`,
+    };
+  }
+  return {
+    pass: true,
+    reason: `the brand fill is now ${applied.light[FILL]} in light mode and ${applied.dark[FILL]} in dark mode`,
   };
 }
 
@@ -418,80 +435,13 @@ function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
   };
 }
 
+/** A brand fill the user set, under white text at about 2.3:1. */
+const FAILING_FILL = '#22c55e';
+
 const CARD_HEADER_RULE =
   'No border on cards, only a bottom rule on the header part.';
 
 const BRAND_LOCKED = { ...NO_LOCKS, light: [BRAND], dark: [BRAND] };
-
-/** A green brand, the subject of a brand fill warning. */
-const WARNED_GREEN = '#22c55e';
-const BRAND_FILL = CONTRAST_PAIRS.find((pair) => pair.setBy === BRAND);
-if (!BRAND_FILL) throw new Error('no checked pair is set by the brand');
-/**
- * A brand fill warning for the green brand, written as the task writes one.
- * No brand fails the brand fill Studio derives (palette step 40), so the
- * warning is built from the green's step 50 under white text, where it
- * fails: the scenario is the model's answer to "improve" after it.
- */
-const GREEN_STEP_50 = generateBrandPalette(WARNED_GREEN)['50'];
-const GREEN_BRAND_FILL_WARNING = (['light', 'dark'] as const).map((mode) =>
-  violationFeedback({
-    ...BRAND_FILL,
-    mode,
-    foregroundColor: 'white',
-    backgroundColor: GREEN_STEP_50,
-    ratio: contrastRatio('#ffffff', GREEN_STEP_50),
-  })
-);
-const greenTheme = studioTheme({
-  light: { [BRAND]: WARNED_GREEN },
-  dark: { [BRAND]: WARNED_GREEN },
-});
-
-/**
- * The answer that set the green brand: accepted, with the brand fill pair
- * reported (never corrected unasked), as the task's tool returned it.
- */
-const greenAnswer: ModelMessage[] = [
-  { role: 'user', content: `A fresh green theme, brand ${WARNED_GREEN}.` },
-  {
-    role: 'assistant',
-    content: [
-      {
-        type: 'tool-call',
-        toolCallId: 'call-green',
-        toolName: THEME_AGENT_PROPOSE_TOOL,
-        input: { light: { [BRAND]: WARNED_GREEN }, dark: {} },
-      },
-    ],
-  },
-  {
-    role: 'tool',
-    content: [
-      {
-        type: 'tool-result',
-        toolCallId: 'call-green',
-        toolName: THEME_AGENT_PROPOSE_TOOL,
-        output: {
-          type: 'json',
-          value: {
-            accepted: true,
-            errors: [],
-            contrast: GREEN_BRAND_FILL_WARNING,
-            correctContrast: false,
-            lockedContrast: [],
-            locked: [],
-          },
-        },
-      },
-    ],
-  },
-  {
-    role: 'assistant',
-    content:
-      'Your brand is now a fresh green. Text on the brand fill falls short of 4.5:1 in both modes; the brand is yours, so I left it as it is.',
-  },
-];
 
 export const SCENARIOS: EvalScenario[] = [
   {
@@ -505,14 +455,16 @@ export const SCENARIOS: EvalScenario[] = [
   {
     id: 'locked-brand-improve-fill',
     description:
-      'Brand locked, "improve" after a brand fill contrast warning: the brand is proposed and held',
+      'Brand locked, a failing brand fill the user set, "improve": the fill is corrected, the locked brand not proposed',
     snapshot: {
-      theme: greenTheme,
+      theme: studioTheme({
+        light: { [FILL]: FAILING_FILL },
+        dark: { [FILL]: FAILING_FILL },
+      }),
       locked: BRAND_LOCKED,
-      previous: { status: 'applied', held: [], errors: [] },
     },
-    messages: [...greenAnswer, { role: 'user', content: 'improve' }],
-    judge: brandFillFixHeld,
+    messages: [{ role: 'user', content: 'improve' }],
+    judge: setFillCorrected,
   },
   {
     id: 'locked-dark-surface-warmer',
@@ -532,6 +484,20 @@ export const SCENARIOS: EvalScenario[] = [
     snapshot: { theme: studioTheme(), locked: NO_LOCKS },
     messages: [{ role: 'user', content: 'Make it warmer.' }],
     judge: brandLeftAlone,
+  },
+  {
+    id: 'set-fill-corrected',
+    description:
+      'Nothing locked, a failing brand fill the user set, "make the corners rounder": the fill is corrected in both modes, the brand left alone',
+    snapshot: {
+      theme: studioTheme({
+        light: { [FILL]: FAILING_FILL },
+        dark: { [FILL]: FAILING_FILL },
+      }),
+      locked: NO_LOCKS,
+    },
+    messages: [{ role: 'user', content: 'Make the corners rounder.' }],
+    judge: setFillCorrected,
   },
   {
     id: 'card-header-rule',
