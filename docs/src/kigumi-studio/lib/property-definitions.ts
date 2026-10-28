@@ -39,6 +39,11 @@ export interface PropertyDefinition {
   step?: number;
   unit?: string;
   description?: string;
+  /**
+   * The Studio value this one is derived from while unset. Its default is
+   * `''`, unset: the preview and the export use what Studio derives.
+   */
+  follows?: string;
 }
 
 export interface PropertyGroupInfo {
@@ -149,6 +154,18 @@ export const PROPERTY_DEFINITIONS: PropertyDefinition[] = [
     defaultDark: '#0071ec',
     modeDependent: false,
     description: 'Primary brand color used for accents, buttons, and links',
+  },
+  {
+    cssVar: '--wa-color-brand-fill-loud',
+    label: 'Brand Fill',
+    group: 'colors-brand',
+    inputType: 'color',
+    defaultLight: '',
+    defaultDark: '',
+    modeDependent: true,
+    follows: '--wa-color-brand',
+    description:
+      'Fill of brand buttons and badges, under white text; unset, palette step 40 of the brand',
   },
 
   // ── Colors - Surface ──

@@ -7,6 +7,12 @@ import {
   generateTextVariables,
   type SemanticColorGroup,
 } from './color-utils';
+import {
+  BRAND,
+  BRAND_FILL,
+  derivedBrandFill,
+  setBrandFill,
+} from './brand-fill';
 import { DEFAULT_VALUES, type ThemeValue } from './defaults';
 import { PROPERTY_DEFINITIONS } from './property-definitions';
 
@@ -225,7 +231,8 @@ export function generateThemeCSS(
 /**
  * The values the export writes, per mode: every Studio value that differs
  * from its default, with unit, and what Studio derives from the colour
- * groups (palettes, semantic variables, surfaces and text from neutral).
+ * groups (palettes, semantic variables, surfaces and text from neutral). A
+ * brand fill the user set replaces the derived one in its mode.
  */
 export function modifiedProperties(values: Record<string, ThemeValue>): {
   light: Record<string, string>;
@@ -296,14 +303,24 @@ export function modifiedProperties(values: Record<string, ThemeValue>): {
     }
     for (const [key, val] of Object.entries(variables(baseHex, 'light'))) {
       if (key === cssVar) continue;
+      if (key === BRAND_FILL && setBrandFill(values, 'light')) continue;
       light[key] = val;
     }
     // Dark: skip palette steps (already in light/root), only add semantic vars
     for (const [key, val] of Object.entries(variables(baseHex, 'dark'))) {
       if (key === cssVar) continue;
       if (paletteStepRegex.test(key)) continue;
+      if (key === BRAND_FILL && setBrandFill(values, 'dark')) continue;
       dark[key] = val;
     }
+  }
+
+  // A brand fill set in one mode only: the other mode gets the derived one,
+  // or a project's :root fill would paint dark mode too.
+  if (!isBaseModified(BRAND) && (BRAND_FILL in light || BRAND_FILL in dark)) {
+    const brandHex = values[BRAND].light;
+    light[BRAND_FILL] ??= derivedBrandFill(brandHex, 'light');
+    dark[BRAND_FILL] ??= derivedBrandFill(brandHex, 'dark');
   }
 
   // 3. Auto-derive surface/text from neutral (only for unmodified properties)

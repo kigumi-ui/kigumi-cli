@@ -30,6 +30,7 @@ import { modifiedProperties } from '../lib/css-generator';
 import { withImportedValues } from '../lib/theme-css';
 import { AVAILABLE_FONTS } from '../lib/font-definitions';
 import { buildPreviewStyle } from '../lib/preview-style';
+import { withDerivedBrandFillUnset } from '../lib/brand-fill';
 
 const STORAGE_KEY = 'kigumi-studio-state';
 const STORAGE_VERSION = '2.0';
@@ -119,7 +120,7 @@ function loadInitialValues(
   const base = cloneDefaults();
   if (!persisted?.modifiedProperties) return base;
 
-  const imported: Record<string, { light?: string; dark?: string }> = {};
+  let imported: Record<string, { light?: string; dark?: string }> = {};
   for (const [cssVar, value] of Object.entries(
     persisted.modifiedProperties.light
   )) {
@@ -130,6 +131,10 @@ function loadInitialValues(
   )) {
     imported[cssVar] = { ...imported[cssVar], dark: value };
   }
+
+  // The stored state is the export, which writes the derived brand fill
+  // with every changed brand: kept as a value, it would stop following it.
+  imported = withDerivedBrandFillUnset(imported);
 
   for (const [cssVar, modes] of Object.entries(imported)) {
     if (!base[cssVar]) continue;

@@ -106,8 +106,8 @@ describe('Theme Agent conversation: rejected proposals', () => {
   const refused: Array<[string, unknown, string]> = [
     [
       'a property the sidebar does not offer',
-      { light: { '--wa-color-brand-fill-loud': '#0891b2' }, dark: {} },
-      'light --wa-color-brand-fill-loud: not a Studio property',
+      { light: { '--wa-color-brand-fill-normal': '#0891b2' }, dark: {} },
+      'light --wa-color-brand-fill-normal: not a Studio property',
     ],
     [
       'a font outside the font list',

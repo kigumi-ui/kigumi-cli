@@ -15,8 +15,13 @@ interface PropertyRowProps {
 }
 
 export function PropertyRow({ property, style }: PropertyRowProps) {
-  const { values, editMode, setProperty, isModified } = useStudio();
+  const { values, editMode, setProperty, isModified, getStyleObject } =
+    useStudio();
   const currentValue = values[property.cssVar]?.[editMode] ?? '';
+  // Unset, a value that follows another shows what the preview paints.
+  const derived = property.follows
+    ? getStyleObject(editMode)[property.cssVar]
+    : undefined;
   const modified = isModified(property.cssVar);
   // Locked for the Theme Agent: disabled until unlocked, as Web Awesome
   // shows a disabled control.
@@ -35,6 +40,7 @@ export function PropertyRow({ property, style }: PropertyRowProps) {
         <PropertyControl
           property={property}
           value={currentValue}
+          derived={derived}
           disabled={lock.locked}
           onChange={(val) => setProperty(property.cssVar, val)}
         />
@@ -47,6 +53,8 @@ export function PropertyRow({ property, style }: PropertyRowProps) {
 interface PropertyControlProps {
   property: PropertyDefinition;
   value: string;
+  /** What the preview paints while `value` is unset (`property.follows`). */
+  derived?: string;
   disabled: boolean;
   onChange: (value: string) => void;
 }
@@ -54,13 +62,19 @@ interface PropertyControlProps {
 function PropertyControl({
   property,
   value,
+  derived,
   disabled,
   onChange,
 }: PropertyControlProps) {
   switch (property.inputType) {
     case 'color':
       return (
-        <ColorControl value={value} disabled={disabled} onChange={onChange} />
+        <ColorControl
+          value={value}
+          derived={derived}
+          disabled={disabled}
+          onChange={onChange}
+        />
       );
     case 'slider':
       return (
@@ -97,10 +111,12 @@ function PropertyControl({
 
 function ColorControl({
   value,
+  derived,
   disabled,
   onChange,
 }: {
   value: string;
+  derived?: string;
   disabled: boolean;
   onChange: (v: string) => void;
 }) {
@@ -119,7 +135,8 @@ function ColorControl({
   );
 
   // Ensure the color picker always gets a valid 7-char hex (native requires #rrggbb)
-  const pickerValue = value.match(/^#[0-9a-fA-F]{6}$/) ? value : '#000000';
+  const shown = value || derived || '';
+  const pickerValue = shown.match(/^#[0-9a-fA-F]{6}$/) ? shown : '#000000';
 
   return (
     <div className="property-row__color-control">
@@ -134,6 +151,7 @@ function ColorControl({
         type="text"
         className="property-row__color-text"
         value={value}
+        placeholder={derived}
         disabled={disabled}
         onChange={handleText}
         spellCheck={false}

@@ -377,6 +377,20 @@ describe('Theme Agent turn', () => {
     );
   });
 
+  it('tells the model an empty brand fill follows the brand and a set one is corrected like any value', async () => {
+    const text = await systemPrompt(snapshot);
+    const fill = text
+      .split('\n')
+      .find((line) => line.startsWith('- --wa-color-brand-fill-loud is'));
+    expect(fill).toMatch(/Empty \(""\) follows the brand/);
+    expect(fill).toMatch(/leave it empty unless the latest message asks/);
+    expect(fill).toMatch(/correct a failing brand fill pair by changing it/);
+    const brand = text
+      .split('\n')
+      .find((line) => line.includes("brand colour is the user's"));
+    expect(brand).toMatch(/while --wa-color-brand-fill-loud is empty/);
+  });
+
   it('tells the model an earlier held change can no longer be applied from the chat', async () => {
     // The model sent the user up to an older answer whose button was gone.
     const text = await systemPrompt(lockedSnapshot);
@@ -509,6 +523,53 @@ describe('Theme Agent turn: contrast', () => {
       'quiet text on the raised surface'
     );
     expect(await result.text).toContain('still too light');
+  });
+
+  it('sends a failing brand fill the user set back, and takes a new fill', async () => {
+    // The user set a light green fill: white text on it is about 2.3:1.
+    const greenFill: ThemeAgentSnapshot = {
+      ...snapshot,
+      theme: {
+        ...snapshot.theme,
+        light: {
+          ...readableProposal.light,
+          '--wa-color-brand-fill-loud': '#22c55e',
+        },
+        dark: readableProposal.dark,
+      },
+    };
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-border-radius-scale': '2' },
+          dark: {},
+        }),
+        proposalStep('call-2', {
+          light: { '--wa-color-brand-fill-loud': '#15803d' },
+          dark: {},
+        }),
+        textStep('Rounder corners, and a darker brand fill for white text.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: greenFill,
+    });
+    await result.consumeStream();
+
+    const [first, second] = toolResults(model).map(
+      (output) => (output as { value: ProposeOutput }).value
+    );
+    expect(first.correctContrast).toBe(true);
+    expect(first.contrast).toEqual([
+      expect.stringMatching(
+        /^Light mode, text on the brand fill: 2\.\d\d:1, needs 4\.5:1 \(--wa-color-brand-on-loud white on --wa-color-brand-fill-loud #22c55e\)$/
+      ),
+    ]);
+    expect(second).toMatchObject({ contrast: [], correctContrast: false });
   });
 
   it('refuses a proposal after the corrections are used up', async () => {
@@ -715,6 +776,52 @@ describe('Theme Agent turn: contrast a locked value causes', () => {
     expect(second.correctContrast).toBe(false);
     expect(second.locked).toEqual(['--wa-color-text-quiet (light mode)']);
     expect(model.doStreamCalls).toHaveLength(3);
+  });
+
+  it('asks for the fix of a failing brand fill the user set and locked, which Studio holds', async () => {
+    const model = new MockLanguageModelV4({
+      doStream: [
+        proposalStep('call-1', {
+          light: { '--wa-border-radius-scale': '2' },
+          dark: {},
+        }),
+        proposalStep('call-2', {
+          light: { '--wa-color-brand-fill-loud': '#15803d' },
+          dark: {},
+        }),
+        textStep('The brand fill is locked; unlock and apply the darker one.'),
+      ],
+    });
+
+    const result = themeAgentTurn({
+      streamText,
+      model,
+      messages,
+      snapshot: {
+        theme: {
+          ...snapshot.theme,
+          light: {
+            ...readableProposal.light,
+            '--wa-color-brand-fill-loud': '#22c55e',
+          },
+          dark: readableProposal.dark,
+        },
+        locked: { ...NO_LOCKS, light: ['--wa-color-brand-fill-loud'] },
+      },
+    });
+    await result.consumeStream();
+
+    const [first, second] = toolResults(model).map(
+      (o) => (o as { value: LockedOutput }).value
+    );
+    expect(first.correctContrast).toBe(true);
+    expect(first.lockedContrast).toEqual([
+      expect.stringMatching(
+        /^Light mode, text on the brand fill: .*; locked: --wa-color-brand-fill-loud$/
+      ),
+    ]);
+    expect(second.correctContrast).toBe(false);
+    expect(second.locked).toEqual(['--wa-color-brand-fill-loud (light mode)']);
   });
 
   it('needs no correction round when a held value already fixes the pair', async () => {

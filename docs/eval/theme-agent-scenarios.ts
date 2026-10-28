@@ -2,7 +2,9 @@ import type { ModelMessage } from 'ai';
 import { THEME_AGENT_PROPOSE_TOOL } from '../src/kigumi-studio/theme-agent/constants';
 import {
   CONTRAST_PAIRS,
+  checkContrast,
   paintedStyle,
+  summarizeViolation,
   violationFeedback,
 } from '../src/kigumi-studio/theme-agent/contrast';
 import type {
@@ -30,6 +32,7 @@ import { CUSTOM_CSS_LOCK, NO_LOCKS } from '../src/kigumi-studio/lib/locks';
 // theme-agent.eval.ts; these judges are proven in the unit tests.
 
 const BRAND = '--wa-color-brand';
+const FILL = '--wa-color-brand-fill-loud';
 const SURFACE = '--wa-color-surface-default';
 const LIGHT_SURFACES = [
   '--wa-color-surface-raised',
@@ -215,7 +218,10 @@ function lightSurfaceChanged(
   };
 }
 
-/** A mood leaves the brand alone: it is the user's. */
+/**
+ * A mood leaves the brand alone, since it is the user's, and the unset
+ * brand fill too, which would stop following the brand once set.
+ */
 function brandLeftAlone(
   proposals: ThemeProposal[],
   snapshot: ThemeAgentSnapshot
@@ -229,9 +235,48 @@ function brandLeftAlone(
       reason: `${BRAND} was proposed as ${brand} for a mood; the brand is the user's`,
     };
   }
+  const fill = merged.light[FILL] ?? merged.dark[FILL];
+  if (fill !== undefined) {
+    return {
+      pass: false,
+      reason: `${FILL} was set to ${fill} for a mood; unset, it follows the brand`,
+    };
+  }
   return {
     pass: true,
     reason: `${BRAND} left alone; proposed: ${describeProposal(merged)}`,
+  };
+}
+
+/**
+ * A failing brand fill the user set is corrected like any other value: by
+ * a new fill that carries white text in both modes, never by the brand.
+ */
+function setFillCorrected(
+  proposals: ThemeProposal[],
+  snapshot: ThemeAgentSnapshot
+): Verdict {
+  if (proposals.length === 0) return NO_PROPOSAL;
+  const { merged, applied } = asStudioTakesIt(proposals, snapshot);
+  const brand = merged.light[BRAND] ?? merged.dark[BRAND];
+  if (brand !== undefined) {
+    return {
+      pass: false,
+      reason: `${BRAND} was proposed as ${brand} to fix the brand fill; the brand is the user's, the fill is the value to change`,
+    };
+  }
+  const left = checkContrast(applied).filter(
+    (violation) => violation.background === FILL
+  );
+  if (left.length > 0) {
+    return {
+      pass: false,
+      reason: `applied, it still fails: ${left.map(summarizeViolation).join('; ')}; proposed: ${describeProposal(merged)}`,
+    };
+  }
+  return {
+    pass: true,
+    reason: `the brand fill is now ${applied.light[FILL]} in light mode and ${applied.dark[FILL]} in dark mode`,
   };
 }
 
@@ -418,6 +463,9 @@ function studioTheme(overrides: Partial<CustomTheme> = {}): CustomTheme {
   };
 }
 
+/** A brand fill the user set, under white text at about 2.3:1. */
+const FAILING_FILL = '#22c55e';
+
 const CARD_HEADER_RULE =
   'No border on cards, only a bottom rule on the header part.';
 
@@ -532,6 +580,20 @@ export const SCENARIOS: EvalScenario[] = [
     snapshot: { theme: studioTheme(), locked: NO_LOCKS },
     messages: [{ role: 'user', content: 'Make it warmer.' }],
     judge: brandLeftAlone,
+  },
+  {
+    id: 'set-fill-corrected',
+    description:
+      'Nothing locked, a failing brand fill the user set, "make the corners rounder": the fill is corrected in both modes, the brand left alone',
+    snapshot: {
+      theme: studioTheme({
+        light: { [FILL]: FAILING_FILL },
+        dark: { [FILL]: FAILING_FILL },
+      }),
+      locked: NO_LOCKS,
+    },
+    messages: [{ role: 'user', content: 'Make the corners rounder.' }],
+    judge: setFillCorrected,
   },
   {
     id: 'card-header-rule',

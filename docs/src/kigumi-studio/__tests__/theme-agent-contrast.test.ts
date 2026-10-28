@@ -276,3 +276,53 @@ describe('Theme Agent contrast: locked values behind a violation', () => {
     ).toEqual(['--wa-color-brand']);
   });
 });
+
+describe('Theme Agent contrast: a brand fill the user set', () => {
+  const FILL = '--wa-color-brand-fill-loud';
+
+  function withLightFill(fill: string): CustomTheme {
+    const theme = readableTheme();
+    theme.light[FILL] = fill;
+    return theme;
+  }
+
+  it('reports a set fill that fails under white text as its own pair', () => {
+    // #22c55e carries white text at about 2.3:1.
+    const violations = checkContrast(withLightFill('#22c55e'));
+
+    expect(violations).toEqual([
+      expect.objectContaining({
+        mode: 'light',
+        foreground: '--wa-color-brand-on-loud',
+        background: FILL,
+        foregroundColor: 'white',
+        backgroundColor: '#22c55e',
+      }),
+    ]);
+    expect(violations[0].ratio).toBeLessThan(4.5);
+    expect(violations[0].setBy).toBeUndefined();
+  });
+
+  it('passes a set fill that carries white text', () => {
+    expect(checkContrast(withLightFill('#003d82'))).toEqual([]);
+  });
+
+  it('sends a failing set fill back to the model to correct', () => {
+    const violations = checkContrast(withLightFill('#22c55e'));
+    expect(correctableViolations(violations, violations)).toEqual(violations);
+  });
+
+  it('names the fill when the user locked it, not the brand', () => {
+    const [violation] = checkContrast(withLightFill('#22c55e'));
+    const fillLocked = withLocks(NO_LOCKS, valueLock(FILL, ['light']), true);
+    const brandLocked = withLocks(
+      NO_LOCKS,
+      valueLock('--wa-color-brand', ['light']),
+      true
+    );
+
+    expect(lockedSources(violation, fillLocked)).toEqual([FILL]);
+    expect(lockedSources(violation, brandLocked)).toEqual([]);
+    expect(lockedSources(violation, NO_LOCKS)).toEqual([]);
+  });
+});

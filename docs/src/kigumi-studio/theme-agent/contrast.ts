@@ -6,6 +6,7 @@ import {
 } from '../lib/defaults';
 import type { LockedValues } from '../lib/locks';
 import { buildPreviewStyle } from '../lib/preview-style';
+import { PROPERTIES_BY_VAR } from '../lib/property-definitions';
 import type { CustomTheme } from './custom-theme';
 
 // Shared by the browser and the trigger.dev task (docs/trigger): the task
@@ -18,7 +19,10 @@ interface ContrastPair {
   /** How the chat names the pair, e.g. "quiet text on the lowered surface". */
   label: string;
   minimum: number;
-  /** The Studio value that sets a derived colour, when it is not the pair's own. */
+  /**
+   * The Studio value that sets a derived colour, when it is not the pair's
+   * own: only while the theme leaves the pair's own value unset.
+   */
   setBy?: string;
 }
 
@@ -52,8 +56,9 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
     label: 'form control border on its background',
     minimum: 3,
   },
-  // What the preview paints for brand-filled controls: Studio derives the
-  // fill from the brand colour, and its text is the on-colour.
+  // What the preview paints for brand-filled controls: the brand fill the
+  // user set, else what Studio derives from the brand colour; its text is
+  // the on-colour.
   {
     foreground: '--wa-color-brand-on-loud',
     background: '--wa-color-brand-fill-loud',
@@ -230,6 +235,7 @@ export function checkContrast(theme: CustomTheme): ContrastViolation[] {
       const ratio =
         foreground && background ? ratioOf(foreground, background) : null;
       if (ratio !== null && ratio >= pair.minimum) continue;
+      const setBy = theme[mode][pair.background] ? undefined : pair.setBy;
       violations.push({
         mode,
         foreground: pair.foreground,
@@ -239,7 +245,7 @@ export function checkContrast(theme: CustomTheme): ContrastViolation[] {
         backgroundColor,
         ratio,
         minimum: pair.minimum,
-        ...(pair.setBy ? { setBy: pair.setBy } : {}),
+        ...(setBy ? { setBy } : {}),
       });
     }
   }
@@ -255,9 +261,10 @@ export function violationKey(violation: ContrastViolation): string {
  * The violations that go back to the model to correct: `violations` less the
  * pairs the held values fix (those not in `leftWithHeld`, the violations of
  * the theme with the held values applied) and less every pair another value
- * sets. That is the brand fill, derived from the brand, which is the user's:
- * it is reported, never corrected. Studio derives the fill where white text
- * passes for every brand, so it fails only if that derivation changes.
+ * sets. That is an unset brand fill, derived from the brand, which is the
+ * user's: it is reported, never corrected. Studio derives the fill where
+ * white text passes for every brand, so it fails only if that derivation
+ * changes. A brand fill the user set is corrected like any other pair.
  */
 export function correctableViolations(
   violations: ContrastViolation[],
@@ -272,8 +279,9 @@ export function correctableViolations(
 /**
  * The locked Studio values behind `violation` when every value behind it is
  * locked in its mode, so the Theme Agent may not fix it; none while one is
- * free to change. Behind a pair are its two colours, or the value that sets
- * a derived one (the brand behind the brand fill).
+ * free to change. Behind a pair are its colours that are Studio values (not
+ * the brand fill's on-colour), or the value that sets a derived one (the
+ * brand behind an unset brand fill).
  */
 export function lockedSources(
   violation: ContrastViolation,
@@ -281,7 +289,9 @@ export function lockedSources(
 ): string[] {
   const sources = violation.setBy
     ? [violation.setBy]
-    : [violation.foreground, violation.background];
+    : [violation.foreground, violation.background].filter((cssVar) =>
+        PROPERTIES_BY_VAR.has(cssVar)
+      );
   const lockedInMode = locked[violation.mode];
   return sources.every((cssVar) => lockedInMode.includes(cssVar))
     ? sources
