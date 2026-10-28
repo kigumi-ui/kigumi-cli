@@ -6,7 +6,6 @@ import { StudioPreview } from './StudioPreview';
 import { ThemeCSSDialog } from './toolbar/ThemeCSSDialog';
 import { PanelToggle } from './PanelToggle';
 import { StudioConsole } from './console/StudioConsole';
-import { StudioConsoleProvider } from './console/StudioConsoleProvider';
 import { hasThemeAgentAccess } from '../theme-agent/access';
 import './StudioLayout.css';
 
@@ -36,54 +35,52 @@ export function StudioLayout() {
   };
 
   return (
-    <StudioConsoleProvider>
-      <div className="studio-layout">
-        <StudioHeader />
-        <div className="studio-layout__body">
-          <StudioSidebar
-            collapsed={sidebarCollapsed}
-            onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-            onThemeCSS={() => {
-              setThemeCSSKey((key) => key + 1);
-              setThemeCSSOpen(true);
-            }}
-          />
-          {/* The console sits under the preview only, so both side panels
-            keep the body's full height. */}
-          <div className="studio-layout__main">
-            <StudioPreview />
-            <StudioConsole />
-          </div>
-          {/* The panel and its toggle load with Studio; the chat inside
-            loads on first open. */}
-          {themeAgentAvailable && (
-            <div
-              className={clsx(
-                'theme-agent-panel',
-                !themeAgentOpen && 'theme-agent-panel--collapsed'
-              )}
-            >
-              <PanelToggle
-                side="end"
-                open={themeAgentOpen}
-                icon="robot"
-                label="Theme Agent"
-                onToggle={toggleThemeAgent}
-              />
-              {themeAgentMounted && (
-                <Suspense fallback={null}>
-                  <ThemeAgentSidebar open={themeAgentOpen} />
-                </Suspense>
-              )}
-            </div>
-          )}
-        </div>
-        <ThemeCSSDialog
-          key={themeCSSKey}
-          open={themeCSSOpen}
-          onClose={() => setThemeCSSOpen(false)}
+    <div className="studio-layout">
+      <StudioHeader />
+      <div className="studio-layout__body">
+        <StudioSidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onThemeCSS={() => {
+            setThemeCSSKey((key) => key + 1);
+            setThemeCSSOpen(true);
+          }}
         />
+        {/* The console sits under the preview only, so both side panels
+            keep the body's full height. */}
+        <div className="studio-layout__main">
+          <StudioPreview />
+          <StudioConsole />
+        </div>
+        {/* The panel and its toggle load with Studio; the chat inside
+            loads on first open. */}
+        {themeAgentAvailable && (
+          <div
+            className={clsx(
+              'theme-agent-panel',
+              !themeAgentOpen && 'theme-agent-panel--collapsed'
+            )}
+          >
+            <PanelToggle
+              side="end"
+              open={themeAgentOpen}
+              icon="robot"
+              label="Theme Agent"
+              onToggle={toggleThemeAgent}
+            />
+            {themeAgentMounted && (
+              <Suspense fallback={null}>
+                <ThemeAgentSidebar open={themeAgentOpen} />
+              </Suspense>
+            )}
+          </div>
+        )}
       </div>
-    </StudioConsoleProvider>
+      <ThemeCSSDialog
+        key={themeCSSKey}
+        open={themeCSSOpen}
+        onClose={() => setThemeCSSOpen(false)}
+      />
+    </div>
   );
 }

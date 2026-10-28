@@ -236,14 +236,16 @@ function swatchOf(color: Rgba | null): string | null {
     .join('')}`;
 }
 
-/**
- * Every pair in `CONTRAST_PAIRS` in both modes, light first, read from the
- * colours the Studio preview paints for `theme`, with whether it meets WCAG
- * 2.1 AA. Values the theme leaves out are Studio's defaults. A pair whose
- * colour cannot be resolved never passes.
- */
-export function contrastResults(theme: CustomTheme): ContrastResult[] {
-  const results: ContrastResult[] = [];
+/** One pair measured in one mode: the violation it would be, and the rest. */
+interface Measured {
+  violation: ContrastViolation;
+  passes: boolean;
+  foregroundSwatch: string | null;
+  backgroundSwatch: string | null;
+}
+
+function measurePairs(theme: CustomTheme): Measured[] {
+  const measured: Measured[] = [];
   for (const mode of ['light', 'dark'] as const) {
     const style = paintedStyle(theme, mode);
     for (const pair of CONTRAST_PAIRS) {
@@ -253,43 +255,48 @@ export function contrastResults(theme: CustomTheme): ContrastResult[] {
       const background = parseColor(backgroundColor, style);
       const ratio =
         foreground && background ? ratioOf(foreground, background) : null;
-      results.push({
-        mode,
-        foreground: pair.foreground,
-        background: pair.background,
-        label: pair.label,
-        foregroundColor,
-        backgroundColor,
-        ratio,
-        minimum: pair.minimum,
-        ...(pair.setBy ? { setBy: pair.setBy } : {}),
+      measured.push({
+        violation: {
+          mode,
+          foreground: pair.foreground,
+          background: pair.background,
+          label: pair.label,
+          foregroundColor,
+          backgroundColor,
+          ratio,
+          minimum: pair.minimum,
+          ...(pair.setBy ? { setBy: pair.setBy } : {}),
+        },
         passes: ratio !== null && ratio >= pair.minimum,
         foregroundSwatch: swatchOf(foreground),
         backgroundSwatch: swatchOf(background),
       });
     }
   }
-  return results;
+  return measured;
+}
+
+/**
+ * Every pair in `CONTRAST_PAIRS` in both modes, light first, read from the
+ * colours the Studio preview paints for `theme`, with whether it meets WCAG
+ * 2.1 AA. Values the theme leaves out are Studio's defaults. A pair whose
+ * colour cannot be resolved, or whose background is translucent, never passes.
+ */
+export function contrastResults(theme: CustomTheme): ContrastResult[] {
+  return measurePairs(theme).map(({ violation, ...rest }) => ({
+    ...violation,
+    ...rest,
+  }));
 }
 
 /**
  * Every pair in `CONTRAST_PAIRS` that falls short of WCAG 2.1 AA in either
- * mode: `contrastResults()` less the pairs that pass.
+ * mode: the pairs `contrastResults()` does not pass, as violations.
  */
 export function checkContrast(theme: CustomTheme): ContrastViolation[] {
-  return contrastResults(theme)
-    .filter((result) => !result.passes)
-    .map((result) => ({
-      mode: result.mode,
-      foreground: result.foreground,
-      background: result.background,
-      label: result.label,
-      foregroundColor: result.foregroundColor,
-      backgroundColor: result.backgroundColor,
-      ratio: result.ratio,
-      minimum: result.minimum,
-      ...(result.setBy ? { setBy: result.setBy } : {}),
-    }));
+  return measurePairs(theme)
+    .filter((measured) => !measured.passes)
+    .map((measured) => measured.violation);
 }
 
 /** One string per violation: its mode and pair. */

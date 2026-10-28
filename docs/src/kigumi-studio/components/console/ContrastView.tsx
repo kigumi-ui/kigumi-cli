@@ -6,6 +6,7 @@ import {
   violationKey,
   type ContrastResult,
 } from '../../theme-agent/contrast';
+import { resultText } from './contrast-result-text';
 import './ContrastView.css';
 
 const MODES = [
@@ -52,7 +53,6 @@ export function ContrastView({ results }: { results: ContrastResult[] }) {
 }
 
 function ContrastRow({ result }: { result: ContrastResult }) {
-  const unresolved = result.ratio === null;
   return (
     <tr
       className={clsx(
@@ -94,11 +94,7 @@ function ContrastRow({ result }: { result: ContrastResult }) {
           <Icon
             name={result.passes ? 'circle-check' : 'triangle-exclamation'}
           />
-          {result.passes
-            ? 'Passes'
-            : unresolved
-              ? 'Fails: a colour could not be resolved'
-              : 'Fails'}
+          {resultText(result)}
         </span>
       </td>
     </tr>

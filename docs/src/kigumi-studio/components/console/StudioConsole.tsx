@@ -12,7 +12,8 @@ import './StudioConsole.css';
  */
 export function StudioConsole() {
   const studioConsole = useStudioConsole();
-  // One entry per tab; a later tab adds its own here.
+  // One entry per tab, each tab's hook called unconditionally and always in
+  // this order (the rules of hooks): a later tab adds its call here.
   const tabs: ConsoleTab[] = [useAccessibilityTab()];
   const panelRef = useRef<HTMLDivElement>(null);
 

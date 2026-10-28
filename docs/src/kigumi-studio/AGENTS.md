@@ -34,6 +34,7 @@ Visual theme builder for Web Awesome CSS custom properties.
 ```
 KigumiStudio (page)
   StudioProvider (context: ~43 CSS properties, light/dark modes)
+  StudioConsoleProvider (whether the console is open, which tab)
     StudioLayout
       StudioHeader (back link, logo, site theme, knowledge base)
       StudioSidebar ("Styles": preset, mode, and "Theme CSS" with a Customize button that opens the Customize theme CSS dialog; one Accordion, an EditorSection AccordionItem per property group)
@@ -42,7 +43,7 @@ KigumiStudio (page)
       Theme Agent panel (only with the access cookie; ThemeAgentSidebar loads on first open)
 ```
 
-The Studio console sits under the preview, between the side panels, which keep the body's full height. It is collapsed by default to a bar with an icon and a count per kind of finding: one kind, the failing contrast pairs in both modes; a count opens it on its tab, and the toggle at the bar's end shows and hides it. Its only tab is Accessibility: every pair in `CONTRAST_PAIRS` per mode, with both colours as swatches and in text, the ratio (`formatRatio()`, never rounded up), the minimum and the result in text and icon, recomputed from the custom theme on every change (`useContrastResults()`). A pair whose colour cannot be resolved fails and says so; a pair another value sets names it. A new tab is one more `ConsoleTab` entry in `StudioConsole`, with its own count; the bar and the other tabs stay as they are. `StudioConsoleProvider` holds whether it is open and which tab shows, so a link elsewhere (the Theme Agent's accessibility warning) can open it with `show()`, which also moves focus into it.
+The Studio console sits under the preview, between the side panels, which keep the body's full height. It is collapsed by default to a bar with an icon and a count per kind of finding: one kind, the failing contrast pairs in both modes; a count opens it on its tab, and the toggle at the bar's end shows and hides it. Its only tab is Accessibility: every pair in `CONTRAST_PAIRS` per mode, with both colours as swatches and in text, the ratio (`formatRatio()`, never rounded up), the minimum and the result in text and icon, recomputed from the custom theme on every change (`useContrastResults()`). A pair whose colour cannot be resolved, or whose background is translucent, fails and says which (`resultText()`); a pair another value sets names it. A new tab is one more `ConsoleTab` entry in `StudioConsole`, with its own count; the bar and the other tabs stay as they are. `StudioConsoleProvider` holds whether it is open and which tab shows, so a link elsewhere (the Theme Agent's accessibility warning) can open it with `show()`, which also moves focus into it.
 
 Both side panels have the same headline (`studio-panel-header`, Styles with a palette, Theme Agent with a robot) and a `PanelToggle` tab on their inner edge, mirrored: the panel's icon while collapsed, an x while open. It is the only way to show or hide a panel. The shared panel styles live in `StudioLayout.css`.
 
@@ -72,6 +73,7 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 | `components/console/studio-console.ts` | `ConsoleTab` (a tab and its count), the console's context and `useStudioConsole()`, `undefined` outside a console |
 | `components/console/StudioConsoleProvider.tsx` | Open state, active tab and `show(tab)`, which opens the console on a tab and moves focus into it |
 | `components/console/use-accessibility-tab.ts` | The Accessibility tab's `ConsoleTab`: its count is the failing pairs |
+| `components/console/contrast-result-text.ts` | `resultText()`: a pair's result in words, including why a pair with no ratio fails |
 | `components/console/ContrastView.tsx` | The Accessibility tab's content: one table per mode, a row per pair |
 | `lib/preset-loader.ts` | Load preset CSS files via `import.meta.glob` |
 | `lib/locks.ts` | Locked values (`LockedValues`): CSS variables per mode plus the shadow component list and the custom CSS (one lock each); a mode-independent property locks in both modes. Stored apart from the theme (`kigumi-studio-locks`), so reset and presets leave them; never exported. `describeLocks()` is how the Theme Agent reads them |
@@ -217,6 +219,7 @@ The project ref is in `docs/trigger.config.ts`. The Vercel Function ships with t
 ## Testing
 
 ```bash
+cd docs && pnpm typecheck   # the app and the server code (api/, trigger/)
 cd docs && pnpm test   # Studio lib tests, the Theme Agent conversation module, access gate, agent turn (mock model), eval judges
 cd docs && pnpm storybook:test   # interaction lane, the Theme Agent sidebar included
 ```
