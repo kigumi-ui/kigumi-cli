@@ -12,11 +12,17 @@
  * The task bundles every file its entry points reach through relative
  * imports, the shared Studio modules included, so the list is read from the
  * imports, never kept by hand; `docs/trigger/theme-agent-deploy.test.ts`
- * holds it to esbuild's own bundle of the task. The task's config and the
- * docs dependencies count too: a new SDK changes what is deployed.
+ * holds it to esbuild's own bundle of the task. Its config counts too, and
+ * of the docs dependencies only what the task loads: the packages it
+ * imports and every package they pull in, as the lockfile resolves them,
+ * and the trigger.dev CLI that builds it. A bump of the site's own tooling
+ * (Vite, Storybook) deploys nothing.
  *
- * Plain Node, no dependencies. With no base commit, or when git cannot
- * answer, it deploys: the workflow still waits for a maintainer's approval.
+ * Needs the root dependencies (`yaml`) for the lockfile. Unsure is a
+ * deploy, never a pass that compared nothing (docs/adr/0003): no base
+ * commit, a git that cannot answer, a lockfile that does not parse or does
+ * not declare a package the task loads. The workflow still waits for a
+ * maintainer's approval.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -29,36 +35,44 @@ import {
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parse } from 'yaml';
 
 /** The task's directory, as `dirs` in `docs/trigger.config.ts` names it. */
 const TRIGGER_DIR = 'docs/trigger';
 
 /** Files outside the import graph that still change what is deployed. */
-export const TASK_CONFIG_FILES = [
-  'docs/trigger.config.ts',
-  'docs/package.json',
-  'docs/pnpm-lock.yaml',
-];
+export const TASK_CONFIG_FILES = ['docs/trigger.config.ts'];
+
+/** The CLI that builds the task; the config's own imports join it (taskTools). */
+const TASK_CLI = 'trigger.dev';
+
+const LOCKFILE = 'docs/pnpm-lock.yaml';
 
 /**
- * Relative specifiers a module loads at runtime: static and dynamic
- * imports and re-exports. Type-only imports and exports are left out, as
- * the bundler drops them.
+ * Specifiers a module loads at runtime: static and dynamic imports and
+ * re-exports. Type-only imports and exports are left out, as the bundler
+ * drops them.
  */
 function runtimeSpecifiers(source) {
   const specifiers = [];
   const statement =
-    /(?:^|\n)\s*(import|export)\s+(type\s+)?(?:[^'";]*?\sfrom\s+)?['"](\.{1,2}\/[^'"]+)['"]/g;
+    /(?:^|\n)\s*(import|export)\s+(type\s+)?(?:[^'";]*?\sfrom\s+)?['"]([^'"]+)['"]/g;
   for (const match of source.matchAll(statement)) {
     if (match[2]) continue;
     specifiers.push(match[3]);
   }
-  for (const match of source.matchAll(
-    /import\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g
-  )) {
+  for (const match of source.matchAll(/import\(\s*['"]([^'"]+)['"]\s*\)/g)) {
     specifiers.push(match[1]);
   }
   return specifiers;
+}
+
+const isRelative = (specifier) => /^\.{1,2}\//.test(specifier);
+
+/** A bare specifier's package: `@scope/name/sub` is `@scope/name`. */
+function packageName(specifier) {
+  const parts = specifier.split('/');
+  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
 }
 
 /** The file a relative specifier names, as TypeScript resolves `.js` to `.ts`. */
@@ -90,6 +104,43 @@ function entryPoints(repoRoot) {
  * sorted: the modules its entry points reach, and `TASK_CONFIG_FILES`.
  */
 export function taskInputs(repoRoot) {
+  return [
+    ...taskModules(repoRoot).map((file) => relative(repoRoot, file)),
+    ...TASK_CONFIG_FILES,
+  ].sort();
+}
+
+/** The packages the task loads at runtime, by name, sorted. */
+export function taskPackages(repoRoot) {
+  const names = new Set();
+  for (const file of taskModules(repoRoot)) {
+    for (const specifier of runtimeSpecifiers(readFileSync(file, 'utf8'))) {
+      if (isRelative(specifier) || specifier.startsWith('node:')) continue;
+      names.add(packageName(specifier));
+    }
+  }
+  return [...names].sort();
+}
+
+/**
+ * The packages that build the task without being loaded by it, counted by
+ * their own version: the trigger.dev CLI and what the task's config imports
+ * (a build extension, say). Sorted.
+ */
+export function taskTools(repoRoot) {
+  const names = new Set([TASK_CLI]);
+  for (const file of TASK_CONFIG_FILES) {
+    const source = readFileSync(join(repoRoot, file), 'utf8');
+    for (const specifier of runtimeSpecifiers(source)) {
+      if (isRelative(specifier) || specifier.startsWith('node:')) continue;
+      names.add(packageName(specifier));
+    }
+  }
+  return [...names].sort();
+}
+
+/** The modules the task's entry points reach, absolute paths. */
+function taskModules(repoRoot) {
   const seen = new Set();
   const queue = entryPoints(repoRoot);
   while (queue.length > 0) {
@@ -97,20 +148,144 @@ export function taskInputs(repoRoot) {
     if (seen.has(file)) continue;
     seen.add(file);
     for (const specifier of runtimeSpecifiers(readFileSync(file, 'utf8'))) {
+      if (!isRelative(specifier)) continue;
       const target = resolveSpecifier(file, specifier);
       if (target && !seen.has(target)) queue.push(target);
     }
   }
-  return [
-    ...[...seen].map((file) => relative(repoRoot, file)),
-    ...TASK_CONFIG_FILES,
-  ].sort();
+  return [...seen];
 }
 
-/** Whether any of `changedFiles` is one the task is built from. */
-export function needsDeploy(changedFiles, inputs) {
+/**
+ * A lockfile entry's key: `name@version(peers)`, or the version itself for
+ * an alias, whose version already names its package.
+ */
+function lockKey(name, version) {
+  const bare = version.split('(')[0];
+  return bare.includes('@') ? version : `${name}@${version}`;
+}
+
+/**
+ * The docs importer's declared packages and the lockfile's snapshots. Throws
+ * when the text does not parse or has no docs importer (`.`): a check that
+ * cannot read the lockfile has compared nothing.
+ */
+function readLock(lockText) {
+  let lock;
+  try {
+    lock = parse(lockText);
+  } catch (error) {
+    throw new Error(`the lockfile does not parse: ${error.message}`);
+  }
+  const importer = lock?.importers?.['.'];
+  if (!importer) throw new Error('the lockfile has no docs importer (".")');
+  return {
+    declared: {
+      ...importer.optionalDependencies,
+      ...importer.devDependencies,
+      ...importer.dependencies,
+    },
+    snapshots: lock.snapshots ?? {},
+  };
+}
+
+/** The lockfile keys of `names` as declared; throws for one not declared. */
+function declaredKeys({ declared }, names) {
+  const missing = names.filter((name) => !declared[name]);
+  if (missing.length > 0) {
+    throw new Error(`the lockfile does not declare ${missing.join(', ')}`);
+  }
+  return names.map((name) => lockKey(name, declared[name].version));
+}
+
+/**
+ * The lockfile entries behind `names`, as pnpm resolved them for docs/:
+ * each package and every package it pulls in, sorted. Throws when the
+ * lockfile cannot be read or does not declare one of them.
+ */
+export function lockedDependencies(lockText, names) {
+  const lock = readLock(lockText);
+  const seen = new Set();
+  const queue = declaredKeys(lock, names);
+  while (queue.length > 0) {
+    const key = queue.pop();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const snapshot = lock.snapshots[key] ?? {};
+    for (const deps of [snapshot.dependencies, snapshot.optionalDependencies]) {
+      for (const [dep, version] of Object.entries(deps ?? {})) {
+        queue.push(lockKey(dep, String(version)));
+      }
+    }
+  }
+  return [...seen].sort();
+}
+
+/** The lockfile entries of `names` themselves, sorted; throws like lockedDependencies(). */
+export function lockedVersions(lockText, names) {
+  return declaredKeys(readLock(lockText), names).sort();
+}
+
+/** What a lockfile resolves for the task: its packages whole, its tools by version. */
+function lockedForTask(lockText, packages, tools) {
+  return [
+    ...lockedDependencies(lockText, packages),
+    ...lockedVersions(lockText, tools),
+  ].join('\n');
+}
+
+/**
+ * Whether what the lockfile resolves for the task differs between the base
+ * and the head, and why. Unsure is a change: a base without a lockfile, or
+ * a lockfile the check cannot read, never passes having compared nothing
+ * (docs/adr/0003).
+ */
+export function compareLocks({ packages, tools, baseLock, headLock }) {
+  if (!baseLock) return { changed: true, reason: 'no lockfile at the base' };
+  try {
+    const before = lockedForTask(baseLock, packages, tools);
+    const after = lockedForTask(headLock, packages, tools);
+    return before === after
+      ? { changed: false, reason: 'the lockfile resolves the same' }
+      : {
+          changed: true,
+          reason: `${LOCKFILE} resolves ${[...packages, ...tools].join(', ')} differently`,
+        };
+  } catch (error) {
+    return { changed: true, reason: error.message };
+  }
+}
+
+/**
+ * Whether Production needs a deploy: a file the task is built from changed,
+ * or what the lockfile resolves for its packages and tools (compareLocks()).
+ * Every field is required, so no caller skips the dependency check by
+ * leaving one out.
+ */
+export function needsDeploy({
+  changedFiles,
+  inputs,
+  packages,
+  tools,
+  baseLock,
+  headLock,
+}) {
+  for (const [name, value] of Object.entries({
+    changedFiles,
+    inputs,
+    packages,
+    tools,
+    headLock,
+  })) {
+    if (value === undefined)
+      throw new TypeError(`needsDeploy: ${name} is required`);
+  }
+  if (baseLock === undefined) {
+    throw new TypeError('needsDeploy: baseLock is required (null for none)');
+  }
   const bundled = new Set(inputs);
-  return changedFiles.some((file) => bundled.has(file));
+  if (changedFiles.some((file) => bundled.has(file))) return true;
+  return compareLocks({ packages, tools, baseLock, headLock }).changed;
 }
 
 function changedSince(repoRoot, base) {
@@ -145,11 +320,42 @@ function main() {
     return;
   }
   const inputs = taskInputs(repoRoot);
+  const packages = taskPackages(repoRoot);
+  const tools = taskTools(repoRoot);
+  const headLock = readFileSync(join(repoRoot, LOCKFILE), 'utf8');
+  let baseLock = null;
+  let baseLockError = '';
+  try {
+    baseLock = execFileSync('git', ['show', `${base}:${LOCKFILE}`], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    // A base without the lockfile, or a git that cannot show it: either
+    // way needsDeploy() deploys, and the reason names which.
+    baseLockError = String(error.stderr || error.message).trim();
+  }
+  const since = base.slice(0, 7);
   const bundled = changed.filter((file) => inputs.includes(file));
-  if (needsDeploy(changed, inputs)) {
-    report(true, `changed since ${base.slice(0, 7)}: ${bundled.join(', ')}`);
+  const locks = compareLocks({ packages, tools, baseLock, headLock });
+  if (
+    needsDeploy({
+      changedFiles: changed,
+      inputs,
+      packages,
+      tools,
+      baseLock,
+      headLock,
+    })
+  ) {
+    const reasons = [
+      ...(bundled.length > 0 ? [bundled.join(', ')] : []),
+      ...(locks.changed ? [baseLockError || locks.reason] : []),
+    ];
+    report(true, `changed since ${since}: ${reasons.join('; ')}`);
   } else {
-    report(false, `no bundled file changed since ${base.slice(0, 7)}`);
+    report(false, `nothing the task is built from changed since ${since}`);
   }
 }
 

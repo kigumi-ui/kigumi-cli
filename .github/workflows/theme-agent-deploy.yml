@@ -35,6 +35,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      # The check reads docs/pnpm-lock.yaml with the root's `yaml`; no
+      # lifecycle script runs before the approval gate.
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
       # The commit of the last successful deployment of `trigger-prod`;
       # none on the first run, which then deploys.
       - name: Find the deployed commit
