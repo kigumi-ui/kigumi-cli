@@ -18,9 +18,11 @@
  * and the trigger.dev CLI that builds it. A bump of the site's own tooling
  * (Vite, Storybook) deploys nothing.
  *
- * Needs the root dependencies (`yaml`) for the lockfile. With no base
- * commit, or when git cannot answer, it deploys: the workflow still waits
- * for a maintainer's approval.
+ * Needs the root dependencies (`yaml`) for the lockfile. Unsure is a
+ * deploy, never a pass that compared nothing (docs/adr/0003): no base
+ * commit, a git that cannot answer, a lockfile that does not parse or does
+ * not declare a package the task loads. The workflow still waits for a
+ * maintainer's approval.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -41,8 +43,8 @@ const TRIGGER_DIR = 'docs/trigger';
 /** Files outside the import graph that still change what is deployed. */
 export const TASK_CONFIG_FILES = ['docs/trigger.config.ts'];
 
-/** Packages that build the task without being loaded by it: by version only. */
-export const TASK_TOOL_PACKAGES = ['trigger.dev'];
+/** The CLI that builds the task; the config's own imports join it (taskTools). */
+const TASK_CLI = 'trigger.dev';
 
 const LOCKFILE = 'docs/pnpm-lock.yaml';
 
@@ -120,6 +122,23 @@ export function taskPackages(repoRoot) {
   return [...names].sort();
 }
 
+/**
+ * The packages that build the task without being loaded by it, counted by
+ * their own version: the trigger.dev CLI and what the task's config imports
+ * (a build extension, say). Sorted.
+ */
+export function taskTools(repoRoot) {
+  const names = new Set([TASK_CLI]);
+  for (const file of TASK_CONFIG_FILES) {
+    const source = readFileSync(join(repoRoot, file), 'utf8');
+    for (const specifier of runtimeSpecifiers(source)) {
+      if (isRelative(specifier) || specifier.startsWith('node:')) continue;
+      names.add(packageName(specifier));
+    }
+  }
+  return [...names].sort();
+}
+
 /** The modules the task's entry points reach, absolute paths. */
 function taskModules(repoRoot) {
   const seen = new Set();
@@ -147,29 +166,52 @@ function lockKey(name, version) {
 }
 
 /**
- * The lockfile entries behind `names`, as pnpm resolved them for docs/:
- * each package and every package it pulls in, sorted. With `direct`, only
- * the packages themselves.
+ * The docs importer's declared packages and the lockfile's snapshots. Throws
+ * when the text does not parse or has no docs importer (`.`): a check that
+ * cannot read the lockfile has compared nothing.
  */
-export function lockedDependencies(lockText, names, { direct = false } = {}) {
-  const lock = parse(lockText);
-  const importer = lock.importers?.['.'] ?? {};
-  const declared = {
-    ...importer.optionalDependencies,
-    ...importer.devDependencies,
-    ...importer.dependencies,
+function readLock(lockText) {
+  let lock;
+  try {
+    lock = parse(lockText);
+  } catch (error) {
+    throw new Error(`the lockfile does not parse: ${error.message}`);
+  }
+  const importer = lock?.importers?.['.'];
+  if (!importer) throw new Error('the lockfile has no docs importer (".")');
+  return {
+    declared: {
+      ...importer.optionalDependencies,
+      ...importer.devDependencies,
+      ...importer.dependencies,
+    },
+    snapshots: lock.snapshots ?? {},
   };
-  const snapshots = lock.snapshots ?? {};
+}
+
+/** The lockfile keys of `names` as declared; throws for one not declared. */
+function declaredKeys({ declared }, names) {
+  const missing = names.filter((name) => !declared[name]);
+  if (missing.length > 0) {
+    throw new Error(`the lockfile does not declare ${missing.join(', ')}`);
+  }
+  return names.map((name) => lockKey(name, declared[name].version));
+}
+
+/**
+ * The lockfile entries behind `names`, as pnpm resolved them for docs/:
+ * each package and every package it pulls in, sorted. Throws when the
+ * lockfile cannot be read or does not declare one of them.
+ */
+export function lockedDependencies(lockText, names) {
+  const lock = readLock(lockText);
   const seen = new Set();
-  const queue = names
-    .filter((name) => declared[name])
-    .map((name) => lockKey(name, declared[name].version));
+  const queue = declaredKeys(lock, names);
   while (queue.length > 0) {
     const key = queue.pop();
     if (seen.has(key)) continue;
     seen.add(key);
-    if (direct) continue;
-    const snapshot = snapshots[key] ?? {};
+    const snapshot = lock.snapshots[key] ?? {};
     for (const deps of [snapshot.dependencies, snapshot.optionalDependencies]) {
       for (const [dep, version] of Object.entries(deps ?? {})) {
         queue.push(lockKey(dep, String(version)));
@@ -179,36 +221,71 @@ export function lockedDependencies(lockText, names, { direct = false } = {}) {
   return [...seen].sort();
 }
 
-/** What the lockfile resolves for the task: its packages whole, its tools by version. */
-function lockedForTask(lockText, packages) {
-  const tools = packages.filter((name) => TASK_TOOL_PACKAGES.includes(name));
-  const loaded = packages.filter((name) => !TASK_TOOL_PACKAGES.includes(name));
+/** The lockfile entries of `names` themselves, sorted; throws like lockedDependencies(). */
+export function lockedVersions(lockText, names) {
+  return declaredKeys(readLock(lockText), names).sort();
+}
+
+/** What a lockfile resolves for the task: its packages whole, its tools by version. */
+function lockedForTask(lockText, packages, tools) {
   return [
-    ...lockedDependencies(lockText, loaded),
-    ...lockedDependencies(lockText, tools, { direct: true }),
-  ].sort();
+    ...lockedDependencies(lockText, packages),
+    ...lockedVersions(lockText, tools),
+  ].join('\n');
+}
+
+/**
+ * Whether what the lockfile resolves for the task differs between the base
+ * and the head, and why. Unsure is a change: a base without a lockfile, or
+ * a lockfile the check cannot read, never passes having compared nothing
+ * (docs/adr/0003).
+ */
+export function compareLocks({ packages, tools, baseLock, headLock }) {
+  if (!baseLock) return { changed: true, reason: 'no lockfile at the base' };
+  try {
+    const before = lockedForTask(baseLock, packages, tools);
+    const after = lockedForTask(headLock, packages, tools);
+    return before === after
+      ? { changed: false, reason: 'the lockfile resolves the same' }
+      : {
+          changed: true,
+          reason: `${LOCKFILE} resolves ${[...packages, ...tools].join(', ')} differently`,
+        };
+  } catch (error) {
+    return { changed: true, reason: error.message };
+  }
 }
 
 /**
  * Whether Production needs a deploy: a file the task is built from changed,
- * or, given `packages` and both lockfiles, what the lockfile resolves for
- * them. A base without a lockfile counts as changed.
+ * or what the lockfile resolves for its packages and tools (compareLocks()).
+ * Every field is required, so no caller skips the dependency check by
+ * leaving one out.
  */
 export function needsDeploy({
   changedFiles,
   inputs,
-  packages = [],
+  packages,
+  tools,
   baseLock,
   headLock,
 }) {
+  for (const [name, value] of Object.entries({
+    changedFiles,
+    inputs,
+    packages,
+    tools,
+    headLock,
+  })) {
+    if (value === undefined)
+      throw new TypeError(`needsDeploy: ${name} is required`);
+  }
+  if (baseLock === undefined) {
+    throw new TypeError('needsDeploy: baseLock is required (null for none)');
+  }
   const bundled = new Set(inputs);
   if (changedFiles.some((file) => bundled.has(file))) return true;
-  if (packages.length === 0 || headLock === undefined) return false;
-  if (!baseLock) return true;
-  return (
-    lockedForTask(baseLock, packages).join('\n') !==
-    lockedForTask(headLock, packages).join('\n')
-  );
+  return compareLocks({ packages, tools, baseLock, headLock }).changed;
 }
 
 function changedSince(repoRoot, base) {
@@ -243,28 +320,40 @@ function main() {
     return;
   }
   const inputs = taskInputs(repoRoot);
-  const packages = [...taskPackages(repoRoot), ...TASK_TOOL_PACKAGES];
+  const packages = taskPackages(repoRoot);
+  const tools = taskTools(repoRoot);
   const headLock = readFileSync(join(repoRoot, LOCKFILE), 'utf8');
   let baseLock = null;
+  let baseLockError = '';
   try {
     baseLock = execFileSync('git', ['show', `${base}:${LOCKFILE}`], {
       cwd: repoRoot,
       encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
-  } catch (_error) {
-    // No lockfile at the base: needsDeploy() counts that as changed.
+  } catch (error) {
+    // A base without the lockfile, or a git that cannot show it: either
+    // way needsDeploy() deploys, and the reason names which.
+    baseLockError = String(error.stderr || error.message).trim();
   }
   const since = base.slice(0, 7);
   const bundled = changed.filter((file) => inputs.includes(file));
+  const locks = compareLocks({ packages, tools, baseLock, headLock });
   if (
-    needsDeploy({ changedFiles: changed, inputs, packages, baseLock, headLock })
+    needsDeploy({
+      changedFiles: changed,
+      inputs,
+      packages,
+      tools,
+      baseLock,
+      headLock,
+    })
   ) {
-    const reasons =
-      bundled.length > 0
-        ? bundled.join(', ')
-        : `what ${LOCKFILE} resolves for ${packages.join(', ')}`;
-    report(true, `changed since ${since}: ${reasons}`);
+    const reasons = [
+      ...(bundled.length > 0 ? [bundled.join(', ')] : []),
+      ...(locks.changed ? [baseLockError || locks.reason] : []),
+    ];
+    report(true, `changed since ${since}: ${reasons.join('; ')}`);
   } else {
     report(false, `nothing the task is built from changed since ${since}`);
   }
