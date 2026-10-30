@@ -87,7 +87,9 @@ Editor Controls → setProperty(cssVar, value) → StudioContext.values[cssVar][
 
 ## Theme Agent
 
-Maintainer-only AI chat that builds a custom theme (spec #181, vocabulary in `GLOSSARY.md`). Invisible and unusable without the access cookie.
+Maintainer-only AI chat that builds a custom theme (spec #181, vocabulary in `GLOSSARY.md`). Invisible without the access cookie.
+
+It answers on one of two paths. With the cookie and no own key, on the trigger.dev task, paid by Kigumi:
 
 ```
 Browser (useChat + useTriggerChatTransport)
@@ -96,6 +98,16 @@ Browser (useChat + useTriggerChatTransport)
   ↔ api.trigger.dev sessions       .in (messages) / .out (streamed reply)
       → chat.agent "theme-agent"   docs/trigger/theme-agent.ts (Claude Sonnet)
 ```
+
+With an own key (an Anthropic API key saved in the panel's settings), in the browser, paid by that key; the own key wins over the cookie (ADR 0017):
+
+```
+Browser (useChat + ownKeyTransport)
+  → themeAgentTurn()               docs/trigger/theme-agent-turn.ts, the task's answer loop
+  → api.anthropic.com              createAnthropic, with anthropic-dangerous-direct-browser-access
+```
+
+Nothing of an own-key conversation reaches trigger.dev, `/api/theme-agent` or any other Kigumi endpoint.
 
 | File | Purpose |
 | --- | --- |
@@ -111,8 +123,11 @@ Browser (useChat + useTriggerChatTransport)
 | `theme-agent/describe-held-change.ts` | The sidebar name of a value (`valueLabel()`) and of a held change |
 | `theme-agent/use-theme-agent-studio.ts` | Thin adapter onto `StudioContext`: read the custom theme and its locked values, apply a theme; hands on Studio's `setLocked` |
 | `components/PanelToggle.tsx` | The tab that shows and hides a side panel, shared by Styles and the Theme Agent |
-| `components/theme-agent/ThemeAgentSidebar.tsx` | The Theme Agent panel, lazy-loaded only when the cookie is present: its headline with "New chat", and the conversation's lifecycle ("New chat", a replaced theme, ADR 0012). Mounts one `ThemeAgentChat` per conversation, handing on an optional `transport` (the interaction story's canned one) |
-| `components/theme-agent/ThemeAgentChat.tsx` | One conversation: its chat id, `useChat` run, conversation module, messages and composer; `end()` and `focus()` for the panel. Restores the conversation the tab saved and resumes an answer a reload interrupted (ADR 0014). A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card. A `transport` handed to the panel replaces trigger.dev's (`ThemeAgentTransport`), for the interaction story. An answer cut off by the output limit before a proposal is reported as refused, never left blank |
+| `components/theme-agent/ThemeAgentSidebar.tsx` | The Theme Agent panel, lazy-loaded on first open: its headline with "New chat" and the cog (an icon-only plain button with a "Settings" tooltip, at the right end) that opens the settings dialog, and the conversation's lifecycle ("New chat", a replaced theme, ADR 0012). Takes whether the access cookie is present from the layout (`accessCookie`) and picks the path: own key when one is saved, else trigger.dev with the cookie. Saving the first own key or removing it ends the conversation as "New chat" does; replacing one key with another does not. Mounts one `ThemeAgentChat` per conversation with the own-key transport, or an optional `transport` (the interaction story's canned one). `ownKeyModel` replaces the Anthropic model on the own-key path, for the interaction stories; production never passes it |
+| `components/theme-agent/OwnKeySettingsDialog.tsx` | The settings dialog: the "Anthropic API key" password field, focused on open, Cancel, Save and, with a key saved, Remove key. Save accepts only a value `ownKeyProblem()` passes and shows why it refuses one; closing empties the field |
+| `theme-agent/own-key.ts` | The own key in the tab's `sessionStorage` (`loadOwnKey()`, `saveOwnKey()`, `removeOwnKey()`); `ownKeyProblem()`, the form check: the `sk-ant-api` prefix, the characters and a plausible length, never a test request (ADR 0017). `ownKeyTransport()`, the third `ThemeAgentTransport`: reads the key when a message is sent and hands the message to `own-key-answer.ts`, which `loadOwnKeyAnswer()` imports; no session to close, nothing to resume |
+| `theme-agent/own-key-answer.ts` | Its own chunk, fetched once an own key is saved: `ownKeyAnswer()` runs `themeAgentTurn()` with the task's model, thinking and effort and streams it with `createUIMessageStream` in the task's message shape, `data-status` steps included; `anthropicModel()` sends the `anthropic-dangerous-direct-browser-access` header the provider leaves out. The `ai` package's code it calls (`streamText`) loads with the panel instead: the panel's `useChat` already loads that module, and a module lives in one chunk |
+| `components/theme-agent/ThemeAgentChat.tsx` | One conversation: its chat id, `useChat` run, conversation module, messages and composer; `end()` and `focus()` for the panel. Restores the conversation the tab saved and resumes an answer a reload interrupted (ADR 0014). A message and its action sit in its card; what Studio did with an answer (callouts, Applied with Undo, refusals) sits below the card. A `transport` handed in replaces trigger.dev's (`ThemeAgentTransport`): the own-key transport, or the interaction story's canned one. An answer cut off by the output limit before a proposal is reported as refused, never left blank |
 | `theme-agent/session-client.ts` | The browser's calls to `/api/theme-agent`: a session token (`start`, `refresh`) and `close` |
 | `components/theme-agent/LockedChanges.tsx` | `UnlockAndApply`, the answer's action inside its card: one button for one held value, one per value plus one for all with more; "Unlock and apply" for a locked value, "Apply" for one changed during the run. Held custom CSS shows its diff (`Details`) above the buttons, with a `CopyButton` for the proposed custom CSS alone. `LockedChangesCallouts`, Studio's report below the card: success callouts for what was applied, neutral ones for what stays locked and what the user changed during the run, each naming the contrast pairs it would fix |
 | `../../api/_lib/theme-agent-session.ts` | Access gate + request handling (`start`, `refresh`, `close`), tested with real `Request`s |
@@ -125,7 +140,7 @@ Browser (useChat + useTriggerChatTransport)
 
 Guard rails:
 
-- The chat window uses `@/components/ui` wrappers only: no raw `wa-*` tags, no AI SDK UI components, no third-party chat UI. The AI SDK is used for `useChat` only.
+- The chat window uses `@/components/ui` wrappers only: no raw `wa-*` tags, no AI SDK UI components, no third-party chat UI. In the browser the AI SDK is used for `useChat`, and on the own-key path for the answer loop in `own-key-answer.ts`.
 - Never render model output as HTML. `wa-markdown` injects marked's output unsanitised.
 - The model changes the theme only through the `propose_theme` tool, never through its reply text. The task validates every call with `validateProposal()` and sends the errors back for another attempt (at most 3 per answer). The browser validates again in the conversation module and never applies a proposal it refuses.
 - An answer may carry custom CSS, for what no value or shadow component can express, and the explanation says why no value could. The validator accepts only the checked subset in `agent-css.ts` (ADR 0009); custom CSS the user writes by hand is not restricted. Loosening that subset loosens what model output can do to the page. The prompt asks for a Kigumi wrapper class or `wa-*` tag for the host and `::part()` for the inside, and for the complete custom CSS each time: Studio replaces it whole, and Undo restores it with the answer's values. The custom CSS is one locked value and one held change, for both modes, under the same rules as any other (ADR 0010, ADR 0011).
@@ -142,6 +157,7 @@ Guard rails:
 - A conversation ends with "New chat" and whenever the whole custom theme is replaced (a preset, Default, an import: `onThemeReplaced`), so no held change or Undo refers to a theme no longer on screen. Ending calls `conversation.end()` (a late answer from its run is never applied), stops a running answer, mounts a fresh chat with a new chat id, and closes the trigger.dev session through the `close` intent: the run gets the `trigger: "close"` record and exits, then the session is closed, in that order because a closed session refuses appends. A conversation that never sent a message has nothing to end. The draft message survives, and locks stay (ADR 0010, ADR 0012).
 - A reload keeps the conversation (ADR 0014). Each tab saves it in `sessionStorage` as it changes, except the answer being streamed, which a reload resumes from the session: the messages, the conversation module's `save()` (answers with their `before` theme, held changes, Undo, `sentTheme`) and the cut-off answers, plus the transport's session state. After a reload the chat restores all of it, hands the session state to `useTriggerChatTransport` (`sessions`) and resumes an interrupted answer (`useChat` `resume`), which is then applied or held as without the reload. Leaving the page closes nothing: a closed tab leaves its session open with no run, the run having ended after `turnTimeout` (1h); a message after that in an open tab starts a new run on the same session. Not covered: a theme another tab replaced (Undo still leaves every value changed since) and a duplicated tab, which shares the conversation.
 - Every message carries a snapshot of the custom theme as the sidebar has it (`sendMessage` `metadata`, the task's `clientDataSchema`). The task builds its prompt from the snapshot, never from earlier turns, so hand edits between messages are seen.
+- An own key lives only in the tab's `sessionStorage` and goes only to `api.anthropic.com`. Stories and tests use obvious placeholders (`validate:no-secrets` matches the `sk-ant-` prefix), never a real key.
 - `ANTHROPIC_API_KEY` lives in trigger.dev, in its Production environment, for the task; the prompt eval reads a maintainer's own key from the environment or a gitignored `.env`, never from a committed file. `TRIGGER_SECRET_KEY` and `THEME_AGENT_ACCESS_KEY` live in Vercel (Production and Preview) and, for local runs, in a maintainer's gitignored `docs/.env.local`. Nothing secret is imported by `src/`.
 - `TRIGGER_SECRET_KEY` is the trigger.dev **Production** environment's secret key (`tr_prod_…`) in Vercel Production **and** Preview. The task is deployed to prod only. A preview or dev key fails with "No matching branch env": the SDK sends `VERCEL_GIT_COMMIT_REF` as the trigger.dev branch, and no branch of that name is deployed. Locally that variable is unset, which is why `pnpm dev:agent` can use a `tr_dev_` key. A personal access token (`tr_pat_…`) fails with "Invalid API key". Vercel only applies a changed variable to new deployments.
 
@@ -164,7 +180,7 @@ Who can run what: every level needs `docs/` installed, which needs read access t
 
 | Level | Command | What answers | Use it for |
 | --- | --- | --- | --- |
-| 1. UI without a model | `pnpm storybook` | Canned answers in `ThemeAgentSidebar.stories.tsx`, through Studio's real conversation module | Layout, actions, held changes, Undo |
+| 1. UI without a model | `pnpm storybook` | Canned answers in `ThemeAgentSidebar.stories.tsx`, through Studio's real conversation module; the mock model in `ThemeAgentOwnKey.stories.tsx`, through the real own-key transport and answer loop | Layout, actions, held changes, Undo, the settings dialog and the own-key path |
 | 2. Studio against the deployed task | `pnpm dev:agent --deployed` | The task in trigger.dev Production | Page and sidebar changes that need real answers but no task change |
 | 3. Everything local | `pnpm dev:agent` | The task on this machine (`trigger dev`), in trigger.dev's dev environment | Any change under `docs/trigger/`, to the prompt, or to what the task validates |
 
@@ -230,4 +246,4 @@ cd docs && pnpm test   # Studio lib tests, the Theme Agent conversation module, 
 cd docs && pnpm storybook:test   # interaction lane, the Theme Agent sidebar included
 ```
 
-The sidebar's layout and actions are tested in a browser, where Web Awesome runs, not in jsdom: `src/stories/ThemeAgentSidebar.stories.tsx` renders it inside a real `StudioProvider`, seeds locks in storage, and hands it a canned transport that streams an answer's text and its accepted `propose_theme` call, so Studio's own conversation module decides what is applied and held. It is in the interaction lane, listed in `pnpm storybook`, and left out of the published Storybook's sidebar (the `maintainer` tag). A new answer layout or action gets a story there. `src/stories/StudioConsole.stories.tsx` does the same for the Studio console: the bar's count, opening and closing by keyboard, and a hand edit taking a pair from fail to pass.
+The sidebar's layout and actions are tested in a browser, where Web Awesome runs, not in jsdom: `src/stories/ThemeAgentSidebar.stories.tsx` renders it inside a real `StudioProvider`, seeds locks in storage, and hands it a canned transport that streams an answer's text and its accepted `propose_theme` call, so Studio's own conversation module decides what is applied and held. It is in the interaction lane, listed in `pnpm storybook`, and left out of the published Storybook's sidebar (the `maintainer` tag). A new answer layout or action gets a story there. `src/stories/ThemeAgentOwnKey.stories.tsx` drives the own-key path the way a visitor does (the cog, the settings dialog, a message) with the AI SDK's `MockLanguageModelV4` handed in as `ownKeyModel`, so the real own-key transport, answer loop, key storage and dialog run and only Anthropic is replaced. The Dialog wrapper renders into `document.body`, where an earlier story's dialog can still be open: a story finds its dialog as the one its click opened. The real request to `api.anthropic.com` is checked by hand on a branch preview, with a real key and the cookie, in the network tab. `src/stories/StudioConsole.stories.tsx` does the same for the Studio console: the bar's count, opening and closing by keyboard, and a hand edit taking a pair from fail to pass.

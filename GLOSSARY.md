@@ -132,10 +132,18 @@ The AI assistant in Kigumi Studio that builds and refines a custom theme from
 text instructions, in conversation with the user.
 _Avoid_: preset agent, theme generator
 
+**Own key**:
+An Anthropic API key the user enters in the Theme Agent's settings. With one,
+the Theme Agent runs in the browser, calls Anthropic directly and bills that
+key; the key goes to no one but Anthropic. Without one, only the access
+cookie opens the Theme Agent, which then runs on Kigumi's trigger.dev task.
+_Avoid_: BYOK, user key, API token
+
 **Conversation**:
 The exchange between the user and the Theme Agent about one custom theme: its
 messages, its held changes and the Undo of each answer. It ends with "New
-chat" or when the whole custom theme is replaced. Locked values and the draft
+chat", when the whole custom theme is replaced, or when saving or removing an
+own key changes where the Theme Agent runs. Locked values and the draft
 in the message field are not part of it and outlive it.
 _Avoid_: session, chat, thread
 

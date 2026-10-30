@@ -228,7 +228,7 @@ const meta = {
   // interaction lane, not listed in the published Storybook (.storybook/main.ts).
   tags: ['maintainer', '!autodocs', 'interaction'],
   parameters: { layout: 'fullscreen' },
-  args: { open: true },
+  args: { open: true, accessCookie: true },
   decorators: [
     (Story) => (
       <StudioProvider>

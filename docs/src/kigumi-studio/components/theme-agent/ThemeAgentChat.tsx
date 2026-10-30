@@ -77,9 +77,10 @@ export interface ThemeAgentChatHandle {
 }
 
 /**
- * How a conversation reaches its run: trigger.dev's transport, or the canned
+ * How a conversation reaches its run: trigger.dev's transport, the own-key
+ * transport that answers in the browser (`ownKeyTransport()`), or the canned
  * one the sidebar's interaction story hands in. `getSession` tells whether a
- * session exists to close.
+ * trigger.dev session exists to close.
  */
 export type ThemeAgentTransport = ChatTransport<ThemeAgentMessage> &
   Pick<TriggerChatTransport, 'getSession'>;
@@ -146,7 +147,7 @@ interface ThemeAgentChatProps {
   onDraftChange: (draft: string) => void;
   /** The user sent a message: the shell's lifecycle notice is stale. */
   onActivity: () => void;
-  /** Replaces trigger.dev's transport; see `ThemeAgentTransport`. */
+  /** Replaces trigger.dev's transport: the own key's, or a story's canned one. */
   transport?: ThemeAgentTransport;
 }
 
@@ -175,7 +176,7 @@ export function ThemeAgentChat({
   draft,
   onDraftChange,
   onActivity,
-  transport: storyTransport,
+  transport: givenTransport,
 }: ThemeAgentChatProps) {
   // Read once per mount: after "New chat" there is nothing stored.
   const [restored] = useState(restorableConversation);
@@ -196,7 +197,7 @@ export function ThemeAgentChat({
       if (!ended.current) saveSession(id, state);
     },
   });
-  const transport = storyTransport ?? triggerTransport;
+  const transport = givenTransport ?? triggerTransport;
   const [conversation] = useState(() =>
     createThemeAgentConversation(restored?.conversation)
   );

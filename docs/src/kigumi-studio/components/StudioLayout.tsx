@@ -70,7 +70,10 @@ export function StudioLayout() {
             />
             {themeAgentMounted && (
               <Suspense fallback={null}>
-                <ThemeAgentSidebar open={themeAgentOpen} />
+                <ThemeAgentSidebar
+                  open={themeAgentOpen}
+                  accessCookie={themeAgentAvailable}
+                />
               </Suspense>
             )}
           </div>
