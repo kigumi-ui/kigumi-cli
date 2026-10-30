@@ -130,7 +130,7 @@ export function ThemeAgentSidebar({
    * across, so the conversation ends as with "New chat", and the fresh chat
    * takes the other transport.
    */
-  const changeAccess = () => {
+  const restartOnAccessChange = () => {
     const ended = chatRef.current?.end() ?? false;
     setConversation((current) => ({ key: current.key + 1 }));
     if (ended) {
@@ -144,7 +144,7 @@ export function ThemeAgentSidebar({
     if (!saveOwnKey(key)) return false;
     setOwnKey(key);
     setSettingsOpen(false);
-    if (ownKey === null) changeAccess();
+    if (ownKey === null) restartOnAccessChange();
     return true;
   };
 
@@ -152,7 +152,7 @@ export function ThemeAgentSidebar({
     removeOwnKey();
     setOwnKey(null);
     setSettingsOpen(false);
-    changeAccess();
+    restartOnAccessChange();
   };
 
   return (
