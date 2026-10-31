@@ -48,6 +48,7 @@ export const INTERACTION_STORIES = [
   'Tag',
   'TagInput',
   'Textarea',
+  'ThemeAgentOwnKey',
   'ThemeAgentSidebar',
   'Tooltip',
   'Tree',
