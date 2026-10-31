@@ -41,3 +41,5 @@ it, as with any missing explanation. The `Covers:` header stays in the
 skill, so a round still says which commits it is about, and the `PR body`
 check reads round numbers from it. Only comments by `OWNER`, `MEMBER` or
 `COLLABORATOR` count as rounds.
+
+Superseded by ADR 0018. There is no PR log anymore.

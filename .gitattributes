@@ -1,1 +1,11 @@
 graphify-out/graph.json merge=graphify
+
+# Generated or recorded files: collapsed in GitHub's diff view, still diffable
+pnpm-lock.yaml linguist-generated=true
+docs/pnpm-lock.yaml linguist-generated=true
+tests/fixtures/** linguist-generated=true
+tests/.tsc-baseline.json linguist-generated=true
+**/__tests__/*-baseline.json linguist-generated=true
+src/utils/component-metadata.ts linguist-generated=true
+typecheck-shims/wa-pro-*.d.ts linguist-generated=true
+.claude/skills/shared/*-api-surface.md linguist-generated=true

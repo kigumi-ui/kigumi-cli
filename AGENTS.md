@@ -64,11 +64,7 @@ node dist/index.js add button --force
 | `scripts/check-metadata-freshness.ts` | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM or any `dist/events/*.d.ts` beside it, triggering regen |
 | `scripts/guard-outcome.ts` | Shared reporting vocabulary for CEM-dependent guards: `summarizeGuard()` keeps "did it pass" and "did it actually run" as separate facts; `skipPermitted()` decides where an absent manifest may be tolerated. Consumed by `check-generated-fresh.ts`, `validate-cem-sync.ts`, `validate-gha-issue-writes.ts` (the workflow files stand in for the manifest) and the Pro consumer tsc (`tests/e2e/_helpers/consumer-premise.ts`), which reports did-not-run where the pinned Pro package cannot be installed. Every skipped headline carries `NOT_VERIFIED`. See `docs/adr/0003` |
 | `scripts/is-entry-point.ts` | `isEntryPoint(import.meta.url)`: true only when the script is the process entry point. Compares real paths, so an absolute invocation through a symlinked directory still runs `main()` instead of exiting 0 silently. Used by the parser, the React/Angular generators (issue #106) and the skill-reference generator (issue #129) |
-| `scripts/check-commit-attribution.ts` | `commit-msg` hook: rejects AI attribution trailers (`Co-Authored-By: Claude`/`Cursor`, `Generated/Made/Created with ...`). Prose mentioning Claude is deliberately allowed. `--pr` mode (`validate:attribution`, CI `attribution` job) checks every branch commit, since squash merges copy them onto main server-side (issue #97); the PR body is `validate:pr-body`'s job |
-| `scripts/pr-body-rules.ts` | Pure rules for PR bodies (issue #150, `docs/adr/0006`): `checkBody()` (four allowed headings, no tables/`<details>`/HTML comments/checklists, 2,500 characters, attribution, a Verification that points at evidence, and on a ready PR claims matched against the diff), `checkRewrite()`/`checkEditHistory()`/`bodyEdit()` (a rewrite of a ready PR, also from GitHub's edit history, and the machine-written trail), `logRounds()` (the `**Round N** · Covers: a..b` log comments a Verification may name; the log itself is a convention, `docs/adr/0013`), `isTrustedAuthor()`, `isExempt()` |
-| `scripts/pr-body-context.ts` | The git facts those rules check against: highest changeset bump in the diff and known paths |
-| `scripts/pr-github.ts` | Thin `gh api` calls for the PR body guard (issue lookup where only a 404 means missing, PR comments, the body's edit history, when the PR last became ready, comment posting) |
-| `scripts/validate-pr-body.ts` | `validate:pr-body`: runs the body rules in `pr-body.yml` from the event payload (`--event`, `--trail` posts the edit diff), or locally on a body file (`--body-file [--draft] [--pr N]`) |
+| `scripts/check-commit-attribution.ts` | `commit-msg` hook: rejects AI attribution trailers (`Co-Authored-By: Claude`/`Cursor`, `Generated/Made/Created with ...`). Prose mentioning Claude is deliberately allowed. `--pr` mode (`validate:attribution`, CI `attribution` job) checks every branch commit, since a remote agent's commits never pass the local hook (issue #97) |
 | `scripts/check-external-links.ts` | `check:external-links`, weekly `maintenance.yml`: requests every external URL in README.md and NOTICE and reports the dead ones. Always exits 0; `validate:doc-links` covers relative links |
 | `scripts/check-generated-fresh.ts` | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx`/`.js.vue` stay within `.tsx`/`.vue`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs/Pro typecheck shim in a tmp copy + diff; the copy's generator output is cleared first and the Template trees are compared both ways, so a committed Template no generator writes is drift as much as one that differs, issue #80) requires a CEM covering every registry component; a partial one is refused and an unverified run is never reported as a pass (issue #43). Runs in CI's own `freshness` job |
 | `scripts/check-mock-budget.ts` | `check:mocks`: counts `vi.mock` occurrences in `tests/unit/` against a total budget (50) and a per-file budget. Enforced in CI via `MOCK_BUDGET_ENFORCE=1`; advisory locally |
@@ -139,7 +135,6 @@ node dist/index.js add button --force
 | `release` | `.claude/skills/release/` | Contributor | Prepare and publish releases |
 | `kigumi-feature-spec` | `.claude/skills/kigumi-feature-spec/` | Contributor | Create feature specs and plans |
 | `apply-theme-to-figma` | `.claude/skills/apply-theme-to-figma/` | Contributor | Apply CSS tokens to Figma UI Kit |
-| `pr-log` | `.claude/skills/pr-log/` | Contributor | Write the PR body and post one log comment per push |
 
 ### Skills Publishing
 
@@ -1016,7 +1011,7 @@ git push -u origin HEAD
 gh pr create --draft --title "feat: my feature" --body-file body.md
 ```
 
-The PR body becomes the squash commit on main, so it is written as history: a summary and four sections, per `.github/PULL_REQUEST_TEMPLATE.md`. Review rounds and evidence go in the PR log, one new comment per push. Use the `pr-log` skill when opening a PR and after every push to one; `pr-body.yml` enforces the body (`docs/adr/0006`), and the log is a convention (`docs/adr/0013`). When `/code-review` runs on a PR, give its Spec sub-agent the PR body, the log comments and every ADR the diff adds or changes, and have it report body claims the diff does not back and user-facing changes the body omits. An issue criterion that such an ADR replaces is judged against the ADR, not the issue.
+PRs are squash-merged and the commit on main takes only the PR title (`docs/adr/0018`), so the title is a conventional commit. The body is for the reviewer, in the shape of `.github/PULL_REQUEST_TEMPLATE.md`: summary, evidence, merge danger. When `/code-review` runs on a PR, give its Spec sub-agent the PR body and every ADR the diff adds or changes. An issue criterion that such an ADR replaces is judged against the ADR, not the issue.
 
 **Step 4: Wait for CI, review, merge**
 
@@ -1060,7 +1055,8 @@ pnpm release
 **main** branch is protected:
 
 - Require PR before merging
-- Require status checks: Quality Checks, Test, Detect changes and PR body
+- Require status checks: Quality Checks, Test, Detect changes
+- Squash merge only; the commit takes the PR title
 - Require conversation resolution
 - No force push allowed
 - No direct commits
@@ -1069,7 +1065,7 @@ pnpm release
 
 To stay inside the GitHub Actions allowance, `ci.yml` runs heavy jobs only when relevant paths change. The `changes` job (top of `ci.yml`) uses `dorny/paths-filter@v4` to compute outputs (`docs`, `src`, `templates`, `integration`, `e2e`, `starters`, `story`, `deps`), and each gated job's `if:` predicate references those outputs.
 
-**Always-on jobs:** `quality`, `test`, `pack-test`. Branch protection requires `quality` and `test` (with `changes` and the `PR body` check), not `pack-test`.
+**Always-on jobs:** `quality`, `test`, `pack-test`. Branch protection requires `quality` and `test` (with `changes`), not `pack-test`.
 
 **Path-gated jobs:** `integration`, `e2e`, `starters`, `docs-typecheck`, `story-interactions`. Skipped if paths don't match.
 

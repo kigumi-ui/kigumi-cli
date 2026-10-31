@@ -30,9 +30,8 @@
  * condition that runs on a pull request event is never accepted.
  *
  * WHY ISSUES AND NOT PULL REQUEST COMMENTS: a comment a pull request run posts
- * on that same pull request lands where the push happened, which is its point
- * (pr-body.yml's edit trail does this through `gh api .../issues/<pr>/comments`
- * in scripts/pr-github.ts). An issue is shared by every run, so there the same
+ * on that same pull request lands where the push happened, which is its point.
+ * An issue is shared by every run, so there the same
  * comment piles up once per push to any PR.
  *
  * WHY ONLY PULL REQUEST TRIGGERS: those are the ones that fire per push to a

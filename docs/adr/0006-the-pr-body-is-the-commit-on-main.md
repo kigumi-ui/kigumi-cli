@@ -86,3 +86,6 @@ trail either: the trail job skips forks, whose token cannot comment. A
 rewrite of its body still fails, since the body check reads GitHub's edit
 history. The repo's PRs come from its own branches, so this is accepted
 rather than worked around with `pull_request_target`.
+
+Superseded by ADR 0018. The squash commit takes the PR title only, and the
+body, its check and the log are gone.
