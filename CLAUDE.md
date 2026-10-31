@@ -35,7 +35,7 @@ When you modify commands, utils, schemas, or project structure, you MUST also up
 - **Test structure changes** → Update `tests/AGENTS.md`
 - **Workflow/checklist changes** → Update `AGENTS.md` (Checklists section)
 
-Describe the current state, never the history. No "Last Updated" date, no changelog, no "added in #NN" log: history lives in `git log`, the PR body (the squash commit on main) and the PR's comment thread. Every PR appending at the same spot conflicts with every other open PR, and every agent pays the tokens for it on each task. `pnpm validate:agents` rejects a `Last Updated` line or a changelog heading in any AGENTS.md or CLAUDE.md.
+Describe the current state, never the history. No "Last Updated" date, no changelog, no "added in #NN" log: history lives in `git log` and the PR (body and comments). Every PR appending at the same spot conflicts with every other open PR, and every agent pays the tokens for it on each task. `pnpm validate:agents` rejects a `Last Updated` line or a changelog heading in any AGENTS.md or CLAUDE.md.
 
 ## Development Workflow
 

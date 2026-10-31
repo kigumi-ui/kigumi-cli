@@ -27,10 +27,6 @@
  *   tsx scripts/check-commit-attribution.ts .git/COMMIT_EDITMSG
  *   tsx scripts/check-commit-attribution.ts --pr   (CI; reads BASE_SHA and
  *     HEAD_SHA from the environment, issue #97)
- *
- * The PR body, which the squash also copies onto main, is checked by
- * `validate:pr-body` in `pr-body.yml`: that workflow runs on `edited`, so it
- * sees a body changed after the last push, and CI never does (issue #150).
  */
 
 import { execFileSync } from 'child_process';
@@ -112,10 +108,9 @@ export interface PullRequestInput {
 }
 
 /**
- * Finds AI attribution in every commit message on the branch, which a squash
- * merge can copy onto main. The commit-msg hook cannot cover these, because
- * GitHub writes the squash commit server-side (issue #97). The PR body is
- * `validate:pr-body`'s job (issue #150).
+ * Finds AI attribution in every commit message on the branch. The commit-msg
+ * hook cannot cover these: a remote agent's commits never pass through it
+ * (issue #97).
  */
 export function findPullRequestAttribution(
   pr: PullRequestInput

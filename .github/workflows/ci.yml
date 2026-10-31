@@ -257,12 +257,9 @@ jobs:
 
   attribution:
     name: No AI attribution
-    # A squash merge copies every branch commit message into the new commit on
-    # main. GitHub writes that commit server-side, so the local commit-msg hook
-    # never sees it; two Cursor Agent trailers reached main that way (issue
-    # #97). This checks the commits. The PR body, which the squash copies too,
-    # is checked by pr-body.yml: it runs on `edited`, and this workflow does
-    # not, so a body changed after the last push was never seen here (#150).
+    # A remote agent's commits never pass the local commit-msg hook; two
+    # Cursor Agent trailers reached main that way (issue #97). This checks
+    # every commit on the branch.
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:

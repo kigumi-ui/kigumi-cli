@@ -1,27 +1,13 @@
 Closes #
 
-<!--
-This body becomes the squash commit on main (docs/adr/0006), so write it as
-history. Delete every HTML comment before posting: the PR body check fails on
-leftovers. Evidence, review rounds and command output go in log comments, one
-per push, headed **Round N** · Covers: a..b, read as git log reads it: the
-commits after a, up to and including b (see .claude/skills/pr-log).
+## Summary
 
-Summary, 2-4 sentences, no heading: what changed and why.
--->
+<!-- The smallest view that makes the change clear: a few sentences, a call tree, pseudocode or a file tree. Core files first. -->
 
-## Deviations from #N
+## Evidence
 
-<!-- Only when the PR deliberately departs from the issue: one bullet each, with the reason. Otherwise delete this section. -->
+<!-- Before and after: a screenshot, command output or a test that failed and now passes. "CI only" when CI is the only evidence. -->
 
-## Impact
+## Merge danger
 
-<!-- Start with none, patch, minor or major, matching the changesets in the diff, then one line on who notices. -->
-
-## Review focus
-
-<!-- Where a reviewer should look first, and why. -->
-
-## Verification
-
-<!-- "CI only", or the log round holding the evidence ("Round 1"), which can be named before it is posted, or a link to that log comment. -->
+<!-- Door: one-way (hard to undo: persisted data, public CLI or API, release) or two-way. Blast radius: who notices if it is wrong. -->
