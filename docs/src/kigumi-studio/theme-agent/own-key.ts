@@ -4,7 +4,9 @@ import type { ThemeAgentTransport } from '../components/theme-agent/ThemeAgentCh
 // The own key: an Anthropic API key the user enters in the Theme Agent's
 // settings. With one, the Theme Agent runs in the browser and calls
 // Anthropic directly (ADR 0017). Kept in the tab's sessionStorage, like the
-// conversation (ADR 0014): closing the tab forgets it.
+// conversation (ADR 0014), so closing the tab forgets it; or, when the user
+// asks Studio to remember it, in localStorage, where every tab finds it.
+// Never in both: saving to one clears the other.
 
 const OWN_KEY_KEY = 'kigumi-studio-theme-agent-own-key';
 
@@ -37,33 +39,66 @@ export function ownKeyProblem(value: string): string | undefined {
   return undefined;
 }
 
-/** The own key this tab saved, `null` without one or without storage. */
-export function loadOwnKey(): string | null {
+export interface SavedOwnKey {
+  key: string;
+  /** Kept in localStorage for every tab, not in this tab's sessionStorage. */
+  remembered: boolean;
+}
+
+/** The own key in `storage()`, `null` without one or where it is blocked. */
+function readStorage(storage: () => Storage): string | null {
   try {
-    return sessionStorage.getItem(OWN_KEY_KEY);
+    return storage().getItem(OWN_KEY_KEY);
   } catch {
-    // Storage blocked: no key was saved.
+    // Storage blocked: no key was saved there.
     return null;
   }
 }
 
-/** Keep `key` for this tab. `false` when storage is blocked: nothing kept. */
-export function saveOwnKey(key: string): boolean {
+/** The own key this tab can use, `null` without one or without storage. */
+export function loadOwnKey(): SavedOwnKey | null {
+  const tabKey = readStorage(() => sessionStorage);
+  if (tabKey) return { key: tabKey, remembered: false };
+  const deviceKey = readStorage(() => localStorage);
+  return deviceKey ? { key: deviceKey, remembered: true } : null;
+}
+
+/**
+ * Keep `key` for this tab, or with `remembered` for every tab on this
+ * device. `false` when storage is blocked: nothing kept, and the key saved
+ * before stays where it was.
+ */
+export function saveOwnKey({ key, remembered }: SavedOwnKey): boolean {
   try {
-    sessionStorage.setItem(OWN_KEY_KEY, key);
-    return true;
+    (remembered ? localStorage : sessionStorage).setItem(OWN_KEY_KEY, key);
   } catch (err) {
-    console.warn('Own key not kept for the tab:', err);
+    console.warn('Own key not kept:', err);
     return false;
+  }
+  removeFrom(() => (remembered ? sessionStorage : localStorage));
+  return true;
+}
+
+/** Forget the own key, in this tab and on this device. */
+export function removeOwnKey(): void {
+  removeFrom(() => sessionStorage);
+  removeFrom(() => localStorage);
+}
+
+function removeFrom(storage: () => Storage): void {
+  try {
+    storage().removeItem(OWN_KEY_KEY);
+  } catch {
+    // Storage blocked: nothing was saved there to remove.
   }
 }
 
-export function removeOwnKey(): void {
-  try {
-    sessionStorage.removeItem(OWN_KEY_KEY);
-  } catch {
-    // Storage blocked: nothing was saved to remove.
-  }
+/**
+ * The key as the settings show it: only its last four characters, so a
+ * screen share does not reveal it.
+ */
+export function maskOwnKey(key: string): string {
+  return `${'•'.repeat(8)}${key.slice(-4)}`;
 }
 
 /**
@@ -82,7 +117,7 @@ interface OwnKeyTransportOptions {
 /**
  * The Theme Agent transport for an own key: each message is answered in the
  * browser by `themeAgentTurn()`, the trigger.dev task's answer loop, and
- * streamed in the shape the task streams. The key is read from the tab when
+ * streamed in the shape the task streams. The key is read from storage when
  * a message is sent, so replacing it keeps the conversation. Nothing outside
  * the tab writes the answer, so there is no session to close and nothing to
  * resume.
@@ -95,8 +130,8 @@ export function ownKeyTransport({
     reconnectToStream: async () => null,
     sendMessages: async ({ messages, metadata, abortSignal }) => {
       const { ownKeyAnswer, anthropicModel } = await loadOwnKeyAnswer();
-      const key = loadOwnKey();
-      const answerModel = model ?? (key ? anthropicModel(key) : null);
+      const saved = loadOwnKey();
+      const answerModel = model ?? (saved ? anthropicModel(saved.key) : null);
       if (!answerModel) throw new Error('No Anthropic API key is saved.');
       return ownKeyAnswer({
         model: answerModel,

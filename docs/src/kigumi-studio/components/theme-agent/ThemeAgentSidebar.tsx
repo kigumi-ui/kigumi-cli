@@ -8,7 +8,7 @@ import {
 } from 'react';
 import type { LanguageModel } from 'ai';
 import clsx from 'clsx';
-import { Button, Icon, Tooltip } from '@/components/ui';
+import { Button, Icon, Tooltip, type ButtonRef } from '@/components/ui';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
 import {
   loadOwnKey,
@@ -16,6 +16,7 @@ import {
   ownKeyTransport,
   removeOwnKey,
   saveOwnKey,
+  type SavedOwnKey,
 } from '../../theme-agent/own-key';
 import {
   ThemeAgentChat,
@@ -78,6 +79,7 @@ export function ThemeAgentSidebar({
   );
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsId = useId();
+  const cog = useRef<ButtonRef>(null);
 
   const access: AccessState = ownKey
     ? 'own-key'
@@ -140,10 +142,9 @@ export function ThemeAgentSidebar({
     }
   };
 
-  const saveKey = (key: string) => {
+  const saveKey = (key: SavedOwnKey) => {
     if (!saveOwnKey(key)) return false;
     setOwnKey(key);
-    setSettingsOpen(false);
     if (ownKey === null) restartOnAccessChange();
     return true;
   };
@@ -151,7 +152,6 @@ export function ThemeAgentSidebar({
   const removeKey = () => {
     removeOwnKey();
     setOwnKey(null);
-    setSettingsOpen(false);
     restartOnAccessChange();
   };
 
@@ -179,6 +179,7 @@ export function ThemeAgentSidebar({
             </Button>
           )}
           <Button
+            ref={cog}
             id={settingsId}
             size="small"
             appearance="plain"
@@ -212,10 +213,11 @@ export function ThemeAgentSidebar({
       )}
       <OwnKeySettingsDialog
         open={settingsOpen}
-        hasKey={ownKey !== null}
+        saved={ownKey}
         onSave={saveKey}
         onRemove={removeKey}
         onClose={() => setSettingsOpen(false)}
+        onClosed={() => cog.current?.focus({ preventScroll: true })}
       />
     </aside>
   );

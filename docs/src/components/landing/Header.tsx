@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import logoImg from '@/assets/icon.svg';
 import { ThemeFab } from './ThemeFab';
+import { KIGUMI_REPO_URL } from '@/lib/repository';
 
 export function Header() {
   return (
@@ -30,7 +31,7 @@ export function Header() {
             Studio
           </Link>
           <a
-            href="https://github.com/kigumi-ui/kigumi-cli"
+            href={KIGUMI_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="wa-caption-m"
