@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/Card/Card';
+import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { HeroPreview } from '@/components/landing/HeroPreview';
 import reactLogo from '@/assets/react-logo.svg';
@@ -156,11 +157,26 @@ export function Ecosystem() {
               </div>
               <p className="wa-color-text-quiet">
                 <Card appearance="filled-outlined" style={{ '--spacing': '0' }}>
+                  {/*
+                   * The command is wider than a phone screen. The copy button
+                   * sits beside the pre rather than over it, so the command
+                   * scrolls without running under the button; the code
+                   * background moves to the row so it still spans both.
+                   */}
                   <div
-                    className="wa-flank:end wa-align-items-center wa-gap-xs"
-                    style={{ position: 'relative', overflow: 'auto' }}
+                    className="flush-code wa-flank:end wa-align-items-center wa-gap-xs"
+                    style={{
+                      backgroundColor: 'var(--wa-color-overlay-inline)',
+                      paddingInlineEnd: 'var(--wa-space-xs)',
+                    }}
                   >
-                    <pre className="flush-code">
+                    <pre
+                      className="flush-code"
+                      style={{
+                        position: 'relative',
+                        backgroundColor: 'transparent',
+                      }}
+                    >
                       <code>
                         <span
                           style={{
@@ -189,6 +205,7 @@ export function Ecosystem() {
                         </span>
                       </code>
                     </pre>
+                    <CopyButton value="npx skills add https://kigumi.style/skills/kigumi" />
                   </div>
                 </Card>
               </p>
