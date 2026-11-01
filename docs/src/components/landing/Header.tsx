@@ -27,7 +27,7 @@ export function Header() {
             Docs
           </a>
           <Link to="/kigumi-studio" className="wa-caption-m">
-            Kigumi Studio
+            Studio
           </Link>
           <a
             href="https://github.com/kigumi-ui/kigumi-cli"
