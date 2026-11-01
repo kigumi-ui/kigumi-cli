@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { simulateReadableStream } from 'ai';
+import { APICallError, simulateReadableStream } from 'ai';
 import { MockLanguageModelV4 } from 'ai/test';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { ThemeAgentSidebar } from '@/kigumi-studio/components/theme-agent/ThemeAgentSidebar';
@@ -89,6 +89,49 @@ const warmerModel = new MockLanguageModelV4({
       : proposalStep({ light: { '--wa-color-brand': TERRACOTTA }, dark: {} }),
 });
 
+/**
+ * A model that fails with `error` on the first message, then answers as
+ * `warmerModel` does.
+ */
+function failingOnceModel(error: unknown) {
+  let failed = false;
+  return new MockLanguageModelV4({
+    doStream: async (options) => {
+      if (!failed) {
+        failed = true;
+        throw error;
+      }
+      return warmerModel.doStream(options);
+    },
+  });
+}
+
+/**
+ * What the browser sees of an invalid key's 401, which carries no CORS
+ * headers, and of a lost connection alike.
+ */
+const unansweredModel = failingOnceModel(new TypeError('Failed to fetch'));
+
+const RATE_LIMIT_REASON =
+  'Number of request tokens has exceeded your per-minute rate limit';
+
+/**
+ * A 429 the browser can read, retried at once (`retry-after-ms`) until the
+ * AI SDK gives up, as it does with Anthropic's.
+ */
+const rateLimitedModel = new MockLanguageModelV4({
+  doStream: async () => {
+    throw new APICallError({
+      message: RATE_LIMIT_REASON,
+      url: 'https://api.anthropic.com/v1/messages',
+      requestBodyValues: {},
+      statusCode: 429,
+      responseHeaders: { 'retry-after-ms': '0' },
+      isRetryable: true,
+    });
+  },
+});
+
 const LOCKS_KEY = 'kigumi-studio-locks';
 const STATE_KEY = 'kigumi-studio-state';
 
@@ -160,13 +203,16 @@ function openDialogs(label: string): HTMLElement[] {
 }
 
 /**
- * The settings dialog the cog opened. The Dialog wrapper renders into
- * `document.body`, where an earlier story's dialog may still be open, so it
- * is the one that was not open before the click.
+ * The settings dialog `trigger`, the cog by default, opened. The Dialog
+ * wrapper renders into `document.body`, where an earlier story's dialog may
+ * still be open, so it is the one that was not open before the click.
  */
-async function openSettings(canvasElement: HTMLElement): Promise<HTMLElement> {
+async function openSettings(
+  canvasElement: HTMLElement,
+  trigger: HTMLElement = settingsButton(canvasElement)
+): Promise<HTMLElement> {
   const before = openDialogs('Theme Agent settings');
-  await userEvent.click(settingsButton(canvasElement));
+  await userEvent.click(trigger);
   return waitFor(() => {
     const dialog = openDialogs('Theme Agent settings').find(
       (open) => !before.includes(open)
@@ -471,5 +517,91 @@ export const CancelChangesNothing: Story = {
     expect(rememberBox(dialog).checked).toBe(true);
     expect(keyHint(dialog)).toContain(PLACEHOLDER_KEY.slice(-4));
     expect(inputField(dialog, 'Anthropic API key').value).toBe('');
+  },
+};
+
+/** The chat's message list, without its live regions. */
+function chatMessages(canvasElement: HTMLElement) {
+  const list = canvasElement.querySelector<HTMLElement>(
+    '.theme-agent__messages'
+  );
+  if (!list) throw new Error('message list not found');
+  return within(list);
+}
+
+/** The polite live region the chat announces its notices in. */
+function announcements(canvasElement: HTMLElement): string {
+  return [...canvasElement.querySelectorAll('[aria-live="polite"]')]
+    .map((region) => region.textContent)
+    .join(' ');
+}
+
+/** Save the placeholder key through the cog and send `text`. */
+async function sendWithKey(canvasElement: HTMLElement, text: string) {
+  const dialog = await openSettings(canvasElement);
+  await enterKey(dialog, PLACEHOLDER_KEY);
+  await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+  messageField(canvasElement).focus();
+  await userEvent.keyboard(`${text}{Enter}`);
+}
+
+/**
+ * Anthropic does not answer and the browser cannot read why: the chat names
+ * the likely causes and opens the settings, nothing is applied, and once the
+ * key is replaced the next message is answered.
+ */
+export const OwnKeyUnanswered: Story = {
+  args: { ownKeyModel: unansweredModel },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const brand = canvas.getByLabelText('Brand colour');
+    const before = brand.textContent;
+    await sendWithKey(canvasElement, 'Make it warmer');
+
+    const message = await chatMessages(canvasElement).findByText(
+      /Anthropic did not answer/
+    );
+    for (const cause of ['API key', 'credit', 'connection']) {
+      expect(message.textContent).toContain(cause);
+    }
+    await waitFor(() =>
+      expect(announcements(canvasElement)).toContain('Anthropic did not answer')
+    );
+    expect(brand.textContent).toBe(before);
+
+    // Its button opens the settings, where the key is replaced.
+    const dialog = await openSettings(
+      canvasElement,
+      canvas.getByText('Open settings')
+    );
+    await enterKey(dialog, PLACEHOLDER_KEY);
+    await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+
+    messageField(canvasElement).focus();
+    await userEvent.keyboard('Make it warmer{Enter}');
+    await canvas.findByText('Applied to the theme');
+    expect(brand.textContent).toBe(TERRACOTTA);
+    expect(
+      chatMessages(canvasElement).queryByText(/Anthropic did not answer/)
+    ).toBeNull();
+  },
+};
+
+/**
+ * Anthropic rate limits the key and the browser can read it: the chat gives
+ * that reason and says to wait, with no settings button.
+ */
+export const OwnKeyRateLimited: Story = {
+  args: { ownKeyModel: rateLimitedModel },
+  play: async ({ canvasElement }) => {
+    await sendWithKey(canvasElement, 'Make it warmer');
+    // Saving the first key started a new conversation, with its own list.
+    const chat = chatMessages(canvasElement);
+
+    const message = await chat.findByText(/rate limiting your API key/);
+    expect(message.textContent).toContain(RATE_LIMIT_REASON);
+    expect(message.textContent).toContain('Wait a minute');
+    expect(chat.queryByText('Open settings')).toBeNull();
+    expect(chat.queryByText(/Anthropic did not answer/)).toBeNull();
   },
 };
