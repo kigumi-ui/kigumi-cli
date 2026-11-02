@@ -18,6 +18,7 @@ import {
 
 const THEME_AGENT_SOURCE_URL = `${KIGUMI_REPO_URL}/tree/main/docs/src/kigumi-studio/theme-agent`;
 const ANTHROPIC_CONSOLE_URL = 'https://console.anthropic.com/settings/keys';
+const REMEMBER_WITHOUT_KEY = 'Enter an Anthropic API key to remember it.';
 
 interface OwnKeySettingsDialogProps {
   open: boolean;
@@ -78,7 +79,7 @@ export function OwnKeySettingsDialog({
     event?.preventDefault();
     // With a key saved and the field empty, Save only moves the saved key.
     const key = draft.trim() || saved?.key || '';
-    const found = ownKeyProblem(key);
+    const found = key || !remember ? ownKeyProblem(key) : REMEMBER_WITHOUT_KEY;
     if (found) {
       setProblem(found);
       return;
@@ -91,12 +92,6 @@ export function OwnKeySettingsDialog({
       );
     }
   };
-
-  const keyHint = saved
-    ? `Saved key ${maskOwnKey(saved.key)}, kept ${
-        saved.remembered ? 'on this device' : 'in this tab'
-      }. Enter another key to replace it.`
-    : 'Sent only to api.anthropic.com.';
 
   return (
     <Dialog
@@ -116,7 +111,6 @@ export function OwnKeySettingsDialog({
           password-toggle
           label="Anthropic API key"
           ref={keyField}
-          hint={keyHint}
           autocomplete="off"
           spellcheck={false}
           value={draft}
@@ -124,7 +118,25 @@ export function OwnKeySettingsDialog({
             setDraft((event.target as HTMLInputElement).value);
             setProblem(undefined);
           }}
-        />
+        >
+          <span slot="hint">
+            {saved ? (
+              <>Saved key {maskOwnKey(saved.key)}.</>
+            ) : (
+              <>
+                Create one in the{' '}
+                <a
+                  href={ANTHROPIC_CONSOLE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Anthropic Console
+                </a>
+                .
+              </>
+            )}
+          </span>
+        </Input>
         {problem && (
           <Callout variant="danger" size="small" role="alert">
             <Icon slot="icon" name="circle-exclamation" />
@@ -133,42 +145,34 @@ export function OwnKeySettingsDialog({
         )}
         <Checkbox
           checked={remember}
-          hint="Keeps the key for every tab. Any script on this page can read a remembered key; without this, closing the tab forgets it."
-          onChange={(event) =>
-            setRemember((event.target as HTMLInputElement).checked)
-          }
+          onChange={(event) => {
+            const checked = (event.target as HTMLInputElement).checked;
+            setRemember(checked);
+            // Only a key can be remembered: say so at once, not on Save.
+            setProblem(
+              checked && !draft.trim() && !saved
+                ? REMEMBER_WITHOUT_KEY
+                : undefined
+            );
+          }}
         >
           Remember on this device
         </Checkbox>
         <Callout variant="brand" size="small">
           <Icon slot="icon" name="circle-info" />
           <p className="wa-body-s">
-            Your key is sent only to api.anthropic.com, never to Kigumi or
-            trigger.dev, and Studio records no telemetry. To check, open your
-            browser&rsquo;s developer tools and watch the Network tab while the
-            Theme Agent answers: every request goes to api.anthropic.com.{' '}
+            Studio never sees your key: it stays in your browser. Check it in
+            the Network tab and{' '}
             <a
               href={THEME_AGENT_SOURCE_URL}
               target="_blank"
               rel="noopener noreferrer"
             >
-              Read the source on GitHub
+              on GitHub
             </a>
             .
           </p>
         </Callout>
-        <p className="wa-body-s">
-          Use a dedicated key with a spend limit, so a leaked key cannot cost
-          you much. Create one in the{' '}
-          <a
-            href={ANTHROPIC_CONSOLE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Anthropic Console
-          </a>
-          .
-        </p>
         <div className="wa-cluster wa-gap-s">
           {saved && (
             <Button

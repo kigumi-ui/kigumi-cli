@@ -40,8 +40,10 @@ cookie, `concurrency: { total: 1 }` and an organization spend limit.
 
 The key lives in the tab's `sessionStorage`, like the conversation (ADR
 0014), or in `localStorage` when the user ticks "Remember on this device".
-Either way any script on the page could read it; the settings dialog says
-so and recommends a key with a spend limit. The dialog checks only the key's
+Either way any script on the page could read it. The settings dialog keeps
+its text short and does not say so: it states that Studio never sees the
+key, points to the Network tab and the source, and links the Anthropic
+Console, where a key gets its spend limit. The dialog checks only the key's
 form: Anthropic answers a CORS request with an invalid key with a 401 that
 carries no CORS headers, so the browser cannot tell a wrong key from a
 network failure, and a test call would say no more than the first message.

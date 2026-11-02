@@ -234,13 +234,9 @@ async function toggleRemember(dialog: HTMLElement) {
 
 /** The key field's hint, which shows the saved key. */
 function keyHint(dialog: HTMLElement): string {
-  const field = [
-    ...dialog.querySelectorAll<HTMLElement & { label: string; hint: string }>(
-      'wa-input'
-    ),
-  ].find((element) => element.label === 'Anthropic API key');
-  if (!field) throw new Error('Anthropic API key field not found');
-  return field.hint;
+  const hint = dialog.querySelector('wa-input [slot="hint"]');
+  if (!hint) throw new Error('Anthropic API key hint not found');
+  return hint.textContent ?? '';
 }
 
 /** Save `key` through the cog, remembered on this device. */
@@ -365,15 +361,20 @@ export const RemoveKey: Story = {
  */
 export const RememberOnThisDevice: Story = {
   play: async ({ canvasElement }) => {
+    // Without a key there is nothing to remember: the dialog says so.
+    let dialog = await openSettings(canvasElement);
+    await toggleRemember(dialog);
+    await within(dialog).findByText(
+      'Enter an Anthropic API key to remember it.'
+    );
+    await userEvent.click(within(dialog).getByText('Cancel'));
+    await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+
     await saveRemembered(canvasElement, PLACEHOLDER_KEY);
     expect(keptOnDevice(PLACEHOLDER_KEY)).toBe(true);
 
-    let dialog = await openSettings(canvasElement);
+    dialog = await openSettings(canvasElement);
     expect(rememberBox(dialog).checked).toBe(true);
-    // wa-checkbox renders the hint from its property, in its shadow root.
-    expect((rememberBox(dialog) as WaCheckbox & { hint: string }).hint).toMatch(
-      /any script on this page can read a remembered key/i
-    );
     // Per tab: unticked, Save moves the saved key without retyping it.
     await toggleRemember(dialog);
     await userEvent.click(within(dialog).getByText('Save'));
