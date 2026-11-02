@@ -1,10 +1,10 @@
 import { InstallCommandExample } from '@/components/landing/examples/InstallCommandExample';
-import stacksImg from '@/assets/stacks.png';
 import { Badge } from '@/components/ui/Badge/Badge';
 import { Button } from '@/components/ui/Button/Button';
 import { ButtonGroup } from '@/components/ui/ButtonGroup/ButtonGroup';
 import { Icon } from '@/components/ui/Icon/Icon';
 import { KIGUMI_REPO_URL } from '@/lib/repository';
+import { HeroFrameworkSwap } from '@/components/landing/HeroFrameworkSwap';
 
 export function Hero() {
   return (
@@ -69,11 +69,7 @@ export function Hero() {
         </div>
 
         <div className="hero__visual">
-          <img
-            src={stacksImg}
-            alt="React, Vue, Angular, Next.js framework logos stacked"
-            className="hero__stacks-img"
-          />
+          <HeroFrameworkSwap />
         </div>
       </div>
     </div>

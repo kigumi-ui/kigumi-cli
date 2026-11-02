@@ -1,0 +1,382 @@
+/*
+ * Hero visual: three stacked sheets in an isometric view.
+ * Bottom: the framework plate that swaps. Middle: the component wireframe.
+ * Top: the rendered command menu, which never changes.
+ * The stage is laid out at 560 x 480 px and scaled down by HeroFrameworkSwap.tsx.
+ */
+
+.framework-swap {
+  --framework-swap-line: color-mix(
+    in oklab,
+    var(--wa-color-brand-fill-loud) 55%,
+    transparent
+  );
+
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 560 / 480;
+}
+
+.framework-swap__stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 560px;
+  height: 480px;
+  transform-origin: top left;
+}
+
+.framework-swap__scene {
+  position: absolute;
+  left: 280px;
+  top: 290px;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(58deg) rotateZ(-38deg);
+}
+
+.framework-swap__sheet {
+  position: absolute;
+  left: -150px;
+  top: -100px;
+  width: 300px;
+  height: 200px;
+  box-sizing: border-box;
+  border-radius: var(--wa-border-radius-l);
+  transform-style: preserve-3d;
+}
+
+.framework-swap__sheet--framework {
+  border: 1px dashed var(--wa-color-surface-border);
+}
+
+.framework-swap__sheet--wireframe {
+  transform: translateZ(70px);
+  border: 1px dashed var(--framework-swap-line);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.framework-swap__sheet--ui {
+  transform: translateZ(140px);
+  background: var(--wa-color-surface-raised);
+  border: 1px solid var(--wa-color-surface-border);
+  color: var(--wa-color-text-normal);
+}
+
+/* Framework plate */
+
+.framework-swap__plate {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border-radius: inherit;
+  border: 1.5px solid var(--framework-accent);
+  background: color-mix(
+    in oklab,
+    var(--framework-accent) 12%,
+    var(--wa-color-surface-raised)
+  );
+  padding: 18px 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.framework-swap__plate img {
+  flex: none;
+  object-fit: contain;
+}
+
+.framework-swap__plate-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.framework-swap__plate-name {
+  font-size: 26px;
+  font-weight: var(--wa-font-weight-bold);
+  line-height: 30px;
+  color: var(--wa-color-text-normal);
+}
+
+.framework-swap__plate-file {
+  font-family: var(--wa-font-family-code);
+  font-size: 11px;
+  color: var(--wa-color-text-quiet);
+}
+
+.framework-swap__plate--out {
+  opacity: 0;
+}
+
+/* Wireframe */
+
+.framework-swap__wire {
+  display: block;
+  border: 1px solid var(--framework-swap-line);
+  border-radius: 6px;
+}
+
+.framework-swap__wire--search {
+  height: 28px;
+  border-radius: 8px;
+}
+
+.framework-swap__wire--label {
+  width: 50px;
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 3px;
+}
+
+.framework-swap__wire--row {
+  height: 24px;
+}
+
+/* Pins between the sheets */
+
+.framework-swap__pin {
+  position: absolute;
+  width: 1px;
+  height: 140px;
+  transform-origin: top;
+  transform: rotateX(-90deg);
+  background: var(--framework-swap-line);
+}
+
+.framework-swap__pin--tl {
+  left: 12px;
+  top: 12px;
+}
+
+.framework-swap__pin--tr {
+  left: 287px;
+  top: 12px;
+}
+
+.framework-swap__pin--bl {
+  left: 12px;
+  top: 187px;
+}
+
+.framework-swap__pin--br {
+  left: 287px;
+  top: 187px;
+}
+
+.framework-swap__ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid var(--framework-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Command menu */
+
+.framework-swap__menu {
+  position: absolute;
+  inset: 0;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.framework-swap__search {
+  height: 28px;
+  box-sizing: border-box;
+  border: 1px solid var(--wa-color-surface-border);
+  border-radius: 8px;
+  padding-inline: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--wa-color-surface-default);
+  color: var(--wa-color-text-quiet);
+}
+
+.framework-swap__search-text {
+  flex-grow: 1;
+}
+
+.framework-swap__group {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: var(--wa-font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wa-color-text-quiet);
+}
+
+.framework-swap__item {
+  height: 24px;
+  border-radius: 6px;
+  padding-inline: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.framework-swap__item-text {
+  flex-grow: 1;
+}
+
+.framework-swap__item--selected {
+  background: var(--wa-color-brand-fill-quiet);
+  color: var(--wa-color-brand-on-quiet);
+  font-weight: var(--wa-font-weight-semibold);
+}
+
+.framework-swap__kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding-inline: 5px;
+  border: 1px solid var(--wa-color-surface-border);
+  border-radius: 4px;
+  background: var(--wa-color-surface-raised);
+  font-family: var(--wa-font-family-code);
+  font-size: 10px;
+  color: var(--wa-color-text-quiet);
+}
+
+/* Rail: three slots, the active framework in the middle */
+
+.framework-swap__rail {
+  position: absolute;
+  left: 88px;
+  top: 404px;
+  width: 384px;
+  height: 48px;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 18%,
+    #000 82%,
+    transparent
+  );
+}
+
+.framework-swap__track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+}
+
+.framework-swap__slot {
+  flex: none;
+  width: 128px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.framework-swap__chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  box-sizing: border-box;
+  padding-inline: 8px 14px;
+  border: 1px solid var(--wa-color-surface-border);
+  border-radius: var(--wa-border-radius-pill);
+  font-size: 13px;
+  font-weight: var(--wa-font-weight-semibold);
+  white-space: nowrap;
+  color: var(--wa-color-text-normal);
+  opacity: 0.42;
+}
+
+.framework-swap__chip img {
+  object-fit: contain;
+}
+
+.framework-swap__chip--active {
+  border-color: var(--framework-accent);
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .framework-swap__plate--in {
+    animation: framework-swap-in 0.75s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  .framework-swap__plate--out {
+    animation: framework-swap-out 0.75s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  .framework-swap__ring {
+    animation: framework-swap-ring 1.2s ease-out 0.45s both;
+  }
+
+  .framework-swap__track {
+    transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .framework-swap__chip {
+    transition:
+      opacity 0.6s ease,
+      border-color 0.6s ease,
+      transform 0.6s ease;
+  }
+
+  /* The snap back into the middle copy of the rail must not animate */
+  .framework-swap__track--instant,
+  .framework-swap__track--instant .framework-swap__chip {
+    transition: none;
+  }
+}
+
+@keyframes framework-swap-in {
+  from {
+    transform: translateX(320px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes framework-swap-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-320px);
+    opacity: 0;
+  }
+}
+
+@keyframes framework-swap-ring {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+
+  15% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
