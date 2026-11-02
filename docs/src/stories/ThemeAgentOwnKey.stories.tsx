@@ -176,10 +176,17 @@ async function openSettings(canvasElement: HTMLElement): Promise<HTMLElement> {
   });
 }
 
+/** Whether the key field hides what it holds. */
+function masked(field: HTMLInputElement): boolean {
+  return (
+    getComputedStyle(field).getPropertyValue('-webkit-text-security') === 'disc'
+  );
+}
+
 /** Type `key` into the dialog's key field and press Save. */
 async function enterKey(dialog: HTMLElement, key: string) {
   const field = await waitFor(() => inputField(dialog, 'Anthropic API key'));
-  expect(field.type).toBe('password');
+  expect(masked(field)).toBe(true);
   // The dialog puts focus on the key field once it has opened.
   await waitFor(() =>
     expect((field.getRootNode() as ShadowRoot).activeElement).toBe(field)
@@ -414,13 +421,14 @@ export const MaskedKey: Story = {
       expect((field.getRootNode() as ShadowRoot).activeElement).toBe(field)
     );
     await userEvent.keyboard('typed');
-    expect(field.type).toBe('password');
-    const reveal = (
-      field.getRootNode() as ShadowRoot
-    ).querySelector<HTMLElement>('[part~="password-toggle-button"]');
-    if (!reveal) throw new Error('reveal button not found');
+    expect(masked(field)).toBe(true);
+    // The icon names the button, as on the cog.
+    const reveal = within(dialog)
+      .getByLabelText('Show key')
+      .closest('wa-button');
+    if (!reveal) throw new Error('Show key button not found');
     await userEvent.click(reveal);
-    expect(field.type).toBe('text');
+    await waitFor(() => expect(masked(field)).toBe(false));
     expect(field.value).toBe('typed');
   },
 };

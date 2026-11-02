@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react';
+import clsx from 'clsx';
 import {
   Button,
   Callout,
@@ -15,9 +16,20 @@ import {
   ownKeyProblem,
   type SavedOwnKey,
 } from '../../theme-agent/own-key';
+import './OwnKeySettingsDialog.css';
 
 const THEME_AGENT_SOURCE_URL = `${KIGUMI_REPO_URL}/tree/main/docs/src/kigumi-studio/theme-agent`;
 const ANTHROPIC_CONSOLE_URL = 'https://console.anthropic.com/settings/keys';
+/**
+ * Whether the browser can hide a text field's characters with CSS. Then the
+ * key field is a text field: Chrome's password manager wakes up whenever a
+ * password field takes focus, and inside a modal dialog that blanks the page
+ * for a moment. An API key is no password to save either. Elsewhere it stays
+ * a password field.
+ */
+const MASK_WITH_CSS =
+  typeof CSS !== 'undefined' && CSS.supports('-webkit-text-security', 'disc');
+
 const REMEMBER_WITHOUT_KEY = 'Enter an Anthropic API key to remember it.';
 
 interface OwnKeySettingsDialogProps {
@@ -55,6 +67,7 @@ export function OwnKeySettingsDialog({
   const [draft, setDraft] = useState('');
   const [problem, setProblem] = useState<string>();
   const [remember, setRemember] = useState(saved?.remembered ?? false);
+  const [revealed, setRevealed] = useState(false);
   const [wasOpen, setWasOpen] = useState(open);
   // A fresh key field per opening: wa-input keeps a value React cleared.
   const [opening, setOpening] = useState(0);
@@ -69,6 +82,7 @@ export function OwnKeySettingsDialog({
       setDraft('');
       setProblem(undefined);
       setRemember(saved?.remembered ?? false);
+      setRevealed(false);
     }
   }
 
@@ -107,8 +121,12 @@ export function OwnKeySettingsDialog({
       <form className="wa-stack wa-gap-m" onSubmit={save}>
         <Input
           key={opening}
-          type="password"
-          password-toggle
+          type={MASK_WITH_CSS ? 'text' : 'password'}
+          password-toggle={!MASK_WITH_CSS}
+          className={clsx(
+            'own-key-field',
+            revealed && 'own-key-field--revealed'
+          )}
           label="Anthropic API key"
           ref={keyField}
           autocomplete="off"
@@ -119,6 +137,20 @@ export function OwnKeySettingsDialog({
             setProblem(undefined);
           }}
         >
+          {MASK_WITH_CSS && (
+            <Button
+              slot="end"
+              size="small"
+              appearance="plain"
+              variant="neutral"
+              onClick={() => setRevealed((shown) => !shown)}
+            >
+              <Icon
+                name={revealed ? 'eye-slash' : 'eye'}
+                label={revealed ? 'Hide key' : 'Show key'}
+              />
+            </Button>
+          )}
           <span slot="hint">
             {saved ? (
               <>Saved key {maskOwnKey(saved.key)}.</>
