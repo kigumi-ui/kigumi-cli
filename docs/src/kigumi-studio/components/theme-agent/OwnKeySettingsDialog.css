@@ -1,0 +1,4 @@
+/* The key field hides the key as a password field would, until revealed. */
+.own-key-field:not(.own-key-field--revealed)::part(input) {
+  -webkit-text-security: disc;
+}

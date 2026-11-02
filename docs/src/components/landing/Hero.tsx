@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/Badge/Badge';
 import { Button } from '@/components/ui/Button/Button';
 import { ButtonGroup } from '@/components/ui/ButtonGroup/ButtonGroup';
 import { Icon } from '@/components/ui/Icon/Icon';
+import { KIGUMI_REPO_URL } from '@/lib/repository';
 
 export function Hero() {
   return (
@@ -50,7 +51,7 @@ export function Hero() {
                 variant="brand"
                 appearance="filled-outlined"
                 size="medium"
-                href="https://github.com/kigumi-ui/kigumi-cli"
+                href={KIGUMI_REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
               >

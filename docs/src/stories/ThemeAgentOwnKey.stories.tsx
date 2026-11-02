@@ -176,10 +176,17 @@ async function openSettings(canvasElement: HTMLElement): Promise<HTMLElement> {
   });
 }
 
+/** Whether the key field hides what it holds. */
+function masked(field: HTMLInputElement): boolean {
+  return (
+    getComputedStyle(field).getPropertyValue('-webkit-text-security') === 'disc'
+  );
+}
+
 /** Type `key` into the dialog's key field and press Save. */
 async function enterKey(dialog: HTMLElement, key: string) {
   const field = await waitFor(() => inputField(dialog, 'Anthropic API key'));
-  expect(field.type).toBe('password');
+  expect(masked(field)).toBe(true);
   // The dialog puts focus on the key field once it has opened.
   await waitFor(() =>
     expect((field.getRootNode() as ShadowRoot).activeElement).toBe(field)
@@ -188,11 +195,64 @@ async function enterKey(dialog: HTMLElement, key: string) {
   await userEvent.click(within(dialog).getByText('Save'));
 }
 
+function holds(storage: Storage, value: string): boolean {
+  return Object.keys(storage).some((key) =>
+    storage.getItem(key)?.includes(value)
+  );
+}
+
 /** True when this tab's sessionStorage holds `value`, and localStorage does not. */
 function keptInTab(value: string): boolean {
-  const holds = (storage: Storage) =>
-    Object.keys(storage).some((key) => storage.getItem(key)?.includes(value));
-  return holds(sessionStorage) && !holds(localStorage);
+  return holds(sessionStorage, value) && !holds(localStorage, value);
+}
+
+/** True when localStorage holds `value`, and this tab's sessionStorage does not. */
+function keptOnDevice(value: string): boolean {
+  return holds(localStorage, value) && !holds(sessionStorage, value);
+}
+
+/** Another placeholder key, with last four characters of its own. */
+const OTHER_KEY = `${PLACEHOLDER_KEY.slice(0, -4)}Ab12`;
+
+type WaCheckbox = HTMLElement & { checked: boolean };
+
+/** The dialog's "Remember on this device" checkbox. */
+function rememberBox(dialog: HTMLElement): WaCheckbox {
+  const box = within(dialog)
+    .getByText('Remember on this device')
+    .closest<WaCheckbox>('wa-checkbox');
+  if (!box) throw new Error('Remember on this device not found');
+  return box;
+}
+
+/**
+ * Click the "Remember on this device" label, as a visitor does. Not the
+ * host: its centre lies between the label and the hint, where a click does
+ * nothing.
+ */
+async function toggleRemember(dialog: HTMLElement) {
+  const label =
+    rememberBox(dialog).shadowRoot?.querySelector<HTMLElement>(
+      '[part~="label"]'
+    );
+  if (!label) throw new Error('Remember on this device label not found');
+  await userEvent.click(label);
+}
+
+/** The key field's hint, which shows the saved key. */
+function keyHint(dialog: HTMLElement): string {
+  const hint = dialog.querySelector('wa-input [slot="hint"]');
+  if (!hint) throw new Error('Anthropic API key hint not found');
+  return hint.textContent ?? '';
+}
+
+/** Save `key` through the cog, remembered on this device. */
+async function saveRemembered(canvasElement: HTMLElement, key: string) {
+  const dialog = await openSettings(canvasElement);
+  await toggleRemember(dialog);
+  expect(rememberBox(dialog).checked).toBe(true);
+  await enterKey(dialog, key);
+  await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
 }
 
 const meta = {
@@ -299,5 +359,117 @@ export const RemoveKey: Story = {
 
     dialog = await openSettings(canvasElement);
     expect(within(dialog).queryByText('Remove key')).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * "Remember on this device" keeps the key for every tab; unticking it puts
+ * the saved key back in this tab only, and Remove key forgets it in both.
+ */
+export const RememberOnThisDevice: Story = {
+  play: async ({ canvasElement }) => {
+    // Without a key there is nothing to remember: the dialog says so.
+    let dialog = await openSettings(canvasElement);
+    await toggleRemember(dialog);
+    await within(dialog).findByText(
+      'Enter an Anthropic API key to remember it.'
+    );
+    await userEvent.click(within(dialog).getByText('Cancel'));
+    await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+
+    await saveRemembered(canvasElement, PLACEHOLDER_KEY);
+    expect(keptOnDevice(PLACEHOLDER_KEY)).toBe(true);
+
+    dialog = await openSettings(canvasElement);
+    expect(rememberBox(dialog).checked).toBe(true);
+    // Per tab: unticked, Save moves the saved key without retyping it.
+    await toggleRemember(dialog);
+    await userEvent.click(within(dialog).getByText('Save'));
+    await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+    expect(keptInTab(PLACEHOLDER_KEY)).toBe(true);
+
+    await saveRemembered(canvasElement, OTHER_KEY);
+    expect(keptOnDevice(OTHER_KEY)).toBe(true);
+    expect(holds(sessionStorage, PLACEHOLDER_KEY)).toBe(false);
+    dialog = await openSettings(canvasElement);
+    await userEvent.click(within(dialog).getByText('Remove key'));
+    await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+    expect(holds(localStorage, OTHER_KEY)).toBe(false);
+    expect(holds(sessionStorage, OTHER_KEY)).toBe(false);
+  },
+};
+
+/**
+ * A saved key is shown only masked, with its last four characters; what is
+ * typed can be revealed.
+ */
+export const MaskedKey: Story = {
+  play: async ({ canvasElement }) => {
+    let dialog = await openSettings(canvasElement);
+    await enterKey(dialog, OTHER_KEY);
+    await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+
+    dialog = await openSettings(canvasElement);
+    const hint = keyHint(dialog);
+    expect(hint).toContain('Ab12');
+    expect(hint).not.toContain(OTHER_KEY.slice(0, 12));
+    const field = inputField(dialog, 'Anthropic API key');
+    expect(field.value).toBe('');
+    expect(document.body.innerHTML).not.toContain(OTHER_KEY);
+
+    await waitFor(() =>
+      expect((field.getRootNode() as ShadowRoot).activeElement).toBe(field)
+    );
+    await userEvent.keyboard('typed');
+    expect(masked(field)).toBe(true);
+    // The icon names the button, as on the cog.
+    const reveal = within(dialog)
+      .getByLabelText('Show key')
+      .closest('wa-button');
+    if (!reveal) throw new Error('Show key button not found');
+    await userEvent.click(reveal);
+    await waitFor(() => expect(masked(field)).toBe(false));
+    expect(field.value).toBe('typed');
+  },
+};
+
+/**
+ * Cancel and Escape leave the saved key and where it is kept as they were,
+ * and focus goes back to the cog.
+ */
+export const CancelChangesNothing: Story = {
+  play: async ({ canvasElement }) => {
+    await saveRemembered(canvasElement, PLACEHOLDER_KEY);
+    const cog = settingsButton(canvasElement);
+
+    for (const close of ['Cancel', 'Escape'] as const) {
+      const dialog = await openSettings(canvasElement);
+      const field = await waitFor(() =>
+        inputField(dialog, 'Anthropic API key')
+      );
+      await waitFor(() =>
+        expect((field.getRootNode() as ShadowRoot).activeElement).toBe(field)
+      );
+      await userEvent.keyboard(OTHER_KEY);
+      await toggleRemember(dialog);
+      expect(rememberBox(dialog).checked).toBe(false);
+
+      if (close === 'Cancel') {
+        await userEvent.click(within(dialog).getByText('Cancel'));
+      } else {
+        field.focus();
+        await userEvent.keyboard('{Escape}');
+      }
+      await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+      expect(keptOnDevice(PLACEHOLDER_KEY)).toBe(true);
+      expect(holds(localStorage, OTHER_KEY)).toBe(false);
+      expect(holds(sessionStorage, OTHER_KEY)).toBe(false);
+      await waitFor(() => expect(document.activeElement).toBe(cog));
+    }
+
+    const dialog = await openSettings(canvasElement);
+    expect(rememberBox(dialog).checked).toBe(true);
+    expect(keyHint(dialog)).toContain(PLACEHOLDER_KEY.slice(-4));
+    expect(inputField(dialog, 'Anthropic API key').value).toBe('');
   },
 };
