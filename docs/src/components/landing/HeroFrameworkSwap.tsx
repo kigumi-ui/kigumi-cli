@@ -58,7 +58,7 @@ const FRAMEWORKS: readonly Framework[] = [
     name: 'Next.js',
     logo: nextjsLogo,
     accent: 'var(--wa-color-text-normal)',
-    file: 'app/command-menu.tsx',
+    file: 'CommandMenu.tsx',
   },
 ];
 
