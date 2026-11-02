@@ -99,7 +99,7 @@ export function ownKeyFailure(error: Error): OwnKeyFailure {
     ) {
       return { message: decoded.message, settings: decoded.settings };
     }
-  } catch {
+  } catch (_error) {
     // Not the encoding: reported as unreadable below.
   }
   return UNANSWERED;

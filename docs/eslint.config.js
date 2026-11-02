@@ -22,6 +22,18 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // As in the root config: an intentionally ignored error is still
+      // captured, as `catch (_error)` with a comment (AGENTS.md).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
   },
   {
     files: ['**/contexts/**/*.{ts,tsx}'],
