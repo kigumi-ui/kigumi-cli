@@ -209,6 +209,9 @@ export function ThemeAgentSidebar({
           onDraftChange={setDraft}
           onActivity={() => setNotice('')}
           transport={access === 'own-key' ? ownKeyChatTransport : transport}
+          onOpenSettings={
+            access === 'own-key' ? () => setSettingsOpen(true) : undefined
+          }
         />
       )}
       <OwnKeySettingsDialog

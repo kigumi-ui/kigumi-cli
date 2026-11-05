@@ -12,6 +12,7 @@ import {
 } from '../../../trigger/theme-agent-turn';
 import { THEME_AGENT_STATUS } from './constants';
 import { themeAgentSnapshotSchema } from './custom-theme';
+import { ownKeyFailureText } from './own-key-failure';
 import type { ThemeAgentMessage } from './message';
 
 // The own-key path's answer, loaded as its own chunk only once an own key
@@ -40,11 +41,6 @@ interface OwnKeyAnswerOptions {
   abortSignal: AbortSignal | undefined;
 }
 
-/** The error's own message: in the browser there is nothing to hide it from. */
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
 /**
  * One answer in the browser: `themeAgentTurn()` with the task's model,
  * thinking and effort, streamed as the chat renders the task's answers,
@@ -59,7 +55,7 @@ export async function ownKeyAnswer({
   const snapshot = themeAgentSnapshotSchema.parse(metadata);
   const modelMessages = await convertToModelMessages(messages);
   return createUIMessageStream<ThemeAgentMessage>({
-    onError: errorText,
+    onError: ownKeyFailureText,
     execute: ({ writer }) => {
       // Transient: the chat shows the step while it lasts, the transcript keeps none.
       const status = (step: string) =>
@@ -73,7 +69,7 @@ export async function ownKeyAnswer({
         onStatus: status,
         abortSignal,
       });
-      writer.merge(result.toUIMessageStream({ onError: errorText }));
+      writer.merge(result.toUIMessageStream({ onError: ownKeyFailureText }));
     },
   });
 }
