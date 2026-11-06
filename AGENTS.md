@@ -677,7 +677,7 @@ flowchart LR
 
 | File | Purpose | Regenerated When | User-Editable |
 | --- | --- | --- | --- |
-| `src/lib/kigumi.ts` | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands | ❌ No |
+| `src/lib/kigumi.ts` | Imports layers.css (Angular: none, `layers.css` sits first in the `angular.json` build `styles` instead) and applies theme classes to `<html>` | Theme/brand/palette commands | ❌ No |
 | `src/styles/layers.css` | Wraps Web Awesome CSS in cascade layers | Theme/brand/palette commands | ❌ No |
 | `src/styles/theme.css` | The user's design tokens (`--wa-*` custom properties), in the `theme` layer | Only on init (if missing) | ✅ Yes - preserved |
 | `src/styles/overrides.css` | The user's custom CSS rules, in the `overrides` layer after `theme` (ADR 0009) | Created when missing by init, theme, brand, palette and `upgrade`; never overwritten | ✅ Yes - preserved |
