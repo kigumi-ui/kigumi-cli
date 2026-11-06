@@ -204,6 +204,7 @@ export function ThemeAgentSidebar({
         <ThemeAgentChat
           key={conversation.key}
           ref={chatRef}
+          path={access === 'own-key' ? 'own-key' : 'hosted'}
           startedBy={conversation.startedBy}
           draft={draft}
           onDraftChange={setDraft}

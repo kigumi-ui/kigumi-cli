@@ -59,6 +59,9 @@ import {
   loadSession,
   saveConversation,
   saveSession,
+  withInterruptedAnswer,
+  type ConversationPath,
+  type CutOffReason,
   type StoredConversation,
 } from '../../theme-agent/stored-conversation';
 import { useThemeAgentStudio } from '../../theme-agent/use-theme-agent-studio';
@@ -94,11 +97,17 @@ function messageText(message: ThemeAgentMessage): string {
 }
 
 /** Why no proposal in this answer was accepted, from its last attempt. */
-function refusalReasons(message: ThemeAgentMessage, cutOff: boolean): string[] {
-  if (cutOff) {
+function refusalReasons(
+  message: ThemeAgentMessage,
+  cutOff: CutOffReason | undefined
+): string[] {
+  if (cutOff === 'output-limit') {
     return [
       'The answer hit its length limit before the proposal was complete.',
     ];
+  }
+  if (cutOff === 'reload') {
+    return ['A reload interrupted the answer before it was complete.'];
   }
   for (const part of [...message.parts].reverse()) {
     if (part.type !== `tool-${THEME_AGENT_PROPOSE_TOOL}`) continue;
@@ -143,6 +152,8 @@ function closeSession(chatId: string) {
 
 interface ThemeAgentChatProps {
   ref: Ref<ThemeAgentChatHandle>;
+  /** Where this conversation's answers are written; it never moves. */
+  path: ConversationPath;
   startedBy: ConversationStart | undefined;
   draft: string;
   onDraftChange: (draft: string) => void;
@@ -159,17 +170,26 @@ interface ThemeAgentChatProps {
 }
 
 /**
- * The conversation this tab saved before a reload, unless its session was
- * closed: a closed session takes no further message.
+ * The conversation this tab saved on `path` before a reload, unless its
+ * session was closed: a closed session takes no further message. One saved
+ * on the other path starts a fresh conversation. On the own-key path an
+ * answer the reload interrupted comes back cut off.
  */
-function restorableConversation(): StoredConversation | undefined {
-  const stored = loadConversation();
-  if (!stored) return undefined;
+function restorableConversation(
+  path: ConversationPath
+): StoredConversation | undefined {
+  const stored = loadConversation(path);
+  if (!stored) {
+    clearConversation();
+    return undefined;
+  }
   if (loadSession(stored.chatId)?.closed) {
     clearConversation();
     return undefined;
   }
-  return stored;
+  return path === 'own-key'
+    ? withInterruptedAnswer(stored, crypto.randomUUID())
+    : stored;
 }
 
 /**
@@ -179,6 +199,7 @@ function restorableConversation(): StoredConversation | undefined {
  */
 export function ThemeAgentChat({
   ref,
+  path,
   startedBy,
   draft,
   onDraftChange,
@@ -187,7 +208,7 @@ export function ThemeAgentChat({
   onOpenSettings,
 }: ThemeAgentChatProps) {
   // Read once per mount: after "New chat" there is nothing stored.
-  const [restored] = useState(restorableConversation);
+  const [restored] = useState(() => restorableConversation(path));
   const [chatId] = useState(() => restored?.chatId ?? crypto.randomUUID());
   const [restoredSession] = useState(() =>
     restored ? loadSession(restored.chatId) : undefined
@@ -223,9 +244,9 @@ export function ThemeAgentChat({
   const [revision, conversationChanged] = useReducer((n: number) => n + 1, 0);
   const [statusStep, setStatusStep] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
-  // Answers that hit the per-step output limit.
-  const [cutOff, setCutOff] = useState<ReadonlySet<string>>(
-    () => new Set(restored?.cutOff)
+  // Answers that hit the per-step output limit, or a reload interrupted.
+  const [cutOff, setCutOff] = useState<ReadonlyMap<string, CutOffReason>>(
+    () => new Map(Object.entries(restored?.cutOff ?? {}))
   );
 
   const { messages, sendMessage, status, error, stop } =
@@ -241,7 +262,7 @@ export function ThemeAgentChat({
       onFinish: ({ message, isAbort, isDisconnect, isError, finishReason }) => {
         setStatusStep(null);
         if (finishReason === 'length') {
-          setCutOff((ids) => new Set(ids).add(message.id));
+          setCutOff((ids) => new Map(ids).set(message.id, 'output-limit'));
         }
         // Recorded with or without a proposal, so the next message never
         // reports an older answer's outcome as this one's.
@@ -355,11 +376,22 @@ export function ThemeAgentChat({
     if (ended.current || savedCount === 0) return;
     saveConversation({
       chatId,
+      path,
       messages: latestMessages.current.slice(0, savedCount),
       conversation: conversation.save(),
-      cutOff: [...cutOff],
+      answering: running,
+      cutOff: Object.fromEntries(cutOff),
     });
-  }, [chatId, savedCount, status, conversation, cutOff, revision]);
+  }, [
+    chatId,
+    path,
+    savedCount,
+    status,
+    running,
+    conversation,
+    cutOff,
+    revision,
+  ]);
 
   const send = () => {
     const text = draft.trim();
@@ -474,7 +506,7 @@ export function ThemeAgentChat({
                   violations={conversation.answerViolations(message.id)}
                   reasons={
                     outcome === 'refused'
-                      ? refusalReasons(message, cutOff.has(message.id))
+                      ? refusalReasons(message, cutOff.get(message.id))
                       : outcome === 'rejected'
                         ? conversation.answerErrors(message.id)
                         : []
