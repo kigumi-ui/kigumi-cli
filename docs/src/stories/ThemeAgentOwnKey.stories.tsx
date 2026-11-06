@@ -762,24 +762,23 @@ export const RemovingKeyEndsConversation: Story = {
   },
 };
 
+const TEAL = '#0e7490';
+
 /**
- * A model whose first answer proposes the terracotta brand and is then
- * still being written when the page reloads; later answers are
- * `warmerModel`'s.
+ * A model that answers as `warmerModel` does, except for the second answer:
+ * it proposes a teal brand and is still being written when the page
+ * reloads.
  */
-function interruptedOnceModel() {
+function interruptedSecondModel() {
   let calls = 0;
   return new MockLanguageModelV4({
     doStream: async (options) => {
       calls += 1;
-      if (calls === 1) {
-        return proposalStep({
-          light: { '--wa-color-brand': TERRACOTTA },
-          dark: {},
-        });
+      if (calls === 3) {
+        return proposalStep({ light: { '--wa-color-brand': TEAL }, dark: {} });
       }
       // The explanation after the proposal's result never comes.
-      if (calls === 2) return { stream: new ReadableStream() };
+      if (calls === 4) return { stream: new ReadableStream() };
       return warmerModel.doStream(options);
     },
   });
@@ -802,12 +801,13 @@ function ReloadablePanel(props: ComponentProps<typeof ThemeAgentSidebar>) {
 }
 
 /**
- * A reload while an own-key answer is being written: the answer comes back
- * cut off, nothing of its accepted proposal is applied, and the next
+ * A reload while an own-key answer is being written: the conversation comes
+ * back with the earlier answer and its Undo, the interrupted answer comes
+ * back cut off with nothing of its accepted proposal applied, and the next
  * message is answered and applied.
  */
 export const ReloadDuringOwnKeyAnswer: Story = {
-  args: { accessCookie: false, ownKeyModel: interruptedOnceModel() },
+  args: { accessCookie: false, ownKeyModel: interruptedSecondModel() },
   render: (args) => <ReloadablePanel {...args} />,
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -817,9 +817,11 @@ export const ReloadDuringOwnKeyAnswer: Story = {
     const calls = model.doStreamCalls.length;
     await saveKey(canvasElement, PLACEHOLDER_KEY);
     await send(canvasElement, 'Make it warmer');
-    // The proposal was accepted and its result sent back: the answer is
-    // waiting for the model's explanation.
-    await waitFor(() => expect(model.doStreamCalls.length - calls).toBe(2));
+    await canvas.findByText('Applied to the theme');
+    await send(canvasElement, 'Try teal');
+    // The teal proposal was accepted and its result sent back: the answer
+    // is waiting for the model's explanation.
+    await waitFor(() => expect(model.doStreamCalls.length - calls).toBe(4));
 
     await userEvent.click(canvas.getByText('Reload'));
 
@@ -831,13 +833,18 @@ export const ReloadDuringOwnKeyAnswer: Story = {
         exact: false,
       })
     ).toBeInTheDocument();
-    expect(canvas.getByText('Make it warmer')).toBeInTheDocument();
+    expect(canvas.getByText('Try teal')).toBeInTheDocument();
     expect(canvas.queryByText('Thinking…')).not.toBeInTheDocument();
+    expect(brand.textContent).toBe(TERRACOTTA);
+
+    // The earlier answer came back with its Undo.
+    expect(canvas.getByText(WARMER)).toBeInTheDocument();
+    await userEvent.click(canvas.getByText('Undo'));
+    await canvas.findByText('Undone');
     expect(brand.textContent).toBe(before);
 
-    await send(canvasElement, 'Make it warmer, please');
-    await canvas.findByText(WARMER);
+    await send(canvasElement, 'Make it warmer again');
+    await waitFor(() => expect(brand.textContent).toBe(TERRACOTTA));
     await canvas.findByText('Applied to the theme');
-    expect(brand.textContent).toBe(TERRACOTTA);
   },
 };
