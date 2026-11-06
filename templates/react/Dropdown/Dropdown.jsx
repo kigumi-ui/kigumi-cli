@@ -15,6 +15,18 @@ function ensureLoaded() {
  * @property {HTMLElement | null} element
  */
 
+/**
+ * @typedef {Object} DropdownProps
+ * @property {boolean} [open] - Indicates whether the dropdown is open
+ * @property {string} [placement] - Preferred placement of the dropdown panel: top | top-start | top-end | bottom | bottom-start | bottom-end | right | right-start | right-end | left | left-start | left-end
+ * @property {boolean} [disabled] - Deprecated: Disable the trigger button instead. Removed in the next major.
+ * @property {boolean} [stay-open-on-select] - Deprecated: Call preventDefault() on the select event to keep the dropdown open. Removed in the next major.
+ * @property {number} [distance] - Distance from the panel to the trigger
+ * @property {number} [skidding] - Offset along the trigger
+ * @property {boolean} [hoist] - Deprecated: The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.
+ * @property {string} [size] - Dropdown size: small | medium | large | xs | s | m | l | xl
+ */
+
 export const Dropdown = React.forwardRef(
   (
     {

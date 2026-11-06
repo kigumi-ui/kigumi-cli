@@ -188,7 +188,7 @@ wa-checkbox-group -> <CheckboxGroup>
 Form Controls | free | Color pickers allow the user to select a color
 wa-color-picker -> <ColorPicker>
 
-**Props:** value(string), format(hex|rgb|hsl|hsv=hex), opacity(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), label(string=''), hint(string=''), name(string), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), swatches(string=''), uppercase(boolean=false), without-format-toggle(boolean=false), inline(boolean=false), custom-error(string)
+**Props:** value(string), format(hex|rgb|hsl|hsv=hex), opacity(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=m), label(string=''), hint(string=''), name(string), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), swatches(string=''), uppercase(boolean=false), without-format-toggle(boolean=false), inline(boolean=false, deprecated), custom-error(string)
 **Events:** onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid
 **Slots:** label, hint
 **Methods:** getHexString(), focus(), blur(), getFormattedValue(), show(), hide()
@@ -276,7 +276,7 @@ wa-drawer -> <Drawer>
 Overlays | free | Dropdowns expose additional content that pops up when the user interacts with a trigger
 wa-dropdown -> <Dropdown>
 
-**Props:** open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), disabled(boolean=false), stay-open-on-select(boolean=false), distance(number=0), skidding(number=0), hoist(boolean=false), size(small|medium|large|xs|s|m|l|xl=m)
+**Props:** open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), disabled(boolean=false, deprecated), stay-open-on-select(boolean=false, deprecated), distance(number=0), skidding(number=0), hoist(boolean=false, deprecated), size(small|medium|large|xs|s|m|l|xl=m)
 **Events:** onShow, onAfterShow, onHide, onAfterHide, onSelect
 **Slots:** default, trigger
 **Parts:** base, menu
@@ -287,7 +287,7 @@ wa-dropdown -> <Dropdown>
 Overlays | free | Dropdown items are used inside dropdowns to represent individual menu items
 wa-dropdown-item -> <DropdownItem>
 
-**Props:** type(normal|checkbox=normal), checked(boolean=false), value(string), disabled(boolean=false), loading(boolean=false), variant(default|danger=default), href(string), target(_blank|_parent|_self|_top), rel(string), download(string)
+**Props:** type(normal|checkbox=normal), checked(boolean=false), value(string), disabled(boolean=false), loading(boolean=false, deprecated), variant(default|danger=default), href(string), target(_blank|_parent|_self|_top), rel(string), download(string)
 **Events:** onBlur, onFocus
 **Slots:** default, icon, details, submenu
 **Methods:** openSubmenu(), closeSubmenu()
@@ -338,7 +338,7 @@ wa-markdown -> <Markdown>
 Utilities | free | Observes changes to a target element and emits events when they occur
 wa-mutation-observer -> <MutationObserver>
 
-**Props:** attr(string), attr-old-value(boolean=false), char-data(boolean=false), char-data-old-value(boolean=false), child-list(boolean=false), disabled(boolean=false), subtree(boolean=false)
+**Props:** attr(string), attr-old-value(boolean=false), char-data(boolean=false), char-data-old-value(boolean=false), child-list(boolean=false), disabled(boolean=false), subtree(boolean=false, deprecated)
 **Events:** onMutation
 **Slots:** default
 
@@ -354,7 +354,7 @@ wa-resize-observer -> <ResizeObserver>
 Overlays | free | Popovers display additional content when users interact with a trigger element
 wa-popover -> <Popover>
 
-**Props:** open(boolean=false), disabled(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=top), trigger(string=click), distance(number=8), skidding(number=0), with-arrow(boolean=false), without-arrow(boolean=false), for(string)
+**Props:** open(boolean=false), disabled(boolean=false, deprecated), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=top), trigger(string=click, deprecated), distance(number=8), skidding(number=0), with-arrow(boolean=false, deprecated), without-arrow(boolean=false), for(string)
 **Events:** onShow, onAfterShow, onHide, onAfterHide
 **Slots:** default
 **Methods:** show(), hide()
@@ -366,7 +366,7 @@ wa-popover -> <Popover>
 Overlays | free | Popup is a utility component for positioning elements relative to an anchor
 wa-popup -> <Popup>
 
-**Props:** active(boolean=false), anchor(string), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=top), strategy(absolute|fixed=absolute), distance(number=0), skidding(number=0), arrow(boolean=false), arrow-placement(start|end|center|anchor=anchor), arrow-padding(number=10), boundary(viewport|scroll=viewport), flip(boolean=false), flip-fallback-placements(string), flip-fallback-strategy(best-fit|initial=best-fit), flip-padding(number=0), shift(boolean=false), shift-padding(number=0), auto-size(horizontal|vertical|both), sync(width|height|both), auto-size-padding(number=0), hover-bridge(boolean=false)
+**Props:** active(boolean=false), anchor(string), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=top), strategy(absolute|fixed=absolute, deprecated), distance(number=0), skidding(number=0), arrow(boolean=false), arrow-placement(start|end|center|anchor=anchor), arrow-padding(number=10), boundary(viewport|scroll=viewport), flip(boolean=false), flip-fallback-placements(string), flip-fallback-strategy(best-fit|initial=best-fit), flip-padding(number=0), shift(boolean=false), shift-padding(number=0), auto-size(horizontal|vertical|both), sync(width|height|both), auto-size-padding(number=0), hover-bridge(boolean=false)
 **Events:** onReposition
 **Slots:** default, anchor
 **Methods:** reposition()
@@ -402,7 +402,7 @@ wa-qr-code -> <QrCode>
 Form Controls | free | Radio groups are used to group multiple radios so only one can be selected
 wa-radio-group -> <RadioGroup>
 
-**Props:** label(string=''), hint(string=''), name(string), value(string), size(small|medium|large|xs|s|m|l|xl), required(boolean=false), orientation(horizontal|vertical=vertical), disabled(boolean=false), invalid(boolean=false), help-text(string=''), custom-error(string)
+**Props:** label(string=''), hint(string=''), name(string), value(string), size(small|medium|large|xs|s|m|l|xl), required(boolean=false), orientation(horizontal|vertical=vertical), disabled(boolean=false), invalid(boolean=false, deprecated), help-text(string='', deprecated), custom-error(string)
 **Events:** onInput, onChange, onInvalid
 **Slots:** default, label, hint
 **Methods:** focus()
@@ -450,7 +450,7 @@ wa-relative-time -> <RelativeTime>
 Layout | free | Adds a scrollable container with optional shadow indicators
 wa-scroller -> <Scroller>
 
-**Props:** orientation(horizontal|vertical=horizontal), with-scroll-indicator(boolean=false), without-scrollbar(boolean=false), without-shadow(boolean=false)
+**Props:** orientation(horizontal|vertical=horizontal), with-scroll-indicator(boolean=false, deprecated), without-scrollbar(boolean=false), without-shadow(boolean=false)
 **Slots:** default
 **Parts:** content, start-shadow, end-shadow
 **CSS:** --shadow-color(var(--wa-color-surface-default)), --shadow-size(2rem)
@@ -459,7 +459,7 @@ wa-scroller -> <Scroller>
 Form Controls | free | Selects allow you to choose items from a menu of predefined options
 wa-select -> <Select>
 
-**Props:** name(string=''), value(string), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=m), placeholder(string=''), multiple(boolean=false), max-options-visible(number=3), disabled(boolean=false), with-clear(boolean=false), open(boolean=false), hoist(boolean=false), placement(top|bottom=bottom), pill(boolean=false), label(string=''), hint(string=''), required(boolean=false), invalid(boolean=false), help-text(string=''), custom-error(string)
+**Props:** name(string=''), value(string), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=m), placeholder(string=''), multiple(boolean=false), max-options-visible(number=3), disabled(boolean=false), with-clear(boolean=false), open(boolean=false), hoist(boolean=false, deprecated), placement(top|bottom=bottom), pill(boolean=false), label(string=''), hint(string=''), required(boolean=false), invalid(boolean=false, deprecated), help-text(string='', deprecated), custom-error(string)
 **Events:** onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()

@@ -19,7 +19,9 @@ const props = defineProps({
   required: { type: Boolean, required: false },
   orientation: { type: String, required: false },
   disabled: { type: Boolean, required: false },
+  /** @deprecated The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major. */
   invalid: { type: Boolean, required: false },
+  /** @deprecated Use hint instead. Removed in the next major. */
   'help-text': { type: String, required: false },
   'custom-error': { type: String, required: false },
 });

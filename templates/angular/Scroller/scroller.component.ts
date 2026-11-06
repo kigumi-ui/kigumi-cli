@@ -43,7 +43,11 @@ export class ScrollerComponent implements AfterViewInit {
 
   /** Scroll direction */
   @Input() orientation?: 'horizontal' | 'vertical';
-  /** Shows shadow indicators */
+  /**
+   * Has no effect: wa-scroller does not declare it
+   *
+   * @deprecated The scroll shadows show by default; set without-shadow to hide them. Removed in the next major.
+   */
   @Input() withScrollIndicator?: boolean;
   /** Hides the scrollbar */
   @Input() withoutScrollbar?: boolean;

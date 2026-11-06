@@ -60,7 +60,11 @@ export class MutationObserverComponent implements AfterViewInit, OnDestroy {
   @Input() childList?: boolean;
   /** Disables the observer */
   @Input() disabled?: boolean;
-  /** Observes changes in subtree */
+  /**
+   * Has no effect: wa-mutation-observer does not declare it
+   *
+   * @deprecated The observer always watches the whole subtree, so remove this prop. Removed in the next major.
+   */
   @Input() subtree?: boolean;
 
   @Output() mutation = new EventEmitter<WaMutationEvent>();

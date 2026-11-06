@@ -69,6 +69,7 @@ describe('validate:cem-sync', () => {
         'prop-value-drift',
         'allowlisted-but-wrapped',
         'attribute-missing-from-registry',
+        'prop-missing-from-cem',
         'stale-allowlist-entry',
         'stale-kigumi-deprecation',
         'deprecation-missing-from-registry',
@@ -313,6 +314,48 @@ describe('checkAttributeDrift', () => {
 
     expect(findings).toHaveLength(1);
     expect(findings[0].message).toContain('"submenuOpen"');
+  });
+
+  describe('a registry prop the CEM does not declare (issue #145)', () => {
+    it.each([
+      ['plain name', 'hoist', { placement: 'string' }],
+      ['kebab name', 'help-text', { hint: 'string' }],
+      ['camelCase name', 'submenuOpen', { variant: 'string' }],
+    ])('is an error for a %s', (_label, prop, cemAttrs) => {
+      const findings = checkAttributeDrift(
+        new Map([['widget', makeDef([{ name: prop, type: 'boolean' }])]]),
+        new Map([['wa-widget', cemAttrs]]),
+        policy()
+      );
+
+      expect(findings).toEqual([
+        // The premise: the CEM side still reports its own unmatched attribute.
+        expect.objectContaining({
+          category: 'attribute-missing-from-registry',
+        }),
+        expect.objectContaining({
+          component: 'widget',
+          category: 'prop-missing-from-cem',
+          severity: 'error',
+          message: expect.stringContaining(`widget.${prop}`),
+        }),
+      ]);
+    });
+
+    it('leaves a deprecated prop to checkDeprecationDrift, which owns its reason', () => {
+      const findings = checkAttributeDrift(
+        new Map([
+          [
+            'widget',
+            makeDef([{ name: 'hoist', type: 'boolean', deprecated: 'Gone.' }]),
+          ],
+        ]),
+        new Map([['wa-widget', {}]]),
+        policy()
+      );
+
+      expect(findings).toEqual([]);
+    });
   });
 
   it('does not treat an inherited object key as an allowlist entry', () => {

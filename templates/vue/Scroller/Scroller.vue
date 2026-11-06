@@ -14,6 +14,7 @@ function ensureLoaded() {
  */
 export interface ScrollerProps {
   orientation?: 'horizontal' | 'vertical';
+  /** @deprecated The scroll shadows show by default; set without-shadow to hide them. Removed in the next major. */
   'with-scroll-indicator'?: boolean;
   'without-scrollbar'?: boolean;
   'without-shadow'?: boolean;

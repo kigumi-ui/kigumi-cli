@@ -8,6 +8,17 @@ function ensureLoaded() {
     import('@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js'));
 }
 
+/**
+ * @typedef {Object} MutationObserverProps
+ * @property {string} [attr] - Space-separated list of attributes to observe
+ * @property {boolean} [attr-old-value] - Records previous attribute values
+ * @property {boolean} [char-data] - Observes character data changes
+ * @property {boolean} [char-data-old-value] - Records previous character data
+ * @property {boolean} [child-list] - Observes child node changes
+ * @property {boolean} [disabled] - Disables the observer
+ * @property {boolean} [subtree] - Deprecated: The observer always watches the whole subtree, so remove this prop. Removed in the next major.
+ */
+
 export const MutationObserver = React.forwardRef(
   ({ children, className, onMutation, ...props }, ref) => {
     const observerRef = React.useRef(null);

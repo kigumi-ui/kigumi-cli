@@ -18,6 +18,7 @@ const props = defineProps({
   'char-data-old-value': { type: Boolean, required: false },
   'child-list': { type: Boolean, required: false },
   disabled: { type: Boolean, required: false },
+  /** @deprecated The observer always watches the whole subtree, so remove this prop. Removed in the next major. */
   subtree: { type: Boolean, required: false },
 });
 

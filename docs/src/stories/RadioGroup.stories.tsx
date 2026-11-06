@@ -39,10 +39,15 @@ const meta = {
     },
     invalid: {
       control: 'boolean',
-      description: 'Shows invalid/error state',
+      description:
+        '**Deprecated.** The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
-    'help-text': { control: 'text', description: 'Help text below the group' },
+    'help-text': {
+      control: 'text',
+      description:
+        '**Deprecated.** Use hint instead. Removed in the next major.',
+    },
     'custom-error': {
       control: 'text',
       description:
@@ -200,7 +205,7 @@ export const ChromaticOnly: Story = {
         <Radio value="x">X</Radio>
         <Radio value="y">Y</Radio>
       </RadioGroup>
-      <RadioGroup label="Invalid" invalid help-text="Please select an option.">
+      <RadioGroup label="With hint" hint="Choose the option that fits best.">
         <Radio value="p">P</Radio>
         <Radio value="q">Q</Radio>
       </RadioGroup>

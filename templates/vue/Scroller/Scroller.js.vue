@@ -13,6 +13,7 @@ function ensureLoaded() {
  */
 const props = defineProps({
   orientation: { type: String, required: false },
+  /** @deprecated The scroll shadows show by default; set without-shadow to hide them. Removed in the next major. */
   'with-scroll-indicator': { type: Boolean, required: false },
   'without-scrollbar': { type: Boolean, required: false },
   'without-shadow': { type: Boolean, required: false },

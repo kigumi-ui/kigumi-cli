@@ -1344,7 +1344,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'inline',
         type: 'boolean',
         default: 'false',
-        description: 'Renders the color picker inline instead of in a dropdown',
+        description: 'Has no effect: wa-color-picker does not declare it',
+        deprecated:
+          'The color picker has no inline mode, so remove this prop. Removed in the next major.',
       },
       {
         name: 'custom-error',
@@ -1871,13 +1873,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'disabled',
         type: 'boolean',
         default: 'false',
-        description: 'Disables the dropdown',
+        description: 'Has no effect: wa-dropdown does not declare it',
+        deprecated:
+          'Disable the trigger button instead. Removed in the next major.',
       },
       {
         name: 'stay-open-on-select',
         type: 'boolean',
         default: 'false',
-        description: 'Keeps the dropdown open when an item is selected',
+        description: 'Has no effect: wa-dropdown does not declare it',
+        deprecated:
+          'Call preventDefault() on the select event to keep the dropdown open. Removed in the next major.',
       },
       {
         name: 'distance',
@@ -1895,7 +1901,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'hoist',
         type: 'boolean',
         default: 'false',
-        description: 'Hoists the dropdown panel to the body',
+        description: 'Has no effect: wa-dropdown does not declare it',
+        deprecated:
+          'The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.',
       },
       {
         name: 'size',
@@ -1949,7 +1957,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'loading',
         type: 'boolean',
         default: 'false',
-        description: 'Draws the item in a loading state',
+        description: 'Has no effect: wa-dropdown-item does not declare it',
+        deprecated:
+          'Dropdown items have no loading state, so remove this prop. Removed in the next major.',
       },
       {
         name: 'variant',
@@ -2365,7 +2375,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'subtree',
         type: 'boolean',
         default: 'false',
-        description: 'Observes changes in subtree',
+        description: 'Has no effect: wa-mutation-observer does not declare it',
+        deprecated:
+          'The observer always watches the whole subtree, so remove this prop. Removed in the next major.',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/mutation-observer/mutation-observer.js`,
@@ -2416,7 +2428,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'disabled',
         type: 'boolean',
         default: 'false',
-        description: 'Disables the popover',
+        description: 'Has no effect: wa-popover does not declare it',
+        deprecated:
+          'Disable the element the for attribute names instead. Removed in the next major.',
       },
       {
         name: 'placement',
@@ -2442,7 +2456,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'trigger',
         type: 'string',
         default: 'click',
-        description: 'Activation events (click, hover, focus)',
+        description: 'Has no effect: wa-popover does not declare it',
+        deprecated:
+          'The popover opens on a click on the element the for attribute names, and no prop changes that, so remove this one. Removed in the next major.',
       },
       {
         name: 'distance',
@@ -2460,7 +2476,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'with-arrow',
         type: 'boolean',
         default: 'false',
-        description: 'Shows an arrow',
+        description: 'Has no effect: wa-popover does not declare it',
+        deprecated:
+          'The arrow shows by default; set without-arrow to hide it. Removed in the next major.',
       },
       {
         name: 'without-arrow',
@@ -2526,7 +2544,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'string',
         values: ['absolute', 'fixed'],
         default: 'absolute',
-        description: 'Positioning strategy',
+        description: 'Has no effect: wa-popup does not declare it',
+        deprecated:
+          'The popup renders in the top layer and picks its own positioning strategy, so remove this prop. Removed in the next major.',
       },
       {
         name: 'distance',
@@ -2840,13 +2860,16 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'invalid',
         type: 'boolean',
         default: 'false',
-        description: 'Shows invalid/error state',
+        description: 'Has no effect: wa-radio-group does not declare it',
+        deprecated:
+          'The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.',
       },
       {
         name: 'help-text',
         type: 'string',
         default: "''",
-        description: 'Help text below the group',
+        description: 'Has no effect: wa-radio-group does not declare it',
+        deprecated: 'Use hint instead. Removed in the next major.',
       },
       {
         name: 'custom-error',
@@ -3120,7 +3143,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'with-scroll-indicator',
         type: 'boolean',
         default: 'false',
-        description: 'Shows shadow indicators',
+        description: 'Has no effect: wa-scroller does not declare it',
+        deprecated:
+          'The scroll shadows show by default; set without-shadow to hide them. Removed in the next major.',
       },
       {
         name: 'without-scrollbar',
@@ -3216,7 +3241,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'hoist',
         type: 'boolean',
         default: 'false',
-        description: 'Hoists to body',
+        description: 'Has no effect: wa-select does not declare it',
+        deprecated:
+          'The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.',
       },
       {
         name: 'placement',
@@ -3253,13 +3280,16 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'invalid',
         type: 'boolean',
         default: 'false',
-        description: 'Shows invalid/error state',
+        description: 'Has no effect: wa-select does not declare it',
+        deprecated:
+          'The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.',
       },
       {
         name: 'help-text',
         type: 'string',
         default: "''",
-        description: 'Help text below the control',
+        description: 'Has no effect: wa-select does not declare it',
+        deprecated: 'Use hint instead. Removed in the next major.',
       },
       {
         name: 'custom-error',

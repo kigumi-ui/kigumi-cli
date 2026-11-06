@@ -118,7 +118,7 @@ tests/
 │   ├── update-command.test.ts       # Update command (three-way merge)
 │   ├── upgrade-command.test.ts      # Upgrade command (version management)
 │   ├── validate-changes.test.ts     # AI guard-rail checks + anti-pattern matcher
-│   ├── validate-cem-sync.test.ts    # CEM sync validation; checkAttributeDrift table tests: missing, allowlisted, with-* hints, camelCase CEM names, every stale-entry direction (#100); parseCemAttributes and checkDeprecationDrift table tests: both drift directions, Kigumi-side deprecations, every stale KIGUMI_DEPRECATIONS direction, the absent-attribute message, countDrift on literal findings (#133)
+│   ├── validate-cem-sync.test.ts    # CEM sync validation; checkAttributeDrift table tests: missing, a registry prop the CEM lacks (#145), allowlisted, with-* hints, camelCase CEM names, every stale-entry direction (#100); parseCemAttributes and checkDeprecationDrift table tests: both drift directions, Kigumi-side deprecations, every stale KIGUMI_DEPRECATIONS direction, the absent-attribute message, countDrift on literal findings (#133)
 │   ├── validate-parity.test.ts      # Template parity validation
 │   ├── validate-parity-detection.test.ts  # Parity detection proven on a synthetic registry
 │   ├── validate-wa-pins.test.ts     # Web Awesome pin consistency across all six locations

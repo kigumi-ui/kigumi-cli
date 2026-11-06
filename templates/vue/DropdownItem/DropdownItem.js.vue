@@ -16,6 +16,7 @@ const props = defineProps({
   checked: { type: Boolean, required: false },
   value: { type: String, required: false },
   disabled: { type: Boolean, required: false },
+  /** @deprecated Dropdown items have no loading state, so remove this prop. Removed in the next major. */
   loading: { type: Boolean, required: false },
   variant: { type: String, required: false },
   href: { type: String, required: false },
