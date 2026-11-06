@@ -202,10 +202,11 @@ export const CREATE_VITE_VERSION = '9.2.1';
  *
  * Same reasoning as `CREATE_VITE_VERSION`: invoked via `pnpm dlx`, so
  * Dependabot cannot see it, and the weekly upstream report tracks it instead.
- * The major matches the `@angular/*` devDependencies the Angular function
- * harness runs on, so both Angular proofs cover the same major.
+ * Angular 22, one major ahead of the `@angular/*` devDependencies the Angular
+ * function harness runs on (21): the consumer proves `init` output on the
+ * TypeScript 6 that Angular 22 ships (issue #156).
  */
-export const ANGULAR_CLI_VERSION = '21.2.24';
+export const ANGULAR_CLI_VERSION = '22.2.5';
 
 // =============================================================================
 // Community Registry

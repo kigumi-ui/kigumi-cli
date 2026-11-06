@@ -21,7 +21,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "build-storybook:vercel": "storybook build --output-dir storybook/dist",
-    "storybook:test": "vitest run --config vitest.storybook.config.ts"
+    "storybook:test": "vitest run --config vitest.storybook.config.ts",
+    "test:webkit": "vitest run --config vitest.webkit.config.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.87",

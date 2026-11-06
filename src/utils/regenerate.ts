@@ -33,6 +33,11 @@ import {
   type NextRouter,
 } from './detect-framework.js';
 import { toKigumiAlias } from './project-config.js';
+import {
+  angularLayersEntry,
+  ensureAngularStyles,
+  type AngularStylesResult,
+} from './angular-styles.js';
 import { LayersCssRewriteError } from '../errors/layers-css.js';
 import {
   ensureOverridesLayer,
@@ -85,6 +90,8 @@ export async function regenerateKigumiSetup(
   layersPreserved: boolean;
   overrides: OverridesLayerResult;
   palette: PaletteImportStatus | 'absent';
+  /** Angular only: what became of `layers.css` in `angular.json`. */
+  angularStyles?: AngularStylesResult;
 }> {
   const packageName = getWebAwesomePackage(tier);
   const stylesDir = config.stylesDir;
@@ -140,10 +147,23 @@ export async function regenerateKigumiSetup(
   const themeClasses =
     config.theme.selected !== 'none' ? generateThemeClassesScript(config) : '';
 
-  const layersImportLine = skipLayersImport
+  // Angular loads global CSS through angular.json `styles`, so its
+  // kigumi.ts imports none (issue #156).
+  const isAngular = config.framework === 'angular';
+  const angularStyles = isAngular
+    ? await ensureAngularStyles(cwd, stylesDir)
+    : undefined;
+
+  // The Angular line is the Angular Starter's own wording.
+  const layersImportLine = isAngular
+    ? `// CSS is loaded via angular.json styles array (${angularLayersEntry(stylesDir)})`
+    : `// Import Web Awesome CSS with cascade layers for predictable specificity control
+${
+  skipLayersImport
     ? `// Pages Router: layers.css must be imported from pages/_app.tsx
 // directly — Next forbids global CSS imports from lib/.`
-    : `import '${stylesAlias}/layers.css';`;
+    : `import '${stylesAlias}/layers.css';`
+}`;
 
   // Generate kigumi.ts that imports layers.css (except in Pages Router)
   const setupFileContent = `/**
@@ -169,7 +189,6 @@ if (typeof customElements !== 'undefined') {
   };
 }
 
-// Import Web Awesome CSS with cascade layers for predictable specificity control
 ${layersImportLine}
 ${themeClasses}
 export {};
@@ -186,7 +205,12 @@ export {};
   const setupFilePath = path.join(cwd, utilsDir, 'kigumi.ts');
   await fs.writeFile(setupFilePath, finalSetupFileContent);
 
-  return { layersPreserved, overrides, palette: paletteStatus };
+  return {
+    layersPreserved,
+    overrides,
+    palette: paletteStatus,
+    angularStyles,
+  };
 }
 
 /**

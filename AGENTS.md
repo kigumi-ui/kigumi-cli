@@ -113,7 +113,7 @@ node dist/index.js add button --force
 | `scripts/storybook/story-data.ts` | Storybook story data helpers |
 | `scripts/storybook/validate-stories.ts` | Validate Storybook story structure: an argType per registry prop, and each argType's `defaultValue.summary` equal to the registry default, read from the parsed story file; an argType whose summary it cannot read statically is an `unreadable-argtypes` error, never a skip (issue #152, `docs/adr/0003`) |
 | `scripts/release-readiness.ts` | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness`. A gate that exits 0 but reports a guard `NOT verified` fails (`judgeGate()`, docs/adr/0003) |
-| `scripts/upstream-holds.json` | Majors already evaluated and deliberately held: toolchain (`typescript`, `vitest`) and the `@angular/cli` scaffold pin (Angular 22, until #156); `check-upstream-versions.ts` reads it so the weekly report stops re-flagging a decision already made, and only surfaces a genuinely new major |
+| `scripts/upstream-holds.json` | Majors already evaluated and deliberately held: toolchain (`typescript`, `vitest`); `check-upstream-versions.ts` reads it so the weekly report stops re-flagging a decision already made, and only surfaces a genuinely new major |
 
 ---
 
@@ -677,7 +677,7 @@ flowchart LR
 
 | File | Purpose | Regenerated When | User-Editable |
 | --- | --- | --- | --- |
-| `src/lib/kigumi.ts` | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands | ❌ No |
+| `src/lib/kigumi.ts` | Imports layers.css (Angular: none, `layers.css` sits first in the `angular.json` build `styles` instead) and applies theme classes to `<html>` | Theme/brand/palette commands | ❌ No |
 | `src/styles/layers.css` | Wraps Web Awesome CSS in cascade layers | Theme/brand/palette commands | ❌ No |
 | `src/styles/theme.css` | The user's design tokens (`--wa-*` custom properties), in the `theme` layer | Only on init (if missing) | ✅ Yes - preserved |
 | `src/styles/overrides.css` | The user's custom CSS rules, in the `overrides` layer after `theme` (ADR 0009) | Created when missing by init, theme, brand, palette and `upgrade`; never overwritten | ✅ Yes - preserved |

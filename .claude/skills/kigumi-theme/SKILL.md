@@ -269,7 +269,7 @@ src/lib/
   kigumi.ts           # Generated: imports layers.css and applies theme classes to <html>
 ```
 
-`layers.css` is imported by the generated `kigumi.ts`, so you do not import it yourself. On the Next.js Pages Router, `pages/_app.tsx` imports `@/styles/layers.css` and `@/lib/kigumi` directly.
+`layers.css` is imported by the generated `kigumi.ts`, so you do not import it yourself. On Angular, `kigumi.ts` imports no CSS: Kigumi lists `layers.css` first in the build `styles` of `angular.json`. On the Next.js Pages Router, `pages/_app.tsx` imports `@/styles/layers.css` and `@/lib/kigumi` directly.
 
 ## Important Notes
 
