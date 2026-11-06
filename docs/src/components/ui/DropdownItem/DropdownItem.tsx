@@ -47,7 +47,11 @@ export interface DropdownItemProps extends Omit<
   /** Visual variant */
   variant?: string;
 
-  /** Draws the item in a loading state */
+  /**
+   * Has no effect: wa-dropdown-item does not declare it
+   *
+   * @deprecated Dropdown items have no loading state, so remove this prop. Removed in the next major.
+   */
   loading?: boolean;
 
   /** When set, selecting the item navigates to this URL */

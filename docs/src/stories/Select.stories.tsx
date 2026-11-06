@@ -51,7 +51,8 @@ const meta = {
     },
     hoist: {
       control: 'boolean',
-      description: 'Hoists to body',
+      description:
+        '**Deprecated.** The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     placement: {
@@ -74,12 +75,14 @@ const meta = {
     },
     invalid: {
       control: 'boolean',
-      description: 'Shows invalid/error state',
+      description:
+        '**Deprecated.** The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     'help-text': {
       control: 'text',
-      description: 'Help text below the control',
+      description:
+        '**Deprecated.** Use hint instead. Removed in the next major.',
     },
     'custom-error': {
       control: 'text',
@@ -361,7 +364,7 @@ export const ChromaticOnly: Story = {
       <Select label="Disabled" disabled>
         <Option value="1">Option 1</Option>
       </Select>
-      <Select label="Invalid" invalid help-text="Please select an option.">
+      <Select label="With hint" hint="Choose the option that fits best.">
         <Option value="1">Option 1</Option>
       </Select>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

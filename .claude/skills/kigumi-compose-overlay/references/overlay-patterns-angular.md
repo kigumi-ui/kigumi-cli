@@ -247,24 +247,9 @@ export class ActionsMenuComponent {
 }
 ```
 
-### Hoisted Dropdown (z-index escape)
+### Dropdown in an overflow container
 
-Use `hoist` when inside Cards, Dialogs, Drawers, or overflow-constrained containers:
-
-```html
-<k-dropdown [hoist]="true">
-  <k-button
-    slot="trigger"
-    variant="neutral"
-    size="small"
-    aria-label="More actions"
-  >
-    <k-icon name="ellipsis-vertical" />
-  </k-button>
-  <k-dropdown-item>Edit</k-dropdown-item>
-  <k-dropdown-item>Delete</k-dropdown-item>
-</k-dropdown>
-```
+A Dropdown inside a Card, Dialog, Drawer, table cell or any container with `overflow: hidden` needs no extra prop: its panel renders in the top layer, so no ancestor clips it.
 
 ---
 
@@ -305,26 +290,13 @@ Tooltip uses the `for` attribute to target an element by ID. No event binding ne
 </k-popover>
 ```
 
-### Hover Info Popover with Arrow
-
-```html
-<k-popover trigger="hover focus" placement="top" with-arrow>
-  <k-icon slot="trigger" name="circle-info" style="cursor: help" />
-  <div style="padding: var(--wa-space-s); max-width: 200px">
-    <p class="wa-body-s">Hover and focus both activate this popover.</p>
-  </div>
-</k-popover>
-```
-
 ### Key Props
 
-| Prop         | Default | Description                                                           |
-| ------------ | ------- | --------------------------------------------------------------------- |
-| `trigger`    | `click` | Activation events: `click`, `hover`, `focus` (space-separated)        |
-| `placement`  | `top`   | Position: `top`, `bottom`, `left`, `right` + `-start`/`-end` variants |
-| `with-arrow` | `false` | Shows arrow pointing to trigger                                       |
-| `distance`   | `8`     | Distance (px) from trigger                                            |
-| `hoist`      | `false` | Escape overflow constraints                                           |
+| Prop            | Default | Description                                                           |
+| --------------- | ------- | --------------------------------------------------------------------- |
+| `placement`     | `top`   | Position: `top`, `bottom`, `left`, `right` + `-start`/`-end` variants |
+| `without-arrow` | `false` | Hides the arrow pointing to the trigger                               |
+| `distance`      | `8`     | Distance (px) from trigger                                            |
 
 ---
 

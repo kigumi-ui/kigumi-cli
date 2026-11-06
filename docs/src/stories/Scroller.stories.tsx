@@ -15,7 +15,8 @@ const meta = {
     },
     'with-scroll-indicator': {
       control: 'boolean',
-      description: 'Shows shadow indicators',
+      description:
+        '**Deprecated.** The scroll shadows show by default; set without-shadow to hide them. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     'without-scrollbar': {

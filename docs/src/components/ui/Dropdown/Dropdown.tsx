@@ -54,10 +54,18 @@ export interface DropdownProps extends Omit<
     | 'left-start'
     | 'left-end';
 
-  /** Disables the dropdown */
+  /**
+   * Has no effect: wa-dropdown does not declare it
+   *
+   * @deprecated Disable the trigger button instead. Removed in the next major.
+   */
   disabled?: boolean;
 
-  /** Keeps the dropdown open when an item is selected */
+  /**
+   * Has no effect: wa-dropdown does not declare it
+   *
+   * @deprecated Call preventDefault() on the select event to keep the dropdown open. Removed in the next major.
+   */
   'stay-open-on-select'?: boolean;
 
   /** Distance from the panel to the trigger */
@@ -66,7 +74,11 @@ export interface DropdownProps extends Omit<
   /** Offset along the trigger */
   skidding?: number;
 
-  /** Hoists the dropdown panel to the body */
+  /**
+   * Has no effect: wa-dropdown does not declare it
+   *
+   * @deprecated The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.
+   */
   hoist?: boolean;
 
   /** Emitted when the dropdown is about to show. */

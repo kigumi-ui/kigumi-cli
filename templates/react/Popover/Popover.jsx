@@ -8,6 +8,19 @@ function ensureLoaded() {
     import('@awesome.me/webawesome/dist/components/popover/popover.js'));
 }
 
+/**
+ * @typedef {Object} PopoverProps
+ * @property {boolean} [open] - Indicates whether the popover is open
+ * @property {boolean} [disabled] - Deprecated: Disable the element the for attribute names instead. Removed in the next major.
+ * @property {string} [placement] - Preferred placement: top | top-start | top-end | bottom | bottom-start | bottom-end | right | right-start | right-end | left | left-start | left-end
+ * @property {string} [trigger] - Deprecated: The popover opens on a click on the element the for attribute names, and no prop changes that, so remove this one. Removed in the next major.
+ * @property {number} [distance] - Distance from trigger
+ * @property {number} [skidding] - Offset along trigger
+ * @property {boolean} [with-arrow] - Deprecated: The arrow shows by default; set without-arrow to hide it. Removed in the next major.
+ * @property {boolean} [without-arrow] - Hides the arrow
+ * @property {string} [for] - The ID of the element the popover is anchored to
+ */
+
 export const Popover = React.forwardRef(
   (
     {

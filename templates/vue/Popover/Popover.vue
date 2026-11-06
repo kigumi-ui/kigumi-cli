@@ -17,6 +17,7 @@ function ensureLoaded() {
  * Popovers display additional content when users interact with a trigger element
  */
 export interface PopoverProps {
+  /** @deprecated Disable the element the for attribute names instead. Removed in the next major. */
   disabled?: boolean;
   placement?:
     | 'top'
@@ -31,9 +32,11 @@ export interface PopoverProps {
     | 'left'
     | 'left-start'
     | 'left-end';
+  /** @deprecated The popover opens on a click on the element the for attribute names, and no prop changes that, so remove this one. Removed in the next major. */
   trigger?: string;
   distance?: number;
   skidding?: number;
+  /** @deprecated The arrow shows by default; set without-arrow to hide it. Removed in the next major. */
   'with-arrow'?: boolean;
   'without-arrow'?: boolean;
   for?: string;

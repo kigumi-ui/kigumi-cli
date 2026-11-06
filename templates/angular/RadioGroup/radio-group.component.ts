@@ -79,9 +79,17 @@ export class RadioGroupComponent
   @Input() orientation?: 'horizontal' | 'vertical';
   /** Disables the group */
   @Input() disabled?: boolean;
-  /** Shows invalid/error state */
+  /**
+   * Has no effect: wa-radio-group does not declare it
+   *
+   * @deprecated The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.
+   */
   @Input() invalid?: boolean;
-  /** Help text below the group */
+  /**
+   * Has no effect: wa-radio-group does not declare it
+   *
+   * @deprecated Use hint instead. Removed in the next major.
+   */
   @Input() helpText?: string;
   /** Custom validation message; the control is invalid while it is set */
   @Input() customError?: string;

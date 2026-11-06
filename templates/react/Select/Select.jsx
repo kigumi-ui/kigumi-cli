@@ -8,6 +8,29 @@ function ensureLoaded() {
     import('@awesome.me/webawesome/dist/components/select/select.js'));
 }
 
+/**
+ * @typedef {Object} SelectProps
+ * @property {string} [name] - Form field name
+ * @property {string} [value] - Selected value(s)
+ * @property {string} [appearance] - Visual appearance: filled | outlined | filled-outlined
+ * @property {string} [size] - Select size: small | medium | large | xs | s | m | l | xl
+ * @property {string} [placeholder] - Placeholder text
+ * @property {boolean} [multiple] - Allows multiple selections
+ * @property {number} [max-options-visible] - Max visible tags (multiple)
+ * @property {boolean} [disabled] - Disables the select
+ * @property {boolean} [with-clear] - Shows clear button
+ * @property {boolean} [open] - Whether listbox is open
+ * @property {boolean} [hoist] - Deprecated: The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.
+ * @property {string} [placement] - Listbox placement: top | bottom
+ * @property {boolean} [pill] - Rounded edges
+ * @property {string} [label] - Label text
+ * @property {string} [hint] - Hint text
+ * @property {boolean} [required] - Makes selection required
+ * @property {boolean} [invalid] - Deprecated: The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.
+ * @property {string} [help-text] - Deprecated: Use hint instead. Removed in the next major.
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
+ */
+
 export const Select = React.forwardRef(
   (
     {

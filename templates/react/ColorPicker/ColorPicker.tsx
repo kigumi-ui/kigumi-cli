@@ -106,7 +106,11 @@ export interface ColorPickerProps extends Omit<
   /** Hides the format toggle button */
   'without-format-toggle'?: boolean;
 
-  /** Renders the color picker inline instead of in a dropdown */
+  /**
+   * Has no effect: wa-color-picker does not declare it
+   *
+   * @deprecated The color picker has no inline mode, so remove this prop. Removed in the next major.
+   */
   inline?: boolean;
 
   /** Custom validation message; the control is invalid while it is set */

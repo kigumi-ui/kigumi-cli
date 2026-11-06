@@ -40,7 +40,8 @@ const meta = {
     strategy: {
       control: 'select',
       options: ['absolute', 'fixed'],
-      description: 'Positioning strategy',
+      description:
+        '**Deprecated.** The popup renders in the top layer and picks its own positioning strategy, so remove this prop. Removed in the next major.',
       table: { defaultValue: { summary: 'absolute' } },
     },
     distance: {

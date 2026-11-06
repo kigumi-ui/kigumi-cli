@@ -8,6 +8,21 @@ function ensureLoaded() {
     import('@awesome.me/webawesome/dist/components/radio-group/radio-group.js'));
 }
 
+/**
+ * @typedef {Object} RadioGroupProps
+ * @property {string} [label] - Group label
+ * @property {string} [hint] - Hint text
+ * @property {string} [name] - Form field name
+ * @property {string} [value] - Selected value
+ * @property {string} [size] - Radio size: small | medium | large | xs | s | m | l | xl
+ * @property {boolean} [required] - Makes selection required
+ * @property {string} [orientation] - Layout direction: horizontal | vertical
+ * @property {boolean} [disabled] - Disables the group
+ * @property {boolean} [invalid] - Deprecated: The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.
+ * @property {string} [help-text] - Deprecated: Use hint instead. Removed in the next major.
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
+ */
+
 export const RadioGroup = React.forwardRef(
   ({ children, className, onChange, onInvalid, ...props }, ref) => {
     const groupRef = React.useRef(null);

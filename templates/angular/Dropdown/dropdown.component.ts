@@ -69,15 +69,27 @@ export class DropdownComponent implements AfterViewInit, OnDestroy {
     | 'left'
     | 'left-start'
     | 'left-end';
-  /** Disables the dropdown */
+  /**
+   * Has no effect: wa-dropdown does not declare it
+   *
+   * @deprecated Disable the trigger button instead. Removed in the next major.
+   */
   @Input() disabled?: boolean;
-  /** Keeps the dropdown open when an item is selected */
+  /**
+   * Has no effect: wa-dropdown does not declare it
+   *
+   * @deprecated Call preventDefault() on the select event to keep the dropdown open. Removed in the next major.
+   */
   @Input() stayOpenOnSelect?: boolean;
   /** Distance from the panel to the trigger */
   @Input() distance?: number;
   /** Offset along the trigger */
   @Input() skidding?: number;
-  /** Hoists the dropdown panel to the body */
+  /**
+   * Has no effect: wa-dropdown does not declare it
+   *
+   * @deprecated The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.
+   */
   @Input() hoist?: boolean;
   /** Dropdown size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';

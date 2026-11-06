@@ -341,36 +341,9 @@ export function GroupedMenu() {
 }
 ```
 
-### Hoisted Dropdown (z-index escape)
+### Dropdown in an overflow container
 
-Use the `hoist` prop when the Dropdown is inside an overflow-constrained container (e.g., inside a Card, Dialog, or table cell). Hoisting teleports the dropdown panel to the body, escaping `overflow: hidden` and z-index stacking contexts.
-
-```tsx
-<Card>
-  <div className="wa-split wa-align-items-center">
-    <h3>Card Title</h3>
-    {/* hoist prevents the dropdown from being clipped by the Card's overflow */}
-    <Dropdown hoist>
-      <Button
-        slot="trigger"
-        variant="neutral"
-        size="small"
-        aria-label="More actions"
-      >
-        <Icon name="ellipsis-vertical" />
-      </Button>
-      <DropdownItem>Edit</DropdownItem>
-      <DropdownItem>Delete</DropdownItem>
-    </Dropdown>
-  </div>
-</Card>
-```
-
-**When to use `hoist`:**
-
-- Dropdown inside `<Card>`, `<Dialog>`, `<Drawer>`, or `<Details>`
-- Dropdown inside table cells
-- Any container with `overflow: hidden` or `overflow: auto`
+A Dropdown inside a Card, Dialog, Drawer, table cell or any container with `overflow: hidden` needs no extra prop: its panel renders in the top layer, so no ancestor clips it.
 
 ---
 
@@ -398,14 +371,12 @@ import { Button, Icon, Tooltip } from '@/components/ui';
 
 ### Key Props
 
-| Prop         | Type    | Default | Description                                                                                                                                            |
-| ------------ | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `trigger`    | string  | `click` | Activation events: `click`, `hover`, `focus` (space-separated for multiple)                                                                            |
-| `placement`  | string  | `top`   | Position: `top`, `top-start`, `top-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`, `right`, `right-start`, `right-end` |
-| `with-arrow` | boolean | `false` | Shows an arrow pointing to the trigger                                                                                                                 |
-| `distance`   | number  | `8`     | Distance (px) from the trigger element                                                                                                                 |
-| `skidding`   | number  | `0`     | Offset (px) along the trigger element                                                                                                                  |
-| `disabled`   | boolean | `false` | Disables the popover                                                                                                                                   |
+| Prop            | Type    | Default | Description                                                                                                                                            |
+| --------------- | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `placement`     | string  | `top`   | Position: `top`, `top-start`, `top-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`, `right`, `right-start`, `right-end` |
+| `without-arrow` | boolean | `false` | Hides the arrow pointing to the trigger                                                                                                                |
+| `distance`      | number  | `8`     | Distance (px) from the trigger element                                                                                                                 |
+| `skidding`      | number  | `0`     | Offset (px) along the trigger element                                                                                                                  |
 
 ### Basic Filter Panel
 
@@ -429,25 +400,10 @@ import { Button, Icon, Input, Popover } from '@/components/ui';
 </Popover>;
 ```
 
-### Hover Info Popover with Arrow
-
-```tsx
-<Popover trigger="hover focus" placement="top" with-arrow>
-  <Button slot="trigger" variant="neutral" size="small">
-    <Icon name="circle-info" />
-  </Button>
-  <div style={{ padding: 'var(--wa-space-s)' }}>
-    <p style={{ margin: 0 }}>
-      This field determines your display name across the app.
-    </p>
-  </div>
-</Popover>
-```
-
 ### Positioned Popover with Distance/Skidding
 
 ```tsx
-<Popover placement="right-start" distance={12} skidding={-4} with-arrow>
+<Popover placement="right-start" distance={12} skidding={-4}>
   <Button slot="trigger" variant="neutral">
     Settings
   </Button>
