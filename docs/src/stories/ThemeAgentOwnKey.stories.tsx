@@ -414,12 +414,19 @@ export const RemoveKey: Story = {
  */
 export const RememberOnThisDevice: Story = {
   play: async ({ canvasElement }) => {
-    // Without a key there is nothing to remember: the dialog says so.
+    // Without a key there is nothing to remember. Ticking the box says
+    // nothing yet; Save says so and keeps the dialog open.
     let dialog = await openSettings(canvasElement);
     await toggleRemember(dialog);
+    expect(rememberBox(dialog).checked).toBe(true);
+    expect(
+      within(dialog).queryByText('Enter an Anthropic API key to remember it.')
+    ).not.toBeInTheDocument();
+    await userEvent.click(within(dialog).getByText('Save'));
     await within(dialog).findByText(
       'Enter an Anthropic API key to remember it.'
     );
+    expect(dialog.hasAttribute('open')).toBe(true);
     await userEvent.click(within(dialog).getByText('Cancel'));
     await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
 
