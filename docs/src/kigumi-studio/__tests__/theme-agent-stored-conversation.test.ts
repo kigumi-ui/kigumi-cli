@@ -29,8 +29,10 @@ const messages: ThemeAgentMessage[] = [
 function stored(): StoredConversation {
   return {
     chatId: 'chat-1',
+    path: 'hosted',
     messages,
-    cutOff: [],
+    answering: false,
+    cutOff: {},
     conversation: {
       answers: [
         {
@@ -60,7 +62,13 @@ describe('Stored Theme Agent conversation', () => {
   it('loads the conversation the tab saved', () => {
     saveConversation(stored());
 
-    expect(loadConversation()).toEqual(stored());
+    expect(loadConversation('hosted')).toEqual(stored());
+  });
+
+  it('starts a fresh conversation from one saved on the other path', () => {
+    saveConversation(stored());
+
+    expect(loadConversation('own-key')).toBeUndefined();
   });
 
   it.each([
@@ -87,7 +95,7 @@ describe('Stored Theme Agent conversation', () => {
   ])('starts a fresh conversation from %s', (_case, text) => {
     sessionStorage.setItem('kigumi-studio-theme-agent-conversation', text);
 
-    expect(loadConversation()).toBeUndefined();
+    expect(loadConversation('hosted')).toBeUndefined();
   });
 });
 
@@ -119,7 +127,7 @@ describe('Stored Theme Agent session', () => {
 
     clearConversation();
 
-    expect(loadConversation()).toBeUndefined();
+    expect(loadConversation('hosted')).toBeUndefined();
     expect(loadSession('chat-1')).toBeUndefined();
   });
 });

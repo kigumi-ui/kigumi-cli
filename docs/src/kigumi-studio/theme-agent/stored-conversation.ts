@@ -20,13 +20,29 @@ const CONVERSATION_KEY = 'kigumi-studio-theme-agent-conversation';
 // Apart from the conversation: the transport changes it on its own schedule.
 const SESSION_KEY = 'kigumi-studio-theme-agent-session';
 
+/**
+ * Where a conversation's answers are written: on the trigger.dev task, or in
+ * the browser with an own key (ADR 0017). The agent's context lives in a
+ * different place on each, so a conversation never moves between them.
+ */
+export type ConversationPath = 'hosted' | 'own-key';
+
+/**
+ * Why an answer stopped before it was complete: the output limit, or a
+ * reload on the own-key path, where nothing outside the tab was writing it.
+ */
+export type CutOffReason = 'output-limit' | 'reload';
+
 /** Everything a reload needs to show and continue the conversation. */
 export interface StoredConversation {
   chatId: string;
+  path: ConversationPath;
   messages: ThemeAgentMessage[];
   conversation: SavedConversation;
-  /** Answers that hit the output limit. */
-  cutOff: string[];
+  /** An answer was being written when this was saved. */
+  answering: boolean;
+  /** The answers cut off before they were complete, and why. */
+  cutOff: Record<string, CutOffReason>;
 }
 
 const modeValuesSchema = z
@@ -116,9 +132,11 @@ const messageSchema = z.looseObject({
 
 const storedConversationSchema = z.object({
   chatId: z.string(),
+  path: z.enum(['hosted', 'own-key']),
   messages: z.array(messageSchema),
   conversation: savedConversationSchema,
-  cutOff: z.array(z.string()),
+  answering: z.boolean(),
+  cutOff: z.record(z.string(), z.enum(['output-limit', 'reload'])),
 });
 
 const storedSessionSchema = z.object({
@@ -168,15 +186,43 @@ export function saveConversation(stored: StoredConversation): void {
   writeStorage(CONVERSATION_KEY, JSON.stringify(stored));
 }
 
-/** The conversation this tab saved, if it can be read. */
-export function loadConversation(): StoredConversation | undefined {
+/**
+ * The conversation this tab saved on `path`, if it can be read. One saved on
+ * the other path does not come back: the agent there cannot see it.
+ */
+export function loadConversation(
+  path: ConversationPath
+): StoredConversation | undefined {
   const text = readStorage(CONVERSATION_KEY);
   if (text === null) return undefined;
   const parsed = storedConversationSchema.safeParse(parseJSON(text));
-  if (!parsed.success) return undefined;
+  if (!parsed.success || parsed.data.path !== path) return undefined;
   return {
     ...parsed.data,
     messages: parsed.data.messages as ThemeAgentMessage[],
+  };
+}
+
+/**
+ * `stored` as it comes back on the own-key path. An answer a reload
+ * interrupted there cannot be resumed, since nothing outside the tab was
+ * writing it: it comes back as an answer cut off by the reload, with nothing
+ * of its proposal, and the next message is not told about an older answer.
+ */
+export function withInterruptedAnswer(
+  stored: StoredConversation,
+  answerId: string
+): StoredConversation {
+  if (!stored.answering) return stored;
+  return {
+    ...stored,
+    answering: false,
+    messages: [
+      ...stored.messages,
+      { id: answerId, role: 'assistant', parts: [] },
+    ],
+    conversation: { ...stored.conversation, lastAnswerId: answerId },
+    cutOff: { ...stored.cutOff, [answerId]: 'reload' },
   };
 }
 

@@ -532,7 +532,9 @@ function withConversationBeforeReload() {
         },
       ],
       conversation: conversation.save(),
-      cutOff: [],
+      path: 'hosted',
+      answering: false,
+      cutOff: {},
     });
     return restore;
   };
@@ -563,7 +565,7 @@ export const RestoredAfterReload: Story = {
     await waitFor(() =>
       expect(canvas.queryByText(WARMER)).not.toBeInTheDocument()
     );
-    expect(loadConversation()).toBeUndefined();
+    expect(loadConversation('hosted')).toBeUndefined();
   },
 };
 
@@ -588,7 +590,7 @@ export const SavedWhileAnswering: Story = {
     await userEvent.click(canvas.getByText('Undo'));
     await canvas.findByText('Undone');
 
-    const saved = loadConversation();
+    const saved = loadConversation('hosted');
     expect(saved?.conversation.answers[0]?.undone).toBe(true);
     expect(saved?.messages.at(-1)?.role).toBe('user');
     expect(saved?.messages).toHaveLength(3);
