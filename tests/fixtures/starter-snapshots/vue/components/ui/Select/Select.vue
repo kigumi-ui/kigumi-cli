@@ -28,13 +28,16 @@ export interface SelectProps {
   disabled?: boolean;
   'with-clear'?: boolean;
   open?: boolean;
+  /** @deprecated The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major. */
   hoist?: boolean;
   placement?: 'top' | 'bottom';
   pill?: boolean;
   label?: string;
   hint?: string;
   required?: boolean;
+  /** @deprecated The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major. */
   invalid?: boolean;
+  /** @deprecated Use hint instead. Removed in the next major. */
   'help-text'?: string;
   'custom-error'?: string;
 }
