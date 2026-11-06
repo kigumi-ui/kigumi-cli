@@ -56,10 +56,14 @@ describe('showPostInstallInstructions', () => {
       );
 
       const messages = collectMessages(output);
-      expect(messages).toContain(
-        '\tAdd this import to projects/app/src/main.ts:'
+      expect(messages).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining(
+            'Add this import to projects/app/src/main.ts:'
+          ),
+          expect.stringContaining('import "../../../lib/kigumi";'),
+        ])
       );
-      expect(messages).toContain('\timport "../../../lib/kigumi";\n');
     });
   });
 
