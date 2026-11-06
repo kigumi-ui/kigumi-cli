@@ -44,6 +44,7 @@ import {
 } from '../../theme-agent/conversation';
 import { lockedValueLabel } from '../../theme-agent/describe-held-change';
 import type { ThemeAgentMessage } from '../../theme-agent/message';
+import { ownKeyFailure } from '../../theme-agent/own-key-failure';
 import { hasLocks, type LockedValues } from '../../lib/locks';
 import { useContrastResults } from '../../lib/use-contrast-results';
 import { useStudioConsole } from '../console/studio-console';
@@ -149,6 +150,12 @@ interface ThemeAgentChatProps {
   onActivity: () => void;
   /** Replaces trigger.dev's transport: the own key's, or a story's canned one. */
   transport?: ThemeAgentTransport;
+  /**
+   * Opens the settings dialog. Present on the own-key path, where a failed
+   * answer is reported with its likely causes and, when the fix is likely
+   * the key, a button that calls this.
+   */
+  onOpenSettings?: () => void;
 }
 
 /**
@@ -177,6 +184,7 @@ export function ThemeAgentChat({
   onDraftChange,
   onActivity,
   transport: givenTransport,
+  onOpenSettings,
 }: ThemeAgentChatProps) {
   // Read once per mount: after "New chat" there is nothing stored.
   const [restored] = useState(restorableConversation);
@@ -273,13 +281,14 @@ export function ThemeAgentChat({
         .heldChanges(lastMessage.id)
         .filter((entry) => entry.state === 'held')
     : [];
+  const failure = error && onOpenSettings ? ownKeyFailure(error) : undefined;
   const lastOutcome =
     (lastStatus === 'applied' ? appliedAnnouncement(lastWarnings) : '') +
     heldAnnouncement(lastHeld);
   const announcement = notice
     ? notice
     : status === 'error'
-      ? 'The Theme Agent could not answer.'
+      ? (failure?.message ?? 'The Theme Agent could not answer.')
       : status === 'ready' && lastMessage?.role === 'assistant'
         ? `Theme Agent: ${messageText(lastMessage)}${lastOutcome}`
         : running
@@ -488,11 +497,29 @@ export function ThemeAgentChat({
             {statusStep ?? 'Thinking…'}
           </div>
         )}
-        {error && (
+        {failure ? (
           <Callout variant="danger" size="small">
             <Icon slot="icon" name="circle-exclamation" />
-            {error.message}
+            {failure.message}
+            {failure.settings && (
+              <Button
+                className="theme-agent__open-settings"
+                size="small"
+                appearance="outlined"
+                onClick={onOpenSettings}
+              >
+                <Icon slot="start" name="gear" />
+                Open settings
+              </Button>
+            )}
           </Callout>
+        ) : (
+          error && (
+            <Callout variant="danger" size="small">
+              <Icon slot="icon" name="circle-exclamation" />
+              {error.message}
+            </Callout>
+          )
         )}
       </div>
 
