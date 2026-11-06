@@ -29,6 +29,7 @@ export interface PopupProps {
     | 'left'
     | 'left-start'
     | 'left-end';
+  /** @deprecated The popup renders in the top layer and picks its own positioning strategy, so remove this prop. Removed in the next major. */
   strategy?: 'absolute' | 'fixed';
   distance?: number;
   skidding?: number;

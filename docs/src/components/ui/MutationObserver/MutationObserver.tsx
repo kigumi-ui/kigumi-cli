@@ -47,7 +47,11 @@ export interface MutationObserverProps extends Omit<
   /** Disables the observer */
   disabled?: boolean;
 
-  /** Observes changes in subtree */
+  /**
+   * Has no effect: wa-mutation-observer does not declare it
+   *
+   * @deprecated The observer always watches the whole subtree, so remove this prop. Removed in the next major.
+   */
   subtree?: boolean;
 
   /** Emitted when a mutation occurs. */

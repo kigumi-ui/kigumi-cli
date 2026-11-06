@@ -96,7 +96,11 @@ export class SelectComponent
   @Input() withClear?: boolean;
   /** Whether listbox is open */
   @Input() open?: boolean;
-  /** Hoists to body */
+  /**
+   * Has no effect: wa-select does not declare it
+   *
+   * @deprecated The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.
+   */
   @Input() hoist?: boolean;
   /** Listbox placement */
   @Input() placement?: 'top' | 'bottom';
@@ -108,9 +112,17 @@ export class SelectComponent
   @Input() hint?: string;
   /** Makes selection required */
   @Input() required?: boolean;
-  /** Shows invalid/error state */
+  /**
+   * Has no effect: wa-select does not declare it
+   *
+   * @deprecated The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.
+   */
   @Input() invalid?: boolean;
-  /** Help text below the control */
+  /**
+   * Has no effect: wa-select does not declare it
+   *
+   * @deprecated Use hint instead. Removed in the next major.
+   */
   @Input() helpText?: string;
   /** Custom validation message; the control is invalid while it is set */
   @Input() customError?: string;

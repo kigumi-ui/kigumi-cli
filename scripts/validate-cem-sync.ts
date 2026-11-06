@@ -19,7 +19,8 @@
  *   registry advertises but Web Awesome rejects is a user-facing defect.
  * - CEM enum values the registry has not surfaced yet (warning) — additive,
  *   e.g. the XS/XL/short-form `size` tokens added in WA 3.6.0.
- * - CEM attribute names with no registry prop (warning), see `checkAttributeDrift`.
+ * - CEM attribute names with no registry prop (warning), and registry props
+ *   the CEM does not declare (error), see `checkAttributeDrift`.
  * - Deprecations the CEM and the registry disagree on, see `checkDeprecationDrift`.
  * - Registry defaults that differ from the element's, see `checkDefaultDrift`.
  *
@@ -67,6 +68,7 @@ export interface SyncFinding {
     | 'prop-value-drift'
     | 'allowlisted-but-wrapped'
     | 'attribute-missing-from-registry'
+    | 'prop-missing-from-cem'
     | 'stale-allowlist-entry'
     | 'stale-kigumi-deprecation'
     | 'deprecation-missing-from-registry'
@@ -474,6 +476,11 @@ const NO_EFFECT_ON_RADAR_CHART: KigumiDeprecation = {
     'wa-radar-chart declares it, but WaChart builds a radar chart with only a radial r scale and never reads it; the registry message names any r-scale replacement; deprecated by #129, removed by #130',
 };
 
+const NOT_DECLARED_BY_WEB_AWESOME: KigumiDeprecation = {
+  reason:
+    'the element declares no such attribute or property (Web Awesome 3.14.0 CEM and Free runtime), so the host ignores it; the registry message names any replacement; deprecated by #145, removed in the next major',
+};
+
 /**
  * Registry props Kigumi deprecates on its own account, keyed by registry key,
  * then by kebab-cased prop name. `checkDeprecationDrift` errors on any other
@@ -492,6 +499,30 @@ export const KIGUMI_DEPRECATIONS: Readonly<
     grid: NO_EFFECT_ON_RADAR_CHART,
     min: NO_EFFECT_ON_RADAR_CHART,
     max: NO_EFFECT_ON_RADAR_CHART,
+  },
+  'color-picker': { inline: NOT_DECLARED_BY_WEB_AWESOME },
+  dropdown: {
+    disabled: NOT_DECLARED_BY_WEB_AWESOME,
+    'stay-open-on-select': NOT_DECLARED_BY_WEB_AWESOME,
+    hoist: NOT_DECLARED_BY_WEB_AWESOME,
+  },
+  'dropdown-item': { loading: NOT_DECLARED_BY_WEB_AWESOME },
+  'mutation-observer': { subtree: NOT_DECLARED_BY_WEB_AWESOME },
+  popover: {
+    disabled: NOT_DECLARED_BY_WEB_AWESOME,
+    trigger: NOT_DECLARED_BY_WEB_AWESOME,
+    'with-arrow': NOT_DECLARED_BY_WEB_AWESOME,
+  },
+  popup: { strategy: NOT_DECLARED_BY_WEB_AWESOME },
+  'radio-group': {
+    invalid: NOT_DECLARED_BY_WEB_AWESOME,
+    'help-text': NOT_DECLARED_BY_WEB_AWESOME,
+  },
+  scroller: { 'with-scroll-indicator': NOT_DECLARED_BY_WEB_AWESOME },
+  select: {
+    hoist: NOT_DECLARED_BY_WEB_AWESOME,
+    invalid: NOT_DECLARED_BY_WEB_AWESOME,
+    'help-text': NOT_DECLARED_BY_WEB_AWESOME,
   },
 };
 
@@ -552,8 +583,9 @@ interface SyncResult {
     propValueDrift: number;
     /**
      * Counted separately from `propValueDrift`: that check compares enum
-     * *values* for props the registry already declares, while this counts CEM
-     * attribute *names* with no registry prop at all. Stale allowlist entries
+     * *values* for props the registry already declares, while this counts
+     * attribute *names* one side has and the other does not, in either
+     * direction. Stale allowlist entries
      * are not drift; they fail the run and are listed under the errors.
      */
     attributeDrift: number;
@@ -841,6 +873,10 @@ function unregisteredAllowlistKeys(
  *
  * - A CEM attribute with no matching registry prop and no allowlist entry is
  *   a warning: additive drift, the same as a newly added enum value.
+ * - A registry prop with no matching CEM attribute is an error: every
+ *   Template types it and forwards it to the host, which ignores it. A
+ *   deprecated prop is left to `checkDeprecationDrift`, which errors on it
+ *   unless `KIGUMI_DEPRECATIONS` records why it stays until the next major.
  * - A per-component allowlist entry is an error when it no longer describes a
  *   gap: the registry now surfaces the attribute, the CEM no longer declares
  *   it, or its component is not in the registry. The same discipline
@@ -888,6 +924,16 @@ export function checkAttributeDrift(
         category: 'attribute-missing-from-registry',
         severity: 'warning',
         message: `wa-${regKey} declares attribute "${cemName}" in the CEM with no matching registry prop`,
+      });
+    }
+
+    for (const prop of def.props) {
+      if (prop.deprecated || cemAttrs.has(toKebabCase(prop.name))) continue;
+      findings.push({
+        component: regKey,
+        category: 'prop-missing-from-cem',
+        severity: 'error',
+        message: `${regKey}.${prop.name} is a registry prop, but wa-${regKey} declares no such attribute in the CEM; rename it to the attribute Web Awesome declares, or deprecate it and record why in KIGUMI_DEPRECATIONS`,
       });
     }
 
@@ -1149,7 +1195,10 @@ export function countDrift(
     onlyInCem: count('missing-from-registry'),
     onlyInRegistry: count('missing-from-cem'),
     propValueDrift: count('prop-value-drift'),
-    attributeDrift: count('attribute-missing-from-registry'),
+    attributeDrift: count(
+      'attribute-missing-from-registry',
+      'prop-missing-from-cem'
+    ),
     deprecationDrift: count(
       'deprecation-missing-from-registry',
       'deprecation-missing-from-cem'

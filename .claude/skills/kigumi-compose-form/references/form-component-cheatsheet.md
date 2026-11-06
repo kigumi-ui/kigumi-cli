@@ -69,7 +69,7 @@ Quick reference: which Kigumi component for which input type.
 
 ### ColorPicker
 
-`value` `format` (hex|rgb|hsl|hsv) `opacity` `label` `hint` `name` `required` `disabled` `swatches` `inline` `size`
+`value` `format` (hex|rgb|hsl|hsv) `opacity` `label` `hint` `name` `required` `disabled` `swatches` `size`
 
 ### Rating
 

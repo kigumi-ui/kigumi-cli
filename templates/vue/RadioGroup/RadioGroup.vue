@@ -21,7 +21,9 @@ export interface RadioGroupProps {
   required?: boolean;
   orientation?: 'horizontal' | 'vertical';
   disabled?: boolean;
+  /** @deprecated The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major. */
   invalid?: boolean;
+  /** @deprecated Use hint instead. Removed in the next major. */
   'help-text'?: string;
   'custom-error'?: string;
 }

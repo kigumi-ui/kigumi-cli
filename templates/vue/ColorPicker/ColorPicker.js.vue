@@ -25,6 +25,7 @@ const props = defineProps({
   swatches: { type: String, required: false },
   uppercase: { type: Boolean, required: false },
   'without-format-toggle': { type: Boolean, required: false },
+  /** @deprecated The color picker has no inline mode, so remove this prop. Removed in the next major. */
   inline: { type: Boolean, required: false },
   'custom-error': { type: String, required: false },
 });

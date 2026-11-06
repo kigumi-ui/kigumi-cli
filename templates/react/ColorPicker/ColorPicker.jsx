@@ -17,6 +17,26 @@ function ensureLoaded() {
  * <ColorPicker format="rgb" opacity />
  * ```
  */
+/**
+ * @typedef {Object} ColorPickerProps
+ * @property {string} [value] - The current color value
+ * @property {string} [format] - Color format: hex | rgb | hsl | hsv
+ * @property {boolean} [opacity] - Enables opacity slider
+ * @property {boolean} [disabled] - Disables the color picker
+ * @property {boolean} [required] - Makes field mandatory
+ * @property {string} [size] - Color picker size: small | medium | large | xs | s | m | l | xl
+ * @property {string} [label] - Label text
+ * @property {string} [hint] - Hint text
+ * @property {string} [name] - Form field name
+ * @property {boolean} [open] - Whether the panel is open
+ * @property {string} [placement] - Preferred placement of the color picker panel: top | top-start | top-end | bottom | bottom-start | bottom-end | right | right-start | right-end | left | left-start | left-end
+ * @property {string} [swatches] - Predefined color swatches
+ * @property {boolean} [uppercase] - Displays hex values in uppercase
+ * @property {boolean} [without-format-toggle] - Hides the format toggle button
+ * @property {boolean} [inline] - Deprecated: The color picker has no inline mode, so remove this prop. Removed in the next major.
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
+ */
+
 export const ColorPicker = React.forwardRef(
   (
     {

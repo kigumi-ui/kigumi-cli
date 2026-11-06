@@ -39,12 +39,14 @@ const meta = {
     },
     disabled: {
       control: 'boolean',
-      description: 'Disables the dropdown',
+      description:
+        '**Deprecated.** Disable the trigger button instead. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     'stay-open-on-select': {
       control: 'boolean',
-      description: 'Keeps the dropdown open when an item is selected',
+      description:
+        '**Deprecated.** Call preventDefault() on the select event to keep the dropdown open. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     distance: {
@@ -59,7 +61,8 @@ const meta = {
     },
     hoist: {
       control: 'boolean',
-      description: 'Hoists the dropdown panel to the body',
+      description:
+        '**Deprecated.** The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     size: {

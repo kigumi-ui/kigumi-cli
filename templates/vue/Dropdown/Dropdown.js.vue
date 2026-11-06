@@ -13,10 +13,13 @@ function ensureLoaded() {
  */
 const props = defineProps({
   placement: { type: String, required: false },
+  /** @deprecated Disable the trigger button instead. Removed in the next major. */
   disabled: { type: Boolean, required: false },
+  /** @deprecated Call preventDefault() on the select event to keep the dropdown open. Removed in the next major. */
   'stay-open-on-select': { type: Boolean, required: false },
   distance: { type: Number, required: false },
   skidding: { type: Number, required: false },
+  /** @deprecated The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major. */
   hoist: { type: Boolean, required: false },
   size: { type: String, required: false },
 });

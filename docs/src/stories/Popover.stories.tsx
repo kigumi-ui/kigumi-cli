@@ -21,7 +21,8 @@ const meta = {
     },
     disabled: {
       control: 'boolean',
-      description: 'Disables the popover',
+      description:
+        '**Deprecated.** Disable the element the for attribute names instead. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     placement: {
@@ -45,7 +46,8 @@ const meta = {
     },
     trigger: {
       control: 'text',
-      description: 'Activation events (click, hover, focus)',
+      description:
+        '**Deprecated.** The popover opens on a click on the element the for attribute names, and no prop changes that, so remove this one. Removed in the next major.',
       table: { defaultValue: { summary: 'click' } },
     },
     distance: {
@@ -60,7 +62,8 @@ const meta = {
     },
     'with-arrow': {
       control: 'boolean',
-      description: 'Shows an arrow',
+      description:
+        '**Deprecated.** The arrow shows by default; set without-arrow to hide it. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     'without-arrow': {

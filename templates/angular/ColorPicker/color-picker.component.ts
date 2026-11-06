@@ -112,7 +112,11 @@ export class ColorPickerComponent
   @Input() uppercase?: boolean;
   /** Hides the format toggle button */
   @Input() withoutFormatToggle?: boolean;
-  /** Renders the color picker inline instead of in a dropdown */
+  /**
+   * Has no effect: wa-color-picker does not declare it
+   *
+   * @deprecated The color picker has no inline mode, so remove this prop. Removed in the next major.
+   */
   @Input() inline?: boolean;
   /** Custom validation message; the control is invalid while it is set */
   @Input() customError?: string;

@@ -15,6 +15,7 @@ const props = defineProps({
   active: { type: Boolean, required: false },
   anchor: { type: String, required: false },
   placement: { type: String, required: false },
+  /** @deprecated The popup renders in the top layer and picks its own positioning strategy, so remove this prop. Removed in the next major. */
   strategy: { type: String, required: false },
   distance: { type: Number, required: false },
   skidding: { type: Number, required: false },
