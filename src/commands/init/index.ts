@@ -53,6 +53,7 @@ import {
   reverseMigratePackageReferences,
 } from './migration.js';
 import { toKigumiAlias } from '../../utils/project-config.js';
+import { angularEntryFile } from '../../utils/angular-styles.js';
 import { PreFlightCheckError, UserCancelledError } from '../../errors/index.js';
 import {
   getThemeLabel,
@@ -234,7 +235,10 @@ export async function initCommand(options: InitOptions = {}) {
       context.projectInfo.isNext,
       context.projectInfo.nextRouter,
       // After an install, installDependencies has already said it.
-      !depsInstalled && (await tokenReferenceUnset(cwd))
+      !depsInstalled && (await tokenReferenceUnset(cwd)),
+      configResult.config.framework === 'angular'
+        ? await angularEntryFile(cwd)
+        : undefined
     );
   } catch (error) {
     handleError(error, output);
@@ -576,7 +580,8 @@ export function showPostInstallInstructions(
   tier: Tier,
   isNext: boolean = false,
   nextRouter?: import('../../utils/detect-framework.js').NextRouter,
-  tokenReferenceUnset: boolean = false
+  tokenReferenceUnset: boolean = false,
+  angularEntry: string = 'src/main.ts'
 ): void {
   output.info('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
@@ -683,9 +688,13 @@ export function showPostInstallInstructions(
     const mainFile =
       config.framework === 'react'
         ? 'src/main.tsx (or src/main.jsx)'
-        : 'src/main.ts';
+        : config.framework === 'angular'
+          ? angularEntry
+          : 'src/main.ts';
     output.info(pc.dim(`\tAdd this import to ${mainFile}:`));
-    output.info(pc.green(`\timport "${setupImportSpecifier(config)}";\n`));
+    output.info(
+      pc.green(`\timport "${setupImportSpecifier(config, angularEntry)}";\n`)
+    );
     stepNum++;
   }
 
@@ -754,13 +763,16 @@ export function showPostInstallInstructions(
 
 /**
  * The import that loads `kigumi.ts` from the entry file. Angular gets a
- * relative path from `src/main.ts`: `ng new` sets up no `@/` alias
+ * path relative to its entry file: `ng new` sets up no `@/` alias
  * (issue #156).
  */
-function setupImportSpecifier(config: KigumiConfig): string {
+function setupImportSpecifier(
+  config: KigumiConfig,
+  angularEntry: string
+): string {
   if (config.framework !== 'angular') return '@/lib/kigumi';
   const relative = path.posix.relative(
-    'src',
+    path.posix.dirname(angularEntry),
     path.posix.join(config.utilsDir.split(path.sep).join('/'), 'kigumi')
   );
   return relative.startsWith('.') ? relative : `./${relative}`;

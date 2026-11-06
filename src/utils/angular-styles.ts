@@ -29,9 +29,36 @@ interface AngularJson {
     string,
     {
       projectType?: string;
-      architect?: { build?: { options?: { styles?: StyleEntry[] } } };
+      architect?: {
+        build?: {
+          options?: { styles?: StyleEntry[]; browser?: string; main?: string };
+        };
+      };
     }
   >;
+}
+
+/**
+ * The entry file of the first application in `angular.json` (`browser`, or
+ * `main` on the older builder), relative to the workspace root. `ng new`
+ * writes `src/main.ts`, which is also the answer when there is nothing to
+ * read; a multi-project workspace keeps it under `projects/<name>/src/`.
+ */
+export async function angularEntryFile(cwd: string): Promise<string> {
+  const angularJsonPath = path.join(cwd, 'angular.json');
+  if (await fs.pathExists(angularJsonPath)) {
+    const angularJson = (await readJSONWithComments(
+      angularJsonPath
+    )) as AngularJson;
+    for (const project of Object.values(angularJson.projects ?? {})) {
+      const options = project.architect?.build?.options;
+      const entry = options?.browser ?? options?.main;
+      if (project.projectType === 'application' && entry) {
+        return path.posix.normalize(entry);
+      }
+    }
+  }
+  return 'src/main.ts';
 }
 
 /** The `angular.json` path of `layers.css`, relative to the workspace root. */
