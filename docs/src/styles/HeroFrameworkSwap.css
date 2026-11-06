@@ -3,6 +3,11 @@
  * Bottom: the framework plate that swaps. Middle: the component wireframe.
  * Top: the rendered command menu, which never changes.
  * The stage is laid out at 560 x 480 px and scaled down by HeroFrameworkSwap.tsx.
+ *
+ * No element uses transform-style: preserve-3d. Every sheet and pin is a flat sibling
+ * that carries the whole isometric projection in its own transform, so the stacking
+ * order is the DOM order. A shared 3D rendering context left the order to the
+ * browser's depth sort, and Safari put the animating framework plate above the menu.
  */
 
 .framework-swap {
@@ -27,17 +32,21 @@
   transform-origin: top left;
 }
 
+/* The scene is only the origin of the projection: the center of the sheets */
 .framework-swap__scene {
+  --framework-swap-tilt: rotateX(58deg) rotateZ(-38deg);
+
   position: absolute;
   left: 280px;
   top: 290px;
   width: 0;
   height: 0;
-  transform-style: preserve-3d;
-  transform: rotateX(58deg) rotateZ(-38deg);
 }
 
+/* --sheet-z is the sheet's height above the framework plate */
 .framework-swap__sheet {
+  --sheet-z: 0px;
+
   position: absolute;
   left: -150px;
   top: -100px;
@@ -45,7 +54,7 @@
   height: 200px;
   box-sizing: border-box;
   border-radius: var(--wa-border-radius-l);
-  transform-style: preserve-3d;
+  transform: var(--framework-swap-tilt) translateZ(var(--sheet-z));
 }
 
 .framework-swap__sheet--framework {
@@ -53,7 +62,8 @@
 }
 
 .framework-swap__sheet--wireframe {
-  transform: translateZ(70px);
+  --sheet-z: 70px;
+
   border: 1px dashed var(--framework-swap-line);
   padding: 16px 18px;
   display: flex;
@@ -62,7 +72,8 @@
 }
 
 .framework-swap__sheet--ui {
-  transform: translateZ(140px);
+  --sheet-z: 140px;
+
   background: var(--wa-color-surface-raised);
   border: 1px solid var(--wa-color-surface-border);
   color: var(--wa-color-text-normal);
@@ -140,35 +151,43 @@
   height: 24px;
 }
 
-/* Pins between the sheets */
+/*
+ * Pins between the sheets: each hangs from a corner of the menu sheet down to the
+ * framework plate. A pin sits at the scene origin, so the tilt turns about the same
+ * point as for the sheets; --pin-x and --pin-y place it relative to the sheet center.
+ * Painted before the menu sheet, which hides their tops.
+ */
 
 .framework-swap__pin {
   position: absolute;
+  left: 0;
+  top: 0;
   width: 1px;
   height: 140px;
-  transform-origin: top;
-  transform: rotateX(-90deg);
+  transform-origin: 0 0;
+  transform: var(--framework-swap-tilt)
+    translate3d(var(--pin-x), var(--pin-y), 140px) rotateX(-90deg);
   background: var(--framework-swap-line);
 }
 
 .framework-swap__pin--tl {
-  left: 12px;
-  top: 12px;
+  --pin-x: -138px;
+  --pin-y: -88px;
 }
 
 .framework-swap__pin--tr {
-  left: 287px;
-  top: 12px;
+  --pin-x: 137px;
+  --pin-y: -88px;
 }
 
 .framework-swap__pin--bl {
-  left: 12px;
-  top: 187px;
+  --pin-x: -138px;
+  --pin-y: 87px;
 }
 
 .framework-swap__pin--br {
-  left: 287px;
-  top: 187px;
+  --pin-x: 137px;
+  --pin-y: 87px;
 }
 
 .framework-swap__ring {
