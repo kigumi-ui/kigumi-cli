@@ -180,12 +180,8 @@ export function OwnKeySettingsDialog({
           onChange={(event) => {
             const checked = (event.target as HTMLInputElement).checked;
             setRemember(checked);
-            // Only a key can be remembered: say so at once, not on Save.
-            setProblem(
-              checked && !draft.trim() && !saved
-                ? REMEMBER_WITHOUT_KEY
-                : undefined
-            );
+            // Save checks whether there is a key to remember.
+            setProblem(undefined);
           }}
         >
           Remember on this device
