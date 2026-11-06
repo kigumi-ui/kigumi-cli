@@ -184,7 +184,7 @@ export function GettingStarted() {
                   filename: 'src/main.ts',
                 },
                 angular: {
-                  code: "import '@/lib/kigumi';",
+                  code: "import './lib/kigumi';",
                   filename: 'src/main.ts',
                 },
                 nextjs: {

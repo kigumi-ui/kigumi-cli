@@ -681,11 +681,11 @@ export function showPostInstallInstructions(
       pc.bold(pc.cyan(`${stepNum}. Import Kigumi in your main entry file:\n`))
     );
     const mainFile =
-      config.framework === 'vue'
-        ? 'src/main.ts'
-        : 'src/main.tsx (or src/main.jsx)';
+      config.framework === 'react'
+        ? 'src/main.tsx (or src/main.jsx)'
+        : 'src/main.ts';
     output.info(pc.dim(`\tAdd this import to ${mainFile}:`));
-    output.info(pc.green('\timport "@/lib/kigumi";\n'));
+    output.info(pc.green(`\timport "${setupImportSpecifier(config)}";\n`));
     stepNum++;
   }
 
@@ -750,4 +750,18 @@ export function showPostInstallInstructions(
   output.info(
     pc.dim('\t• Color Palettes: https://webawesome.com/docs/color-palettes\n')
   );
+}
+
+/**
+ * The import that loads `kigumi.ts` from the entry file. Angular gets a
+ * relative path from `src/main.ts`: `ng new` sets up no `@/` alias
+ * (issue #156).
+ */
+function setupImportSpecifier(config: KigumiConfig): string {
+  if (config.framework !== 'angular') return '@/lib/kigumi';
+  const relative = path.posix.relative(
+    'src',
+    path.posix.join(config.utilsDir.split(path.sep).join('/'), 'kigumi')
+  );
+  return relative.startsWith('.') ? relative : `./${relative}`;
 }

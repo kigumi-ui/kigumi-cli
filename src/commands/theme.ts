@@ -24,6 +24,7 @@ import { TierRestrictionError } from '../errors/tier.js';
 import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
 import { reportOverridesLayer } from '../utils/overrides-css.js';
+import { reportAngularStyles } from '../utils/angular-styles.js';
 import { detectTier } from '../utils/tier.js';
 import {
   getAvailableThemes,
@@ -101,7 +102,7 @@ async function themeAction(themeName?: string) {
     await saveConfig({ theme: { selected: selectedTheme } }, cwd);
 
     const utilsDir = config.utilsDir;
-    const { overrides } = await regenerateKigumiSetup(
+    const { overrides, angularStyles } = await regenerateKigumiSetup(
       cwd,
       config,
       utilsDir,
@@ -111,6 +112,8 @@ async function themeAction(themeName?: string) {
     spinner.stop('Theme updated');
 
     reportOverridesLayer(overrides, config.stylesDir, output);
+
+    reportAngularStyles(angularStyles, config.stylesDir, output);
 
     output.outro(
       `${pc.green('✓')} Theme set to ${pc.cyan(selectedTheme)}\n` +

@@ -27,6 +27,7 @@ import { getGitHubToken } from '../../utils/github-token.js';
 import { resolveRegistrySource } from '../../utils/registry-resolver.js';
 import { regenerateKigumiSetup } from '../../utils/regenerate.js';
 import { reportOverridesLayer } from '../../utils/overrides-css.js';
+import { reportAngularStyles } from '../../utils/angular-styles.js';
 import { detectTier } from '../../utils/tier.js';
 import type { KigumiConfig } from '../../schemas/config.js';
 
@@ -148,7 +149,7 @@ export async function themeInstallAction(
 
     // 7. Regenerate setup files
     const utilsDir = config.utilsDir;
-    const { overrides } = await regenerateKigumiSetup(
+    const { overrides, angularStyles } = await regenerateKigumiSetup(
       cwd,
       config,
       utilsDir,
@@ -158,6 +159,8 @@ export async function themeInstallAction(
     installSpinner.stop('Theme installed');
 
     reportOverridesLayer(overrides, config.stylesDir, output);
+
+    reportAngularStyles(angularStyles, config.stylesDir, output);
 
     output.note(
       'Theme files',

@@ -205,7 +205,7 @@ export const CREATE_VITE_VERSION = '9.2.1';
  * The major matches the `@angular/*` devDependencies the Angular function
  * harness runs on, so both Angular proofs cover the same major.
  */
-export const ANGULAR_CLI_VERSION = '21.2.24';
+export const ANGULAR_CLI_VERSION = '22.2.5';
 
 // =============================================================================
 // Community Registry
