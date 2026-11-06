@@ -8,6 +8,11 @@
   @media (min-width: 768px) {
     padding-inline: var(--wa-space-3xl);
   }
+
+  /* The framework plate slides in from outside the visual; keep it from widening the page */
+  @media (max-width: 1023px) {
+    overflow-x: clip;
+  }
 }
 
 .hero__layout {
@@ -41,12 +46,18 @@
   max-width: 480px;
 }
 
+/* Below 1024px the grid has one column, so the visual sits under the install command */
 .hero__visual {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  @media (min-width: 1024px) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /*
+   * The stage's top 81 of its 560 px are empty. Stacked, pull that band into the row gap
+   * so the visible gap matches the one between the buttons and the install command.
+   * A percentage margin resolves against the column width, which the stage scales with.
+   */
+  @media (max-width: 1023px) {
+    margin-top: max(-14.5%, -81px);
   }
 }
