@@ -134,7 +134,7 @@ export const themeImport = `@import '@repo/theme/theme.css';
           snippets={{
             react: { code: "import '@/lib/kigumi';", filename: 'src/App.tsx' },
             vue: { code: "import '@/lib/kigumi';", filename: 'src/main.ts' },
-            angular: { code: "import '@/lib/kigumi';", filename: 'src/main.ts' },
+            angular: { code: "import './lib/kigumi';", filename: 'src/main.ts' },
             nextjs: { code: "'use client';\n\nimport '@/lib/kigumi';\n\nexport function KigumiProvider({ children }: { children: React.ReactNode }) {\n  return <>{children}</>;\n}", filename: 'src/app/providers.tsx' },
           }}
         />

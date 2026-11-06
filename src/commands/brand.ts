@@ -24,6 +24,7 @@ import { ValidationError } from '../errors/validation.js';
 import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
 import { reportOverridesLayer } from '../utils/overrides-css.js';
+import { reportAngularStyles } from '../utils/angular-styles.js';
 import { detectTier } from '../utils/tier.js';
 
 const BRAND_COLORS = [
@@ -119,7 +120,7 @@ async function brandAction(colorName?: string, options: BrandOptions = {}) {
     await saveConfig({ theme: { brandColor: selectedColor } }, cwd);
 
     const utilsDir = config.utilsDir;
-    const { overrides } = await regenerateKigumiSetup(
+    const { overrides, angularStyles } = await regenerateKigumiSetup(
       cwd,
       config,
       utilsDir,
@@ -129,6 +130,8 @@ async function brandAction(colorName?: string, options: BrandOptions = {}) {
     spinner.stop('Brand color updated');
 
     reportOverridesLayer(overrides, config.stylesDir, output);
+
+    reportAngularStyles(angularStyles, config.stylesDir, output);
 
     output.outro(
       `${pc.green('✓')} Brand color set to ${pc.cyan(selectedColor)}\n` +
