@@ -34,6 +34,7 @@ import {
 } from './detect-framework.js';
 import { toKigumiAlias } from './project-config.js';
 import {
+  angularLayersEntry,
   ensureAngularStyles,
   type AngularStylesResult,
 } from './angular-styles.js';
@@ -153,12 +154,16 @@ export async function regenerateKigumiSetup(
     ? await ensureAngularStyles(cwd, stylesDir)
     : undefined;
 
+  // The Angular line is the Angular Starter's own wording.
   const layersImportLine = isAngular
-    ? `// Angular: layers.css is loaded through the "styles" in angular.json.`
-    : skipLayersImport
-      ? `// Pages Router: layers.css must be imported from pages/_app.tsx
+    ? `// CSS is loaded via angular.json styles array (${angularLayersEntry(stylesDir)})`
+    : `// Import Web Awesome CSS with cascade layers for predictable specificity control
+${
+  skipLayersImport
+    ? `// Pages Router: layers.css must be imported from pages/_app.tsx
 // directly — Next forbids global CSS imports from lib/.`
-      : `import '${stylesAlias}/layers.css';`;
+    : `import '${stylesAlias}/layers.css';`
+}`;
 
   // Generate kigumi.ts that imports layers.css (except in Pages Router)
   const setupFileContent = `/**
@@ -184,7 +189,6 @@ if (typeof customElements !== 'undefined') {
   };
 }
 
-// Import Web Awesome CSS with cascade layers for predictable specificity control
 ${layersImportLine}
 ${themeClasses}
 export {};
