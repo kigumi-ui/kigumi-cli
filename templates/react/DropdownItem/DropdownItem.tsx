@@ -50,7 +50,11 @@ export interface DropdownItemProps extends Omit<
   /** Disables the menu item */
   disabled?: boolean;
 
-  /** Draws the item in a loading state */
+  /**
+   * Has no effect: wa-dropdown-item does not declare it
+   *
+   * @deprecated Dropdown items have no loading state, so remove this prop. Removed in the next major.
+   */
   loading?: boolean;
 
   /** The dropdown item variant */

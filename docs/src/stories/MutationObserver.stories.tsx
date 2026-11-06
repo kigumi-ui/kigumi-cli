@@ -40,7 +40,8 @@ const meta = {
     },
     subtree: {
       control: 'boolean',
-      description: 'Observes changes in subtree',
+      description:
+        '**Deprecated.** The observer always watches the whole subtree, so remove this prop. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     onMutation: {

@@ -43,6 +43,7 @@ export interface ColorPickerProps {
   swatches?: string;
   uppercase?: boolean;
   'without-format-toggle'?: boolean;
+  /** @deprecated The color picker has no inline mode, so remove this prop. Removed in the next major. */
   inline?: boolean;
   'custom-error'?: string;
 }

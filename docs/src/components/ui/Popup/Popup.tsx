@@ -54,7 +54,11 @@ export interface PopupProps extends Omit<
     | 'left-start'
     | 'left-end';
 
-  /** Positioning strategy */
+  /**
+   * Has no effect: wa-popup does not declare it
+   *
+   * @deprecated The popup renders in the top layer and picks its own positioning strategy, so remove this prop. Removed in the next major.
+   */
   strategy?: 'absolute' | 'fixed';
 
   /** Distance from anchor */

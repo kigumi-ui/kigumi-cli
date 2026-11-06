@@ -55,7 +55,11 @@ export class PopoverComponent implements AfterViewInit, OnDestroy {
 
   /** Indicates whether the popover is open */
   @Input() open?: boolean;
-  /** Disables the popover */
+  /**
+   * Has no effect: wa-popover does not declare it
+   *
+   * @deprecated Disable the element the for attribute names instead. Removed in the next major.
+   */
   @Input() disabled?: boolean;
   /** Preferred placement */
   @Input() placement?:
@@ -71,13 +75,21 @@ export class PopoverComponent implements AfterViewInit, OnDestroy {
     | 'left'
     | 'left-start'
     | 'left-end';
-  /** Activation events (click, hover, focus) */
+  /**
+   * Has no effect: wa-popover does not declare it
+   *
+   * @deprecated The popover opens on a click on the element the for attribute names, and no prop changes that, so remove this one. Removed in the next major.
+   */
   @Input() trigger?: string;
   /** Distance from trigger */
   @Input() distance?: number;
   /** Offset along trigger */
   @Input() skidding?: number;
-  /** Shows an arrow */
+  /**
+   * Has no effect: wa-popover does not declare it
+   *
+   * @deprecated The arrow shows by default; set without-arrow to hide it. Removed in the next major.
+   */
   @Input() withArrow?: boolean;
   /** Hides the arrow */
   @Input() withoutArrow?: boolean;

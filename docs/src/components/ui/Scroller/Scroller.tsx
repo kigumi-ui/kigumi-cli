@@ -29,7 +29,11 @@ export interface ScrollerProps extends Omit<
   /** Scroll direction */
   orientation?: 'horizontal' | 'vertical';
 
-  /** Shows shadow indicators */
+  /**
+   * Has no effect: wa-scroller does not declare it
+   *
+   * @deprecated The scroll shadows show by default; set without-shadow to hide them. Removed in the next major.
+   */
   'with-scroll-indicator'?: boolean;
 
   /** Hides the scrollbar */

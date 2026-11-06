@@ -79,7 +79,11 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
     | 'left'
     | 'left-start'
     | 'left-end';
-  /** Positioning strategy */
+  /**
+   * Has no effect: wa-popup does not declare it
+   *
+   * @deprecated The popup renders in the top layer and picks its own positioning strategy, so remove this prop. Removed in the next major.
+   */
   @Input() strategy?: 'absolute' | 'fixed';
   /** Distance from anchor */
   @Input() distance?: number;

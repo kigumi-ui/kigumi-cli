@@ -27,7 +27,8 @@ const meta = {
     },
     loading: {
       control: 'boolean',
-      description: 'Draws the item in a loading state',
+      description:
+        '**Deprecated.** Dropdown items have no loading state, so remove this prop. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     variant: {

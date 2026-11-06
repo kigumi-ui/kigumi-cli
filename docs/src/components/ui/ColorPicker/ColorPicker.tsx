@@ -94,7 +94,11 @@ export interface ColorPickerProps extends Omit<
   /** Predefined color swatches */
   swatches?: string | string[];
 
-  /** Inline display (always visible) */
+  /**
+   * Has no effect: wa-color-picker does not declare it
+   *
+   * @deprecated The color picker has no inline mode, so remove this prop. Removed in the next major.
+   */
   inline?: boolean;
 
   /** Displays hex values in uppercase */

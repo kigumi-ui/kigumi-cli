@@ -12,11 +12,14 @@ function ensureLoaded() {
  * Popovers display additional content when users interact with a trigger element
  */
 const props = defineProps({
+  /** @deprecated Disable the element the for attribute names instead. Removed in the next major. */
   disabled: { type: Boolean, required: false },
   placement: { type: String, required: false },
+  /** @deprecated The popover opens on a click on the element the for attribute names, and no prop changes that, so remove this one. Removed in the next major. */
   trigger: { type: String, required: false },
   distance: { type: Number, required: false },
   skidding: { type: Number, required: false },
+  /** @deprecated The arrow shows by default; set without-arrow to hide it. Removed in the next major. */
   'with-arrow': { type: Boolean, required: false },
   'without-arrow': { type: Boolean, required: false },
   for: { type: String, required: false },

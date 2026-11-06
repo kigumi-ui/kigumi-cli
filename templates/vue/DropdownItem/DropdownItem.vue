@@ -17,6 +17,7 @@ export interface DropdownItemProps {
   checked?: boolean;
   value?: string;
   disabled?: boolean;
+  /** @deprecated Dropdown items have no loading state, so remove this prop. Removed in the next major. */
   loading?: boolean;
   variant?: 'default' | 'danger';
   href?: string;

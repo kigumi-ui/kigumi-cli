@@ -78,7 +78,11 @@ export interface SelectProps extends Omit<
   /** Whether listbox is open */
   open?: boolean;
 
-  /** Hoists to body */
+  /**
+   * Has no effect: wa-select does not declare it
+   *
+   * @deprecated The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major.
+   */
   hoist?: boolean;
 
   /** Listbox placement */
@@ -96,10 +100,18 @@ export interface SelectProps extends Omit<
   /** Makes selection required */
   required?: boolean;
 
-  /** Shows invalid/error state */
+  /**
+   * Has no effect: wa-select does not declare it
+   *
+   * @deprecated The invalid state follows required and custom-error; style it with the :state(user-invalid) selector. Removed in the next major.
+   */
   invalid?: boolean;
 
-  /** Help text below the control */
+  /**
+   * Has no effect: wa-select does not declare it
+   *
+   * @deprecated Use hint instead. Removed in the next major.
+   */
   'help-text'?: string;
 
   /** Custom validation message; the control is invalid while it is set */

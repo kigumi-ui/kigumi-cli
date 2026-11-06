@@ -31,10 +31,13 @@ export interface DropdownProps {
     | 'left'
     | 'left-start'
     | 'left-end';
+  /** @deprecated Disable the trigger button instead. Removed in the next major. */
   disabled?: boolean;
+  /** @deprecated Call preventDefault() on the select event to keep the dropdown open. Removed in the next major. */
   'stay-open-on-select'?: boolean;
   distance?: number;
   skidding?: number;
+  /** @deprecated The panel already renders in the top layer, where no ancestor can clip it, so remove this prop. Removed in the next major. */
   hoist?: boolean;
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 }

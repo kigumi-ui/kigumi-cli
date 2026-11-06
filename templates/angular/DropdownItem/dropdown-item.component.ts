@@ -58,7 +58,11 @@ export class DropdownItemComponent implements AfterViewInit, OnDestroy {
   @Input() value?: string;
   /** Disables the menu item */
   @Input() disabled?: boolean;
-  /** Draws the item in a loading state */
+  /**
+   * Has no effect: wa-dropdown-item does not declare it
+   *
+   * @deprecated Dropdown items have no loading state, so remove this prop. Removed in the next major.
+   */
   @Input() loading?: boolean;
   /** The dropdown item variant */
   @Input() variant?: 'default' | 'danger';

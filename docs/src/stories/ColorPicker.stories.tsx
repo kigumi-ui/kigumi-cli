@@ -76,7 +76,8 @@ const meta = {
     },
     inline: {
       control: 'boolean',
-      description: 'Renders the color picker inline instead of in a dropdown',
+      description:
+        '**Deprecated.** The color picker has no inline mode, so remove this prop. Removed in the next major.',
       table: { defaultValue: { summary: 'false' } },
     },
     'custom-error': {
@@ -213,7 +214,7 @@ export const ChromaticOnly: Story = {
         padding: '1.5rem',
       }}
     >
-      <ColorPicker value="#4a90d9" inline />
+      <ColorPicker value="#4a90d9" />
     </div>
   ),
 };

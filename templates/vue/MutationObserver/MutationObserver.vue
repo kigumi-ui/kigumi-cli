@@ -20,6 +20,7 @@ export interface MutationObserverProps {
   'char-data-old-value'?: boolean;
   'child-list'?: boolean;
   disabled?: boolean;
+  /** @deprecated The observer always watches the whole subtree, so remove this prop. Removed in the next major. */
   subtree?: boolean;
 }
 
