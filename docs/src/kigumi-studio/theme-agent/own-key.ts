@@ -49,7 +49,7 @@ export interface SavedOwnKey {
 function readStorage(storage: () => Storage): string | null {
   try {
     return storage().getItem(OWN_KEY_KEY);
-  } catch {
+  } catch (_error) {
     // Storage blocked: no key was saved there.
     return null;
   }
@@ -88,7 +88,7 @@ export function removeOwnKey(): void {
 function removeFrom(storage: () => Storage): void {
   try {
     storage().removeItem(OWN_KEY_KEY);
-  } catch {
+  } catch (_error) {
     // Storage blocked: nothing was saved there to remove.
   }
 }
