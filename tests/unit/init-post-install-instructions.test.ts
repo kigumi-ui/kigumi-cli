@@ -34,6 +34,39 @@ describe('showPostInstallInstructions', () => {
     output = createTestOutput();
   });
 
+  describe('Angular', () => {
+    // Issue #156: no `@/` alias, so the import is relative to the entry
+    // file, which a multi-project workspace keeps under projects/.
+    it('prints an import relative to the entry file angular.json names', () => {
+      const config = createTestKigumiConfig({
+        framework: 'angular',
+        utilsDir: 'lib',
+      });
+
+      showPostInstallInstructions(
+        output,
+        config,
+        'npm',
+        true,
+        'free',
+        false,
+        undefined,
+        false,
+        'projects/app/src/main.ts'
+      );
+
+      const messages = collectMessages(output);
+      expect(messages).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining(
+            'Add this import to projects/app/src/main.ts:'
+          ),
+          expect.stringContaining('import "../../../lib/kigumi";'),
+        ])
+      );
+    });
+  });
+
   describe('Vite + free + react + ts (default)', () => {
     it('emits the main-entry import step and omits Next/Vue/Pro-only steps', () => {
       const config = createTestKigumiConfig({

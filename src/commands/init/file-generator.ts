@@ -25,6 +25,7 @@ import {
 } from '../../utils/regenerate.js';
 import type { ProjectInfo } from '../../utils/detect-framework.js';
 import { reportOverridesLayer } from '../../utils/overrides-css.js';
+import { reportAngularStyles } from '../../utils/angular-styles.js';
 import { reportPaletteImport } from '../../utils/palette-css.js';
 import { writeProjectNpmrc } from '../../utils/npmrc.js';
 import fs from 'fs-extra';
@@ -76,15 +77,16 @@ export async function generateProjectFiles(
     // 2. Generate kigumi.ts (and layers.css)
     spinner.message('Generating kigumi.ts...');
     output.debug(`[DEBUG] Generating kigumi.ts in ${utilsDir}`);
-    const { layersPreserved, overrides, palette } = await regenerateKigumiSetup(
-      cwd,
-      config,
-      utilsDir,
-      tier,
-      { preserveLayersCSS: true },
-      isNext,
-      nextRouter
-    );
+    const { layersPreserved, overrides, palette, angularStyles } =
+      await regenerateKigumiSetup(
+        cwd,
+        config,
+        utilsDir,
+        tier,
+        { preserveLayersCSS: true },
+        isNext,
+        nextRouter
+      );
     output.debug(`[DEBUG] ✓ kigumi.ts generated`);
     if (layersPreserved) {
       output.debug(`[DEBUG] layers.css already exists, skipping generation`);
@@ -101,6 +103,7 @@ export async function generateProjectFiles(
       );
     }
     reportOverridesLayer(overrides, stylesDir, output);
+    reportAngularStyles(angularStyles, stylesDir, output);
     reportPaletteImport(
       palette,
       stylesDir,

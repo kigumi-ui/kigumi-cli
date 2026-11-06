@@ -192,11 +192,12 @@ export function HeroFrameworkSwap() {
             <span className="framework-swap__wire framework-swap__wire--row" />
           </div>
 
+          <span className="framework-swap__pin framework-swap__pin--tl" />
+          <span className="framework-swap__pin framework-swap__pin--tr" />
+          <span className="framework-swap__pin framework-swap__pin--bl" />
+          <span className="framework-swap__pin framework-swap__pin--br" />
+
           <div className="framework-swap__sheet framework-swap__sheet--ui">
-            <span className="framework-swap__pin framework-swap__pin--tl" />
-            <span className="framework-swap__pin framework-swap__pin--tr" />
-            <span className="framework-swap__pin framework-swap__pin--bl" />
-            <span className="framework-swap__pin framework-swap__pin--br" />
             {step > 0 && (
               <span
                 key={step}

@@ -292,6 +292,52 @@ describe('regenerate utilities', () => {
     });
   });
 
+  describe('regenerateKigumiSetup for Angular', () => {
+    // Issue #156: `ng new` sets up no `@/` alias, and TypeScript 6 rejects a
+    // CSS side-effect import, so layers.css goes into angular.json instead.
+    it('loads layers.css through angular.json, not kigumi.ts', async () => {
+      await fs.ensureDir(path.join(testDir, config.utilsDir));
+      await fs.ensureDir(path.join(testDir, config.stylesDir));
+      const angularJsonPath = path.join(testDir, 'angular.json');
+      const project = (styles: string[]) => ({
+        projectType: 'application',
+        architect: { build: { options: { styles } } },
+      });
+      await fs.writeJSON(angularJsonPath, {
+        projects: { app: project(['src/styles.css']) },
+      });
+      const angularConfig = { ...config, framework: 'angular' as const };
+
+      const first = await regenerateKigumiSetup(
+        testDir,
+        angularConfig,
+        config.utilsDir,
+        'free'
+      );
+      const second = await regenerateKigumiSetup(
+        testDir,
+        angularConfig,
+        config.utilsDir,
+        'free'
+      );
+
+      const kigumi = await fs.readFile(
+        path.join(testDir, config.utilsDir, 'kigumi.ts'),
+        'utf-8'
+      );
+      expect(kigumi).not.toMatch(/^import .*\.css/m);
+      expect([first.angularStyles, second.angularStyles]).toEqual([
+        'added',
+        'present',
+      ]);
+      expect(await fs.readJSON(angularJsonPath)).toEqual({
+        projects: {
+          app: project(['src/styles/layers.css', 'src/styles.css']),
+        },
+      });
+    });
+  });
+
   describe('regenerateKigumiSetup with layers.css preserved (init)', () => {
     // Issue #174: init keeps an existing layers.css, which may predate the
     // palette import or name the palette the project had before.
