@@ -322,6 +322,30 @@ describe('kigumi init', () => {
       expect(result.stdout).toContain('Existing theme.css found');
     });
 
+    it('keeps installedComponents and a legacy aliases key on re-init (issue #269)', async () => {
+      testDir = await createTempProject('react-vite');
+      await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      // The Starters still carry `aliases`, a key older CLIs wrote.
+      const config = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
+      const aliases = { '@/components': './src/components' };
+      const installedComponents = {
+        Button: { source: 'builtin', kigumiVersion: '1.1.0' },
+      };
+      await writeFile(
+        testDir,
+        'kigumi.config.json',
+        JSON.stringify({ ...config, aliases, installedComponents })
+      );
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      expect(result.exitCode).toBe(0);
+      const after = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
+      expect(after.installedComponents).toEqual(installedComponents);
+      expect(after.aliases).toEqual(aliases);
+    });
+
     it('writes overrides.css, and keeps it byte for byte on re-init', async () => {
       testDir = await createTempProject('react-vite');
 
