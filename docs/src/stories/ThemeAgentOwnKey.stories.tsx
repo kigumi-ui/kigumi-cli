@@ -880,8 +880,8 @@ export const UnlockFromEmptyState: Story = {
 };
 
 /**
- * Without the cookie, Remove key brings back the empty state, and the lock
- * switches go with the chat.
+ * Without the cookie, Remove key ends the conversation and brings back the
+ * empty state, and the lock switches go with the chat.
  */
 export const RemoveKeyBringsBackEmptyState: Story = {
   args: { accessCookie: false },
@@ -891,6 +891,8 @@ export const RemoveKeyBringsBackEmptyState: Story = {
     await saveKey(canvasElement, PLACEHOLDER_KEY);
     await waitFor(() => messageField(canvasElement));
     expect(lockSwitchShown(canvasElement)).toBe(true);
+    await send(canvasElement, 'Make it warmer');
+    await canvas.findByText(WARMER);
 
     const dialog = await openSettings(canvasElement);
     await userEvent.click(within(dialog).getByText('Remove key'));
@@ -903,6 +905,10 @@ export const RemoveKeyBringsBackEmptyState: Story = {
     expect(canvas.queryByText('New chat')).not.toBeInTheDocument();
     expect(lockSwitchShown(canvasElement)).toBe(false);
     expect(keptInTab(PLACEHOLDER_KEY)).toBe(false);
+    // The conversation ended; no other starts until a key is saved again.
+    expect(announcements(canvasElement)).toContain(
+      'The key was removed, so the conversation ended.'
+    );
   },
 };
 

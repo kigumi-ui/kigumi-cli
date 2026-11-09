@@ -145,14 +145,13 @@ export function ThemeAgentSidebar({
    * across, so the conversation ends as with "New chat", and the fresh chat
    * takes the other transport.
    */
-  const restartOnAccessChange = (startedBy?: ConversationStart) => {
+  const restartOnAccessChange = (
+    startedBy?: ConversationStart,
+    endedNotice = 'The Theme Agent now runs elsewhere, so a new conversation started.'
+  ) => {
     const ended = chatRef.current?.end() ?? false;
     setConversation((current) => ({ key: current.key + 1, startedBy }));
-    if (ended) {
-      setNotice(
-        'The Theme Agent now runs elsewhere, so a new conversation started.'
-      );
-    }
+    if (ended) setNotice(endedNotice);
   };
 
   const saveKey = (key: SavedOwnKey) => {
@@ -170,7 +169,12 @@ export function ThemeAgentSidebar({
     removeOwnKey();
     setOwnKey(null);
     setOwnKeySaved(false);
-    restartOnAccessChange();
+    restartOnAccessChange(
+      undefined,
+      accessCookie
+        ? undefined
+        : 'The key was removed, so the conversation ended.'
+    );
   };
 
   /** Open the settings from `opener`, where focus goes back; the cog by default. */

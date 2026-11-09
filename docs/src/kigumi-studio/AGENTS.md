@@ -92,7 +92,7 @@ AI chat that builds a custom theme (spec #181, vocabulary in `GLOSSARY.md`). Its
 | State | When | The panel |
 | --- | --- | --- |
 | Own key | An own key is saved, with or without the cookie | The chat, answered in the browser with that key |
-| Cookie | The access cookie, no own key | The chat, answered on the trigger.dev task, paid by Kigumi |
+| Hosted | The access cookie, no own key | The chat, answered on the trigger.dev task, paid by Kigumi |
 | Locked | Neither | The empty state: what the Theme Agent does, that the key stays in the browser, and "Add your API key", which opens the settings. No message field, no "New chat" |
 
 Locks apply in the own key and cookie states only. Saving a key from the empty state shows the chat at once; removing it without the cookie brings the empty state back.
