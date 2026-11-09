@@ -276,15 +276,21 @@ Popover has no trigger slot. Its content is the panel. The trigger sits outside 
 
 Put the `id` on a wrapper, not on `k-button`. The `k-button` host is `display: contents` and has no box, so a popover anchored to it opens in the corner of the page.
 
+On Escape the popover returns focus to its anchor, and a `span` cannot take focus. Without the `(keydown.escape)` handler, focus falls to the page body. The handler hands focus back to the button.
+
 ### Basic Filter Panel
 
 ```html
 <span id="filters-trigger" style="display: inline-block">
-  <k-button variant="neutral">
+  <k-button #filtersButton variant="neutral">
     <k-icon slot="start" name="filter" />Filters
   </k-button>
 </span>
-<k-popover for="filters-trigger" placement="bottom-start">
+<k-popover
+  for="filters-trigger"
+  placement="bottom-start"
+  (keydown.escape)="filtersButton.focus()"
+>
   <div
     class="wa-stack wa-gap-s"
     style="padding: var(--wa-space-m); min-width: 200px"
