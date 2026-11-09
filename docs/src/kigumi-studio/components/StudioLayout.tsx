@@ -9,7 +9,7 @@ import { StudioConsole } from './console/StudioConsole';
 import { hasThemeAgentAccess } from '../theme-agent/access';
 import './StudioLayout.css';
 
-// Its own chunk: only fetched when the access cookie is present.
+// Its own chunk: only fetched when the Theme Agent is first opened.
 const ThemeAgentSidebar = lazy(() =>
   import('./theme-agent/ThemeAgentSidebar').then((module) => ({
     default: module.ThemeAgentSidebar,
@@ -22,9 +22,7 @@ export function StudioLayout() {
   // as it is now.
   const [themeCSSKey, setThemeCSSKey] = useState(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [themeAgentAvailable] = useState(() =>
-    hasThemeAgentAccess(document.cookie)
-  );
+  const [accessCookie] = useState(() => hasThemeAgentAccess(document.cookie));
   const [themeAgentOpen, setThemeAgentOpen] = useState(false);
   // Mounted on first open and kept, so closing keeps the conversation.
   const [themeAgentMounted, setThemeAgentMounted] = useState(false);
@@ -52,32 +50,30 @@ export function StudioLayout() {
           <StudioPreview />
           <StudioConsole />
         </div>
-        {/* The panel and its toggle load with Studio; the chat inside
-            loads on first open. */}
-        {themeAgentAvailable && (
-          <div
-            className={clsx(
-              'theme-agent-panel',
-              !themeAgentOpen && 'theme-agent-panel--collapsed'
-            )}
-          >
-            <PanelToggle
-              side="end"
-              open={themeAgentOpen}
-              icon="robot"
-              label="Theme Agent"
-              onToggle={toggleThemeAgent}
-            />
-            {themeAgentMounted && (
-              <Suspense fallback={null}>
-                <ThemeAgentSidebar
-                  open={themeAgentOpen}
-                  accessCookie={themeAgentAvailable}
-                />
-              </Suspense>
-            )}
-          </div>
-        )}
+        {/* The panel and its toggle load with Studio, for every visitor;
+            what is inside loads on first open. */}
+        <div
+          className={clsx(
+            'theme-agent-panel',
+            !themeAgentOpen && 'theme-agent-panel--collapsed'
+          )}
+        >
+          <PanelToggle
+            side="end"
+            open={themeAgentOpen}
+            icon="robot"
+            label="Theme Agent"
+            onToggle={toggleThemeAgent}
+          />
+          {themeAgentMounted && (
+            <Suspense fallback={null}>
+              <ThemeAgentSidebar
+                open={themeAgentOpen}
+                accessCookie={accessCookie}
+              />
+            </Suspense>
+          )}
+        </div>
       </div>
       <ThemeCSSDialog
         key={themeCSSKey}

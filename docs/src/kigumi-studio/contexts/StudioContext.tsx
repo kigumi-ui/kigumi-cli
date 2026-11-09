@@ -20,6 +20,7 @@ import {
   type LockedValues,
 } from '../lib/locks';
 import { hasThemeAgentAccess } from '../theme-agent/access';
+import { loadOwnKey } from '../theme-agent/own-key';
 import {
   DEFAULT_VALUES,
   type ThemeMode,
@@ -80,11 +81,13 @@ interface StudioContextType {
   lockedValues: LockedValues;
   setLocked: (change: LockedValues, locked: boolean) => void;
   /**
-   * Whether locks apply: only with the Theme Agent's access cookie. Without
-   * it there is no switch to unlock with, so a stored lock must not leave a
-   * value disabled.
+   * Whether locks apply: only with a way to run the Theme Agent, the access
+   * cookie or an own key. Without one there is no switch to unlock with, so
+   * a stored lock must not leave a value disabled.
    */
   locksAvailable: boolean;
+  /** Tell Studio an own key was saved or removed; it decides `locksAvailable`. */
+  setOwnKeySaved: (saved: boolean) => void;
   importValues: (
     imported: Record<string, { light?: string; dark?: string }>
   ) => void;
@@ -228,7 +231,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       listeners.delete(listener);
     };
   }, []);
-  const [locksAvailable] = useState(() => hasThemeAgentAccess(document.cookie));
+  const [accessCookie] = useState(() => hasThemeAgentAccess(document.cookie));
+  const [ownKeySaved, setOwnKeySaved] = useState(() => loadOwnKey() !== null);
+  const locksAvailable = accessCookie || ownKeySaved;
   const isFirstRender = useRef(true);
 
   const setLocked = useCallback((change: LockedValues, locked: boolean) => {
@@ -438,6 +443,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       lockedValues,
       setLocked,
       locksAvailable,
+      setOwnKeySaved,
       setProperty,
       setEditMode,
       setPreviewMode,
