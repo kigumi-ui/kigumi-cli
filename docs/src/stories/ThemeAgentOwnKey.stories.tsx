@@ -4,6 +4,7 @@ import { APICallError, simulateReadableStream, type UIMessageChunk } from 'ai';
 import { MockLanguageModelV4 } from 'ai/test';
 import { expect, spyOn, userEvent, waitFor, within } from 'storybook/test';
 import { Button } from '@/components/ui';
+import { PropertyRow } from '@/kigumi-studio/components/editor/PropertyRow';
 import type { ThemeAgentTransport } from '@/kigumi-studio/components/theme-agent/ThemeAgentChat';
 import { ThemeAgentSidebar } from '@/kigumi-studio/components/theme-agent/ThemeAgentSidebar';
 import {
@@ -17,6 +18,7 @@ import {
 import { removeOwnKey } from '@/kigumi-studio/theme-agent/own-key';
 import { clearConversation } from '@/kigumi-studio/theme-agent/stored-conversation';
 import type { ThemeProposalInput } from '@/kigumi-studio/theme-agent/proposal';
+import { PROPERTIES_BY_VAR } from '@/kigumi-studio/lib/property-definitions';
 
 // The Theme Agent on an own key, in a real browser: the cog, the settings
 // dialog, the key kept in the tab, and an answer from the answer loop
@@ -766,6 +768,147 @@ export const RemovingKeyEndsConversation: Story = {
     expect(closedSessions).toHaveLength(0);
     await send(canvasElement, 'Teal please');
     await canvas.findByText(HOSTED_ANSWER);
+  },
+};
+
+const BRAND_PROPERTY = PROPERTIES_BY_VAR.get('--wa-color-brand');
+
+/** The Styles row of the brand colour, with its "Lock value" switch. */
+function BrandRow() {
+  if (!BRAND_PROPERTY) throw new Error('brand property not found');
+  return <PropertyRow property={BRAND_PROPERTY} />;
+}
+
+/** The panel's empty state, or `null` once the chat replaced it. */
+function emptyState(canvasElement: HTMLElement): HTMLElement | null {
+  return canvasElement.querySelector('.theme-agent__empty-state');
+}
+
+/** Whether the brand row offers its "Lock value" switch. */
+function lockSwitchShown(canvasElement: HTMLElement): boolean {
+  return within(canvasElement).queryByText('Lock value') !== null;
+}
+
+/**
+ * A visitor without the cookie and without an own key: the panel explains
+ * the Theme Agent and offers to add a key, with no message field and no
+ * "New chat", the cog at the right end of the header, and no lock switches,
+ * since nothing could run.
+ */
+export const EmptyStateWithoutAccess: Story = {
+  args: { accessCookie: false },
+  decorators: [
+    (Story) => (
+      <>
+        <BrandRow />
+        <Story />
+      </>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const empty = await waitFor(() => {
+      const found = emptyState(canvasElement);
+      if (!found) throw new Error('empty state not shown');
+      return found;
+    });
+    expect(empty.textContent).toContain('Describe the theme you want');
+    expect(empty.textContent).toContain(
+      'which stays in this browser and goes only to Anthropic'
+    );
+    expect(within(empty).getByText('Add your API key')).toBeInTheDocument();
+    expect(
+      canvasElement.querySelector('.theme-agent__composer')
+    ).not.toBeInTheDocument();
+    expect(canvas.queryByText('New chat')).not.toBeInTheDocument();
+    expect(lockSwitchShown(canvasElement)).toBe(false);
+
+    // The cog is the header's last control, flush with its end.
+    const header = canvasElement.querySelector('.studio-panel-header');
+    if (!header) throw new Error('header not found');
+    const cog = settingsButton(canvasElement);
+    expect(header.querySelectorAll('wa-button')).toHaveLength(1);
+    expect(
+      header.getBoundingClientRect().right - cog.getBoundingClientRect().right
+    ).toBeLessThan(parseFloat(getComputedStyle(header).paddingInlineEnd) + 1);
+
+    // The demo video's place is there, empty, and takes no room.
+    const demo = empty.querySelector('.theme-agent__demo');
+    if (!demo) throw new Error('demo video place not found');
+    expect(demo.childNodes).toHaveLength(0);
+    expect(getComputedStyle(demo).display).toBe('none');
+  },
+};
+
+/**
+ * Saving a key from the empty state shows the chat right away, focus in its
+ * message field, the cog where it was, the lock switches, and an answer
+ * that is applied.
+ */
+export const UnlockFromEmptyState: Story = {
+  args: { accessCookie: false },
+  decorators: EmptyStateWithoutAccess.decorators,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const brand = canvas.getByLabelText('Brand colour');
+    const cogRight =
+      settingsButton(canvasElement).getBoundingClientRect().right;
+
+    const dialog = await openSettings(
+      canvasElement,
+      await canvas.findByText('Add your API key')
+    );
+    await enterKey(dialog, PLACEHOLDER_KEY);
+    await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+    expect(keptInTab(PLACEHOLDER_KEY)).toBe(true);
+
+    const field = await waitFor(() => messageField(canvasElement));
+    expect(emptyState(canvasElement)).not.toBeInTheDocument();
+    expect(canvas.getByText('New chat')).toBeInTheDocument();
+    await waitFor(() =>
+      expect((field.getRootNode() as ShadowRoot).activeElement).toBe(field)
+    );
+    expect(settingsButton(canvasElement).getBoundingClientRect().right).toBe(
+      cogRight
+    );
+    expect(lockSwitchShown(canvasElement)).toBe(true);
+
+    await userEvent.keyboard('Make it warmer{Enter}');
+    await canvas.findByText('Applied to the theme');
+    expect(brand.textContent).toBe(TERRACOTTA);
+  },
+};
+
+/**
+ * Without the cookie, Remove key ends the conversation and brings back the
+ * empty state, and the lock switches go with the chat.
+ */
+export const RemoveKeyBringsBackEmptyState: Story = {
+  args: { accessCookie: false },
+  decorators: EmptyStateWithoutAccess.decorators,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await saveKey(canvasElement, PLACEHOLDER_KEY);
+    await waitFor(() => messageField(canvasElement));
+    expect(lockSwitchShown(canvasElement)).toBe(true);
+    await send(canvasElement, 'Make it warmer');
+    await canvas.findByText(WARMER);
+
+    const dialog = await openSettings(canvasElement);
+    await userEvent.click(within(dialog).getByText('Remove key'));
+    await waitFor(() => expect(dialog.hasAttribute('open')).toBe(false));
+
+    await waitFor(() => expect(emptyState(canvasElement)).toBeInTheDocument());
+    expect(
+      canvasElement.querySelector('.theme-agent__composer')
+    ).not.toBeInTheDocument();
+    expect(canvas.queryByText('New chat')).not.toBeInTheDocument();
+    expect(lockSwitchShown(canvasElement)).toBe(false);
+    expect(keptInTab(PLACEHOLDER_KEY)).toBe(false);
+    // The conversation ended; no other starts until a key is saved again.
+    expect(announcements(canvasElement)).toContain(
+      'The key was removed, so the conversation ended.'
+    );
   },
 };
 

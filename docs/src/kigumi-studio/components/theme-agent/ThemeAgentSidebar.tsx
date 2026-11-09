@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useId,
@@ -18,14 +20,21 @@ import {
   saveOwnKey,
   type SavedOwnKey,
 } from '../../theme-agent/own-key';
-import {
-  ThemeAgentChat,
-  type ConversationStart,
-  type ThemeAgentChatHandle,
-  type ThemeAgentTransport,
+import type {
+  ConversationStart,
+  ThemeAgentChatHandle,
+  ThemeAgentTransport,
 } from './ThemeAgentChat';
 import { OwnKeySettingsDialog } from './OwnKeySettingsDialog';
 import './ThemeAgentSidebar.css';
+
+// Its own chunk, with the AI SDK: the empty state needs neither, so a
+// visitor without the cookie and without an own key never loads them.
+const ThemeAgentChat = lazy(() =>
+  import('./ThemeAgentChat').then((module) => ({
+    default: module.ThemeAgentChat,
+  }))
+);
 
 interface ThemeAgentSidebarProps {
   open: boolean;
@@ -49,8 +58,10 @@ type AccessState = 'own-key' | 'hosted' | 'locked';
 
 /**
  * The Theme Agent chat, in a sidebar to the right of the preview. Loaded only
- * on first open (see StudioLayout), so visitors who never open it never
- * download the AI SDK. Stays mounted while closed to keep the conversation.
+ * on first open (see StudioLayout), and the chat inside only with the
+ * cookie or an own key: without either the panel shows an empty state that
+ * offers to add a key, and no AI SDK is downloaded. Stays mounted while
+ * closed to keep the conversation.
  *
  * Owns the conversation's lifecycle: "New chat" and a replaced theme
  * (a preset, Default, an import) end it and mount a fresh chat; the draft
@@ -64,7 +75,7 @@ export function ThemeAgentSidebar({
   transport,
   ownKeyModel,
 }: ThemeAgentSidebarProps) {
-  const { onThemeReplaced } = useThemeAgentStudio();
+  const { onThemeReplaced, setOwnKeySaved } = useThemeAgentStudio();
   const [conversation, setConversation] = useState<{
     key: number;
     startedBy?: ConversationStart;
@@ -80,6 +91,8 @@ export function ThemeAgentSidebar({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsId = useId();
   const cog = useRef<ButtonRef>(null);
+  // The button that opened the settings, where focus goes back on close.
+  const settingsOpener = useRef<HTMLElement | null>(null);
 
   const access: AccessState = ownKey
     ? 'own-key'
@@ -132,27 +145,58 @@ export function ThemeAgentSidebar({
    * across, so the conversation ends as with "New chat", and the fresh chat
    * takes the other transport.
    */
-  const restartOnAccessChange = () => {
+  const restartOnAccessChange = (
+    startedBy?: ConversationStart,
+    endedNotice = 'The Theme Agent now runs elsewhere, so a new conversation started.'
+  ) => {
     const ended = chatRef.current?.end() ?? false;
-    setConversation((current) => ({ key: current.key + 1 }));
-    if (ended) {
-      setNotice(
-        'The Theme Agent now runs elsewhere, so a new conversation started.'
-      );
-    }
+    setConversation((current) => ({ key: current.key + 1, startedBy }));
+    if (ended) setNotice(endedNotice);
   };
 
   const saveKey = (key: SavedOwnKey) => {
     if (!saveOwnKey(key)) return false;
     setOwnKey(key);
-    if (ownKey === null) restartOnAccessChange();
+    setOwnKeySaved(true);
+    // From the empty state, the chat that replaces it takes focus once it
+    // has loaded, as a new chat does.
+    if (ownKey === null)
+      restartOnAccessChange(accessCookie ? undefined : 'new');
     return true;
   };
 
   const removeKey = () => {
     removeOwnKey();
     setOwnKey(null);
-    restartOnAccessChange();
+    setOwnKeySaved(false);
+    restartOnAccessChange(
+      undefined,
+      accessCookie
+        ? undefined
+        : 'The key was removed, so the conversation ended.'
+    );
+  };
+
+  /** Open the settings from `opener`, where focus goes back; the cog by default. */
+  const openSettings = (opener?: HTMLElement) => {
+    settingsOpener.current = opener ?? null;
+    setSettingsOpen(true);
+  };
+
+  /**
+   * Back to the button that opened the settings. Saving a key from the empty
+   * state removes that button: focus goes to the chat's message field then.
+   */
+  const settingsClosed = () => {
+    const opener = settingsOpener.current;
+    settingsOpener.current = null;
+    if (opener?.isConnected) {
+      opener.focus({ preventScroll: true });
+    } else if (opener) {
+      chatRef.current?.focus();
+    } else {
+      cog.current?.focus({ preventScroll: true });
+    }
   };
 
   return (
@@ -184,7 +228,7 @@ export function ThemeAgentSidebar({
             size="small"
             appearance="plain"
             variant="neutral"
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => openSettings()}
           >
             {/* The icon names the button: an aria-label on wa-button's host
                 is not exposed to the accessibility tree. */}
@@ -197,23 +241,23 @@ export function ThemeAgentSidebar({
         {notice}
       </div>
       {access === 'locked' ? (
-        <p className="theme-agent__empty">
-          Add your Anthropic API key in the settings to use the Theme Agent.
-        </p>
+        <ThemeAgentEmptyState onAddKey={openSettings} />
       ) : (
-        <ThemeAgentChat
-          key={conversation.key}
-          ref={chatRef}
-          path={access === 'own-key' ? 'own-key' : 'hosted'}
-          startedBy={conversation.startedBy}
-          draft={draft}
-          onDraftChange={setDraft}
-          onActivity={() => setNotice('')}
-          transport={access === 'own-key' ? ownKeyChatTransport : transport}
-          onOpenSettings={
-            access === 'own-key' ? () => setSettingsOpen(true) : undefined
-          }
-        />
+        <Suspense fallback={null}>
+          <ThemeAgentChat
+            key={conversation.key}
+            ref={chatRef}
+            path={access === 'own-key' ? 'own-key' : 'hosted'}
+            startedBy={conversation.startedBy}
+            draft={draft}
+            onDraftChange={setDraft}
+            onActivity={() => setNotice('')}
+            transport={access === 'own-key' ? ownKeyChatTransport : transport}
+            onOpenSettings={
+              access === 'own-key' ? () => openSettings() : undefined
+            }
+          />
+        </Suspense>
       )}
       <OwnKeySettingsDialog
         open={settingsOpen}
@@ -221,8 +265,42 @@ export function ThemeAgentSidebar({
         onSave={saveKey}
         onRemove={removeKey}
         onClose={() => setSettingsOpen(false)}
-        onClosed={() => cog.current?.focus({ preventScroll: true })}
+        onClosed={settingsClosed}
       />
     </aside>
+  );
+}
+
+/**
+ * The panel without the cookie and without an own key: what the Theme Agent
+ * does, that the key stays in the browser, and one way in, the settings.
+ */
+function ThemeAgentEmptyState({
+  onAddKey,
+}: {
+  onAddKey: (opener: HTMLElement) => void;
+}) {
+  return (
+    <div className="theme-agent__empty-state wa-stack">
+      {/* The demo video's place; empty until it is recorded, and an empty
+          one takes no room. */}
+      <div className="theme-agent__demo" />
+      <p className="theme-agent__empty">
+        Describe the theme you want, and the Theme Agent sets its colors, fonts
+        and shadows in Studio. It checks contrast on every answer and leaves the
+        values you lock alone.
+      </p>
+      <p className="theme-agent__empty">
+        It runs on your own Anthropic API key, which stays in this browser and
+        goes only to Anthropic.
+      </p>
+      <Button
+        variant="brand"
+        onClick={(event) => onAddKey(event.currentTarget)}
+      >
+        <Icon slot="start" name="key" />
+        Add your API key
+      </Button>
+    </div>
   );
 }
