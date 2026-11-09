@@ -28,12 +28,11 @@ import { getOutput } from '../../output/index.js';
 import { CheckRunner, PackageJsonExistsCheck } from '../../checks/index.js';
 import { handleError } from '../../errors/index.js';
 import {
-  kigumiConfigSchema,
   validators,
   type InitOptions,
   type KigumiConfig,
 } from '../../schemas/index.js';
-import { DEFAULT_CONFIG } from '../../schemas/config.js';
+import { safeMergeWithDefaults } from '../../schemas/config.js';
 import { handleExistingConfig } from './existing-config.js';
 import {
   buildConfigInteractive,
@@ -145,6 +144,12 @@ interface InitContext {
   output: import('../../output/types.js').OutputInterface;
   isNonInteractive: boolean;
   existingConfig: import('../../schemas/index.js').KigumiConfig | null;
+  /**
+   * The valid existing config exactly as it is on disk. Its keys survive
+   * re-init unless init sets them, including legacy ones the schema strips
+   * (e.g. `aliases` in the Starters), issue #269.
+   */
+  existingOnDisk: Record<string, unknown> | null;
   existingAction: import('./existing-config.js').ExistingConfigAction | null;
   projectInfo: Awaited<ReturnType<typeof getProjectInfo>>;
   previousTier: Tier;
@@ -284,24 +289,24 @@ export async function validateAndPrepare(
   const initialTier = await detectTier(cwd);
 
   // 6. Check for existing config. Init reads the raw on-disk payload and runs
-  //    safeParse with defaults pre-applied so that pre-cluster-A configs (no
-  //    utilsDir / stylesDir keys) keep working. If validation still fails,
+  //    it through the same parse as getConfig: defaults pre-applied, so
+  //    pre-cluster-A configs (no utilsDir / stylesDir keys) keep working, and
+  //    legacy keys stripped, so a Starter's `aliases` does not make the config
+  //    invalid (issue #269). If validation still fails,
   //    init warns and overwrites instead of bubbling ConfigInvalidError, since
   //    "fix or overwrite my broken config" is exactly the user intent for
   //    `kigumi init`.
   const loadedExisting = loadConfig(cwd);
   let existingConfig: KigumiConfig | null = null;
+  let existingOnDisk: Record<string, unknown> | null = null;
   if (loadedExisting !== null) {
     const onDisk = (loadedExisting.config ?? {}) as Partial<KigumiConfig>;
-    const merged = {
-      ...DEFAULT_CONFIG,
-      ...onDisk,
-      theme: { ...DEFAULT_CONFIG.theme, ...onDisk.theme },
-      webAwesome: { ...DEFAULT_CONFIG.webAwesome, ...onDisk.webAwesome },
-    };
-    const parsed = kigumiConfigSchema.safeParse(merged);
+    const parsed = safeMergeWithDefaults(onDisk);
     if (parsed.success) {
       existingConfig = parsed.data;
+      existingOnDisk = isPlainObject(loadedExisting.config)
+        ? loadedExisting.config
+        : null;
     } else {
       const issueSummary = parsed.error.issues
         .slice(0, 3)
@@ -335,11 +340,16 @@ export async function validateAndPrepare(
     output,
     isNonInteractive,
     existingConfig,
+    existingOnDisk,
     existingAction,
     projectInfo,
     previousTier,
     initialTier,
   };
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 // =============================================================================
@@ -469,12 +479,15 @@ async function saveAndGenerate(
   // Pin the current CLI version
   config.kigumiVersion = CLI_VERSION;
 
-  // Init bypasses the saveConfig patch primitive: this command's invariant is
-  // "create a fresh kigumi.config.json from scratch", which is exactly the
-  // shape the patch primitive cannot satisfy (no on-disk file to patch).
-  await fs.writeJson(path.join(cwd, 'kigumi.config.json'), config, {
-    spaces: 2,
-  });
+  // Init bypasses the saveConfig patch primitive: on a first run there is no
+  // on-disk file to patch, and init always writes kigumi.config.json, even
+  // when the existing config came from another search place. Keys of a valid
+  // existing config that init does not set itself are kept.
+  await fs.writeJson(
+    path.join(cwd, 'kigumi.config.json'),
+    { ...context.existingOnDisk, ...config },
+    { spaces: 2 }
+  );
   output.success('Configuration saved');
 
   await generateProjectFiles({

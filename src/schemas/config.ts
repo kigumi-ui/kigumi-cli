@@ -199,7 +199,7 @@ function stripLegacyKeys(
 }
 
 /**
- * Merge configuration with defaults and validate strictly
+ * Merge configuration with defaults and validate strictly, without throwing
  *
  * Defaults are spread first so that on-disk configs can omit fields like
  * `utilsDir` and `stylesDir` and still produce a complete `KigumiConfig`.
@@ -209,10 +209,9 @@ function stripLegacyKeys(
  * (e.g. typos like `framwork`).
  *
  * @param config - User configuration (may be partial)
- * @returns Complete configuration with defaults applied
- * @throws ConfigInvalidError if validation fails
+ * @returns The schema's parse result: the complete configuration, or the issues
  */
-export function mergeWithDefaults(config: Partial<KigumiConfig>): KigumiConfig {
+export function safeMergeWithDefaults(config: Partial<KigumiConfig>) {
   const stripped = stripLegacyKeys(
     config as Partial<KigumiConfig> & Record<string, unknown>
   );
@@ -229,7 +228,20 @@ export function mergeWithDefaults(config: Partial<KigumiConfig>): KigumiConfig {
     },
   };
 
-  const result = kigumiConfigSchema.safeParse(merged);
+  return kigumiConfigSchema.safeParse(merged);
+}
+
+/**
+ * Merge configuration with defaults and validate strictly
+ *
+ * Same rules as `safeMergeWithDefaults`.
+ *
+ * @param config - User configuration (may be partial)
+ * @returns Complete configuration with defaults applied
+ * @throws ConfigInvalidError if validation fails
+ */
+export function mergeWithDefaults(config: Partial<KigumiConfig>): KigumiConfig {
+  const result = safeMergeWithDefaults(config);
   if (!result.success) {
     const errors = result.error.issues.map((err: ZodIssue) => {
       const issuePath = err.path.join('.');
