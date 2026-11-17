@@ -216,7 +216,7 @@ export function ThemeCSSDialog({ open, onClose }: ThemeCSSDialogProps) {
           }}
         />
 
-        {/* Only with the Theme Agent's access cookie; keeps overrides.css
+        {/* Only with the access cookie or an own key; keeps overrides.css
             from the Theme Agent and from edits here. */}
         <LockSwitch
           lock={customCSSLock}

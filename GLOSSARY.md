@@ -136,7 +136,8 @@ _Avoid_: preset agent, theme generator
 An Anthropic API key the user enters in the Theme Agent's settings. With one,
 the Theme Agent runs in the browser, calls Anthropic directly and bills that
 key; the key goes to no one but Anthropic. Without one, only the access
-cookie opens the Theme Agent, which then runs on Kigumi's trigger.dev task.
+cookie lets the Theme Agent answer, then on Kigumi's trigger.dev task; with
+neither, its panel offers to add a key.
 _Avoid_: BYOK, user key, API token
 
 **Conversation**:

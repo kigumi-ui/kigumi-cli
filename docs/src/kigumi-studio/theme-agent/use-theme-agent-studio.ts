@@ -10,7 +10,8 @@ import { customThemeOf, type CustomTheme } from './custom-theme';
  * "Unlock and apply" and for Undo locking again what that unlocked.
  * `lockedValues` is the render-time value, for what the chat shows;
  * `onThemeReplaced` tells when the whole theme is replaced, which ends the
- * conversation.
+ * conversation. `setOwnKeySaved` tells Studio an own key was saved or
+ * removed, so the lock switches follow it.
  */
 export function useThemeAgentStudio() {
   const {
@@ -23,6 +24,7 @@ export function useThemeAgentStudio() {
     setCustomCSS,
     setLocked,
     onThemeReplaced,
+    setOwnKeySaved,
   } = useStudio();
 
   // Read at event time (send, answer finished), not at render time.
@@ -77,5 +79,6 @@ export function useThemeAgentStudio() {
     applyTheme,
     setLocked,
     onThemeReplaced,
+    setOwnKeySaved,
   };
 }

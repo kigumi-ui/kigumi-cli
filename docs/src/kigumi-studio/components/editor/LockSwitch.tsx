@@ -13,8 +13,8 @@ interface LockSwitchProps {
 /**
  * "Lock value": keeps one value from the Theme Agent; its control is
  * disabled while locked. A value set per mode locks in the edited mode, and
- * the label says which. Only there with the Theme Agent's access cookie,
- * since locks mean nothing to anyone else.
+ * the label says which. Only there with a way to run the Theme Agent, the
+ * access cookie or an own key, since locks mean nothing to anyone else.
  */
 export function LockSwitch({ lock, context, label }: LockSwitchProps) {
   if (!lock.available) return null;

@@ -204,9 +204,12 @@ function messageField(canvasElement: HTMLElement): HTMLTextAreaElement {
   return textarea;
 }
 
-/** Type a message and send it with Enter, as the user does. */
+/**
+ * Type a message and send it with Enter, as the user does. The chat loads
+ * after the panel, in its own chunk: wait for its field.
+ */
 async function send(canvasElement: HTMLElement, text: string) {
-  const field = messageField(canvasElement);
+  const field = await waitFor(() => messageField(canvasElement));
   await waitFor(() => expect(field.isConnected).toBe(true));
   field.focus();
   await userEvent.keyboard(`${text}{Enter}`);
