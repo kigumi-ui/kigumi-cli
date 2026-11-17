@@ -24,6 +24,17 @@
   color: var(--wa-color-text-quiet);
 }
 
+/* The panel without the cookie and without an own key. */
+.theme-agent__empty-state {
+  padding: var(--wa-space-m);
+  overflow-y: auto;
+}
+
+/* The demo video's place: no room, and no gap, while it holds nothing. */
+.theme-agent__demo:empty {
+  display: none;
+}
+
 /* Surface, border and radius come from Card's appearance. */
 .theme-agent__message {
   --spacing: var(--wa-space-s);

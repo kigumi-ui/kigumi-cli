@@ -11,7 +11,7 @@ import {
 
 /** One value's lock against the Theme Agent, for its row in the sidebar. */
 export interface ValueLock {
-  /** Only with the Theme Agent's access cookie. */
+  /** Only with the access cookie or an own key (`locksAvailable`). */
   available: boolean;
   locked: boolean;
   /** The modes the switch locks: the edited one for a value set per mode. */
