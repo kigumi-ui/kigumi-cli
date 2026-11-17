@@ -329,8 +329,13 @@ describe('kigumi init', () => {
       // The Starters still carry `aliases`, a key older CLIs wrote.
       const config = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
       const aliases = { '@/components': './src/components' };
+      // Field order as the Starters have it, not the schema's.
       const installedComponents = {
-        Button: { source: 'builtin', kigumiVersion: '1.1.0' },
+        Button: {
+          installedAt: '2026-04-03T21:34:11.993Z',
+          source: 'builtin',
+          kigumiVersion: '1.1.0',
+        },
       };
       await writeFile(
         testDir,
@@ -342,7 +347,10 @@ describe('kigumi init', () => {
 
       expect(result.exitCode).toBe(0);
       const after = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
-      expect(after.installedComponents).toEqual(installedComponents);
+      // Compared as text: kept as written, not reordered by the schema.
+      expect(JSON.stringify(after.installedComponents)).toBe(
+        JSON.stringify(installedComponents)
+      );
       expect(after.aliases).toEqual(aliases);
     });
 

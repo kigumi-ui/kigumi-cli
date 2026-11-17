@@ -124,6 +124,16 @@ function ensureBoolean(value: unknown): boolean {
  * NOTE: Tier is now detected from .env, not stored in config
  */
 /**
+ * Config keys that other commands (add, theme, registry) manage and init
+ * carries over from an existing config instead of setting.
+ */
+export const PERSISTENT_CONFIG_KEYS = [
+  'installedComponents',
+  'registries',
+  'installedThemes',
+] as const satisfies readonly (keyof KigumiConfig)[];
+
+/**
  * Copy persistent fields from existing config to new config.
  * These fields are managed by other commands (add, theme) and must survive re-init.
  */

@@ -37,6 +37,7 @@ import { handleExistingConfig } from './existing-config.js';
 import {
   buildConfigInteractive,
   buildConfigNonInteractive,
+  PERSISTENT_CONFIG_KEYS,
 } from './config-builder.js';
 import {
   installDependencies,
@@ -482,10 +483,17 @@ async function saveAndGenerate(
   // Init bypasses the saveConfig patch primitive: on a first run there is no
   // on-disk file to patch, and init always writes kigumi.config.json, even
   // when the existing config came from another search place. Keys of a valid
-  // existing config that init does not set itself are kept.
+  // existing config that init does not set itself are kept as written: the
+  // schema reorders and strips the fields of the persistent keys it parses.
+  const onDisk = context.existingOnDisk ?? {};
+  const keptAsWritten = PERSISTENT_CONFIG_KEYS.filter((key) => key in onDisk);
   await fs.writeJson(
     path.join(cwd, 'kigumi.config.json'),
-    { ...context.existingOnDisk, ...config },
+    {
+      ...onDisk,
+      ...config,
+      ...Object.fromEntries(keptAsWritten.map((key) => [key, onDisk[key]])),
+    },
     { spaces: 2 }
   );
   output.success('Configuration saved');
