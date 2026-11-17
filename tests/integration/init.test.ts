@@ -322,6 +322,38 @@ describe('kigumi init', () => {
       expect(result.stdout).toContain('Existing theme.css found');
     });
 
+    it('keeps installedComponents and a legacy aliases key on re-init (issue #269)', async () => {
+      testDir = await createTempProject('react-vite');
+      await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      // The Starters still carry `aliases`, a key older CLIs wrote.
+      const config = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
+      const aliases = { '@/components': './src/components' };
+      // Field order as the Starters have it, not the schema's.
+      const installedComponents = {
+        Button: {
+          installedAt: '2026-04-03T21:34:11.993Z',
+          source: 'builtin',
+          kigumiVersion: '1.1.0',
+        },
+      };
+      await writeFile(
+        testDir,
+        'kigumi.config.json',
+        JSON.stringify({ ...config, aliases, installedComponents })
+      );
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      expect(result.exitCode).toBe(0);
+      const after = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
+      // Compared as text: kept as written, not reordered by the schema.
+      expect(JSON.stringify(after.installedComponents)).toBe(
+        JSON.stringify(installedComponents)
+      );
+      expect(after.aliases).toEqual(aliases);
+    });
+
     it('writes overrides.css, and keeps it byte for byte on re-init', async () => {
       testDir = await createTempProject('react-vite');
 
