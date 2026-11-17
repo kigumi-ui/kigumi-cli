@@ -367,12 +367,15 @@ import { Button, Icon, Tooltip } from '@/components/ui';
 
 ## F: Popover
 
-**Components:** `npx kigumi add popover button input`
+**Components:** `npx kigumi add popover button icon input`
+
+Popover has no trigger slot. Its children are the panel content. Give the trigger an `id` outside the Popover, in the same document or shadow root, and pass that id to `for`. A click on that element opens and closes the Popover. Escape closes it and returns focus to the trigger.
 
 ### Key Props
 
 | Prop            | Type    | Default | Description                                                                                                                                            |
 | --------------- | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `for`           | string  | -       | `id` of the trigger element. Required: without it nothing opens the Popover except its `open` prop or `show()`                                         |
 | `placement`     | string  | `top`   | Position: `top`, `top-start`, `top-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`, `right`, `right-start`, `right-end` |
 | `without-arrow` | boolean | `false` | Hides the arrow pointing to the trigger                                                                                                                |
 | `distance`      | number  | `8`     | Distance (px) from the trigger element                                                                                                                 |
@@ -383,38 +386,47 @@ import { Button, Icon, Tooltip } from '@/components/ui';
 ```tsx
 import { Button, Icon, Input, Popover } from '@/components/ui';
 
-<Popover placement="bottom-start">
-  <Button slot="trigger" variant="neutral">
+<>
+  <Button id="filters-trigger" variant="neutral">
     <Icon slot="start" name="filter" />
     Filters
   </Button>
-  <div
-    className="wa-stack wa-gap-m"
-    style={{ padding: 'var(--wa-space-m)', minWidth: '250px' }}
-  >
-    <Input label="Search" type="search" />
-    <Button variant="brand" size="small" style={{ width: '100%' }}>
-      Apply
-    </Button>
-  </div>
-</Popover>;
+  <Popover for="filters-trigger" placement="bottom-start">
+    <div
+      className="wa-stack wa-gap-m"
+      style={{ padding: 'var(--wa-space-m)', minWidth: '250px' }}
+    >
+      <Input label="Search" type="search" />
+      <Button variant="brand" size="small" style={{ width: '100%' }}>
+        Apply
+      </Button>
+    </div>
+  </Popover>
+</>;
 ```
 
 ### Positioned Popover with Distance/Skidding
 
 ```tsx
-<Popover placement="right-start" distance={12} skidding={-4}>
-  <Button slot="trigger" variant="neutral">
+<>
+  <Button id="settings-trigger" variant="neutral">
     Settings
   </Button>
-  <div
-    className="wa-stack wa-gap-s"
-    style={{ padding: 'var(--wa-space-m)', minWidth: '200px' }}
+  <Popover
+    for="settings-trigger"
+    placement="right-start"
+    distance={12}
+    skidding={-4}
   >
-    <Input label="Rows per page" type="number" />
-    <Input label="Default sort" />
-  </div>
-</Popover>
+    <div
+      className="wa-stack wa-gap-s"
+      style={{ padding: 'var(--wa-space-m)', minWidth: '200px' }}
+    >
+      <Input label="Rows per page" type="number" />
+      <Input label="Default sort" />
+    </div>
+  </Popover>
+</>
 ```
 
 ### Canceling Open (Popover-specific)
@@ -422,16 +434,19 @@ import { Button, Icon, Input, Popover } from '@/components/ui';
 Unlike Dialog and Drawer, Popover's `wa-show` event is cancelable. You can prevent it from opening:
 
 ```tsx
-<Popover
-  onShow={(e) => {
-    if (someCondition) {
-      e.preventDefault(); // Popover will NOT open
-    }
-  }}
->
-  <Button slot="trigger">Open</Button>
-  <div>Content</div>
-</Popover>
+<>
+  <Button id="guarded-trigger">Open</Button>
+  <Popover
+    for="guarded-trigger"
+    onShow={(e) => {
+      if (someCondition) {
+        e.preventDefault(); // Popover will NOT open
+      }
+    }}
+  >
+    <div>Content</div>
+  </Popover>
+</>
 ```
 
 ---
