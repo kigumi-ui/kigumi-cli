@@ -143,20 +143,19 @@ function preservePersistentFields(
 ): void {
   if (!existingConfig) return;
 
-  if (
-    existingConfig.installedComponents &&
-    Object.keys(existingConfig.installedComponents).length > 0
-  ) {
-    config.installedComponents = existingConfig.installedComponents;
+  for (const key of PERSISTENT_CONFIG_KEYS) {
+    copyIfNotEmpty(config, existingConfig, key);
   }
-  if (existingConfig.registries?.length) {
-    config.registries = existingConfig.registries;
-  }
-  if (
-    existingConfig.installedThemes &&
-    Object.keys(existingConfig.installedThemes).length > 0
-  ) {
-    config.installedThemes = existingConfig.installedThemes;
+}
+
+function copyIfNotEmpty<K extends (typeof PERSISTENT_CONFIG_KEYS)[number]>(
+  config: KigumiConfig,
+  existingConfig: KigumiConfig,
+  key: K
+): void {
+  const value = existingConfig[key];
+  if (value && Object.keys(value).length > 0) {
+    config[key] = value;
   }
 }
 
