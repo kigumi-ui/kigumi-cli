@@ -880,6 +880,18 @@ export const UnlockFromEmptyState: Story = {
 };
 
 /**
+ * Static snapshot of the empty state, for visual regression testing: the
+ * panel as a visitor without the cookie and without an own key first sees it.
+ */
+export const ChromaticOnly: Story = {
+  tags: ['!dev', '!autodocs'],
+  args: { accessCookie: false },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
+};
+
+/**
  * Without the cookie, Remove key ends the conversation and brings back the
  * empty state, and the lock switches go with the chat.
  */
