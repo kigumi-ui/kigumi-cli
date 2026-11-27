@@ -26,7 +26,7 @@ export function StudioHeader() {
           </span>
           <Badge pill>
             <Icon name="tag" />
-            v0.2.0
+            v0.3.0
           </Badge>
         </span>
       </div>

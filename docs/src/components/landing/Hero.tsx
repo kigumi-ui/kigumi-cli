@@ -35,7 +35,15 @@ export function Hero() {
             </h2>
             <div className="wa-cluster">
               <ButtonGroup>
-                <Button variant="brand" size="medium" href="#getting-started">
+                <Button
+                  variant="brand"
+                  size="medium"
+                  href={
+                    import.meta.env.DEV
+                      ? 'http://localhost:6006/?path=/docs/general-getting-started--docs'
+                      : 'https://docs.kigumi.style/?path=/docs/general-getting-started--docs'
+                  }
+                >
                   Get started
                 </Button>
                 <Button
@@ -44,7 +52,7 @@ export function Hero() {
                   size="medium"
                   href="/kigumi-studio"
                 >
-                  Customize theme
+                  Kigumi Studio
                 </Button>
               </ButtonGroup>
               <Button
