@@ -387,7 +387,7 @@ export const RejectsMalformedKey: Story = {
     await enterKey(dialog, 'sk-proj-placeholder');
 
     await within(dialog).findByText(
-      'An Anthropic API key starts with sk-ant-api.'
+      'This is too short for an Anthropic API key; check that you pasted all of it.'
     );
     expect(dialog.hasAttribute('open')).toBe(true);
     expect(keptInTab('sk-proj-placeholder')).toBe(false);

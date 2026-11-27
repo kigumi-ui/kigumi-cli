@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button/Button';
 import { Icon } from '@/components/ui/Icon/Icon';
 
-const BANNER_STORAGE_KEY = 'banner-20260911-dismissed';
+const BANNER_STORAGE_KEY = 'banner-20261127-dismissed';
 
 export const Banner = () => {
   const [isDismissed, setIsDismissed] = useState(() => {
@@ -26,16 +26,11 @@ export const Banner = () => {
     >
       <div className="banner__content wa-gap-s wa-align-items-center wa-justify-content-center">
         <span>
-          <strong>Kigumi CLI</strong> is now open source. Check out the{' '}
-          <a
-            href="https://github.com/kigumi-ui"
-            target="_blank"
-            className="wa-text-link"
-            rel="noopener noreferrer"
-          >
-            GitHub repository
-          </a>{' '}
-          to contribute.
+          <strong>Kigumi Studio 0.3.0</strong>: let the Theme Agent shape your
+          theme and catch contrast issues in the new accessibility devtools.{' '}
+          <a href="/kigumi-studio" className="wa-text-link">
+            Open Kigumi Studio
+          </a>
         </span>
       </div>
       <Button

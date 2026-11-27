@@ -10,9 +10,10 @@ import type { ThemeAgentTransport } from '../components/theme-agent/ThemeAgentCh
 
 const OWN_KEY_KEY = 'kigumi-studio-theme-agent-own-key';
 
-const KEY_PREFIX = 'sk-ant-api';
-// Anthropic's API keys are 108 characters today; the range leaves room for
-// a format change without letting a truncated paste through.
+// No prefix check: Anthropic has changed its key prefix before, and a check
+// on it would lock out every new key the day it changes again. Anthropic's
+// API keys are 108 characters today; the range leaves room for a format
+// change without letting a truncated paste through.
 const MIN_KEY_LENGTH = 90;
 const MAX_KEY_LENGTH = 250;
 
@@ -24,9 +25,6 @@ const MAX_KEY_LENGTH = 250;
 export function ownKeyProblem(value: string): string | undefined {
   const key = value.trim();
   if (!key) return 'Enter an Anthropic API key.';
-  if (!key.startsWith(KEY_PREFIX)) {
-    return `An Anthropic API key starts with ${KEY_PREFIX}.`;
-  }
   if (!/^[A-Za-z0-9_-]+$/.test(key)) {
     return 'An Anthropic API key holds only letters, digits, hyphens and underscores; check what you pasted.';
   }
